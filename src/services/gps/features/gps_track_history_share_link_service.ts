@@ -1,6 +1,6 @@
 // Axios
-import { apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -13,14 +13,14 @@ import {
   multi_select_optional,
   getAllEnums,
   nestedArrayOfObjectsOptional,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, NotificationType, TrackHistoryLinkStatus } from 'core/Enums';
+import { Status, NotificationType, TrackHistoryLinkStatus } from '../../../core/Enums';
 
 // Other Models
-import { MasterVehicle } from 'services/main/vehicle/master_vehicle_service';
+import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 
 // 2. URL and Endpoints

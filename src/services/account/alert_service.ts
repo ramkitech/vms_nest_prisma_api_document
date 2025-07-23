@@ -1,6 +1,6 @@
 // Axios
-import { apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiPost, apiPatch, apiDelete } from '../../core/apiCall';
+import { SBR, FBR } from '../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -12,14 +12,14 @@ import {
   multi_select_optional,
   enumArrayOptional,
   getAllEnums,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../zod_utils/zod_base_schema';
 
 // Other Models
-import { UserOrganisation } from 'services/main/users/user_organisation_service';
-import { User } from 'services/main/users/user_service';
-import { MasterDriver } from 'services/main/drivers/master_driver_service';
-import { MasterVehicle } from 'services/main/vehicle/master_vehicle_service';
+import { UserOrganisation } from '../../services/main/users/user_organisation_service';
+import { User } from '../../services/main/users/user_service';
+import { MasterDriver } from '../../services/main/drivers/master_driver_service';
+import { MasterVehicle } from '../../services/main/vehicle/master_vehicle_service';
 
 // Enums
 import {
@@ -29,7 +29,7 @@ import {
   YesNo,
   Status,
   Module,
-} from 'core/Enums';
+} from '../../core/Enums';
 
 // URL and Endpoints
 const URL = 'account/alerts';

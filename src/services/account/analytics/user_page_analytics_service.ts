@@ -1,11 +1,11 @@
 // Axios
-import { apiPost, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiPost, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
-import { stringMandatory, multi_select_optional } from 'zod/zod_utils';
-import { MongoBaseQuerySchema } from 'zod/zod_base_schema';
+import { stringMandatory, multi_select_optional } from '../../../zod_utils/zod_utils';
+import { MongoBaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // URL and Endpoints
 const URL = 'analytics/user_page_analytics';

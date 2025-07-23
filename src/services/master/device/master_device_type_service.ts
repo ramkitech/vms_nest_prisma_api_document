@@ -1,6 +1,6 @@
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -10,16 +10,16 @@ import {
   enumMandatory,
   single_select_mandatory,
   multi_select_optional,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status } from 'core/Enums';
+import { Status } from '../../../core/Enums';
 
 // Other Models
-import { MasterDeviceManufacturer } from 'services/master/device/master_device_manufacturer_service';
-import { MasterDeviceModel } from 'services/master/device/master_device_model_service';
-import { MasterDevice } from 'services/main/devices/master_device_service';
+import { MasterDeviceManufacturer } from '../../../services/master/device/master_device_manufacturer_service';
+import { MasterDeviceModel } from '../../../services/master/device/master_device_model_service';
+import { MasterDevice } from '../../../services/main/devices/master_device_service';
 
 const URL = 'master/device/type';
 

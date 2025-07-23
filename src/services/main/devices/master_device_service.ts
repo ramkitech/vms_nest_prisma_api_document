@@ -1,6 +1,6 @@
 // Imports
-import { apiGet, apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -12,8 +12,8 @@ import {
   enumMandatory,
   multi_select_optional,
   getAllEnums,
-} from 'zod/zod_utils';
-import { BaseQueryDTO, BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { BaseQueryDTO, BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
 import {
@@ -21,21 +21,21 @@ import {
   YesNo,
   GPSSource,
   DeviceStatus,
-} from 'core/Enums';
+} from '../../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from 'services/main/users/user_organisation_service';
-import { MasterVehicle } from 'services/main/vehicle/master_vehicle_service';
-import { MasterDeviceManufacturer } from 'services/master/device/master_device_manufacturer_service';
-import { MasterDeviceModel } from 'services/master/device/master_device_model_service';
-import { MasterDeviceType } from 'services/master/device/master_device_type_service';
+import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
+import { MasterDeviceManufacturer } from '../../../services/master/device/master_device_manufacturer_service';
+import { MasterDeviceModel } from '../../../services/master/device/master_device_model_service';
+import { MasterDeviceType } from '../../../services/master/device/master_device_type_service';
 
 import {
   MasterSim,
   AssignRemoveSimHistory,
-} from 'services/main/sims/master_sim_service';
-import { MasterMainCountry } from 'services/master/main/master_main_country_service';
-import { MasterMainTimeZone } from 'services/master/main/master_main_timezone_service';
+} from '../../../services/main/sims/master_sim_service';
+import { MasterMainCountry } from '../../../services/master/main/master_main_country_service';
+import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
 
 // URL & Endpoints
 const URL = 'main/master_device';

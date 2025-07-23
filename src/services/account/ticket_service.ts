@@ -1,6 +1,6 @@
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../../core/apiCall';
+import { SBR, FBR } from '../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -16,16 +16,16 @@ import {
   single_select_optional,
   stringMandatory,
   stringOptional,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../zod_utils/zod_base_schema';
 
 // Enums
-import { FileType, Status, TicketStatus } from 'core/Enums';
+import { FileType, Status, TicketStatus } from '../../core/Enums';
 
 // Other Models
-import { User } from 'services/main/users/user_service';
-import { UserAdmin } from 'services/main/users/user_admin_service';
-import { UserOrganisation } from 'services/main/users/user_organisation_service';
+import { User } from '../../services/main/users/user_service';
+import { UserAdmin } from '../../services/main/users/user_admin_service';
+import { UserOrganisation } from '../../services/main/users/user_organisation_service';
 
 // URL and Endpoints
 const URL = 'account/tickets';

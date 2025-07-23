@@ -1,6 +1,6 @@
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -9,16 +9,16 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status } from 'core/Enums';
+import { Status } from '../../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from 'services/main/users/user_organisation_service';
+import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 //import { FleetSpareParts } from "@api/services/fleet/fleet_spare_parts_service";
-import { MasterSparePartSubCategory } from 'services/master/spare_part/master_spare_part_sub_category_service';
+import { MasterSparePartSubCategory } from '../../../services/master/spare_part/master_spare_part_sub_category_service';
 
 const URL = 'master/spare_part/category';
 

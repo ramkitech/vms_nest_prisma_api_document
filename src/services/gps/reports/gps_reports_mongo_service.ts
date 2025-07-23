@@ -1,9 +1,9 @@
 // Axios
-import { apiPost } from 'core/apiCall';
-import { FBR } from 'core/BaseResponse';
-import { GpsAnalytics } from 'services/gps/reports/gps_models/GpsAnalytics';
-import { GpsPacket } from 'services/gps/reports/gps_models/GpsPacket';
-import { GpsSensor } from 'services/gps/reports/gps_models/GpsSensor';
+import { apiPost } from '../../../core/apiCall';
+import { FBR } from '../../../core/BaseResponse';
+import { GpsAnalytics } from '../../../services/gps/reports/gps_models/GpsAnalytics';
+import { GpsPacket } from '../../../services/gps/reports/gps_models/GpsPacket';
+import { GpsSensor } from '../../../services/gps/reports/gps_models/GpsSensor';
 
 // Zod
 import { z } from 'zod';
@@ -17,10 +17,10 @@ import {
   dateTimeMandatory,
   enumMandatory,
   numberOptional,
-} from 'zod/zod_utils';
-import { MongoBaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { MongoBaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
-import { TimeSlot, NightDriving, OverSpeed, GPSType, YesNo, BooleanType, Is12AM } from 'core/Enums';
+import { TimeSlot, NightDriving, OverSpeed, GPSType, YesNo, BooleanType, Is12AM } from '../../../core/Enums';
 import { GPSOverSpeedViolation } from './gps_models/GPSOverSpeedViolation';
 import { Last24HoursKmReport } from './gps_models/Last24HoursKmReport';
 import { OverSpeedViolationMonthly } from './gps_models/OverSpeedViolationMonthly';

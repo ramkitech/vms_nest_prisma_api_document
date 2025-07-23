@@ -8,7 +8,7 @@ import {
   OrderBy,
   YesNo,
   LoginFrom,
-} from 'core/Enums';
+} from '../core/Enums';
 import {
   enumArrayOptional,
   enumOptional,

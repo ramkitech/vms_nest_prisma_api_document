@@ -1,6 +1,6 @@
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -8,17 +8,17 @@ import {
   stringMandatory,
   enumMandatory,
   multi_select_optional,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status } from 'core/Enums';
+import { Status } from '../../../core/Enums';
 
 // Other Models
-import { MasterMainCurrency } from 'services/master/main/master_main_currency_service';
-import { MasterMainTimeZone } from 'services/master/main/master_main_timezone_service';
-import { MasterMainState } from 'services/master/main/master_main_state_service';
-import { UserOrganisation } from 'services/main/users/user_organisation_service';
+import { MasterMainCurrency } from '../../../services/master/main/master_main_currency_service';
+import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
+import { MasterMainState } from '../../../services/master/main/master_main_state_service';
+import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 //import { MasterMainLandMark } from "@api/services/main/master_main_land_mark_service";
 
 const URL = 'master/main/country';

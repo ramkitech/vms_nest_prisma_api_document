@@ -1,9 +1,9 @@
 // Imports
-import { apiPost } from 'core/apiCall';
-import { BR, SBR } from 'core/BaseResponse';
+import { apiPost } from '../../../core/apiCall';
+import { BR, SBR } from '../../../core/BaseResponse';
 
 // Zod
-import { stringMandatory, stringUUIDMandatory } from 'zod/zod_utils';
+import { stringMandatory, stringUUIDMandatory } from '../../../zod_utils/zod_utils';
 import { z } from 'zod';
 import { User } from './user_service';
 import { UserAdmin } from './user_admin_service';

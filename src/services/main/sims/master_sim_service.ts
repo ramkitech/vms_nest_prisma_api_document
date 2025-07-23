@@ -1,6 +1,6 @@
 // Axios
-import { apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -11,15 +11,15 @@ import {
   enumArrayOptional,
   multi_select_optional,
   getAllEnums,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, SimStatus, BillingStatus } from 'core/Enums';
+import { Status, SimStatus, BillingStatus } from '../../../core/Enums';
 
 // Other Models
-import { MasterDevice } from 'services/main/devices/master_device_service';
-import { MasterMainSimProvider } from 'services/master/main/master_main_sim_provider_service';
+import { MasterDevice } from '../../../services/main/devices/master_device_service';
+import { MasterMainSimProvider } from '../../../services/master/main/master_main_sim_provider_service';
 
 const URL = 'main/master_sim';
 

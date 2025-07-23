@@ -1,6 +1,6 @@
 // Imports
-import { apiGet, apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -11,15 +11,15 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumArrayOptional,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo } from 'core/Enums';
+import { Status, YesNo } from '../../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from 'services/main/users/user_organisation_service';
-import { MasterVehicle } from 'services/main/vehicle/master_vehicle_service';
+import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
 const URL = 'main/master_driver';
 

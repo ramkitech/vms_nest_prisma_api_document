@@ -1,6 +1,6 @@
 // Axios
-import { apiPost, apiPatch, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiPost, apiPatch, apiDelete } from '../../core/apiCall';
+import { SBR, FBR } from '../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -12,15 +12,15 @@ import {
   getAllEnums,
   multi_select_optional,
   single_select_mandatory,
-} from 'zod/zod_utils';
-import { BaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, MenuType } from 'core/Enums';
+import { Status, MenuType } from '../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from 'services/main/users/user_organisation_service';
-import { User } from 'services/main/users/user_service';
+import { UserOrganisation } from '../../services/main/users/user_organisation_service';
+import { User } from '../../services/main/users/user_service';
 
 // URL and Endpoints
 const URL = 'account/bookmarks';

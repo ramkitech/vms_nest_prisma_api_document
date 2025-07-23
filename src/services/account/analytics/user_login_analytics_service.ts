@@ -1,6 +1,6 @@
 // Axios
-import { apiPost, apiDelete } from 'core/apiCall';
-import { SBR, FBR } from 'core/BaseResponse';
+import { apiPost, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -9,11 +9,11 @@ import {
   multi_select_optional,
   enumMandatory,
   dynamicJsonSchema,
-} from 'zod/zod_utils';
-import { MongoBaseQuerySchema } from 'zod/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { MongoBaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { LoginFrom } from 'core/Enums';
+import { LoginFrom } from '../../../core/Enums';
 
 // URL and Endpoints
 const URL = 'analytics/user_login_analytics';
