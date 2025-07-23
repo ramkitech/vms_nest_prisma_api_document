@@ -8,7 +8,7 @@ export const setAxiosInstance = (instance: AxiosInstance) => {
 
 export const getAxiosInstance = (): AxiosInstance => {
     if (!axiosInstance) {
-        throw new Error('❌ Axios instance not configured. Call setupSdk() first.');
+        throw new Error('❌ Axios instance not configured. Call setAxiosInstance() first.');
     }
     return axiosInstance;
 };

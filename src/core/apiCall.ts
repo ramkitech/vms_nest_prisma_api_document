@@ -1,4 +1,4 @@
-import { getAxiosInstance } from "core/sdk-config";
+import { getAxiosInstance } from "../core/sdk-config";
 
 export const apiGet = async <T>(url: string, params?: Record<string, unknown>): Promise<T> => {
   const response = await getAxiosInstance().get<T>(url, { params });
