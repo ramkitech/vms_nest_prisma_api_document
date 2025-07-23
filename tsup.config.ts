@@ -1,12 +1,12 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/**/*.ts'], // include all files
-  format: ['cjs'],                        // use CommonJS to avoid ESM extension issues
-  dts: true,                              // generate types
+  entry: ['src/**/*.ts'],
+  format: ['esm'],
   target: 'es2020',
+  dts: true,
   outDir: 'dist',
   splitting: false,
   clean: true,
-  outExtension: () => ({ js: '.js' })     // ensure .js extensions
+  sourcemap: false,
 });

@@ -1,6 +1,6 @@
 {
   "name": "vms-nest-prisma-api-document",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Reusable API SDK built with NestJS, Prisma, Axios, and Zod for VMS frontends.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
