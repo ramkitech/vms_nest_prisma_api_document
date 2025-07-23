@@ -1,19 +1,12 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: [
-    'src/index.ts',                // Main index
-    'src/core/**/*.ts',            // All core files
-    'src/services/**/*.ts',        // All services
-    'src/zod/**/*.ts',             // All zod files
-  ],
-  outDir: 'dist',
-  format: ['esm', 'cjs'],
+  entry: ['src/**/*.ts'],
+  format: ['esm'],
   target: 'es2020',
+  dts: true,
+  outDir: 'dist',
   splitting: false,
   clean: true,
-  dts: true,
-  esbuildOptions(options) {
-    options.outbase = 'src';      // 👈 Preserve folders like core/, services/, zod/
-  }
+  sourcemap: false,
 });
