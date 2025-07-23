@@ -1,14 +1,16 @@
 import { AxiosInstance } from 'axios';
 
-let axiosInstance: AxiosInstance;
+const KEY = '__vms_axios_instance__';
 
 export const setAxiosInstance = (instance: AxiosInstance) => {
-    axiosInstance = instance;
+  (globalThis as any)[KEY] = instance;
+  console.log('✅ Axios instance set globally');
 };
 
 export const getAxiosInstance = (): AxiosInstance => {
-    if (!axiosInstance) {
-        throw new Error('❌ Axios instance not configured. Call setAxiosInstance() first.');
-    }
-    return axiosInstance;
+  const instance = (globalThis as any)[KEY];
+  if (!instance) {
+    throw new Error('❌ Axios instance not configured. Call setAxiosInstance() first.');
+  }
+  return instance;
 };
