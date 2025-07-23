@@ -1,5 +1,5 @@
 // Axios
-import { apiPost } from 'apiCall';
+import { apiPost } from 'core/apiCall';
 import { FBR } from 'core/BaseResponse';
 import { GpsAnalytics } from 'services/gps/reports/gps_models/GpsAnalytics';
 import { GpsPacket } from 'services/gps/reports/gps_models/GpsPacket';

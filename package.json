@@ -1,26 +1,19 @@
 {
   "name": "vms-nest-prisma-api-document",
-  "version": "1.0.7",
+  "version": "1.1.2",
   "description": "Reusable API SDK built with NestJS, Prisma, Axios, and Zod for VMS frontends.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "tsup",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "prepublishOnly": "npm run build"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ramkitech/vms_nest_prisma_api_document"
-  },
-  "bugs": {
-    "url": "https://github.com/ramkitech/vms_nest_prisma_api_document/issues"
-  },
+  "repository": "https://github.com/ramkitech/vms_nest_prisma_api_document",
+  "bugs": "https://github.com/ramkitech/vms_nest_prisma_api_document/issues",
   "homepage": "https://github.com/ramkitech/vms_nest_prisma_api_document#readme",
   "keywords": [
     "nestjs",
@@ -34,21 +27,34 @@
     "react",
     "nextjs"
   ],
-  "author": {
-    "name": "RamkiTech",
-    "email": "you@example.com",
-    "url": "https://github.com/ramkitech"
-  },
+  "author": "RamkiTech",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "default": "./dist/index.mjs"
+      "require": "./dist/index.js"
+    },
+    "./services/*": {
+      "import": "./dist/services/*",
+      "require": "./dist/services/*"
+    },
+    "./core/*": {
+      "import": "./dist/core/*",
+      "require": "./dist/core/*"
+    },
+    "./zod/*": {
+      "import": "./dist/zod/*",
+      "require": "./dist/zod/*"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "services/*": ["dist/services/*"],
+      "core/*": ["dist/core/*"],
+      "zod/*": ["dist/zod/*"]
     }
   },
   "type": "module",

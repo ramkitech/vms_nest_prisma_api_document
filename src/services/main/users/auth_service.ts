@@ -1,5 +1,5 @@
 // Imports
-import { apiPost } from 'apiCall';
+import { apiPost } from 'core/apiCall';
 import { BR, SBR } from 'core/BaseResponse';
 
 // Zod

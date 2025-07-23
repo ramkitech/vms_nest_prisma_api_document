@@ -1,5 +1,5 @@
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from 'apiCall';
+import { apiGet, apiPost, apiPatch, apiDelete } from 'core/apiCall';
 import { SBR, FBR, BR } from 'core/BaseResponse';
 
 //Zod

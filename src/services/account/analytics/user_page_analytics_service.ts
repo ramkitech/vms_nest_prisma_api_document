@@ -1,5 +1,5 @@
 // Axios
-import { apiPost, apiDelete } from 'apiCall';
+import { apiPost, apiDelete } from 'core/apiCall';
 import { SBR, FBR } from 'core/BaseResponse';
 
 // Zod
