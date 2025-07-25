@@ -44,14 +44,18 @@ const ENDPOINTS = {
 export interface GPSFuelVehicleRefill extends Record<string, unknown> {
   // Primary Fields
   gps_fuel_vehicle_refill_id: string;
+
   before_refill_fuel_liters: number;
   after_refill_fuel_liters: number;
   gps_refill_liters: number;
   verified_refill_liters: number;
   diff_refill_liters: number;
-  verified: YesNo;
-  approved: GPSFuelApproveStatus;
+
+  admin_verify_status: GPSFuelApproveStatus;
+  transporter_verify_status: GPSFuelApproveStatus;
+
   date_time: string;
+
   cost_per_liter?: number;
   total_cost?: number;
   refill_details?: string;
@@ -91,29 +95,37 @@ export const GPSFuelVehicleRefillSchema = z.object({
   organisation_id: single_select_mandatory('Organisation ID'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
   device_id: single_select_mandatory('Device ID'),
-  user_id: single_select_optional('User ID'),
   driver_id: single_select_optional('Driver ID'),
+  user_id: single_select_optional('User ID'),
 
   before_refill_fuel_liters: doubleMandatory('Before Refill Fuel Liters'),
   after_refill_fuel_liters: doubleMandatory('After Refill Fuel Liters'),
   gps_refill_liters: doubleMandatory('GPS Refill Liters'),
   verified_refill_liters: doubleMandatory('Verified Refill Liters'),
-  verified: enumMandatory('Verified', YesNo, YesNo.Yes),
-  approved: enumMandatory(
-    'GPS Fuel Approve Status',
+  diff_refill_liters: doubleMandatory('Difference Refill Liters'),
+  admin_verify_status: enumMandatory(
+    'Admin GPS Fuel Verify Status',
     GPSFuelApproveStatus,
-    GPSFuelApproveStatus.Pending
+    GPSFuelApproveStatus.Pending,
+  ),
+  transporter_verify_status: enumMandatory(
+    'Transporter GPS Fuel Verify Status',
+    GPSFuelApproveStatus,
+    GPSFuelApproveStatus.Pending,
   ),
   date_time: dateMandatory('Date Time'),
+
   cost_per_liter: doubleOptional('Cost Per Liter'),
   total_cost: doubleOptional('Total Cost'),
   refill_details: stringOptional('Refill Details', 0, 300),
+
   latitude: doubleOptionalLatLng('Latitude'),
   longitude: doubleOptionalLatLng('Longitude'),
   gl: stringOptional('GL', 0, 300),
   lid: stringOptional('LID', 0, 300),
   ll: stringOptional('LL', 0, 300),
   ld: numberOptional('LD'),
+
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type GPSFuelVehicleRefillDTO = z.infer<
@@ -127,12 +139,16 @@ export const GPSFuelVehicleRefillQuerySchema = BaseQuerySchema.extend({
   vehicle_ids: multi_select_optional('Master Vehicle IDs'), // ✅ Multi-selection -> MasterVehicle
   device_ids: multi_select_optional('Master Device IDs'), // ✅ Multi-selection -> Master Device
   driver_ids: multi_select_optional('Master Driver IDs'), // ✅ Multi-selection -> Master Driver
-  approved: enumArrayOptional(
-    'Approved',
+  admin_verify_status: enumArrayOptional(
+    'Admin GPS Fuel Verify Status',
     GPSFuelApproveStatus,
-    getAllEnums(GPSFuelApproveStatus)
+    getAllEnums(GPSFuelApproveStatus),
   ),
-  verified: enumArrayOptional('Verified', YesNo, getAllEnums(YesNo)),
+  transporter_verify_status: enumArrayOptional(
+    'Transporter GPS Fuel Verify Status',
+    GPSFuelApproveStatus,
+    getAllEnums(GPSFuelApproveStatus),
+  ),
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
@@ -149,13 +165,18 @@ export const toGPSFuelVehicleRefillPayload = (
   device_id: data.device_id,
   user_id: data.user_id ?? '',
   driver_id: data.driver_id ?? '',
+
   before_refill_fuel_liters: data.before_refill_fuel_liters,
   after_refill_fuel_liters: data.after_refill_fuel_liters,
   gps_refill_liters: data.gps_refill_liters,
   verified_refill_liters: data.verified_refill_liters,
-  verified: data.verified,
-  approved: data.approved,
+  diff_refill_liters: data.diff_refill_liters,
+
+  admin_verify_status: data.admin_verify_status,
+  transporter_verify_status: data.transporter_verify_status,
+
   date_time: data.date_time,
+
   cost_per_liter: data.cost_per_liter ?? 0,
   total_cost: data.total_cost ?? 0,
   refill_details: data.refill_details ?? '',
@@ -181,9 +202,13 @@ export const newGPSFuelVehicleRefillPayload = (): GPSFuelVehicleRefillDTO => ({
   after_refill_fuel_liters: 0,
   gps_refill_liters: 0,
   verified_refill_liters: 0,
-  verified: YesNo.Yes,
-  approved: GPSFuelApproveStatus.Pending,
+  diff_refill_liters: 0,
+
+  admin_verify_status: GPSFuelApproveStatus.Pending,
+  transporter_verify_status: GPSFuelApproveStatus.Pending,
+
   date_time: '',
+  
   cost_per_liter: 0,
   total_cost: 0,
   refill_details: '',

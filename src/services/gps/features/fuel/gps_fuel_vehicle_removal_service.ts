@@ -43,16 +43,20 @@ const ENDPOINTS = {
 export interface GPSFuelVehicleRemoval extends Record<string, unknown> {
   // Primary Fields
   gps_fuel_vehicle_removal_summary_id: string;
+
   before_remove_fuel_liters: number;
   after_remove_fuel_liters: number;
   gps_removal_liters: number;
   verified_removal_liters: number;
   diff_removal_liters: number;
-  verified: YesNo;
-  approved: GPSFuelApproveStatus;
+
+  admin_verify_status: GPSFuelApproveStatus;
+  transporter_verify_status: GPSFuelApproveStatus;
+
   date_time: string;
   cost_per_liter?: number;
   total_cost?: number;
+  
   removal_details?: string;
 
   latitude?: number;
@@ -86,30 +90,39 @@ export const GPSFuelVehicleRemovalSchema = z.object({
   organisation_id: single_select_mandatory('Organisation ID'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
   device_id: single_select_mandatory('Device ID'),
-  user_id: single_select_optional('User ID'),
   driver_id: single_select_optional('Driver ID'),
+  user_id: single_select_optional('User ID'),
 
   before_remove_fuel_liters: doubleMandatory('Before Remove Fuel Liters'),
   after_remove_fuel_liters: doubleMandatory('Before Remove Fuel Liters'),
   gps_removal_liters: doubleMandatory('GPS Removal Liters'),
   verified_removal_liters: doubleMandatory('Verified Removal Liters'),
-  verified: enumMandatory('Verified', YesNo, YesNo.Yes),
-  approved: enumMandatory(
-    'GPS Fuel Approve Status',
-    GPSFuelApproveStatus,
-    GPSFuelApproveStatus.Pending
-  ),
+  diff_removal_liters: doubleMandatory('Difference Removal Liters'),
 
+  admin_verify_status: enumMandatory(
+    'Admin GPS Fuel Status',
+    GPSFuelApproveStatus,
+    GPSFuelApproveStatus.Pending,
+  ),
+  transporter_verify_status: enumMandatory(
+    'Transporter GPS Fuel Status',
+    GPSFuelApproveStatus,
+    GPSFuelApproveStatus.Pending,
+  ),
   date_time: dateMandatory('Date Time'),
+
   cost_per_liter: doubleOptional('Cost Per Liter'),
   total_cost: doubleOptional('Total Cost'),
-  refill_details: stringOptional('Refill Details', 0, 300),
+  removal_details: stringOptional('Removal Details', 0, 300),
+
   latitude: doubleOptionalLatLng('Latitude'),
   longitude: doubleOptionalLatLng('Longitude'),
+
   gl: stringOptional('GL', 0, 300),
   lid: stringOptional('LID', 0, 300),
   ll: stringOptional('LL', 0, 300),
   ld: numberOptional('LD'),
+
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type GPSFuelVehicleRemovalDTO = z.infer<
@@ -123,12 +136,16 @@ export const GPSFuelVehicleRemovalQuerySchema = BaseQuerySchema.extend({
   vehicle_ids: multi_select_optional('Master Vehicle IDs'), // ✅ Multi-selection -> MasterVehicle
   device_ids: multi_select_optional('Master Device IDs'), // ✅ Multi-selection -> Master Device
   driver_ids: multi_select_optional('Master Driver IDs'), // ✅ Multi-selection -> Master Driver
-  approved: enumArrayOptional(
-    'Approved',
+  admin_verify_status: enumArrayOptional(
+    'Admin GPS Fuel Verify Status',
     GPSFuelApproveStatus,
-    getAllEnums(GPSFuelApproveStatus)
+    getAllEnums(GPSFuelApproveStatus),
   ),
-  verified: enumArrayOptional('Verified', YesNo, getAllEnums(YesNo)),
+  transporter_verify_status: enumArrayOptional(
+    'Transporter GPS Fuel Verify Status',
+    GPSFuelApproveStatus,
+    getAllEnums(GPSFuelApproveStatus),
+  ),
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
@@ -145,16 +162,21 @@ export const toGPSFuelVehicleRemovalPayload = (
   device_id: item.device_id,
   user_id: item.user_id ?? '',
   driver_id: item.driver_id ?? '',
+
   before_remove_fuel_liters: item.before_remove_fuel_liters,
   after_remove_fuel_liters: item.after_remove_fuel_liters,
   gps_removal_liters: item.gps_removal_liters,
   verified_removal_liters: item.verified_removal_liters,
-  verified: item.verified,
-  approved: item.approved,
+  diff_removal_liters: item.diff_removal_liters,
+
+  admin_verify_status: item.admin_verify_status,
+  transporter_verify_status: item.transporter_verify_status,
+
   date_time: item.date_time,
+
   cost_per_liter: item.cost_per_liter ?? 0,
   total_cost: item.total_cost ?? 0,
-  refill_details: item.removal_details ?? '',
+  removal_details: item.removal_details ?? '',
 
   latitude: item.latitude ?? 0,
   longitude: item.longitude ?? 0,
@@ -174,16 +196,21 @@ export const newGPSFuelVehicleRemovalPayload =
     device_id: '',
     user_id: '',
     driver_id: '',
+
     before_remove_fuel_liters: 0,
     after_remove_fuel_liters: 0,
     gps_removal_liters: 0,
     verified_removal_liters: 0,
-    verified: YesNo.Yes,
-    approved: GPSFuelApproveStatus.Pending,
+    diff_removal_liters: 0,
+
+    admin_verify_status: GPSFuelApproveStatus.Pending,
+    transporter_verify_status: GPSFuelApproveStatus.Pending,
+
     date_time: new Date().toISOString(),
+
     cost_per_liter: 0,
     total_cost: 0,
-    refill_details: '',
+    removal_details: '',
 
     latitude: 0,
     longitude: 0,
