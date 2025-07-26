@@ -56,7 +56,7 @@ export interface GPSFuelVehicleRemoval extends Record<string, unknown> {
   date_time: string;
   cost_per_liter?: number;
   total_cost?: number;
-  
+
   removal_details?: string;
 
   latitude?: number;
@@ -97,7 +97,7 @@ export const GPSFuelVehicleRemovalSchema = z.object({
   after_remove_fuel_liters: doubleMandatory('Before Remove Fuel Liters'),
   gps_removal_liters: doubleMandatory('GPS Removal Liters'),
   verified_removal_liters: doubleMandatory('Verified Removal Liters'),
-  diff_removal_liters: doubleMandatory('Difference Removal Liters'),
+  diff_removal_liters: doubleOptional('Difference Removal Liters'),
 
   admin_verify_status: enumMandatory(
     'Admin GPS Fuel Status',
@@ -124,6 +124,8 @@ export const GPSFuelVehicleRemovalSchema = z.object({
   ld: numberOptional('LD'),
 
   status: enumMandatory('Status', Status, Status.Active),
+
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type GPSFuelVehicleRemovalDTO = z.infer<
   typeof GPSFuelVehicleRemovalSchema
@@ -187,6 +189,8 @@ export const toGPSFuelVehicleRemovalPayload = (
   ld: item.ld || 0,
 
   status: item.status,
+
+  time_zone_id: '',
 });
 
 export const newGPSFuelVehicleRemovalPayload =
@@ -221,6 +225,8 @@ export const newGPSFuelVehicleRemovalPayload =
     ld: 0,
 
     status: Status.Active,
+
+    time_zone_id: '',
   });
 
 // ✅ API Methods

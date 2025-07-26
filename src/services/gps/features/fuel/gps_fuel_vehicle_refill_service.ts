@@ -102,7 +102,7 @@ export const GPSFuelVehicleRefillSchema = z.object({
   after_refill_fuel_liters: doubleMandatory('After Refill Fuel Liters'),
   gps_refill_liters: doubleMandatory('GPS Refill Liters'),
   verified_refill_liters: doubleMandatory('Verified Refill Liters'),
-  diff_refill_liters: doubleMandatory('Difference Refill Liters'),
+  diff_refill_liters: doubleOptional('Difference Refill Liters'),
   admin_verify_status: enumMandatory(
     'Admin GPS Fuel Verify Status',
     GPSFuelApproveStatus,
@@ -127,6 +127,8 @@ export const GPSFuelVehicleRefillSchema = z.object({
   ld: numberOptional('LD'),
 
   status: enumMandatory('Status', Status, Status.Active),
+
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type GPSFuelVehicleRefillDTO = z.infer<
   typeof GPSFuelVehicleRefillSchema
@@ -190,6 +192,8 @@ export const toGPSFuelVehicleRefillPayload = (
   ld: data.ld || 0,
 
   status: data.status,
+
+  time_zone_id: '',
 });
 
 export const newGPSFuelVehicleRefillPayload = (): GPSFuelVehicleRefillDTO => ({
@@ -208,7 +212,7 @@ export const newGPSFuelVehicleRefillPayload = (): GPSFuelVehicleRefillDTO => ({
   transporter_verify_status: GPSFuelApproveStatus.Pending,
 
   date_time: '',
-  
+
   cost_per_liter: 0,
   total_cost: 0,
   refill_details: '',
@@ -222,6 +226,8 @@ export const newGPSFuelVehicleRefillPayload = (): GPSFuelVehicleRefillDTO => ({
   ld: 0,
 
   status: Status.Active,
+
+  time_zone_id: '',
 });
 
 // API Methods
