@@ -52,6 +52,7 @@ export interface GPSFuelVehicleDailySummary extends Record<string, unknown> {
   removal_liters: number;
   mileage: number;
   date: string;
+  date_f: string;
 
   status: Status;
   added_date_time: string;
