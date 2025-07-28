@@ -55,6 +55,7 @@ export interface GPSFuelVehicleRefill extends Record<string, unknown> {
   transporter_verify_status: GPSFuelApproveStatus;
 
   date_time: string;
+  date_time_f: string;
 
   cost_per_liter?: number;
   total_cost?: number;
