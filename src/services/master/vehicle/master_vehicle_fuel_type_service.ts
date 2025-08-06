@@ -34,7 +34,7 @@ const ENDPOINTS = {
 export interface MasterVehicleFuelType extends Record<string, unknown> {
   // Primary Fields
   vehicle_fuel_type_id: string;
-  vehicle_fuel_type: string; // Min: 3, Max: 100
+  fuel_type: string; // Min: 3, Max: 100
   description?: string; // Optional, Max: 300
 
   // Metadata
@@ -55,10 +55,10 @@ export interface MasterVehicleFuelType extends Record<string, unknown> {
   };
 }
 
-// ✅ Vehicle Fuel Type Create/Update Schema
+// ✅ MasterVehicleFuelType Create/Update DTO Schema
 export const MasterVehicleFuelTypeSchema = z.object({
   organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
-  vehicle_fuel_type: stringMandatory('Vehicle Fuel Type', 3, 100),
+  fuel_type: stringMandatory('Fuel Type', 3, 100),
   description: stringOptional('Description', 0, 100),
   status: enumMandatory('Status', Status, Status.Active),
 });
@@ -66,10 +66,10 @@ export type MasterVehicleFuelTypeDTO = z.infer<
   typeof MasterVehicleFuelTypeSchema
 >;
 
-// ✅ Vehicle Fuel Type Query Schema
+// ✅ MasterVehicleFuelType Query DTO Schema
 export const MasterVehicleFuelTypeQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_fuel_type_ids: multi_select_optional('Vehicle Fuel Type'), // ✅ Multi-selection -> MasterVehicleFuelType
+  fuel_type_ids: multi_select_optional('Fuel Type'), // ✅ Multi-selection -> MasterVehicleFuelType
 });
 export type MasterVehicleFuelTypeQueryDTO = z.infer<
   typeof MasterVehicleFuelTypeQuerySchema
@@ -80,7 +80,7 @@ export const toMasterVehicleFuelTypePayload = (
   row: MasterVehicleFuelType
 ): MasterVehicleFuelTypeDTO => ({
   organisation_id: row.organisation_id ?? '',
-  vehicle_fuel_type: row.vehicle_fuel_type,
+  fuel_type: row.fuel_type,
   description: row.description || '',
   status: row.status,
 });
@@ -89,7 +89,7 @@ export const toMasterVehicleFuelTypePayload = (
 export const newMasterVehicleFuelTypePayload =
   (): MasterVehicleFuelTypeDTO => ({
     organisation_id: '',
-    vehicle_fuel_type: '',
+    fuel_type: '',
     description: '',
     status: Status.Active,
   });

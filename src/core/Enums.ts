@@ -555,3 +555,28 @@ export enum Is12AM {
   Yes = 'Yes',
   No = 'No',
 }
+
+export enum RefillEntrySource {
+  Manual = 'Manual',
+  GPSFuelSensor = 'GPSFuelSensor',
+  APISync = 'APISync',
+  FuelCard = 'FuelCard',
+}
+
+export enum RefillMethod {
+  Dispenser = 'Dispenser',
+  Barrel = 'Barrel',
+  Can = 'Can',
+  Tanker = 'Tanker',
+  Other = 'Other',
+}
+
+export enum PaymentMode {
+  Cash = 'Cash',
+  Card = 'Card',
+  UPI = 'UPI',
+  FuelCard = 'FuelCard',
+  Credit = 'Credit',
+  BankTransfer = 'BankTransfer',
+  Other = 'Other',
+}

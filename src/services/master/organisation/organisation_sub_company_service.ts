@@ -28,10 +28,8 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cache_child: (organisation_id: string): string =>
-    `${URL}/cache_child/${organisation_id}`,
-  cache_count: (organisation_id: string): string =>
-    `${URL}/cache_count/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 // Organisation Sub Company Interface
@@ -39,9 +37,11 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
   // Primary Fields
   organisation_sub_company_id: string;
   sub_company_name: string; // Min: 3, Max: 100
-  sub_company_logo_url?: string;
-  sub_company_logo_key?: string;
   sub_company_GSTIN: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
+
+  logo_key?: string;
+  logo_url?: string;
 
   // Metadata
   status: Status;
@@ -61,24 +61,23 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
   };
 }
 
-// ✅ Organisation Sub Company Create/Update Schema
+// ✅ OrganisationSubCompany Create/Update DTO Schema
 export const OrganisationSubCompanySchema = z.object({
   organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
   sub_company_name: stringMandatory('Sub Company Name', 3, 100),
-  sub_company_logo_url: stringOptional('Sub Company Logo URL', 0, 300),
-  sub_company_logo_key: stringOptional('Sub Company Logo Key', 0, 300),
   sub_company_GSTIN: stringMandatory('Sub Company GSTIN', 3, 100),
+  description: stringMandatory('Description', 3, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationSubCompanyDTO = z.infer<
   typeof OrganisationSubCompanySchema
 >;
 
-// ✅ Organisation Sub Company Query Schema
+// ✅ OrganisationSubCompany Query DTO Schema
 export const OrganisationSubCompanyQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
   organisation_sub_company_ids: multi_select_optional(
-    'Organisation Sub Company'
+    'Organisation Sub Company',
   ), // ✅ Multi-selection -> OrganisationSubCompany
 });
 export type OrganisationSubCompanyQueryDTO = z.infer<
@@ -91,10 +90,10 @@ export const toOrganisationSubCompanyPayload = (
 ): OrganisationSubCompanyDTO => ({
   organisation_id: subCompany.organisation_id,
   sub_company_name: subCompany.sub_company_name,
-  sub_company_logo_url: subCompany.sub_company_logo_url || '',
-  sub_company_logo_key: subCompany.sub_company_logo_key || '',
   sub_company_GSTIN: subCompany.sub_company_GSTIN,
+  description: subCompany.description || '',
   status: subCompany.status,
+
 });
 
 // Generate a new payload with default values
@@ -102,9 +101,8 @@ export const newOrganisationSubCompanyPayload =
   (): OrganisationSubCompanyDTO => ({
     organisation_id: '',
     sub_company_name: '',
-    sub_company_logo_url: '',
-    sub_company_logo_key: '',
     sub_company_GSTIN: '',
+    description: '',
     status: Status.Active,
   });
 
@@ -146,18 +144,18 @@ export const getOrganisationSubCompanyCache = async (
   );
 };
 
-export const getOrganisationSubCompanyCacheChild = async (
-  organisation_id: string
-): Promise<FBR<OrganisationSubCompany[]>> => {
-  return apiGet<FBR<OrganisationSubCompany[]>>(
-    ENDPOINTS.cache_child(organisation_id)
-  );
-};
-
 export const getOrganisationSubCompanyCacheCount = async (
   organisation_id: string
 ): Promise<FBR<OrganisationSubCompany[]>> => {
   return apiGet<FBR<OrganisationSubCompany[]>>(
     ENDPOINTS.cache_count(organisation_id)
+  );
+};
+
+export const getOrganisationSubCompanyCacheChild = async (
+  organisation_id: string
+): Promise<FBR<OrganisationSubCompany[]>> => {
+  return apiGet<FBR<OrganisationSubCompany[]>>(
+    ENDPOINTS.cache_child(organisation_id)
   );
 };

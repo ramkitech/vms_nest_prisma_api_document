@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -27,17 +28,16 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cache_child: (organisation_id: string): string =>
-    `${URL}/cache_child/${organisation_id}`,
-  cache_count: (organisation_id: string): string =>
-    `${URL}/cache_count/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 // Organisation Tag Interface
 export interface OrganisationTag extends Record<string, unknown> {
   // Primary Fields
   organisation_tag_id: string;
-  organisation_tag_name: string; // Min: 3, Max: 100
+  tag_name: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -57,15 +57,16 @@ export interface OrganisationTag extends Record<string, unknown> {
   };
 }
 
-// ✅ Organisation Tag Create/Update Schema
+// ✅ OrganisationTag Create/Update DTO Schema
 export const OrganisationTagSchema = z.object({
   organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
-  organisation_tag_name: stringMandatory('Organisation Tag Name', 3, 100),
+  tag_name: stringMandatory('Tag Name', 3, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationTagDTO = z.infer<typeof OrganisationTagSchema>;
 
-// ✅ Organisation Tag Query Schema
+// ✅ OrganisationTag Query DTO Schema
 export const OrganisationTagQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
   organisation_tag_ids: multi_select_optional('Organisation Tag'), // ✅ Multi-selection -> OrganisationTag
@@ -76,17 +77,19 @@ export type OrganisationTagQueryDTO = z.infer<
 
 // Convert existing data to a payload structure
 export const toOrganisationTagPayload = (
-  tag: OrganisationTag
+  row: OrganisationTag
 ): OrganisationTagDTO => ({
-  organisation_id: tag.organisation_id,
-  organisation_tag_name: tag.organisation_tag_name,
-  status: tag.status,
+  organisation_id: row.organisation_id,
+  tag_name: row.tag_name,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newOrganisationTagPayload = (): OrganisationTagDTO => ({
   organisation_id: '',
-  organisation_tag_name: '',
+  tag_name: '',
+  description: '',
   status: Status.Active,
 });
 
@@ -124,14 +127,16 @@ export const getOrganisationTagCache = async (
   return apiGet<FBR<OrganisationTag[]>>(ENDPOINTS.cache(organisation_id));
 };
 
+export const getOrganisationTagCacheCount = async (
+  organisation_id: string
+): Promise<FBR<OrganisationTag[]>> => {
+  return apiGet<FBR<OrganisationTag[]>>(ENDPOINTS.cache_count(organisation_id));
+};
+
 export const getOrganisationTagCacheChild = async (
   organisation_id: string
 ): Promise<FBR<OrganisationTag[]>> => {
   return apiGet<FBR<OrganisationTag[]>>(ENDPOINTS.cache_child(organisation_id));
 };
 
-export const getOrganisationTagCacheCount = async (
-  organisation_id: string
-): Promise<FBR<OrganisationTag[]>> => {
-  return apiGet<FBR<OrganisationTag[]>>(ENDPOINTS.cache_count(organisation_id));
-};
+

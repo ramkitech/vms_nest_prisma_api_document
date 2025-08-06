@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -27,18 +28,17 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cache_child: (organisation_id: string): string =>
-    `${URL}/cache_child/${organisation_id}`,
-  cache_count: (organisation_id: string): string =>
-    `${URL}/cache_count/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 // Organisation Color Interface
 export interface OrganisationColor extends Record<string, unknown> {
   // Primary Fields
   organisation_color_id: string;
-  organisation_color_name: string; // Min: 3, Max: 100
-  organisation_color_code: string; // Min: 3, Max: 100
+  color_name: string; // Min: 3, Max: 100
+  color_code: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -58,16 +58,17 @@ export interface OrganisationColor extends Record<string, unknown> {
   };
 }
 
-// ✅ Organisation Color Create/Update Schema
+// ✅ OrganisationColor Create/Update DTO Schema
 export const OrganisationColorSchema = z.object({
   organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
-  organisation_color_name: stringMandatory('Color Name', 3, 100),
-  organisation_color_code: stringMandatory('Color Code', 3, 100),
+  color_name: stringMandatory('Color Name', 3, 100),
+  color_code: stringMandatory('Color Code', 3, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationColorDTO = z.infer<typeof OrganisationColorSchema>;
 
-// ✅ Organisation Color Query Schema
+// ✅ OrganisationColor Query DTO Schema
 export const OrganisationColorQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
   organisation_color_ids: multi_select_optional('Organisation Color'), // ✅ Multi-selection -> OrganisationColor
@@ -78,19 +79,21 @@ export type OrganisationColorQueryDTO = z.infer<
 
 // Convert existing data to a payload structure
 export const toOrganisationColorPayload = (
-  color: OrganisationColor
+  row: OrganisationColor
 ): OrganisationColorDTO => ({
-  organisation_id: color.organisation_id ?? '',
-  organisation_color_name: color.organisation_color_name,
-  organisation_color_code: color.organisation_color_code,
-  status: color.status,
+  organisation_id: row.organisation_id ?? '',
+  color_name: row.color_name,
+  color_code: row.color_code,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newOrganisationColorPayload = (): OrganisationColorDTO => ({
   organisation_id: '',
-  organisation_color_name: '',
-  organisation_color_code: '',
+  color_name: '',
+  color_code: '',
+  description: '',
   status: Status.Active,
 });
 

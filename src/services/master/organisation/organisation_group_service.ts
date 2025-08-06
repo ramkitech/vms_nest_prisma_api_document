@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -28,17 +29,16 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cacheChild: (organisation_id: string): string =>
-    `${URL}/cache_child/${organisation_id}`,
-  cacheCount: (organisation_id: string): string =>
-    `${URL}/cache_count/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 // Organisation Group Interface
 export interface OrganisationGroup extends Record<string, unknown> {
   // Primary Fields
   organisation_group_id: string;
-  organisation_group_name: string; // Min: 3, Max: 100
+  group_name: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -75,20 +75,21 @@ export interface VehicleOrganisationGroupLink extends Record<string, unknown> {
   Vehicle?: MasterVehicle;
 }
 
-// ✅ Organisation Group Create/Update Schema
+// ✅ OrganisationGroup Create/Update DTO Schema
 export const OrganisationGroupSchema = z.object({
   organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
-  organisation_group_name: stringMandatory('Group Name', 3, 100),
-  vehicle_ids: multi_select_optional('Vehicle'), // ✅ Multi-selection -> Vehicle
+  group_name: stringMandatory('Group Name', 3, 100),
+  description: stringOptional('Description', 0, 300),
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationGroupDTO = z.infer<typeof OrganisationGroupSchema>;
 
-// ✅ Organisation Group Query Schema
+// ✅ OrganisationGroup Query DTO Schema
 export const OrganisationGroupQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
   organisation_group_ids: multi_select_optional('Organisation Group'), // ✅ Multi-selection -> OrganisationGroup
-  vehicle_ids: multi_select_optional('Vehicle'), // ✅ Multi-selection -> Vehicle
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
 });
 export type OrganisationGroupQueryDTO = z.infer<
   typeof OrganisationGroupQuerySchema
@@ -96,19 +97,21 @@ export type OrganisationGroupQueryDTO = z.infer<
 
 // Convert existing data to a payload structure
 export const toOrganisationGroupPayload = (
-  group: OrganisationGroup
+  row: OrganisationGroup
 ): OrganisationGroupDTO => ({
-  organisation_id: group.organisation_id,
-  organisation_group_name: group.organisation_group_name,
+  organisation_id: row.organisation_id,
+  group_name: row.group_name,
+  description: row.description || '',
   vehicle_ids:
-    group.VehicleOrganisationGroupLink?.map((v) => v.vehicle_id) ?? [],
-  status: group.status,
+    row.VehicleOrganisationGroupLink?.map((v) => v.vehicle_id) ?? [],
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newOrganisationGroupPayload = (): OrganisationGroupDTO => ({
   organisation_id: '',
-  organisation_group_name: '',
+  group_name: '',
+  description: '',
   vehicle_ids: [],
   status: Status.Active,
 });
@@ -151,7 +154,7 @@ export const getOrganisationGroupCacheChild = async (
   organisation_id: string
 ): Promise<FBR<OrganisationGroup[]>> => {
   return apiGet<FBR<OrganisationGroup[]>>(
-    ENDPOINTS.cacheChild(organisation_id)
+    ENDPOINTS.cache_child(organisation_id)
   );
 };
 
@@ -159,6 +162,6 @@ export const getOrganisationGroupCacheCount = async (
   organisation_id: string
 ): Promise<FBR<OrganisationGroup[]>> => {
   return apiGet<FBR<OrganisationGroup[]>>(
-    ENDPOINTS.cacheCount(organisation_id)
+    ENDPOINTS.cache_count(organisation_id)
   );
 };
