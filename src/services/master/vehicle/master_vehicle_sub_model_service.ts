@@ -9,6 +9,7 @@ import {
   enumMandatory,
   single_select_mandatory,
   multi_select_optional,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -38,6 +39,7 @@ export interface MasterVehicleSubModel extends Record<string, unknown> {
   // Primary Fields
   vehicle_sub_model_id: string;
   vehicle_sub_model: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -65,6 +67,7 @@ export const MasterVehicleSubModelSchema = z.object({
   vehicle_make_id: single_select_mandatory('Vehicle Make'), // ✅ Mandatory selection -> MasterVehicleModel
   vehicle_model_id: single_select_mandatory('Vehicle Model'), // ✅ Mandatory selection -> MasterVehicleModel
   vehicle_sub_model: stringMandatory('Vehicle Sub Model', 3, 100),
+  description: stringOptional('Description', 0, 100),
   status: enumMandatory('Status', Status, Status.Active), // ✅ Mandatory status field
 });
 export type MasterVehicleSubModelDTO = z.infer<
@@ -84,13 +87,14 @@ export type MasterVehicleSubModelQueryDTO = z.infer<
 
 // Convert existing data to a payload structure
 export const toMasterVehicleSubModelPayload = (
-  subModel: MasterVehicleSubModel
+  row: MasterVehicleSubModel
 ): MasterVehicleSubModelDTO => ({
-  organisation_id: subModel.organisation_id ?? '',
-  vehicle_make_id: subModel.MasterVehicleModel?.vehicle_make_id || '',
-  vehicle_model_id: subModel.vehicle_model_id,
-  vehicle_sub_model: subModel.vehicle_sub_model,
-  status: subModel.status,
+  organisation_id: row.organisation_id ?? '',
+  vehicle_make_id: row.MasterVehicleModel?.vehicle_make_id || '',
+  vehicle_model_id: row.vehicle_model_id,
+  vehicle_sub_model: row.vehicle_sub_model,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -100,6 +104,7 @@ export const newMasterVehicleSubModelPayload =
     vehicle_make_id: '',
     vehicle_model_id: '',
     vehicle_sub_model: '',
+    description: '',
     status: Status.Active,
   });
 

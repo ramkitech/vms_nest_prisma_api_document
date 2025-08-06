@@ -9,6 +9,7 @@ import {
   enumMandatory,
   multi_select_optional,
   single_select_mandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -34,6 +35,7 @@ export interface MasterVehicleStatusType extends Record<string, unknown> {
   // Primary Fields
   vehicle_status_type_id: string;
   vehicle_status_type: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -57,6 +59,7 @@ export interface MasterVehicleStatusType extends Record<string, unknown> {
 export const MasterVehicleStatusTypeSchema = z.object({
   organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
   vehicle_status_type: stringMandatory('Vehicle Status Type', 3, 100),
+  description: stringOptional('Description', 0, 100),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleStatusTypeDTO = z.infer<
@@ -74,11 +77,12 @@ export type MasterVehicleStatusTypeQueryDTO = z.infer<
 
 // Convert existing data to a payload structure
 export const toMasterVehicleStatusTypePayload = (
-  statusType: MasterVehicleStatusType
+  row: MasterVehicleStatusType
 ): MasterVehicleStatusTypeDTO => ({
-  organisation_id: statusType.organisation_id ?? '',
-  vehicle_status_type: statusType.vehicle_status_type,
-  status: statusType.status,
+  organisation_id: row.organisation_id ?? '',
+  vehicle_status_type: row.vehicle_status_type,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -86,6 +90,7 @@ export const newMasterVehicleStatusTypePayload =
   (): MasterVehicleStatusTypeDTO => ({
     organisation_id: '',
     vehicle_status_type: '',
+    description: '',
     status: Status.Active,
   });
 

@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -34,6 +35,7 @@ export interface MasterVehicleFuelType extends Record<string, unknown> {
   // Primary Fields
   vehicle_fuel_type_id: string;
   vehicle_fuel_type: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -57,6 +59,7 @@ export interface MasterVehicleFuelType extends Record<string, unknown> {
 export const MasterVehicleFuelTypeSchema = z.object({
   organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
   vehicle_fuel_type: stringMandatory('Vehicle Fuel Type', 3, 100),
+  description: stringOptional('Description', 0, 100),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleFuelTypeDTO = z.infer<
@@ -74,11 +77,12 @@ export type MasterVehicleFuelTypeQueryDTO = z.infer<
 
 // Convert existing data to a payload structure
 export const toMasterVehicleFuelTypePayload = (
-  fuelType: MasterVehicleFuelType
+  row: MasterVehicleFuelType
 ): MasterVehicleFuelTypeDTO => ({
-  organisation_id: fuelType.organisation_id ?? '',
-  vehicle_fuel_type: fuelType.vehicle_fuel_type,
-  status: fuelType.status,
+  organisation_id: row.organisation_id ?? '',
+  vehicle_fuel_type: row.vehicle_fuel_type,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -86,6 +90,7 @@ export const newMasterVehicleFuelTypePayload =
   (): MasterVehicleFuelTypeDTO => ({
     organisation_id: '',
     vehicle_fuel_type: '',
+    description: '',
     status: Status.Active,
   });
 
