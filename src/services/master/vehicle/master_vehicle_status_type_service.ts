@@ -28,13 +28,15 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 // Vehicle Status Type Interface
 export interface MasterVehicleStatusType extends Record<string, unknown> {
   // Primary Fields
   vehicle_status_type_id: string;
-  vehicle_status_type: string; // Min: 3, Max: 100
+  status_type: string; // Min: 3, Max: 100
   description?: string; // Optional, Max: 300
 
   // Metadata
@@ -55,79 +57,68 @@ export interface MasterVehicleStatusType extends Record<string, unknown> {
   };
 }
 
-// ✅ Vehicle Status Type Create/Update Schema
+// ✅ MasterVehicleStatusType Create/Update Schema
 export const MasterVehicleStatusTypeSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
-  vehicle_status_type: stringMandatory('Vehicle Status Type', 3, 100),
-  description: stringOptional('Description', 0, 100),
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  status_type: stringMandatory('Status Type', 3, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleStatusTypeDTO = z.infer<
   typeof MasterVehicleStatusTypeSchema
 >;
 
-// ✅ Vehicle Status Type Query Schema
+// ✅ MasterVehicleStatusType Query Schema
 export const MasterVehicleStatusTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_status_type_ids: multi_select_optional('Vehicle Status Type'), // ✅ Multi-selection -> MasterVehicleStatusType
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vehicle_status_type_ids: multi_select_optional('MasterVehicleStatusType'), // ✅ Multi-selection -> MasterVehicleStatusType
 });
 export type MasterVehicleStatusTypeQueryDTO = z.infer<
   typeof MasterVehicleStatusTypeQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterVehicleStatusTypePayload = (
-  row: MasterVehicleStatusType
-): MasterVehicleStatusTypeDTO => ({
+export const toMasterVehicleStatusTypePayload = (row: MasterVehicleStatusType): MasterVehicleStatusTypeDTO => ({
   organisation_id: row.organisation_id ?? '',
-  vehicle_status_type: row.vehicle_status_type,
+  status_type: row.status_type,
   description: row.description || '',
   status: row.status,
 });
 
 // Generate a new payload with default values
-export const newMasterVehicleStatusTypePayload =
-  (): MasterVehicleStatusTypeDTO => ({
-    organisation_id: '',
-    vehicle_status_type: '',
-    description: '',
-    status: Status.Active,
-  });
+export const newMasterVehicleStatusTypePayload = (): MasterVehicleStatusTypeDTO => ({
+  organisation_id: '',
+  status_type: '',
+  description: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterVehicleStatusTypes = async (
-  data: MasterVehicleStatusTypeQueryDTO
-): Promise<FBR<MasterVehicleStatusType[]>> => {
-  return apiPost<
-    FBR<MasterVehicleStatusType[]>,
-    MasterVehicleStatusTypeQueryDTO
-  >(ENDPOINTS.find, data);
+export const findMasterVehicleStatusTypes = async (data: MasterVehicleStatusTypeQueryDTO): Promise<FBR<MasterVehicleStatusType[]>> => {
+  return apiPost<FBR<MasterVehicleStatusType[]>, MasterVehicleStatusTypeQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterVehicleStatusType = async (
-  data: MasterVehicleStatusTypeDTO
-): Promise<SBR> => {
+export const createMasterVehicleStatusType = async (data: MasterVehicleStatusTypeDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleStatusTypeDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterVehicleStatusType = async (
-  id: string,
-  data: MasterVehicleStatusTypeDTO
-): Promise<SBR> => {
+export const updateMasterVehicleStatusType = async (id: string, data: MasterVehicleStatusTypeDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterVehicleStatusTypeDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteMasterVehicleStatusType = async (
-  id: string
-): Promise<SBR> => {
+export const deleteMasterVehicleStatusType = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
 // API Cache Methods
-export const getMasterVehicleStatusTypeCache = async (
-  organisation_id: string
-): Promise<FBR<MasterVehicleStatusType[]>> => {
-  return apiGet<FBR<MasterVehicleStatusType[]>>(
-    ENDPOINTS.cache(organisation_id)
-  );
+export const getMasterVehicleStatusTypeCache = async (organisation_id: string): Promise<FBR<MasterVehicleStatusType[]>> => {
+  return apiGet<FBR<MasterVehicleStatusType[]>>(ENDPOINTS.cache(organisation_id));
+};
+
+export const getMasterVehicleStatusTypeCacheCount = async (organisation_id: string): Promise<FBR<MasterVehicleStatusType>> => {
+  return apiGet<FBR<MasterVehicleStatusType>>(ENDPOINTS.cache_count(organisation_id));
+};
+
+export const getMasterVehicleStatusTypeCacheChild = async (organisation_id: string): Promise<FBR<MasterVehicleStatusType[]>> => {
+  return apiGet<FBR<MasterVehicleStatusType[]>>(ENDPOINTS.cache_child(organisation_id));
 };

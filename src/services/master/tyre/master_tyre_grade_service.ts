@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -27,6 +28,7 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
 // Master Tyre Grade Interface
@@ -34,6 +36,7 @@ export interface MasterTyreGrade extends Record<string, unknown> {
   // Primary Fields
   tyre_grade_id: string;
   tyre_grade: string; // Min: 1, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -53,59 +56,50 @@ export interface MasterTyreGrade extends Record<string, unknown> {
   };
 }
 
-// ✅ Tyre Grade Create/Update Schema
+// ✅ MasterTyreGrade Create/Update Schema
 export const MasterTyreGradeSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   tyre_grade: stringMandatory('Tyre Grade', 1, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTyreGradeDTO = z.infer<typeof MasterTyreGradeSchema>;
 
-// ✅ Tyre Grade Query Schema
+// ✅ MasterTyreGrade Query Schema
 export const MasterTyreGradeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  tyre_grade_ids: multi_select_optional('Tyre Grade'), // ✅ Multi-selection -> MasterTyreGrade
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  tyre_grade_ids: multi_select_optional('MasterTyreGrade'), // ✅ Multi-selection -> MasterTyreGrade
 });
 export type MasterTyreGradeQueryDTO = z.infer<
   typeof MasterTyreGradeQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterTyreGradePayload = (
-  tyreGrade: MasterTyreGrade
-): MasterTyreGradeDTO => ({
-  organisation_id: tyreGrade.organisation_id ?? '',
-  tyre_grade: tyreGrade.tyre_grade,
-  status: tyreGrade.status,
+export const toMasterTyreGradePayload = (row: MasterTyreGrade): MasterTyreGradeDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  tyre_grade: row.tyre_grade,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newMasterTyreGradePayload = (): MasterTyreGradeDTO => ({
   organisation_id: '',
   tyre_grade: '',
+  description: '',
   status: Status.Active,
 });
 
 // API Methods
-export const findMasterTyreGrades = async (
-  data: MasterTyreGradeQueryDTO
-): Promise<FBR<MasterTyreGrade[]>> => {
-  return apiPost<FBR<MasterTyreGrade[]>, MasterTyreGradeQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterTyreGrades = async (data: MasterTyreGradeQueryDTO): Promise<FBR<MasterTyreGrade[]>> => {
+  return apiPost<FBR<MasterTyreGrade[]>, MasterTyreGradeQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterTyreGrade = async (
-  data: MasterTyreGradeDTO
-): Promise<SBR> => {
+export const createMasterTyreGrade = async (data: MasterTyreGradeDTO): Promise<SBR> => {
   return apiPost<SBR, MasterTyreGradeDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterTyreGrade = async (
-  id: string,
-  data: MasterTyreGradeDTO
-): Promise<SBR> => {
+export const updateMasterTyreGrade = async (id: string, data: MasterTyreGradeDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterTyreGradeDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -114,8 +108,11 @@ export const deleteMasterTyreGrade = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterTyreGradeCache = async (
-  organisation_id: string
-): Promise<FBR<MasterTyreGrade[]>> => {
+export const getMasterTyreGradeCache = async (organisation_id: string): Promise<FBR<MasterTyreGrade[]>> => {
   return apiGet<FBR<MasterTyreGrade[]>>(ENDPOINTS.cache(organisation_id));
 };
+
+export const getMasterTyreGradeCacheCount = async (organisation_id: string): Promise<FBR<MasterTyreGrade[]>> => {
+  return apiGet<FBR<MasterTyreGrade[]>>(ENDPOINTS.cache_count(organisation_id));
+};
+

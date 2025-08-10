@@ -62,16 +62,16 @@ export interface MasterMainCountry extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Country Create/Update Schema
+// ✅ MasterMainCountry Create/Update Schema
 export const MasterMainCountrySchema = z.object({
   country_name: stringMandatory('Country Name', 3, 100),
-  country_code: stringMandatory('Country Code', 2, 10),
+  country_code: stringMandatory('Country Code', 1, 10),
   country_mobile_code: stringMandatory('Country Mobile Code', 1, 10),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainCountryDTO = z.infer<typeof MasterMainCountrySchema>;
 
-// ✅ Master Main Country Query Schema
+// ✅ MasterMainCountry Query Schema
 export const MasterMainCountryQuerySchema = BaseQuerySchema.extend({
   country_ids: multi_select_optional('Country'), // ✅ Multi-selection -> MasterMainCountry
 });
@@ -80,13 +80,11 @@ export type MasterMainCountryQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainCountryPayload = (
-  country: MasterMainCountry
-): MasterMainCountryDTO => ({
-  country_name: country.country_name,
-  country_code: country.country_code,
-  country_mobile_code: country.country_mobile_code,
-  status: country.status,
+export const toMasterMainCountryPayload = (row: MasterMainCountry): MasterMainCountryDTO => ({
+  country_name: row.country_name,
+  country_code: row.country_code,
+  country_mobile_code: row.country_mobile_code,
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -98,25 +96,15 @@ export const newMasterMainCountryPayload = (): MasterMainCountryDTO => ({
 });
 
 // API Methods
-export const findMasterMainCountries = async (
-  data: MasterMainCountryQueryDTO
-): Promise<FBR<MasterMainCountry[]>> => {
-  return apiPost<FBR<MasterMainCountry[]>, MasterMainCountryQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainCountries = async (data: MasterMainCountryQueryDTO): Promise<FBR<MasterMainCountry[]>> => {
+  return apiPost<FBR<MasterMainCountry[]>, MasterMainCountryQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainCountry = async (
-  data: MasterMainCountryDTO
-): Promise<SBR> => {
+export const createMasterMainCountry = async (data: MasterMainCountryDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainCountryDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainCountry = async (
-  id: string,
-  data: MasterMainCountryDTO
-): Promise<SBR> => {
+export const updateMasterMainCountry = async (id: string, data: MasterMainCountryDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainCountryDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -125,14 +113,11 @@ export const deleteMasterMainCountry = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterMainCountryCache = async (): Promise<
-  FBR<MasterMainCountry[]>
-> => {
+export const getMasterMainCountryCache = async (): Promise<FBR<MasterMainCountry[]>> => {
   return apiGet<FBR<MasterMainCountry[]>>(ENDPOINTS.cache);
 };
 
-export const getMasterMainCountryCacheChild = async (): Promise<
-  FBR<MasterMainCountry[]>
-> => {
+export const getMasterMainCountryCacheChild = async (): Promise<FBR<MasterMainCountry[]>> => {
   return apiGet<FBR<MasterMainCountry[]>>(ENDPOINTS.cache_child);
 };
+

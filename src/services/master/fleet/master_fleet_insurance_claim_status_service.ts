@@ -9,6 +9,7 @@ import {
   enumMandatory,
   multi_select_optional,
   single_select_mandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -35,6 +36,7 @@ export interface MasterFleetInsuranceClaimStatus
   // Primary Fields
   fleet_insurance_claim_status_id: string;
   fleet_insurance_claim_status: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -54,26 +56,27 @@ export interface MasterFleetInsuranceClaimStatus
   };
 }
 
-// ✅ Master Fleet Insurance Claim Status Create/Update Schema
+// ✅ MasterFleetInsuranceClaimStatus Create/Update Schema
 export const MasterFleetInsuranceClaimStatusSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   fleet_insurance_claim_status: stringMandatory(
     'Fleet Insurance Claim Status',
     3,
-    100
+    100,
   ),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterFleetInsuranceClaimStatusDTO = z.infer<
   typeof MasterFleetInsuranceClaimStatusSchema
 >;
 
-// ✅ Master Fleet Insurance Claim Status Query Schema
+// ✅ MasterFleetInsuranceClaimStatus Query Schema
 export const MasterFleetInsuranceClaimStatusQuerySchema =
   BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
     fleet_insurance_claim_status_ids: multi_select_optional(
-      'Fleet Insurance Claim Status'
+      'MasterFleetInsuranceClaimStatus',
     ), // ✅ Multi-selection -> MasterFleetInsuranceClaimStatus
   });
 export type MasterFleetInsuranceClaimStatusQueryDTO = z.infer<
@@ -81,62 +84,40 @@ export type MasterFleetInsuranceClaimStatusQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toMasterFleetInsuranceClaimStatusPayload = (
-  claimStatus: MasterFleetInsuranceClaimStatus
-): MasterFleetInsuranceClaimStatusDTO => ({
-  organisation_id: claimStatus.organisation_id ?? '',
-  fleet_insurance_claim_status: claimStatus.fleet_insurance_claim_status,
-  status: claimStatus.status,
+export const toMasterFleetInsuranceClaimStatusPayload = (row: MasterFleetInsuranceClaimStatus): MasterFleetInsuranceClaimStatusDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  fleet_insurance_claim_status: row.fleet_insurance_claim_status,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
-export const newMasterFleetInsuranceClaimStatusPayload =
-  (): MasterFleetInsuranceClaimStatusDTO => ({
-    organisation_id: '',
-    fleet_insurance_claim_status: '',
-    status: Status.Active,
-  });
+export const newMasterFleetInsuranceClaimStatusPayload = (): MasterFleetInsuranceClaimStatusDTO => ({
+  organisation_id: '',
+  fleet_insurance_claim_status: '',
+  description: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterFleetInsuranceClaimStatuses = async (
-  data: MasterFleetInsuranceClaimStatusQueryDTO
-): Promise<FBR<MasterFleetInsuranceClaimStatus[]>> => {
-  return apiPost<
-    FBR<MasterFleetInsuranceClaimStatus[]>,
-    MasterFleetInsuranceClaimStatusQueryDTO
-  >(ENDPOINTS.find, data);
+export const findMasterFleetInsuranceClaimStatuses = async (data: MasterFleetInsuranceClaimStatusQueryDTO): Promise<FBR<MasterFleetInsuranceClaimStatus[]>> => {
+  return apiPost<FBR<MasterFleetInsuranceClaimStatus[]>, MasterFleetInsuranceClaimStatusQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterFleetInsuranceClaimStatus = async (
-  data: MasterFleetInsuranceClaimStatusDTO
-): Promise<SBR> => {
-  return apiPost<SBR, MasterFleetInsuranceClaimStatusDTO>(
-    ENDPOINTS.create,
-    data
-  );
+export const createMasterFleetInsuranceClaimStatus = async (data: MasterFleetInsuranceClaimStatusDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterFleetInsuranceClaimStatusDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterFleetInsuranceClaimStatus = async (
-  id: string,
-  data: MasterFleetInsuranceClaimStatusDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, MasterFleetInsuranceClaimStatusDTO>(
-    ENDPOINTS.update(id),
-    data
-  );
+export const updateMasterFleetInsuranceClaimStatus = async (id: string, data: MasterFleetInsuranceClaimStatusDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterFleetInsuranceClaimStatusDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteMasterFleetInsuranceClaimStatus = async (
-  id: string
-): Promise<SBR> => {
+export const deleteMasterFleetInsuranceClaimStatus = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
 // API Cache Methods
-export const getMasterFleetInsuranceClaimStatusCache = async (
-  organisation_id: string
-): Promise<FBR<MasterFleetInsuranceClaimStatus[]>> => {
-  return apiGet<FBR<MasterFleetInsuranceClaimStatus[]>>(
-    ENDPOINTS.cache(organisation_id)
-  );
+export const getMasterFleetInsuranceClaimStatusCache = async (organisation_id: string): Promise<FBR<MasterFleetInsuranceClaimStatus[]>> => {
+  return apiGet<FBR<MasterFleetInsuranceClaimStatus[]>>(ENDPOINTS.cache(organisation_id));
 };
+

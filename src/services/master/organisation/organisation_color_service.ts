@@ -58,9 +58,9 @@ export interface OrganisationColor extends Record<string, unknown> {
   };
 }
 
-// ✅ OrganisationColor Create/Update DTO Schema
+// ✅ OrganisationColor Create/Update Schema
 export const OrganisationColorSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   color_name: stringMandatory('Color Name', 3, 100),
   color_code: stringMandatory('Color Code', 3, 100),
   description: stringOptional('Description', 0, 300),
@@ -68,19 +68,17 @@ export const OrganisationColorSchema = z.object({
 });
 export type OrganisationColorDTO = z.infer<typeof OrganisationColorSchema>;
 
-// ✅ OrganisationColor Query DTO Schema
+// ✅ OrganisationColor Query Schema
 export const OrganisationColorQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_color_ids: multi_select_optional('Organisation Color'), // ✅ Multi-selection -> OrganisationColor
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_color_ids: multi_select_optional('OrganisationColor'), // ✅ Multi-selection -> OrganisationColor
 });
 export type OrganisationColorQueryDTO = z.infer<
   typeof OrganisationColorQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toOrganisationColorPayload = (
-  row: OrganisationColor
-): OrganisationColorDTO => ({
+export const toOrganisationColorPayload = (row: OrganisationColor): OrganisationColorDTO => ({
   organisation_id: row.organisation_id ?? '',
   color_name: row.color_name,
   color_code: row.color_code,
@@ -98,25 +96,15 @@ export const newOrganisationColorPayload = (): OrganisationColorDTO => ({
 });
 
 // API Methods
-export const findOrganisationColors = async (
-  data: OrganisationColorQueryDTO
-): Promise<FBR<OrganisationColor[]>> => {
-  return apiPost<FBR<OrganisationColor[]>, OrganisationColorQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findOrganisationColors = async (data: OrganisationColorQueryDTO): Promise<FBR<OrganisationColor[]>> => {
+  return apiPost<FBR<OrganisationColor[]>, OrganisationColorQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createOrganisationColor = async (
-  data: OrganisationColorDTO
-): Promise<SBR> => {
+export const createOrganisationColor = async (data: OrganisationColorDTO): Promise<SBR> => {
   return apiPost<SBR, OrganisationColorDTO>(ENDPOINTS.create, data);
 };
 
-export const updateOrganisationColor = async (
-  id: string,
-  data: OrganisationColorDTO
-): Promise<SBR> => {
+export const updateOrganisationColor = async (id: string, data: OrganisationColorDTO): Promise<SBR> => {
   return apiPatch<SBR, OrganisationColorDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -125,24 +113,14 @@ export const deleteOrganisationColor = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getOrganisationColorCache = async (
-  organisation_id: string
-): Promise<FBR<OrganisationColor[]>> => {
+export const getOrganisationColorCache = async (organisation_id: string): Promise<FBR<OrganisationColor[]>> => {
   return apiGet<FBR<OrganisationColor[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getOrganisationColorCacheChild = async (
-  organisation_id: string
-): Promise<FBR<OrganisationColor[]>> => {
-  return apiGet<FBR<OrganisationColor[]>>(
-    ENDPOINTS.cache_child(organisation_id)
-  );
+export const getOrganisationColorCacheCount = async (organisation_id: string): Promise<FBR<OrganisationColor[]>> => {
+  return apiGet<FBR<OrganisationColor[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 
-export const getOrganisationColorCacheCount = async (
-  organisation_id: string
-): Promise<FBR<OrganisationColor[]>> => {
-  return apiGet<FBR<OrganisationColor[]>>(
-    ENDPOINTS.cache_count(organisation_id)
-  );
+export const getOrganisationColorCacheChild = async (organisation_id: string): Promise<FBR<OrganisationColor[]>> => {
+  return apiGet<FBR<OrganisationColor[]>>(ENDPOINTS.cache_child(organisation_id));
 };

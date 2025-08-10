@@ -59,9 +59,9 @@ export interface OrganisationBranch extends Record<string, unknown> {
   };
 }
 
-// ✅ OrganisationBranch Create/Update DTO Schema
+// ✅ OrganisationBranch Create/Update Schema
 export const OrganisationBranchSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   branch_name: stringMandatory('Branch Name', 3, 100),
   branch_city: stringMandatory('Branch City', 3, 100),
   branch_address: stringMandatory('Branch Address', 3, 100),
@@ -70,19 +70,17 @@ export const OrganisationBranchSchema = z.object({
 });
 export type OrganisationBranchDTO = z.infer<typeof OrganisationBranchSchema>;
 
-// ✅ OrganisationBranch Query DTO Schema
+// ✅ OrganisationBranch Query Schema
 export const OrganisationBranchQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_branch_ids: multi_select_optional('Organisation Branch'), // ✅ Multi-selection -> OrganisationBranch
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
 });
 export type OrganisationBranchQueryDTO = z.infer<
   typeof OrganisationBranchQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toOrganisationBranchPayload = (
-  row: OrganisationBranch
-): OrganisationBranchDTO => ({
+export const toOrganisationBranchPayload = (row: OrganisationBranch): OrganisationBranchDTO => ({
   organisation_id: row.organisation_id,
   branch_name: row.branch_name,
   branch_city: row.branch_city,
@@ -102,25 +100,15 @@ export const newOrganisationBranchPayload = (): OrganisationBranchDTO => ({
 });
 
 // API Methods
-export const findOrganisationBranches = async (
-  data: OrganisationBranchQueryDTO
-): Promise<FBR<OrganisationBranch[]>> => {
-  return apiPost<FBR<OrganisationBranch[]>, OrganisationBranchQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findOrganisationBranchs = async (data: OrganisationBranchQueryDTO): Promise<FBR<OrganisationBranch[]>> => {
+  return apiPost<FBR<OrganisationBranch[]>, OrganisationBranchQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createOrganisationBranch = async (
-  data: OrganisationBranchDTO
-): Promise<SBR> => {
+export const createOrganisationBranch = async (data: OrganisationBranchDTO): Promise<SBR> => {
   return apiPost<SBR, OrganisationBranchDTO>(ENDPOINTS.create, data);
 };
 
-export const updateOrganisationBranch = async (
-  id: string,
-  data: OrganisationBranchDTO
-): Promise<SBR> => {
+export const updateOrganisationBranch = async (id: string, data: OrganisationBranchDTO): Promise<SBR> => {
   return apiPatch<SBR, OrganisationBranchDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -129,24 +117,14 @@ export const deleteOrganisationBranch = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getOrganisationBranchCache = async (
-  organisation_id: string
-): Promise<FBR<OrganisationBranch[]>> => {
+export const getOrganisationBranchCache = async (organisation_id: string): Promise<FBR<OrganisationBranch[]>> => {
   return apiGet<FBR<OrganisationBranch[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getOrganisationBranchCacheCount = async (
-  organisation_id: string
-): Promise<FBR<OrganisationBranch[]>> => {
-  return apiGet<FBR<OrganisationBranch[]>>(
-    ENDPOINTS.cache_count(organisation_id)
-  );
+export const getOrganisationBranchCacheCount = async (organisation_id: string): Promise<FBR<OrganisationBranch[]>> => {
+  return apiGet<FBR<OrganisationBranch[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 
-export const getOrganisationBranchCacheChild = async (
-  organisation_id: string
-): Promise<FBR<OrganisationBranch[]>> => {
-  return apiGet<FBR<OrganisationBranch[]>>(
-    ENDPOINTS.cache_child(organisation_id)
-  );
+export const getOrganisationBranchCacheChild = async (organisation_id: string): Promise<FBR<OrganisationBranch[]>> => {
+  return apiGet<FBR<OrganisationBranch[]>>(ENDPOINTS.cache_child(organisation_id));
 };

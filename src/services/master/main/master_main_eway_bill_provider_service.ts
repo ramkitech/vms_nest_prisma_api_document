@@ -39,7 +39,7 @@ export interface MasterMainEwayBillProvider extends Record<string, unknown> {
   modified_date_time: string;
 }
 
-// ✅ Master Main EWay Bill Provider Create/Update Schema
+// ✅ MasterMainEwayBillProvider Create/Update Schema
 export const MasterMainEwayBillProviderSchema = z.object({
   provider_name: stringMandatory('Provider Name', 3, 100),
   provider_code: stringOptional('Provider Code', 0, 10),
@@ -49,66 +49,47 @@ export type MasterMainEwayBillProviderDTO = z.infer<
   typeof MasterMainEwayBillProviderSchema
 >;
 
-// ✅ Master Main EWay Bill Provider Query Schema
+// ✅ MasterMainEwayBillProvider Query Schema
 export const MasterMainEwayBillProviderQuerySchema = BaseQuerySchema.extend({
-  e_way_bill_provider_ids: multi_select_optional('MasterMainEWayBillProvider'),
+  e_way_bill_provider_ids: multi_select_optional('MasterMainEWayBillProvider'), // ✅ Multi-selection -> MasterMainEWayBillProvider
 });
 export type MasterMainEwayBillProviderQueryDTO = z.infer<
   typeof MasterMainEwayBillProviderQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainEwayBillProviderPayload = (
-  provider: MasterMainEwayBillProvider
-): MasterMainEwayBillProviderDTO => ({
-  provider_name: provider.provider_name,
-  provider_code: provider.provider_code ?? '',
-  status: provider.status,
+export const toMasterMainEwayBillProviderPayload = (row: MasterMainEwayBillProvider): MasterMainEwayBillProviderDTO => ({
+  provider_name: row.provider_name,
+  provider_code: row.provider_code ?? '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
-export const newMasterMainEwayBillProviderPayload =
-  (): MasterMainEwayBillProviderDTO => ({
-    provider_name: '',
-    provider_code: '',
-    status: Status.Active,
-  });
+export const newMasterMainEwayBillProviderPayload = (): MasterMainEwayBillProviderDTO => ({
+  provider_name: '',
+  provider_code: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterMainEwayBillProviders = async (
-  data: MasterMainEwayBillProviderQueryDTO
-): Promise<FBR<MasterMainEwayBillProvider[]>> => {
-  return apiPost<
-    FBR<MasterMainEwayBillProvider[]>,
-    MasterMainEwayBillProviderQueryDTO
-  >(ENDPOINTS.find, data);
+export const findMasterMainEwayBillProviders = async (data: MasterMainEwayBillProviderQueryDTO): Promise<FBR<MasterMainEwayBillProvider[]>> => {
+  return apiPost<FBR<MasterMainEwayBillProvider[]>, MasterMainEwayBillProviderQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainEwayBillProvider = async (
-  data: MasterMainEwayBillProviderDTO
-): Promise<SBR> => {
+export const createMasterMainEwayBillProvider = async (data: MasterMainEwayBillProviderDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainEwayBillProviderDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainEwayBillProvider = async (
-  id: string,
-  data: MasterMainEwayBillProviderDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, MasterMainEwayBillProviderDTO>(
-    ENDPOINTS.update(id),
-    data
-  );
+export const updateMasterMainEwayBillProvider = async (id: string, data: MasterMainEwayBillProviderDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterMainEwayBillProviderDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteMasterMainEwayBillProvider = async (
-  id: string
-): Promise<SBR> => {
+export const deleteMasterMainEwayBillProvider = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Method
-export const getMasterMainEwayBillProviderCache = async (): Promise<
-  FBR<MasterMainEwayBillProvider[]>
-> => {
+// API Cache Methods
+export const getMasterMainEwayBillProviderCache = async (): Promise<FBR<MasterMainEwayBillProvider[]>> => {
   return apiGet<FBR<MasterMainEwayBillProvider[]>>(ENDPOINTS.cache);
 };
+

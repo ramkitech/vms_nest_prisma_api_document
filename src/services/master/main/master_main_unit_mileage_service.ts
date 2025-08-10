@@ -48,27 +48,29 @@ export interface MasterMainUnitMileage extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Unit Mileage Create/Update Schema
+// ✅ MasterMainUnitMileage Create/Update Schema
 export const MasterMainUnitMileageSchema = z.object({
   unit_name: stringMandatory('Unit Name', 1, 50),
   unit_code: stringMandatory('Unit Code', 1, 10),
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type MasterMainUnitMileageDTO = z.infer<typeof MasterMainUnitMileageSchema>;
+export type MasterMainUnitMileageDTO = z.infer<
+  typeof MasterMainUnitMileageSchema
+>;
 
-// ✅ Master Main Unit Mileage Query Schema
+// ✅ MasterMainUnitMileage Query Schema
 export const MasterMainUnitMileageQuerySchema = BaseQuerySchema.extend({
   unit_ids: multi_select_optional('Unit Mileage'), // ✅ Multi-selection -> MasterMainUnitMileage
 });
-export type MasterMainUnitMileageQueryDTO = z.infer<typeof MasterMainUnitMileageQuerySchema>;
+export type MasterMainUnitMileageQueryDTO = z.infer<
+  typeof MasterMainUnitMileageQuerySchema
+>;
 
 // Convert existing data to a payload structure
-export const toMasterMainUnitMileagePayload = (
-  unitMileage: MasterMainUnitMileage
-): MasterMainUnitMileageDTO => ({
-  unit_name: unitMileage.unit_name,
-  unit_code: unitMileage.unit_code,
-  status: unitMileage.status,
+export const toMasterMainUnitMileagePayload = (row: MasterMainUnitMileage): MasterMainUnitMileageDTO => ({
+  unit_name: row.unit_name,
+  unit_code: row.unit_code,
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -79,25 +81,15 @@ export const newMasterMainUnitMileagePayload = (): MasterMainUnitMileageDTO => (
 });
 
 // API Methods
-export const findMasterMainUnitMileages = async (
-  data: MasterMainUnitMileageQueryDTO
-): Promise<FBR<MasterMainUnitMileage[]>> => {
-  return apiPost<FBR<MasterMainUnitMileage[]>, MasterMainUnitMileageQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainUnitMileages = async (data: MasterMainUnitMileageQueryDTO): Promise<FBR<MasterMainUnitMileage[]>> => {
+  return apiPost<FBR<MasterMainUnitMileage[]>, MasterMainUnitMileageQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainUnitMileage = async (
-  data: MasterMainUnitMileageDTO
-): Promise<SBR> => {
+export const createMasterMainUnitMileage = async (data: MasterMainUnitMileageDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainUnitMileageDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainUnitMileage = async (
-  id: string,
-  data: MasterMainUnitMileageDTO
-): Promise<SBR> => {
+export const updateMasterMainUnitMileage = async (id: string, data: MasterMainUnitMileageDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainUnitMileageDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -109,3 +101,4 @@ export const deleteMasterMainUnitMileage = async (id: string): Promise<SBR> => {
 export const getMasterMainUnitMileageCache = async (): Promise<FBR<MasterMainUnitMileage[]>> => {
   return apiGet<FBR<MasterMainUnitMileage[]>>(ENDPOINTS.cache);
 };
+

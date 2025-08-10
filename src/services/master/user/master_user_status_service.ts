@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -27,6 +28,7 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
 // User Status Interface
@@ -34,6 +36,7 @@ export interface MasterUserStatus extends Record<string, unknown> {
   // Primary Fields
   user_status_id: string;
   user_status: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -53,59 +56,50 @@ export interface MasterUserStatus extends Record<string, unknown> {
   };
 }
 
-// ✅ User Status Create/Update Schema
+// ✅ MasterUserStatus Create/Update Schema
 export const MasterUserStatusSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   user_status: stringMandatory('User Status', 3, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterUserStatusDTO = z.infer<typeof MasterUserStatusSchema>;
 
-// ✅ User Status Query Schema
+// ✅ MasterUserStatus Query Schema
 export const MasterUserStatusQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  user_status_ids: multi_select_optional('User Status'), // ✅ Multi-selection -> MasterUserStatus
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  user_status_ids: multi_select_optional('MasterUserStatus'), // ✅ Multi-selection -> MasterUserStatus
 });
 export type MasterUserStatusQueryDTO = z.infer<
   typeof MasterUserStatusQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterUserStatusPayload = (
-  userStatus: MasterUserStatus
-): MasterUserStatusDTO => ({
-  organisation_id: userStatus.organisation_id ?? '',
-  user_status: userStatus.user_status,
-  status: userStatus.status,
+export const toMasterUserStatusPayload = (row: MasterUserStatus): MasterUserStatusDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  user_status: row.user_status,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newMasterUserStatusPayload = (): MasterUserStatusDTO => ({
   organisation_id: '',
   user_status: '',
+  description: '',
   status: Status.Active,
 });
 
 // API Methods
-export const findMasterUserStatuses = async (
-  data: MasterUserStatusQueryDTO
-): Promise<FBR<MasterUserStatus[]>> => {
-  return apiPost<FBR<MasterUserStatus[]>, MasterUserStatusQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterUserStatuses = async (data: MasterUserStatusQueryDTO): Promise<FBR<MasterUserStatus[]>> => {
+  return apiPost<FBR<MasterUserStatus[]>, MasterUserStatusQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterUserStatus = async (
-  data: MasterUserStatusDTO
-): Promise<SBR> => {
+export const createMasterUserStatus = async (data: MasterUserStatusDTO): Promise<SBR> => {
   return apiPost<SBR, MasterUserStatusDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterUserStatus = async (
-  id: string,
-  data: MasterUserStatusDTO
-): Promise<SBR> => {
+export const updateMasterUserStatus = async (id: string, data: MasterUserStatusDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterUserStatusDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -114,8 +108,11 @@ export const deleteMasterUserStatus = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterUserStatusCache = async (
-  organisation_id: string
-): Promise<FBR<MasterUserStatus[]>> => {
+export const getMasterUserStatusCache = async (organisation_id: string): Promise<FBR<MasterUserStatus[]>> => {
   return apiGet<FBR<MasterUserStatus[]>>(ENDPOINTS.cache(organisation_id));
 };
+
+export const getMasterUserStatusCacheCount = async (organisation_id: string): Promise<FBR<MasterUserStatus>> => {
+  return apiGet<FBR<MasterUserStatus>>(ENDPOINTS.cache_count(organisation_id));
+};
+

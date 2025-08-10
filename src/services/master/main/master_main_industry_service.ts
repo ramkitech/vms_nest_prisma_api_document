@@ -33,7 +33,7 @@ export interface MasterMainIndustry extends Record<string, unknown> {
   // Primary Fields
   industry_id: string;
   industry_name: string; // Min: 3, Max: 100
-  industry_description?: string; // Optional, Max: 300
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -49,58 +49,46 @@ export interface MasterMainIndustry extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Industry Create/Update Schema
+// ✅ MasterMainIndustry Create/Update Schema
 export const MasterMainIndustrySchema = z.object({
   industry_name: stringMandatory('Industry Name', 3, 100),
-  industry_description: stringOptional('Industry Description', 0, 300),
+  description: stringOptional('Industry Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainIndustryDTO = z.infer<typeof MasterMainIndustrySchema>;
 
-// ✅ Master Main Industry Query Schema
+// ✅ MasterMainIndustry Query Schema
 export const MasterMainIndustryQuerySchema = BaseQuerySchema.extend({
-  industry_ids: multi_select_optional('Industry'), // ✅ Multi-selection -> MasterMainIndustry
+  industry_ids: multi_select_optional('MasterMainIndustry'), // ✅ Multi-Selection -> MasterMainIndustry
 });
 export type MasterMainIndustryQueryDTO = z.infer<
   typeof MasterMainIndustryQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainIndustryPayload = (
-  industry: MasterMainIndustry
-): MasterMainIndustryDTO => ({
-  industry_name: industry.industry_name,
-  industry_description: industry.industry_description ?? '',
-  status: industry.status,
+export const toMasterMainIndustryPayload = (row: MasterMainIndustry): MasterMainIndustryDTO => ({
+  industry_name: row.industry_name,
+  description: row.description ?? '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newMasterMainIndustryPayload = (): MasterMainIndustryDTO => ({
   industry_name: '',
-  industry_description: '',
+  description: '',
   status: Status.Active,
 });
 
 // API Methods
-export const findMasterMainIndustries = async (
-  data: MasterMainIndustryQueryDTO
-): Promise<FBR<MasterMainIndustry[]>> => {
-  return apiPost<FBR<MasterMainIndustry[]>, MasterMainIndustryQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainIndustrys = async (data: MasterMainIndustryQueryDTO): Promise<FBR<MasterMainIndustry[]>> => {
+  return apiPost<FBR<MasterMainIndustry[]>, MasterMainIndustryQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainIndustry = async (
-  data: MasterMainIndustryDTO
-): Promise<SBR> => {
+export const createMasterMainIndustry = async (data: MasterMainIndustryDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainIndustryDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainIndustry = async (
-  id: string,
-  data: MasterMainIndustryDTO
-): Promise<SBR> => {
+export const updateMasterMainIndustry = async (id: string, data: MasterMainIndustryDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainIndustryDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -109,8 +97,7 @@ export const deleteMasterMainIndustry = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterMainIndustryCache = async (): Promise<
-  FBR<MasterMainIndustry[]>
-> => {
+export const getMasterMainIndustryCache = async (): Promise<FBR<MasterMainIndustry[]>> => {
   return apiGet<FBR<MasterMainIndustry[]>>(ENDPOINTS.cache);
 };
+

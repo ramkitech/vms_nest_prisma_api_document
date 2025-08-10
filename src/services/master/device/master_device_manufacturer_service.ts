@@ -38,6 +38,7 @@ export interface MasterDeviceManufacturer extends Record<string, unknown> {
   device_manufacturer_id: string;
   device_manufacturer_name: string; // Min: 3, Max: 100
   device_manufacturer_code?: string; // Max: 100
+  description?: string; // Max: 300
 
   // Metadata
   status: Status;
@@ -57,53 +58,51 @@ export interface MasterDeviceManufacturer extends Record<string, unknown> {
   };
 }
 
-// ✅ Manufacturer Create/Update Schema
+// ✅ MasterDeviceManufacturer Create/Update Schema
 export const MasterDeviceManufacturerSchema = z.object({
   device_manufacturer_name: stringMandatory('Device Manufacturer Name', 3, 100),
   device_manufacturer_code: stringOptional('Device Manufacturer Code', 0, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type MasterDeviceManufacturerDTO = z.infer<typeof MasterDeviceManufacturerSchema>;
+export type MasterDeviceManufacturerDTO = z.infer<
+  typeof MasterDeviceManufacturerSchema
+>;
 
-// ✅ Manufacturer Query Schema
+// ✅ MasterDeviceManufacturer Query Schema
 export const MasterDeviceManufacturerQuerySchema = BaseQuerySchema.extend({
-  device_manufacturer_ids: multi_select_optional('Device Manufacturer'), // ✅ Multi-selection -> MasterDeviceManufacturer
+  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // ✅ Multi-selection -> MasterDeviceManufacturer
 });
-export type MasterDeviceManufacturerQueryDTO = z.infer<typeof MasterDeviceManufacturerQuerySchema>;
+export type MasterDeviceManufacturerQueryDTO = z.infer<
+  typeof MasterDeviceManufacturerQuerySchema
+>;
 
 // Convert existing data to a payload structure
-export const toMasterDeviceManufacturerPayload = (
-  manufacturer: MasterDeviceManufacturer
-): MasterDeviceManufacturerDTO => ({
-  device_manufacturer_name: manufacturer.device_manufacturer_name,
-  device_manufacturer_code: manufacturer.device_manufacturer_code ?? '',
-  status: manufacturer.status,
+export const toMasterDeviceManufacturerPayload = (row: MasterDeviceManufacturer): MasterDeviceManufacturerDTO => ({
+  device_manufacturer_name: row.device_manufacturer_name,
+  device_manufacturer_code: row.device_manufacturer_code ?? '',
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newMasterDeviceManufacturerPayload = (): MasterDeviceManufacturerDTO => ({
   device_manufacturer_name: '',
   device_manufacturer_code: '',
+  description: '',
   status: Status.Active,
 });
 
 // API Methods
-export const findMasterDeviceManufacturers = async (
-  data: MasterDeviceManufacturerQueryDTO
-): Promise<FBR<MasterDeviceManufacturer[]>> => {
+export const findMasterDeviceManufacturers = async (data: MasterDeviceManufacturerQueryDTO): Promise<FBR<MasterDeviceManufacturer[]>> => {
   return apiPost<FBR<MasterDeviceManufacturer[]>, MasterDeviceManufacturerQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterDeviceManufacturer = async (
-  data: MasterDeviceManufacturerDTO
-): Promise<SBR> => {
+export const createMasterDeviceManufacturer = async (data: MasterDeviceManufacturerDTO): Promise<SBR> => {
   return apiPost<SBR, MasterDeviceManufacturerDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterDeviceManufacturer = async (
-  id: string,
-  data: MasterDeviceManufacturerDTO
-): Promise<SBR> => {
+export const updateMasterDeviceManufacturer = async (id: string, data: MasterDeviceManufacturerDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterDeviceManufacturerDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -116,8 +115,8 @@ export const getMasterDeviceManufacturerCache = async (): Promise<FBR<MasterDevi
   return apiGet<FBR<MasterDeviceManufacturer[]>>(ENDPOINTS.cache);
 };
 
-export const getMasterDeviceManufacturerCacheCount = async (): Promise<FBR<number>> => {
-  return apiGet<FBR<number>>(ENDPOINTS.cache_count);
+export const getMasterDeviceManufacturerCacheCount = async (): Promise<FBR<MasterDeviceManufacturer>> => {
+  return apiGet<FBR<MasterDeviceManufacturer>>(ENDPOINTS.cache_count);
 };
 
 export const getMasterDeviceManufacturerCacheChild = async (): Promise<FBR<MasterDeviceManufacturer[]>> => {

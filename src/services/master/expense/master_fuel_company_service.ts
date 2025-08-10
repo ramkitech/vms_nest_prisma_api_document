@@ -38,7 +38,7 @@ export interface MasterFuelCompany extends Record<string, unknown> {
   company_name: string; // Min: 3, Max: 100
   description?: string; // Optional, Max: 100
 
-    // Logo
+  // Logo
   logo_url: String;
   logo_key: String;
 
@@ -57,11 +57,10 @@ export interface MasterFuelCompany extends Record<string, unknown> {
 
 // ✅ MasterFuelCompany Create/Update Schema
 export const MasterFuelCompanySchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
-  country_id: single_select_mandatory('Master Main Country'), // ✅ Single-selection -> MasterMainCountry
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
   company_name: stringMandatory('Company Name', 3, 100),
-  description: stringOptional('Description', 0, 200),
-
+  description: stringOptional('Description', 0, 300),
   logo_url: stringOptional('Logo URL', 0, 300),
   logo_key: stringOptional('Logo Key', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -70,25 +69,23 @@ export type MasterFuelCompanyDTO = z.infer<typeof MasterFuelCompanySchema>;
 
 // ✅ MasterFuelCompany Query Schema
 export const MasterFuelCompanyQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  country_ids: multi_select_optional('Master Main Country'), // ✅ Multi-selection -> MasterMainCountry
-  fuel_company_ids: multi_select_optional('Master Fuel Company'), // ✅ Multi-selection -> MasterFuelCompany
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-Selection -> MasterMainCountry
+  fuel_company_ids: multi_select_optional('MasterFuelCompany'), // ✅ Multi-Selection -> MasterFuelCompany
 });
 export type MasterFuelCompanyQueryDTO = z.infer<
   typeof MasterFuelCompanyQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterFuelCompanyPayload = (
-  masterFuelCompany: MasterFuelCompany
-): MasterFuelCompanyDTO => ({
-  organisation_id: masterFuelCompany.organisation_id ?? '',
-  country_id: masterFuelCompany.country_id ?? '',
-  company_name: masterFuelCompany.company_name,
+export const toMasterFuelCompanyPayload = (row: MasterFuelCompany): MasterFuelCompanyDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  country_id: row.country_id ?? '',
+  company_name: row.company_name,
   logo_url: '',
   logo_key: '',
-  description: masterFuelCompany.description ?? '',
-  status: masterFuelCompany.status,
+  description: row.description ?? '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -103,25 +100,15 @@ export const newMasterFuelCompanyPayload = (): MasterFuelCompanyDTO => ({
 });
 
 // API Methods
-export const findMasterFuelCompanys = async (
-  data: MasterFuelCompanyQueryDTO
-): Promise<FBR<MasterFuelCompany[]>> => {
-  return apiPost<FBR<MasterFuelCompany[]>, MasterFuelCompanyQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterFuelCompanys = async (data: MasterFuelCompanyQueryDTO): Promise<FBR<MasterFuelCompany[]>> => {
+  return apiPost<FBR<MasterFuelCompany[]>, MasterFuelCompanyQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterFuelCompany = async (
-  data: MasterFuelCompanyDTO
-): Promise<SBR> => {
+export const createMasterFuelCompany = async (data: MasterFuelCompanyDTO): Promise<SBR> => {
   return apiPost<SBR, MasterFuelCompanyDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterFuelCompany = async (
-  id: string,
-  data: MasterFuelCompanyDTO
-): Promise<SBR> => {
+export const updateMasterFuelCompany = async (id: string, data: MasterFuelCompanyDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterFuelCompanyDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -130,8 +117,7 @@ export const deleteMasterFuelCompany = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterFuelCompanyCache = async (
-  organisation_id: string
-): Promise<FBR<MasterFuelCompany[]>> => {
+export const getMasterFuelCompanyCache = async (organisation_id: string): Promise<FBR<MasterFuelCompany[]>> => {
   return apiGet<FBR<MasterFuelCompany[]>>(ENDPOINTS.cache(organisation_id));
 };
+

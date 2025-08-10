@@ -49,9 +49,9 @@ export interface MasterVendorDocumentType extends Record<string, unknown> {
 
 // ✅ MasterVendorDocumentType Create/Update Schema
 export const MasterVendorDocumentTypeSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   document_type: stringMandatory('Document Type', 3, 100),
-  description: stringOptional('Description', 0, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVendorDocumentTypeDTO = z.infer<
@@ -60,21 +60,19 @@ export type MasterVendorDocumentTypeDTO = z.infer<
 
 // ✅ MasterVendorDocumentType Query Schema
 export const MasterVendorDocumentTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  document_type_ids: multi_select_optional('Document Type'), // ✅ Multi-selection -> MasterVendorDocumentType
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  document_type_ids: multi_select_optional('MasterVendorDocumentType'), // ✅ Multi-Selection -> MasterVendorDocumentType
 });
 export type MasterVendorDocumentTypeQueryDTO = z.infer<
   typeof MasterVendorDocumentTypeQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterVendorDocumentTypePayload = (
-  masterVendorDocumentType: MasterVendorDocumentType
-): MasterVendorDocumentTypeDTO => ({
-  organisation_id: masterVendorDocumentType.organisation_id ?? '',
-  document_type: masterVendorDocumentType.document_type,
-  description: masterVendorDocumentType.description ?? '',
-  status: masterVendorDocumentType.status,
+export const toMasterVendorDocumentTypePayload = (row: MasterVendorDocumentType): MasterVendorDocumentTypeDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  document_type: row.document_type,
+  description: row.description ?? '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -86,25 +84,15 @@ export const newMasterVendorDocumentTypePayload = (): MasterVendorDocumentTypeDT
 });
 
 // API Methods
-export const findMasterVendorDocumentTypes = async (
-  data: MasterVendorDocumentTypeQueryDTO
-): Promise<FBR<MasterVendorDocumentType[]>> => {
-  return apiPost<FBR<MasterVendorDocumentType[]>, MasterVendorDocumentTypeQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterVendorDocumentTypes = async (data: MasterVendorDocumentTypeQueryDTO): Promise<FBR<MasterVendorDocumentType[]>> => {
+  return apiPost<FBR<MasterVendorDocumentType[]>, MasterVendorDocumentTypeQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterVendorDocumentType = async (
-  data: MasterVendorDocumentTypeDTO
-): Promise<SBR> => {
+export const createMasterVendorDocumentType = async (data: MasterVendorDocumentTypeDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVendorDocumentTypeDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterVendorDocumentType = async (
-  id: string,
-  data: MasterVendorDocumentTypeDTO
-): Promise<SBR> => {
+export const updateMasterVendorDocumentType = async (id: string, data: MasterVendorDocumentTypeDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterVendorDocumentTypeDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -113,8 +101,7 @@ export const deleteMasterVendorDocumentType = async (id: string): Promise<SBR> =
 };
 
 // API Cache Methods
-export const getMasterVendorDocumentTypeCache = async (
-  organisation_id: string
-): Promise<FBR<MasterVendorDocumentType[]>> => {
+export const getMasterVendorDocumentTypeCache = async (organisation_id: string): Promise<FBR<MasterVendorDocumentType[]>> => {
   return apiGet<FBR<MasterVendorDocumentType[]>>(ENDPOINTS.cache(organisation_id));
 };
+

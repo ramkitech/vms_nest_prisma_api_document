@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -27,12 +28,9 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  cache_admin: `${URL}/cache`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cache_count: (organisation_id: string): string =>
-    `${URL}/cache_count/${organisation_id}`,
-  cache_child: (organisation_id: string): string =>
-    `${URL}/cache_child/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 // Master Tyre Make Interface
@@ -40,6 +38,7 @@ export interface MasterTyreMake extends Record<string, unknown> {
   // Primary Fields
   tyre_make_id: string;
   tyre_make: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -61,57 +60,48 @@ export interface MasterTyreMake extends Record<string, unknown> {
   };
 }
 
-// ✅ Tyre Make Create/Update Schema
+// ✅ MasterTyreMake Create/Update Schema
 export const MasterTyreMakeSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   tyre_make: stringMandatory('Tyre Make', 3, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTyreMakeDTO = z.infer<typeof MasterTyreMakeSchema>;
 
-// ✅ Tyre Make Query Schema
+// ✅ MasterTyreMake Query Schema
 export const MasterTyreMakeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  tyre_make_ids: multi_select_optional('Tyre Make'), // ✅ Multi-selection -> MasterTyreMake
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  tyre_make_ids: multi_select_optional('MasterTyreMake'), // ✅ Multi-selection -> MasterTyreMake
 });
 export type MasterTyreMakeQueryDTO = z.infer<typeof MasterTyreMakeQuerySchema>;
 
 // Convert existing data to a payload structure
-export const toMasterTyreMakePayload = (
-  tyreMake: MasterTyreMake
-): MasterTyreMakeDTO => ({
-  organisation_id: tyreMake.organisation_id ?? '',
-  tyre_make: tyreMake.tyre_make,
-  status: tyreMake.status,
+export const toMasterTyreMakePayload = (row: MasterTyreMake): MasterTyreMakeDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  tyre_make: row.tyre_make,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newMasterTyreMakePayload = (): MasterTyreMakeDTO => ({
   organisation_id: '',
   tyre_make: '',
+  description: '',
   status: Status.Active,
 });
 
 // API Methods
-export const findMasterTyreMakes = async (
-  data: MasterTyreMakeQueryDTO
-): Promise<FBR<MasterTyreMake[]>> => {
-  return apiPost<FBR<MasterTyreMake[]>, MasterTyreMakeQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterTyreMakes = async (data: MasterTyreMakeQueryDTO): Promise<FBR<MasterTyreMake[]>> => {
+  return apiPost<FBR<MasterTyreMake[]>, MasterTyreMakeQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterTyreMake = async (
-  data: MasterTyreMakeDTO
-): Promise<SBR> => {
+export const createMasterTyreMake = async (data: MasterTyreMakeDTO): Promise<SBR> => {
   return apiPost<SBR, MasterTyreMakeDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterTyreMake = async (
-  id: string,
-  data: MasterTyreMakeDTO
-): Promise<SBR> => {
+export const updateMasterTyreMake = async (id: string, data: MasterTyreMakeDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterTyreMakeDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -120,26 +110,15 @@ export const deleteMasterTyreMake = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterTyreMakeCacheAdmin = async (): Promise<
-  FBR<MasterTyreMake[]>
-> => {
-  return apiGet<FBR<MasterTyreMake[]>>(ENDPOINTS.cache_admin);
-};
-
-export const getMasterTyreMakeCache = async (
-  organisation_id: string
-): Promise<FBR<MasterTyreMake[]>> => {
+export const getMasterTyreMakeCache = async (organisation_id: string): Promise<FBR<MasterTyreMake[]>> => {
   return apiGet<FBR<MasterTyreMake[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterTyreMakeCacheCount = async (
-  organisation_id: string
-): Promise<FBR<number>> => {
+export const getMasterTyreMakeCacheCount = async (organisation_id: string): Promise<FBR<number>> => {
   return apiGet<FBR<number>>(ENDPOINTS.cache_count(organisation_id));
 };
 
-export const getMasterTyreMakeCacheChild = async (
-  organisation_id: string
-): Promise<FBR<MasterTyreMake[]>> => {
+export const getMasterTyreMakeCacheChild = async (organisation_id: string): Promise<FBR<MasterTyreMake[]>> => {
   return apiGet<FBR<MasterTyreMake[]>>(ENDPOINTS.cache_child(organisation_id));
 };
+

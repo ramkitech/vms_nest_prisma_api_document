@@ -8,6 +8,7 @@ import {
   stringMandatory,
   enumMandatory,
   multi_select_optional,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -40,61 +41,48 @@ export interface MasterMainSimProvider extends Record<string, unknown> {
   _count?: object;
 }
 
-// ✅ Master Main SimProvider Create/Update Schema
+// ✅ MasterMainSimProvider Create/Update Schema
 export const MasterMainSimProviderSchema = z.object({
-  provider_name: stringMandatory('Provider Name', 3, 100),
-  country_notes: stringMandatory('Country Notes', 2, 200),
+  provider_name: stringMandatory('Provider Name', 1, 100),
+  country_notes: stringOptional('Country Notes', 1, 200),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainSimProviderDTO = z.infer<
   typeof MasterMainSimProviderSchema
 >;
 
-// ✅ Master Main SimProvider Query Schema
+// ✅ MasterMainSimProvider Query Schema
 export const MasterMainSimProviderQuerySchema = BaseQuerySchema.extend({
-  sim_provider_ids: multi_select_optional('SimProvider'), // ✅ Multi-selection -> MasterMainSimProvider
+  sim_provider_ids: multi_select_optional('Sim Provider'), // ✅ Multi-selection -> MasterMainSimProvider
 });
 export type MasterMainSimProviderQueryDTO = z.infer<
   typeof MasterMainSimProviderQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainSimProviderPayload = (
-  row: MasterMainSimProvider
-): MasterMainSimProviderDTO => ({
+export const toMasterMainSimProviderPayload = (row: MasterMainSimProvider): MasterMainSimProviderDTO => ({
   provider_name: row.provider_name,
   country_notes: row.country_notes,
   status: row.status,
 });
 
 // Generate a new payload with default values
-export const newMasterMainSimProviderPayload =
-  (): MasterMainSimProviderDTO => ({
-    provider_name: '',
-    country_notes: '',
-    status: Status.Active,
-  });
+export const newMasterMainSimProviderPayload = (): MasterMainSimProviderDTO => ({
+  provider_name: '',
+  country_notes: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterMainSimProviders = async (
-  data: MasterMainSimProviderQueryDTO
-): Promise<FBR<MasterMainSimProvider[]>> => {
-  return apiPost<FBR<MasterMainSimProvider[]>, MasterMainSimProviderQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainSimProviders = async (data: MasterMainSimProviderQueryDTO): Promise<FBR<MasterMainSimProvider[]>> => {
+  return apiPost<FBR<MasterMainSimProvider[]>, MasterMainSimProviderQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainSimProvider = async (
-  data: MasterMainSimProviderDTO
-): Promise<SBR> => {
+export const createMasterMainSimProvider = async (data: MasterMainSimProviderDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainSimProviderDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainSimProvider = async (
-  id: string,
-  data: MasterMainSimProviderDTO
-): Promise<SBR> => {
+export const updateMasterMainSimProvider = async (id: string, data: MasterMainSimProviderDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainSimProviderDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -103,8 +91,7 @@ export const deleteMasterMainSimProvider = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterMainSimProviderCache = async (): Promise<
-  FBR<MasterMainSimProvider[]>
-> => {
+export const getMasterMainSimProviderCache = async (): Promise<FBR<MasterMainSimProvider[]>> => {
   return apiGet<FBR<MasterMainSimProvider[]>>(ENDPOINTS.cache);
 };
+

@@ -57,9 +57,9 @@ export interface MasterVehicleDocumentType extends Record<string, unknown> {
 
 // ✅ MasterVehicleDocumentType Create/Update Schema
 export const MasterVehicleDocumentTypeSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   document_type: stringMandatory('Document Type', 3, 100),
-  description: stringOptional('Description', 0, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleDocumentTypeDTO = z.infer<
@@ -68,17 +68,15 @@ export type MasterVehicleDocumentTypeDTO = z.infer<
 
 // ✅ MasterVehicleDocumentType Query Schema
 export const MasterVehicleDocumentTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  document_type_ids: multi_select_optional('Document Type'), // ✅ Multi-selection -> MasterVehicleDocumentType
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  document_type_ids: multi_select_optional('MasterVehicleDocumentType'), // ✅ Multi-selection -> MasterVehicleDocumentType
 });
 export type MasterVehicleDocumentTypeQueryDTO = z.infer<
   typeof MasterVehicleDocumentTypeQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterVehicleDocumentTypePayload = (
-  row: MasterVehicleDocumentType
-): MasterVehicleDocumentTypeDTO => ({
+export const toMasterVehicleDocumentTypePayload = (row: MasterVehicleDocumentType): MasterVehicleDocumentTypeDTO => ({
   organisation_id: row.organisation_id ?? '',
   document_type: row.document_type,
   description: row.description || '',
@@ -86,34 +84,23 @@ export const toMasterVehicleDocumentTypePayload = (
 });
 
 // Generate a new payload with default values
-export const newMasterVehicleDocumentTypePayload =
-  (): MasterVehicleDocumentTypeDTO => ({
-    organisation_id: '',
-    document_type: '',
-    description: '',
-    status: Status.Active,
-  });
+export const newMasterVehicleDocumentTypePayload = (): MasterVehicleDocumentTypeDTO => ({
+  organisation_id: '',
+  document_type: '',
+  description: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterVehicleDocumentTypes = async (
-  data: MasterVehicleDocumentTypeQueryDTO
-): Promise<FBR<MasterVehicleDocumentType[]>> => {
-  return apiPost<FBR<MasterVehicleDocumentType[]>, MasterVehicleDocumentTypeQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterVehicleDocumentTypes = async (data: MasterVehicleDocumentTypeQueryDTO): Promise<FBR<MasterVehicleDocumentType[]>> => {
+  return apiPost<FBR<MasterVehicleDocumentType[]>, MasterVehicleDocumentTypeQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterVehicleDocumentType = async (
-  data: MasterVehicleDocumentTypeDTO
-): Promise<SBR> => {
+export const createMasterVehicleDocumentType = async (data: MasterVehicleDocumentTypeDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleDocumentTypeDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterVehicleDocumentType = async (
-  id: string,
-  data: MasterVehicleDocumentTypeDTO
-): Promise<SBR> => {
+export const updateMasterVehicleDocumentType = async (id: string, data: MasterVehicleDocumentTypeDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterVehicleDocumentTypeDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -122,8 +109,7 @@ export const deleteMasterVehicleDocumentType = async (id: string): Promise<SBR> 
 };
 
 // API Cache Methods
-export const getMasterVehicleDocumentTypeCache = async (
-  organisation_id: string
-): Promise<FBR<MasterVehicleDocumentType[]>> => {
+export const getMasterVehicleDocumentTypeCache = async (organisation_id: string): Promise<FBR<MasterVehicleDocumentType[]>> => {
   return apiGet<FBR<MasterVehicleDocumentType[]>>(ENDPOINTS.cache(organisation_id));
 };
+

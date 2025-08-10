@@ -28,6 +28,8 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 //  MasterVehicleFuelUnit Interface
@@ -47,8 +49,8 @@ export interface MasterVehicleFuelUnit extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  MasterVehicle_PrimaryFuelType:   MasterVehicle[]       
-  MasterVehicle_SecondaryFuelType: MasterVehicle[]        
+  MasterVehicle_PrimaryFuelType: MasterVehicle[]
+  MasterVehicle_SecondaryFuelType: MasterVehicle[]
   // FleetFuelStationRate:            FleetFuelStationRate[]
   // FleetFuelRefills:                FleetFuelRefills[]
   // FleetFuelRemovals:               FleetFuelRemovals[]
@@ -63,30 +65,28 @@ export interface MasterVehicleFuelUnit extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterVehicleFuelUnit Create/Update DTO Schema
+// ✅ MasterVehicleFuelUnit Create/Update Schema
 export const MasterVehicleFuelUnitSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   fuel_unit: stringMandatory('Fuel Unit', 3, 100),
-  description: stringOptional('Description', 0, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleFuelUnitDTO = z.infer<
   typeof MasterVehicleFuelUnitSchema
 >;
 
-// ✅ MasterVehicleFuelUnit Query DTO Schema
+// ✅ MasterVehicleFuelUnit Query Schema
 export const MasterVehicleFuelUnitQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  fuel_unit_ids: multi_select_optional('Fuel Unit'), // ✅ Multi-selection -> MasterVehicleFuelUnit
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // ✅ Multi-selection -> MasterVehicleFuelUnit
 });
 export type MasterVehicleFuelUnitQueryDTO = z.infer<
   typeof MasterVehicleFuelUnitQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterVehicleFuelUnitPayload = (
-  row: MasterVehicleFuelUnit
-): MasterVehicleFuelUnitDTO => ({
+export const toMasterVehicleFuelUnitPayload = (row: MasterVehicleFuelUnit): MasterVehicleFuelUnitDTO => ({
   organisation_id: row.organisation_id ?? '',
   fuel_unit: row.fuel_unit,
   description: row.description || '',
@@ -94,34 +94,23 @@ export const toMasterVehicleFuelUnitPayload = (
 });
 
 // Generate a new payload with default values
-export const newMasterVehicleFuelUnitPayload =
-  (): MasterVehicleFuelUnitDTO => ({
-    organisation_id: '',
-    fuel_unit: '',
-    description: '',
-    status: Status.Active,
-  });
+export const newMasterVehicleFuelUnitPayload = (): MasterVehicleFuelUnitDTO => ({
+  organisation_id: '',
+  fuel_unit: '',
+  description: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterVehicleFuelUnits = async (
-  data: MasterVehicleFuelUnitQueryDTO
-): Promise<FBR<MasterVehicleFuelUnit[]>> => {
-  return apiPost<FBR<MasterVehicleFuelUnit[]>, MasterVehicleFuelUnitQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterVehicleFuelUnits = async (data: MasterVehicleFuelUnitQueryDTO): Promise<FBR<MasterVehicleFuelUnit[]>> => {
+  return apiPost<FBR<MasterVehicleFuelUnit[]>, MasterVehicleFuelUnitQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterVehicleFuelUnit = async (
-  data: MasterVehicleFuelUnitDTO
-): Promise<SBR> => {
+export const createMasterVehicleFuelUnit = async (data: MasterVehicleFuelUnitDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleFuelUnitDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterVehicleFuelUnit = async (
-  id: string,
-  data: MasterVehicleFuelUnitDTO
-): Promise<SBR> => {
+export const updateMasterVehicleFuelUnit = async (id: string, data: MasterVehicleFuelUnitDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterVehicleFuelUnitDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -130,8 +119,15 @@ export const deleteMasterVehicleFuelUnit = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterVehicleFuelUnitCache = async (
-  organisation_id: string
-): Promise<FBR<MasterVehicleFuelUnit[]>> => {
+export const getMasterVehicleFuelUnitCache = async (organisation_id: string): Promise<FBR<MasterVehicleFuelUnit[]>> => {
   return apiGet<FBR<MasterVehicleFuelUnit[]>>(ENDPOINTS.cache(organisation_id));
 };
+
+export const getMasterVehicleFuelUnitCacheCount = async (organisation_id: string): Promise<FBR<MasterVehicleFuelUnit>> => {
+  return apiGet<FBR<MasterVehicleFuelUnit>>(ENDPOINTS.cache_count(organisation_id));
+};
+
+export const getMasterVehicleFuelUnitCacheChild = async (organisation_id: string): Promise<FBR<MasterVehicleFuelUnit[]>> => {
+  return apiGet<FBR<MasterVehicleFuelUnit[]>>(ENDPOINTS.cache_child(organisation_id));
+};
+

@@ -47,32 +47,30 @@ export interface MasterVendorType extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ Vendor Type Create/Update Schema
+// ✅ MasterVendorType Create/Update Schema
 export const MasterVendorTypeSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vendor_type: stringMandatory('Vendor Type', 3, 100),
-  description: stringOptional('Description', 0, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVendorTypeDTO = z.infer<typeof MasterVendorTypeSchema>;
 
-// ✅ Vendor Type Query Schema
+// ✅ MasterVendorType Query Schema
 export const MasterVendorTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  vendor_type_ids: multi_select_optional('Vendor Type'), // ✅ Multi-selection -> MasterVendorType
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vendor_type_ids: multi_select_optional('MasterVendorType'), // ✅ Multi-selection -> MasterVendorType
 });
 export type MasterVendorTypeQueryDTO = z.infer<
   typeof MasterVendorTypeQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterVendorTypePayload = (
-  vendorType: MasterVendorType
-): MasterVendorTypeDTO => ({
-  organisation_id: vendorType.organisation_id ?? '',
-  vendor_type: vendorType.vendor_type,
-  description: vendorType.description ?? '',
-  status: vendorType.status,
+export const toMasterVendorTypePayload = (row: MasterVendorType): MasterVendorTypeDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  vendor_type: row.vendor_type,
+  description: row.description ?? '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -84,25 +82,15 @@ export const newMasterVendorTypePayload = (): MasterVendorTypeDTO => ({
 });
 
 // API Methods
-export const findMasterVendorTypes = async (
-  data: MasterVendorTypeQueryDTO
-): Promise<FBR<MasterVendorType[]>> => {
-  return apiPost<FBR<MasterVendorType[]>, MasterVendorTypeQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterVendorTypes = async (data: MasterVendorTypeQueryDTO): Promise<FBR<MasterVendorType[]>> => {
+  return apiPost<FBR<MasterVendorType[]>, MasterVendorTypeQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterVendorType = async (
-  data: MasterVendorTypeDTO
-): Promise<SBR> => {
+export const createMasterVendorType = async (data: MasterVendorTypeDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVendorTypeDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterVendorType = async (
-  id: string,
-  data: MasterVendorTypeDTO
-): Promise<SBR> => {
+export const updateMasterVendorType = async (id: string, data: MasterVendorTypeDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterVendorTypeDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -111,8 +99,6 @@ export const deleteMasterVendorType = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterVendorTypeCache = async (
-  organisation_id: string
-): Promise<FBR<MasterVendorType[]>> => {
+export const getMasterVendorTypeCache = async (organisation_id: string): Promise<FBR<MasterVendorType[]>> => {
   return apiGet<FBR<MasterVendorType[]>>(ENDPOINTS.cache(organisation_id));
 };

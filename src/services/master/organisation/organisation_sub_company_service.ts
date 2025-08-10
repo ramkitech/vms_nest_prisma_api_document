@@ -61,101 +61,72 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
   };
 }
 
-// ✅ OrganisationSubCompany Create/Update DTO Schema
+// ✅ OrganisationSubCompany Create/Update Schema
 export const OrganisationSubCompanySchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   sub_company_name: stringMandatory('Sub Company Name', 3, 100),
   sub_company_GSTIN: stringMandatory('Sub Company GSTIN', 3, 100),
-  description: stringMandatory('Description', 3, 300),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationSubCompanyDTO = z.infer<
   typeof OrganisationSubCompanySchema
 >;
 
-// ✅ OrganisationSubCompany Query DTO Schema
+// ✅ OrganisationSubCompany Query Schema
 export const OrganisationSubCompanyQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_sub_company_ids: multi_select_optional(
-    'Organisation Sub Company',
-  ), // ✅ Multi-selection -> OrganisationSubCompany
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // ✅ Multi-selection -> OrganisationSubCompany
 });
 export type OrganisationSubCompanyQueryDTO = z.infer<
   typeof OrganisationSubCompanyQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toOrganisationSubCompanyPayload = (
-  subCompany: OrganisationSubCompany
-): OrganisationSubCompanyDTO => ({
-  organisation_id: subCompany.organisation_id,
-  sub_company_name: subCompany.sub_company_name,
-  sub_company_GSTIN: subCompany.sub_company_GSTIN,
-  description: subCompany.description || '',
-  status: subCompany.status,
+export const toOrganisationSubCompanyPayload = (row: OrganisationSubCompany): OrganisationSubCompanyDTO => ({
+  organisation_id: row.organisation_id,
+  sub_company_name: row.sub_company_name,
+  sub_company_GSTIN: row.sub_company_GSTIN,
+  description: row.description || '',
+  status: row.status,
 
 });
 
 // Generate a new payload with default values
-export const newOrganisationSubCompanyPayload =
-  (): OrganisationSubCompanyDTO => ({
-    organisation_id: '',
-    sub_company_name: '',
-    sub_company_GSTIN: '',
-    description: '',
-    status: Status.Active,
-  });
+export const newOrganisationSubCompanyPayload = (): OrganisationSubCompanyDTO => ({
+  organisation_id: '',
+  sub_company_name: '',
+  sub_company_GSTIN: '',
+  description: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findOrganisationSubCompanies = async (
-  data: OrganisationSubCompanyQueryDTO
-): Promise<FBR<OrganisationSubCompany[]>> => {
-  return apiPost<FBR<OrganisationSubCompany[]>, OrganisationSubCompanyQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findOrganisationSubCompanyies = async (data: OrganisationSubCompanyQueryDTO): Promise<FBR<OrganisationSubCompany[]>> => {
+  return apiPost<FBR<OrganisationSubCompany[]>, OrganisationSubCompanyQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createOrganisationSubCompany = async (
-  data: OrganisationSubCompanyDTO
-): Promise<SBR> => {
+export const createOrganisationSubCompany = async (data: OrganisationSubCompanyDTO): Promise<SBR> => {
   return apiPost<SBR, OrganisationSubCompanyDTO>(ENDPOINTS.create, data);
 };
 
-export const updateOrganisationSubCompany = async (
-  id: string,
-  data: OrganisationSubCompanyDTO
-): Promise<SBR> => {
+export const updateOrganisationSubCompany = async (id: string, data: OrganisationSubCompanyDTO): Promise<SBR> => {
   return apiPatch<SBR, OrganisationSubCompanyDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteOrganisationSubCompany = async (
-  id: string
-): Promise<SBR> => {
+export const deleteOrganisationSubCompany = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
 // API Cache Methods
-export const getOrganisationSubCompanyCache = async (
-  organisation_id: string
-): Promise<FBR<OrganisationSubCompany[]>> => {
-  return apiGet<FBR<OrganisationSubCompany[]>>(
-    ENDPOINTS.cache(organisation_id)
-  );
+export const getOrganisationSubCompanyCache = async (organisation_id: string): Promise<FBR<OrganisationSubCompany[]>> => {
+  return apiGet<FBR<OrganisationSubCompany[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getOrganisationSubCompanyCacheCount = async (
-  organisation_id: string
-): Promise<FBR<OrganisationSubCompany[]>> => {
-  return apiGet<FBR<OrganisationSubCompany[]>>(
-    ENDPOINTS.cache_count(organisation_id)
-  );
+export const getOrganisationSubCompanyCacheCount = async (organisation_id: string): Promise<FBR<OrganisationSubCompany[]>> => {
+  return apiGet<FBR<OrganisationSubCompany[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 
-export const getOrganisationSubCompanyCacheChild = async (
-  organisation_id: string
-): Promise<FBR<OrganisationSubCompany[]>> => {
-  return apiGet<FBR<OrganisationSubCompany[]>>(
-    ENDPOINTS.cache_child(organisation_id)
-  );
+export const getOrganisationSubCompanyCacheChild = async (organisation_id: string): Promise<FBR<OrganisationSubCompany[]>> => {
+  return apiGet<FBR<OrganisationSubCompany[]>>(ENDPOINTS.cache_child(organisation_id));
 };

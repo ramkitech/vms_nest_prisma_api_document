@@ -28,6 +28,8 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 //  MasterVehicleAssociatedTo Interface
@@ -55,9 +57,9 @@ export interface MasterVehicleAssociatedTo extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterVehicleAssociatedTo Create/Update DTO Schema
+// ✅ MasterVehicleAssociatedTo Create/Update Schema
 export const MasterVehicleAssociatedToSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   associated_to: stringMandatory('Associated To', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -66,19 +68,17 @@ export type MasterVehicleAssociatedToDTO = z.infer<
   typeof MasterVehicleAssociatedToSchema
 >;
 
-// ✅ MasterVehicleAssociatedTo Query DTO Schema
+// ✅ MasterVehicleAssociatedTo Query Schema
 export const MasterVehicleAssociatedToQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_associated_to_ids: multi_select_optional('Vehicle Associated To'), // ✅ Multi-selection -> MasterVehicleAssociatedTo
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vehicle_associated_to_ids: multi_select_optional('MasterVehicleAssociatedTo'), // ✅ Multi-selection -> MasterVehicleAssociatedTo
 });
 export type MasterVehicleAssociatedToQueryDTO = z.infer<
   typeof MasterVehicleAssociatedToQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterVehicleAssociatedToPayload = (
-  row: MasterVehicleAssociatedTo
-): MasterVehicleAssociatedToDTO => ({
+export const toMasterVehicleAssociatedToPayload = (row: MasterVehicleAssociatedTo): MasterVehicleAssociatedToDTO => ({
   organisation_id: row.organisation_id ?? '',
   associated_to: row.associated_to,
   description: row.description || '',
@@ -86,34 +86,23 @@ export const toMasterVehicleAssociatedToPayload = (
 });
 
 // Generate a new payload with default values
-export const newMasterVehicleAssociatedToPayload =
-  (): MasterVehicleAssociatedToDTO => ({
-    organisation_id: '',
-    associated_to: '',
-    description: '',
-    status: Status.Active,
-  });
+export const newMasterVehicleAssociatedToPayload = (): MasterVehicleAssociatedToDTO => ({
+  organisation_id: '',
+  associated_to: '',
+  description: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterVehicleAssociatedTos = async (
-  data: MasterVehicleAssociatedToQueryDTO
-): Promise<FBR<MasterVehicleAssociatedTo[]>> => {
-  return apiPost<FBR<MasterVehicleAssociatedTo[]>, MasterVehicleAssociatedToQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterVehicleAssociatedTos = async (data: MasterVehicleAssociatedToQueryDTO): Promise<FBR<MasterVehicleAssociatedTo[]>> => {
+  return apiPost<FBR<MasterVehicleAssociatedTo[]>, MasterVehicleAssociatedToQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterVehicleAssociatedTo = async (
-  data: MasterVehicleAssociatedToDTO
-): Promise<SBR> => {
+export const createMasterVehicleAssociatedTo = async (data: MasterVehicleAssociatedToDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleAssociatedToDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterVehicleAssociatedTo = async (
-  id: string,
-  data: MasterVehicleAssociatedToDTO
-): Promise<SBR> => {
+export const updateMasterVehicleAssociatedTo = async (id: string, data: MasterVehicleAssociatedToDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterVehicleAssociatedToDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -122,8 +111,15 @@ export const deleteMasterVehicleAssociatedTo = async (id: string): Promise<SBR> 
 };
 
 // API Cache Methods
-export const getMasterVehicleAssociatedToCache = async (
-  organisation_id: string
-): Promise<FBR<MasterVehicleAssociatedTo[]>> => {
+export const getMasterVehicleAssociatedToCache = async (organisation_id: string): Promise<FBR<MasterVehicleAssociatedTo[]>> => {
   return apiGet<FBR<MasterVehicleAssociatedTo[]>>(ENDPOINTS.cache(organisation_id));
 };
+
+export const getMasterVehicleAssociatedToCacheCount = async (organisation_id: string): Promise<FBR<MasterVehicleAssociatedTo>> => {
+  return apiGet<FBR<MasterVehicleAssociatedTo>>(ENDPOINTS.cache_count(organisation_id));
+};
+
+export const getMasterVehicleAssociatedToCacheChild = async (organisation_id: string): Promise<FBR<MasterVehicleAssociatedTo[]>> => {
+  return apiGet<FBR<MasterVehicleAssociatedTo[]>>(ENDPOINTS.cache_child(organisation_id));
+};
+

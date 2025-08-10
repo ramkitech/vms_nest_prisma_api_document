@@ -27,8 +27,7 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  cache: (country_id: string): string =>
-    `${URL}/cache?country_id=${country_id}`,
+  cache: (country_id: string): string => `${URL}/cache?country_id=${country_id}`,
 };
 
 // Master Main Currency Interface
@@ -57,34 +56,32 @@ export interface MasterMainCurrency extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Currency Create/Update Schema
+// ✅ MasterMainCurrency Create/Update Schema
 export const MasterMainCurrencySchema = z.object({
-  country_id: single_select_mandatory('Country'), // ✅ Single-selection -> MasterMainCountry
+  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
   currency_name: stringMandatory('Currency Name', 3, 100),
-  currency_code: stringMandatory('Currency Code', 2, 10),
   currency_symbol: stringOptional('Currency Symbol', 0, 10),
+  currency_code: stringMandatory('Currency Code', 2, 10),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainCurrencyDTO = z.infer<typeof MasterMainCurrencySchema>;
 
-// ✅ Master Main Currency Query Schema
+// ✅ MasterMainCurrency Query Schema
 export const MasterMainCurrencyQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('Country'), // ✅ Multi-selection -> MasterMainCountry
-  currency_ids: multi_select_optional('Currency'), // ✅ Multi-selection -> MasterMainCurrency
+  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-selection -> MasterMainCountry
+  currency_ids: multi_select_optional('MasterMainCurrency'), // ✅ Multi-selection -> MasterMainCurrency
 });
 export type MasterMainCurrencyQueryDTO = z.infer<
   typeof MasterMainCurrencyQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainCurrencyPayload = (
-  currency: MasterMainCurrency
-): MasterMainCurrencyDTO => ({
-  country_id: currency.country_id,
-  currency_name: currency.currency_name,
-  currency_symbol: currency.currency_symbol ?? '',
-  currency_code: currency.currency_code,
-  status: currency.status,
+export const toMasterMainCurrencyPayload = (row: MasterMainCurrency): MasterMainCurrencyDTO => ({
+  country_id: row.country_id,
+  currency_name: row.currency_name,
+  currency_symbol: row.currency_symbol ?? '',
+  currency_code: row.currency_code,
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -97,25 +94,15 @@ export const newMasterMainCurrencyPayload = (): MasterMainCurrencyDTO => ({
 });
 
 // API Methods
-export const findMasterMainCurrencies = async (
-  data: MasterMainCurrencyQueryDTO
-): Promise<FBR<MasterMainCurrency[]>> => {
-  return apiPost<FBR<MasterMainCurrency[]>, MasterMainCurrencyQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainCurrencies = async (data: MasterMainCurrencyQueryDTO): Promise<FBR<MasterMainCurrency[]>> => {
+  return apiPost<FBR<MasterMainCurrency[]>, MasterMainCurrencyQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainCurrency = async (
-  data: MasterMainCurrencyDTO
-): Promise<SBR> => {
+export const createMasterMainCurrency = async (data: MasterMainCurrencyDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainCurrencyDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainCurrency = async (
-  id: string,
-  data: MasterMainCurrencyDTO
-): Promise<SBR> => {
+export const updateMasterMainCurrency = async (id: string, data: MasterMainCurrencyDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainCurrencyDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -124,8 +111,7 @@ export const deleteMasterMainCurrency = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterMainCurrencyCache = async (
-  country_id: string
-): Promise<FBR<MasterMainCurrency[]>> => {
+export const getMasterMainCurrencyCache = async (country_id: string): Promise<FBR<MasterMainCurrency[]>> => {
   return apiGet<FBR<MasterMainCurrency[]>>(ENDPOINTS.cache(country_id));
 };
+

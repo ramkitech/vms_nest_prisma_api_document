@@ -10,6 +10,7 @@ import {
   enumMandatory,
   single_select_mandatory,
   multi_select_optional,
+  numberMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -27,8 +28,7 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  cache: (country_id: string): string =>
-    `${URL}/cache?country_id=${country_id}`,
+  cache: (country_id: string): string => `${URL}/cache?country_id=${country_id}`,
 };
 
 // Master Main Time Zone Interface
@@ -40,6 +40,7 @@ export interface MasterMainTimeZone extends Record<string, unknown> {
   time_zone_abbrevation: string; // Min: 2, Max: 100
   time_zone_utc: string; // Min: 2, Max: 100
   time_zone_offset: string; // Min: 2, Max: 100
+  time_zone_offset_seconds: number;
 
   // Metadata
   status: Status;
@@ -59,38 +60,43 @@ export interface MasterMainTimeZone extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Time Zone Create/Update Schema
+// ✅ MasterMainTimeZone Create/Update Schema
 export const MasterMainTimeZoneSchema = z.object({
-  country_id: single_select_mandatory('Country'), // ✅ Single-selection -> MasterMainCountry
+  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
   time_zone_identifier: stringOptional('Time Zone Identifier', 0, 100),
   time_zone_code: stringMandatory('Time Zone Code', 2, 50),
   time_zone_abbrevation: stringMandatory('Time Zone Abbreviation', 2, 100),
   time_zone_utc: stringMandatory('Time Zone Offset', 2, 100),
   time_zone_offset: stringMandatory('Time Zone Offset', 2, 100),
+  time_zone_offset_seconds: numberMandatory(
+    'Time Zone Offset Seconds',
+    0,
+    1000000,
+  ),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainTimeZoneDTO = z.infer<typeof MasterMainTimeZoneSchema>;
 
-// ✅ Master Main Time Zone Query Schema
+// ✅ MasterMainTimeZone Query Schema
 export const MasterMainTimeZoneQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('Country'), // ✅ Multi-selection -> MasterMainCountry
-  time_zone_ids: multi_select_optional('Time Zone'), // ✅ Multi-selection -> MasterMainTimeZone
+  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-selection -> MasterMainCountry
+  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // ✅ Multi-selection -> MasterMainTimeZone
 });
 export type MasterMainTimeZoneQueryDTO = z.infer<
   typeof MasterMainTimeZoneQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainTimeZonePayload = (
-  timeZone: MasterMainTimeZone
-): MasterMainTimeZoneDTO => ({
-  country_id: timeZone.country_id,
-  time_zone_identifier: timeZone.time_zone_identifier ?? '',
-  time_zone_code: timeZone.time_zone_code,
-  time_zone_abbrevation: timeZone.time_zone_abbrevation,
-  time_zone_utc: timeZone.time_zone_utc,
-  time_zone_offset: timeZone.time_zone_offset,
-  status: timeZone.status,
+export const toMasterMainTimeZonePayload = (row: MasterMainTimeZone): MasterMainTimeZoneDTO => ({
+  country_id: row.country_id,
+  time_zone_identifier: row.time_zone_identifier ?? '',
+  time_zone_code: row.time_zone_code,
+  time_zone_abbrevation: row.time_zone_abbrevation,
+  time_zone_utc: row.time_zone_utc,
+  time_zone_offset: row.time_zone_offset,
+  time_zone_offset_seconds: row.time_zone_offset_seconds,
+  status: row.status,
+
 });
 
 // Generate a new payload with default values
@@ -101,29 +107,20 @@ export const newMasterMainTimeZonePayload = (): MasterMainTimeZoneDTO => ({
   time_zone_abbrevation: '',
   time_zone_utc: '',
   time_zone_offset: '',
+  time_zone_offset_seconds: 0,
   status: Status.Active,
 });
 
 // API Methods
-export const findMasterMainTimeZones = async (
-  data: MasterMainTimeZoneQueryDTO
-): Promise<FBR<MasterMainTimeZone[]>> => {
-  return apiPost<FBR<MasterMainTimeZone[]>, MasterMainTimeZoneQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainTimeZones = async (data: MasterMainTimeZoneQueryDTO): Promise<FBR<MasterMainTimeZone[]>> => {
+  return apiPost<FBR<MasterMainTimeZone[]>, MasterMainTimeZoneQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainTimeZone = async (
-  data: MasterMainTimeZoneDTO
-): Promise<SBR> => {
+export const createMasterMainTimeZone = async (data: MasterMainTimeZoneDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainTimeZoneDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainTimeZone = async (
-  id: string,
-  data: MasterMainTimeZoneDTO
-): Promise<SBR> => {
+export const updateMasterMainTimeZone = async (id: string, data: MasterMainTimeZoneDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainTimeZoneDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -132,8 +129,7 @@ export const deleteMasterMainTimeZone = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterMainTimeZoneCache = async (
-  country_id: string
-): Promise<FBR<MasterMainTimeZone[]>> => {
+export const getMasterMainTimeZoneCache = async (country_id: string): Promise<FBR<MasterMainTimeZone[]>> => {
   return apiGet<FBR<MasterMainTimeZone[]>>(ENDPOINTS.cache(country_id));
 };
+

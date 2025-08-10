@@ -48,7 +48,7 @@ export interface MasterMainLanguage extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Language Create/Update Schema
+// ✅ MasterMainLanguage Create/Update Schema
 export const MasterMainLanguageSchema = z.object({
   language_name: stringMandatory('Language Name', 3, 50),
   language_code: stringMandatory('Language Code', 2, 10),
@@ -56,7 +56,7 @@ export const MasterMainLanguageSchema = z.object({
 });
 export type MasterMainLanguageDTO = z.infer<typeof MasterMainLanguageSchema>;
 
-// ✅ Master Main Language Query Schema
+// ✅ MasterMainLanguage Query Schema
 export const MasterMainLanguageQuerySchema = BaseQuerySchema.extend({
   language_ids: multi_select_optional('Language'), // ✅ Multi-selection -> MasterMainLanguage
 });
@@ -65,12 +65,10 @@ export type MasterMainLanguageQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainLanguagePayload = (
-  language: MasterMainLanguage
-): MasterMainLanguageDTO => ({
-  language_name: language.language_name,
-  language_code: language.language_code,
-  status: language.status,
+export const toMasterMainLanguagePayload = (row: MasterMainLanguage): MasterMainLanguageDTO => ({
+  language_name: row.language_name,
+  language_code: row.language_code,
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -81,25 +79,15 @@ export const newMasterMainLanguagePayload = (): MasterMainLanguageDTO => ({
 });
 
 // API Methods
-export const findMasterMainLanguages = async (
-  data: MasterMainLanguageQueryDTO
-): Promise<FBR<MasterMainLanguage[]>> => {
-  return apiPost<FBR<MasterMainLanguage[]>, MasterMainLanguageQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainLanguages = async (data: MasterMainLanguageQueryDTO): Promise<FBR<MasterMainLanguage[]>> => {
+  return apiPost<FBR<MasterMainLanguage[]>, MasterMainLanguageQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainLanguage = async (
-  data: MasterMainLanguageDTO
-): Promise<SBR> => {
+export const createMasterMainLanguage = async (data: MasterMainLanguageDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainLanguageDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainLanguage = async (
-  id: string,
-  data: MasterMainLanguageDTO
-): Promise<SBR> => {
+export const updateMasterMainLanguage = async (id: string, data: MasterMainLanguageDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainLanguageDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -108,8 +96,7 @@ export const deleteMasterMainLanguage = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterMainLanguageCache = async (): Promise<
-  FBR<MasterMainLanguage[]>
-> => {
+export const getMasterMainLanguageCache = async (): Promise<FBR<MasterMainLanguage[]>> => {
   return apiGet<FBR<MasterMainLanguage[]>>(ENDPOINTS.cache);
 };
+

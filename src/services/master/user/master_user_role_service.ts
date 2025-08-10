@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -27,6 +28,7 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
 // User Role Interface
@@ -34,6 +36,7 @@ export interface MasterUserRole extends Record<string, unknown> {
   // Primary Fields
   user_role_id: string;
   user_role: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -53,57 +56,48 @@ export interface MasterUserRole extends Record<string, unknown> {
   };
 }
 
-// ✅ User Role Create/Update Schema
+// ✅ MasterUserRole Create/Update Schema
 export const MasterUserRoleSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   user_role: stringMandatory('User Role', 3, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterUserRoleDTO = z.infer<typeof MasterUserRoleSchema>;
 
-// ✅ User Role Query Schema
+// ✅ MasterUserRole Query Schema
 export const MasterUserRoleQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  user_role_ids: multi_select_optional('User Role'), // ✅ Multi-selection -> MasterUserRole
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  user_role_ids: multi_select_optional('MasterUserRole'), // ✅ Multi-selection -> MasterUserRole
 });
 export type MasterUserRoleQueryDTO = z.infer<typeof MasterUserRoleQuerySchema>;
 
 // Convert existing data to a payload structure
-export const toMasterUserRolePayload = (
-  userRole: MasterUserRole
-): MasterUserRoleDTO => ({
-  organisation_id: userRole.organisation_id ?? '',
-  user_role: userRole.user_role,
-  status: userRole.status,
+export const toMasterUserRolePayload = (row: MasterUserRole): MasterUserRoleDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  user_role: row.user_role,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newMasterUserRolePayload = (): MasterUserRoleDTO => ({
   organisation_id: '',
   user_role: '',
+  description: '',
   status: Status.Active,
 });
 
 // API Methods
-export const findMasterUserRoles = async (
-  data: MasterUserRoleQueryDTO
-): Promise<FBR<MasterUserRole[]>> => {
-  return apiPost<FBR<MasterUserRole[]>, MasterUserRoleQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterUserRoles = async (data: MasterUserRoleQueryDTO): Promise<FBR<MasterUserRole[]>> => {
+  return apiPost<FBR<MasterUserRole[]>, MasterUserRoleQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterUserRole = async (
-  data: MasterUserRoleDTO
-): Promise<SBR> => {
+export const createMasterUserRole = async (data: MasterUserRoleDTO): Promise<SBR> => {
   return apiPost<SBR, MasterUserRoleDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterUserRole = async (
-  id: string,
-  data: MasterUserRoleDTO
-): Promise<SBR> => {
+export const updateMasterUserRole = async (id: string, data: MasterUserRoleDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterUserRoleDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -112,8 +106,11 @@ export const deleteMasterUserRole = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterUserRoleCache = async (
-  organisation_id: string
-): Promise<FBR<MasterUserRole[]>> => {
+export const getMasterUserRoleCache = async (organisation_id: string): Promise<FBR<MasterUserRole[]>> => {
   return apiGet<FBR<MasterUserRole[]>>(ENDPOINTS.cache(organisation_id));
 };
+
+export const getMasterUserRoleCacheCount = async (organisation_id: string): Promise<FBR<MasterUserRole>> => {
+  return apiGet<FBR<MasterUserRole>>(ENDPOINTS.cache_count(organisation_id));
+};
+

@@ -57,28 +57,26 @@ export interface OrganisationTag extends Record<string, unknown> {
   };
 }
 
-// ✅ OrganisationTag Create/Update DTO Schema
+// ✅ OrganisationTag Create/Update Schema
 export const OrganisationTagSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   tag_name: stringMandatory('Tag Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationTagDTO = z.infer<typeof OrganisationTagSchema>;
 
-// ✅ OrganisationTag Query DTO Schema
+// ✅ OrganisationTag Query Schema
 export const OrganisationTagQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_tag_ids: multi_select_optional('Organisation Tag'), // ✅ Multi-selection -> OrganisationTag
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_tag_ids: multi_select_optional('OrganisationTag'), // ✅ Multi-selection -> OrganisationTag
 });
 export type OrganisationTagQueryDTO = z.infer<
   typeof OrganisationTagQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toOrganisationTagPayload = (
-  row: OrganisationTag
-): OrganisationTagDTO => ({
+export const toOrganisationTagPayload = (row: OrganisationTag): OrganisationTagDTO => ({
   organisation_id: row.organisation_id,
   tag_name: row.tag_name,
   description: row.description || '',
@@ -94,25 +92,15 @@ export const newOrganisationTagPayload = (): OrganisationTagDTO => ({
 });
 
 // API Methods
-export const findOrganisationTags = async (
-  data: OrganisationTagQueryDTO
-): Promise<FBR<OrganisationTag[]>> => {
-  return apiPost<FBR<OrganisationTag[]>, OrganisationTagQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findOrganisationTags = async (data: OrganisationTagQueryDTO): Promise<FBR<OrganisationTag[]>> => {
+  return apiPost<FBR<OrganisationTag[]>, OrganisationTagQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createOrganisationTag = async (
-  data: OrganisationTagDTO
-): Promise<SBR> => {
+export const createOrganisationTag = async (data: OrganisationTagDTO): Promise<SBR> => {
   return apiPost<SBR, OrganisationTagDTO>(ENDPOINTS.create, data);
 };
 
-export const updateOrganisationTag = async (
-  id: string,
-  data: OrganisationTagDTO
-): Promise<SBR> => {
+export const updateOrganisationTag = async (id: string, data: OrganisationTagDTO): Promise<SBR> => {
   return apiPatch<SBR, OrganisationTagDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -121,22 +109,17 @@ export const deleteOrganisationTag = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getOrganisationTagCache = async (
-  organisation_id: string
-): Promise<FBR<OrganisationTag[]>> => {
+export const getOrganisationTagCache = async (organisation_id: string): Promise<FBR<OrganisationTag[]>> => {
   return apiGet<FBR<OrganisationTag[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getOrganisationTagCacheCount = async (
-  organisation_id: string
-): Promise<FBR<OrganisationTag[]>> => {
+export const getOrganisationTagCacheCount = async (organisation_id: string): Promise<FBR<OrganisationTag[]>> => {
   return apiGet<FBR<OrganisationTag[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 
-export const getOrganisationTagCacheChild = async (
-  organisation_id: string
-): Promise<FBR<OrganisationTag[]>> => {
+export const getOrganisationTagCacheChild = async (organisation_id: string): Promise<FBR<OrganisationTag[]>> => {
   return apiGet<FBR<OrganisationTag[]>>(ENDPOINTS.cache_child(organisation_id));
 };
+
 
 

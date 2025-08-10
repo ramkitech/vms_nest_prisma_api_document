@@ -29,10 +29,8 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cacheChild: (organisation_id: string): string =>
-    `${URL}/cache_child/${organisation_id}`,
-  cacheCount: (organisation_id: string): string =>
-    `${URL}/cache_count/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 // Vehicle Type Interface
@@ -60,28 +58,26 @@ export interface MasterVehicleType extends Record<string, unknown> {
   };
 }
 
-// ✅ Vehicle Type Create/Update Schema
+// ✅ MasterVehicleType Create/Update Schema
 export const MasterVehicleTypeSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_type: stringMandatory('Vehicle Type', 3, 100),
-  description: stringOptional('Description', 0, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleTypeDTO = z.infer<typeof MasterVehicleTypeSchema>;
 
-// ✅ Vehicle Type Query Schema
+// ✅ MasterVehicleType Query Schema
 export const MasterVehicleTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_type_ids: multi_select_optional('Vehicle Type'), // ✅ Multi-selection -> MasterVehicleType
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vehicle_type_ids: multi_select_optional('MasterVehicleType'), // ✅ Multi-selection -> MasterVehicleType
 });
 export type MasterVehicleTypeQueryDTO = z.infer<
   typeof MasterVehicleTypeQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterVehicleTypePayload = (
-  row: MasterVehicleType
-): MasterVehicleTypeDTO => ({
+export const toMasterVehicleTypePayload = (row: MasterVehicleType): MasterVehicleTypeDTO => ({
   organisation_id: row.organisation_id ?? '',
   vehicle_type: row.vehicle_type,
   description: row.description || '',
@@ -97,25 +93,15 @@ export const newMasterVehicleTypePayload = (): MasterVehicleTypeDTO => ({
 });
 
 // API Methods
-export const findMasterVehicleTypes = async (
-  data: MasterVehicleTypeQueryDTO
-): Promise<FBR<MasterVehicleType[]>> => {
-  return apiPost<FBR<MasterVehicleType[]>, MasterVehicleTypeQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterVehicleTypes = async (data: MasterVehicleTypeQueryDTO): Promise<FBR<MasterVehicleType[]>> => {
+  return apiPost<FBR<MasterVehicleType[]>, MasterVehicleTypeQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterVehicleType = async (
-  data: MasterVehicleTypeDTO
-): Promise<SBR> => {
+export const createMasterVehicleType = async (data: MasterVehicleTypeDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleTypeDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterVehicleType = async (
-  id: string,
-  data: MasterVehicleTypeDTO
-): Promise<SBR> => {
+export const updateMasterVehicleType = async (id: string, data: MasterVehicleTypeDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterVehicleTypeDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -124,22 +110,15 @@ export const deleteMasterVehicleType = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterVehicleTypeCache = async (
-  organisation_id: string
-): Promise<FBR<MasterVehicleType[]>> => {
+export const getMasterVehicleTypeCache = async (organisation_id: string): Promise<FBR<MasterVehicleType[]>> => {
   return apiGet<FBR<MasterVehicleType[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterVehicleTypeCacheChild = async (
-  organisation_id: string
-): Promise<FBR<MasterVehicleType[]>> => {
-  return apiGet<FBR<MasterVehicleType[]>>(
-    ENDPOINTS.cacheChild(organisation_id)
-  );
+export const getMasterVehicleTypeCacheCount = async (organisation_id: string): Promise<FBR<MasterVehicleType>> => {
+  return apiGet<FBR<MasterVehicleType>>(ENDPOINTS.cache_count(organisation_id));
 };
 
-export const getMasterVehicleTypeCacheCount = async (
-  organisation_id: string
-): Promise<FBR<number>> => {
-  return apiGet<FBR<number>>(ENDPOINTS.cacheCount(organisation_id));
+export const getMasterVehicleTypeCacheChild = async (organisation_id: string): Promise<FBR<MasterVehicleType[]>> => {
+  return apiGet<FBR<MasterVehicleType[]>>(ENDPOINTS.cache_child(organisation_id));
 };
+

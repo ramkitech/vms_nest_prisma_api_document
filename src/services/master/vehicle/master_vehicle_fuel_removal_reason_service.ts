@@ -28,6 +28,8 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 //  MasterVehicleFuelRemovalReason Interface
@@ -55,22 +57,24 @@ export interface MasterVehicleFuelRemovalReason extends Record<string, unknown> 
   };
 }
 
-// ✅ MasterVehicleFuelRemovalReason Create/Update DTO Schema
+// ✅ MasterVehicleFuelRemovalReason Create/Update Schema
 export const MasterVehicleFuelRemovalReasonSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   removal_reason: stringMandatory('Removal Reason', 3, 100),
-  description: stringOptional('Description', 0, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleFuelRemovalReasonDTO = z.infer<
   typeof MasterVehicleFuelRemovalReasonSchema
 >;
 
-// ✅ MasterVehicleFuelRemovalReason Query DTO Schema
+// ✅ MasterVehicleFuelRemovalReason Query Schema
 export const MasterVehicleFuelRemovalReasonQuerySchema = BaseQuerySchema.extend(
   {
-    organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-    fuel_removal_reason_ids: multi_select_optional('Fuel Removal Reason'), // ✅ Multi-selection -> MasterVehicleFuelRemovalReason
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+    fuel_removal_reason_ids: multi_select_optional(
+      'MasterVehicleFuelRemovalReason',
+    ), // ✅ Multi-selection -> MasterVehicleFuelRemovalReason
   },
 );
 export type MasterVehicleFuelRemovalReasonQueryDTO = z.infer<
@@ -78,9 +82,7 @@ export type MasterVehicleFuelRemovalReasonQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toMasterVehicleFuelRemovalReasonPayload = (
-  row: MasterVehicleFuelRemovalReason
-): MasterVehicleFuelRemovalReasonDTO => ({
+export const toMasterVehicleFuelRemovalReasonPayload = (row: MasterVehicleFuelRemovalReason): MasterVehicleFuelRemovalReasonDTO => ({
   organisation_id: row.organisation_id ?? '',
   removal_reason: row.removal_reason,
   description: row.description || '',
@@ -88,34 +90,23 @@ export const toMasterVehicleFuelRemovalReasonPayload = (
 });
 
 // Generate a new payload with default values
-export const newMasterVehicleFuelRemovalReasonPayload =
-  (): MasterVehicleFuelRemovalReasonDTO => ({
-    organisation_id: '',
-    removal_reason: '',
-    description: '',
-    status: Status.Active,
-  });
+export const newMasterVehicleFuelRemovalReasonPayload = (): MasterVehicleFuelRemovalReasonDTO => ({
+  organisation_id: '',
+  removal_reason: '',
+  description: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterVehicleFuelRemovalReasons = async (
-  data: MasterVehicleFuelRemovalReasonQueryDTO
-): Promise<FBR<MasterVehicleFuelRemovalReason[]>> => {
-  return apiPost<FBR<MasterVehicleFuelRemovalReason[]>, MasterVehicleFuelRemovalReasonQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterVehicleFuelRemovalReasons = async (data: MasterVehicleFuelRemovalReasonQueryDTO): Promise<FBR<MasterVehicleFuelRemovalReason[]>> => {
+  return apiPost<FBR<MasterVehicleFuelRemovalReason[]>, MasterVehicleFuelRemovalReasonQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterVehicleFuelRemovalReason = async (
-  data: MasterVehicleFuelRemovalReasonDTO
-): Promise<SBR> => {
+export const createMasterVehicleFuelRemovalReason = async (data: MasterVehicleFuelRemovalReasonDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleFuelRemovalReasonDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterVehicleFuelRemovalReason = async (
-  id: string,
-  data: MasterVehicleFuelRemovalReasonDTO
-): Promise<SBR> => {
+export const updateMasterVehicleFuelRemovalReason = async (id: string, data: MasterVehicleFuelRemovalReasonDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterVehicleFuelRemovalReasonDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -124,8 +115,15 @@ export const deleteMasterVehicleFuelRemovalReason = async (id: string): Promise<
 };
 
 // API Cache Methods
-export const getMasterVehicleFuelRemovalReasonCache = async (
-  organisation_id: string
-): Promise<FBR<MasterVehicleFuelRemovalReason[]>> => {
+export const getMasterVehicleFuelRemovalReasonCache = async (organisation_id: string): Promise<FBR<MasterVehicleFuelRemovalReason[]>> => {
   return apiGet<FBR<MasterVehicleFuelRemovalReason[]>>(ENDPOINTS.cache(organisation_id));
 };
+
+export const getMasterVehicleFuelRemovalReasonCacheCount = async (organisation_id: string): Promise<FBR<MasterVehicleFuelRemovalReason>> => {
+  return apiGet<FBR<MasterVehicleFuelRemovalReason>>(ENDPOINTS.cache_count(organisation_id));
+};
+
+export const getMasterVehicleFuelRemovalReasonCacheChild = async (organisation_id: string): Promise<FBR<MasterVehicleFuelRemovalReason[]>> => {
+  return apiGet<FBR<MasterVehicleFuelRemovalReason[]>>(ENDPOINTS.cache_child(organisation_id));
+};
+

@@ -48,7 +48,7 @@ export interface MasterMainDateFormat extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Date Format Create/Update Schema
+// ✅ MasterMainDateFormat Create/Update Schema
 export const MasterMainDateFormatSchema = z.object({
   date_format_date: stringMandatory('Date Format Date', 3, 50),
   date_format_time: stringMandatory('Date Format Time', 3, 50),
@@ -58,7 +58,7 @@ export type MasterMainDateFormatDTO = z.infer<
   typeof MasterMainDateFormatSchema
 >;
 
-// ✅ Master Main Date Format Query Schema
+// ✅ MasterMainDateFormat Query Schema
 export const MasterMainDateFormatQuerySchema = BaseQuerySchema.extend({
   date_format_ids: multi_select_optional('Date Format'), // ✅ Multi-selection -> MasterMainDateFormat
 });
@@ -67,12 +67,10 @@ export type MasterMainDateFormatQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainDateFormatPayload = (
-  dateFormat: MasterMainDateFormat
-): MasterMainDateFormatDTO => ({
-  date_format_date: dateFormat.date_format_date,
-  date_format_time: dateFormat.date_format_time,
-  status: dateFormat.status,
+export const toMasterMainDateFormatPayload = (row: MasterMainDateFormat): MasterMainDateFormatDTO => ({
+  date_format_date: row.date_format_date,
+  date_format_time: row.date_format_time,
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -83,25 +81,15 @@ export const newMasterMainDateFormatPayload = (): MasterMainDateFormatDTO => ({
 });
 
 // API Methods
-export const findMasterMainDateFormats = async (
-  data: MasterMainDateFormatQueryDTO
-): Promise<FBR<MasterMainDateFormat[]>> => {
-  return apiPost<FBR<MasterMainDateFormat[]>, MasterMainDateFormatQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainDateFormats = async (data: MasterMainDateFormatQueryDTO): Promise<FBR<MasterMainDateFormat[]>> => {
+  return apiPost<FBR<MasterMainDateFormat[]>, MasterMainDateFormatQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainDateFormat = async (
-  data: MasterMainDateFormatDTO
-): Promise<SBR> => {
+export const createMasterMainDateFormat = async (data: MasterMainDateFormatDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainDateFormatDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainDateFormat = async (
-  id: string,
-  data: MasterMainDateFormatDTO
-): Promise<SBR> => {
+export const updateMasterMainDateFormat = async (id: string, data: MasterMainDateFormatDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainDateFormatDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -110,8 +98,7 @@ export const deleteMasterMainDateFormat = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterMainDateFormatCache = async (): Promise<
-  FBR<MasterMainDateFormat[]>
-> => {
+export const getMasterMainDateFormatCache = async (): Promise<FBR<MasterMainDateFormat[]>> => {
   return apiGet<FBR<MasterMainDateFormat[]>>(ENDPOINTS.cache);
 };
+

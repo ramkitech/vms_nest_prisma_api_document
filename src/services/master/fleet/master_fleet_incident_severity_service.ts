@@ -9,6 +9,7 @@ import {
   enumMandatory,
   multi_select_optional,
   single_select_mandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -34,6 +35,7 @@ export interface MasterFleetIncidentSeverity extends Record<string, unknown> {
   // Primary Fields
   fleet_incident_severity_id: string;
   fleet_incident_severity: string; // Min: 3, Max: 100
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -53,52 +55,54 @@ export interface MasterFleetIncidentSeverity extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Fleet Incident Severity Create/Update Schema
+// ✅ MasterFleetIncidentSeverity Create/Update Schema
 export const MasterFleetIncidentSeveritySchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   fleet_incident_severity: stringMandatory('Fleet Incident Severity', 3, 100),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type MasterFleetIncidentSeverityDTO = z.infer<typeof MasterFleetIncidentSeveritySchema>;
+export type MasterFleetIncidentSeverityDTO = z.infer<
+  typeof MasterFleetIncidentSeveritySchema
+>;
 
-// ✅ Master Fleet Incident Severity Query Schema
+// ✅ MasterFleetIncidentSeverity Query Schema
 export const MasterFleetIncidentSeverityQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  fleet_incident_severity_ids: multi_select_optional('Fleet Incident Severity'), // ✅ Multi-selection -> MasterFleetIncidentSeverity
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  fleet_incident_severity_ids: multi_select_optional(
+    'MasterFleetIncidentSeverity',
+  ), // ✅ Multi-selection -> MasterFleetIncidentSeverity
 });
-export type MasterFleetIncidentSeverityQueryDTO = z.infer<typeof MasterFleetIncidentSeverityQuerySchema>;
+export type MasterFleetIncidentSeverityQueryDTO = z.infer<
+  typeof MasterFleetIncidentSeverityQuerySchema
+>;
 
 // Convert existing data to a payload structure
-export const toMasterFleetIncidentSeverityPayload = (severity: MasterFleetIncidentSeverity): MasterFleetIncidentSeverityDTO => ({
-  organisation_id: severity.organisation_id ?? '',
-  fleet_incident_severity: severity.fleet_incident_severity,
-  status: severity.status,
+export const toMasterFleetIncidentSeverityPayload = (row: MasterFleetIncidentSeverity): MasterFleetIncidentSeverityDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  fleet_incident_severity: row.fleet_incident_severity,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
 export const newMasterFleetIncidentSeverityPayload = (): MasterFleetIncidentSeverityDTO => ({
   organisation_id: '',
   fleet_incident_severity: '',
+  description: '',
   status: Status.Active,
 });
 
 // API Methods
-export const findMasterFleetIncidentSeverities = async (
-  data: MasterFleetIncidentSeverityQueryDTO
-): Promise<FBR<MasterFleetIncidentSeverity[]>> => {
+export const findMasterFleetIncidentSeverities = async (data: MasterFleetIncidentSeverityQueryDTO): Promise<FBR<MasterFleetIncidentSeverity[]>> => {
   return apiPost<FBR<MasterFleetIncidentSeverity[]>, MasterFleetIncidentSeverityQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterFleetIncidentSeverity = async (
-  data: MasterFleetIncidentSeverityDTO
-): Promise<SBR> => {
+export const createMasterFleetIncidentSeverity = async (data: MasterFleetIncidentSeverityDTO): Promise<SBR> => {
   return apiPost<SBR, MasterFleetIncidentSeverityDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterFleetIncidentSeverity = async (
-  id: string,
-  data: MasterFleetIncidentSeverityDTO
-): Promise<SBR> => {
+export const updateMasterFleetIncidentSeverity = async (id: string, data: MasterFleetIncidentSeverityDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterFleetIncidentSeverityDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -107,8 +111,7 @@ export const deleteMasterFleetIncidentSeverity = async (id: string): Promise<SBR
 };
 
 // API Cache Methods
-export const getMasterFleetIncidentSeverityCache = async (
-  organisation_id: string
-): Promise<FBR<MasterFleetIncidentSeverity[]>> => {
+export const getMasterFleetIncidentSeverityCache = async (organisation_id: string): Promise<FBR<MasterFleetIncidentSeverity[]>> => {
   return apiGet<FBR<MasterFleetIncidentSeverity[]>>(ENDPOINTS.cache(organisation_id));
 };
+

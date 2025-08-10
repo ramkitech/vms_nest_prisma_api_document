@@ -28,8 +28,7 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  cache: (country_id: string): string =>
-    `${URL}/cache?country_id=${country_id}`,
+  cache: (country_id: string): string => `${URL}/cache?country_id=${country_id}`,
 };
 
 // Master Main State Interface
@@ -59,32 +58,30 @@ export interface MasterMainState extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main State Create/Update Schema
+// ✅ MasterMainState Create/Update Schema
 export const MasterMainStateSchema = z.object({
-  country_id: single_select_mandatory('Country'), // ✅ Single-selection -> MasterMainCountry
+  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
   state_name: stringMandatory('State Name', 3, 100),
   state_code: stringOptional('State Code', 0, 10),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainStateDTO = z.infer<typeof MasterMainStateSchema>;
 
-// ✅ Master Main State Query Schema
+// ✅ MasterMainState Query Schema
 export const MasterMainStateQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('Country'), // ✅ Multi-selection -> MasterMainCountry
-  state_ids: multi_select_optional('State'), // ✅ Multi-selection -> MasterMainState
+  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-selection -> MasterMainCountry
+  state_ids: multi_select_optional('MasterMainState'), // ✅ Multi-selection -> MasterMainState
 });
 export type MasterMainStateQueryDTO = z.infer<
   typeof MasterMainStateQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainStatePayload = (
-  state: MasterMainState
-): MasterMainStateDTO => ({
-  country_id: state.country_id,
-  state_name: state.state_name,
-  state_code: state.state_code ?? '',
-  status: state.status,
+export const toMasterMainStatePayload = (row: MasterMainState): MasterMainStateDTO => ({
+  country_id: row.country_id,
+  state_name: row.state_name,
+  state_code: row.state_code ?? '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -96,25 +93,15 @@ export const newMasterMainStatePayload = (): MasterMainStateDTO => ({
 });
 
 // API Methods
-export const findMasterMainStates = async (
-  data: MasterMainStateQueryDTO
-): Promise<FBR<MasterMainState[]>> => {
-  return apiPost<FBR<MasterMainState[]>, MasterMainStateQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainStates = async (data: MasterMainStateQueryDTO): Promise<FBR<MasterMainState[]>> => {
+  return apiPost<FBR<MasterMainState[]>, MasterMainStateQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainState = async (
-  data: MasterMainStateDTO
-): Promise<SBR> => {
+export const createMasterMainState = async (data: MasterMainStateDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainStateDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainState = async (
-  id: string,
-  data: MasterMainStateDTO
-): Promise<SBR> => {
+export const updateMasterMainState = async (id: string, data: MasterMainStateDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainStateDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -123,8 +110,7 @@ export const deleteMasterMainState = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getMasterMainStateCache = async (
-  country_id: string
-): Promise<FBR<MasterMainState[]>> => {
+export const getMasterMainStateCache = async (country_id: string): Promise<FBR<MasterMainState[]>> => {
   return apiGet<FBR<MasterMainState[]>>(ENDPOINTS.cache(country_id));
 };
+

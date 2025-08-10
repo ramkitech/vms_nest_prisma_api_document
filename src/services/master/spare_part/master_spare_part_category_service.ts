@@ -9,6 +9,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -27,12 +28,9 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  cache_admin: `${URL}/cache`,
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cache_child: (organisation_id: string): string =>
-    `${URL}/cache_child/${organisation_id}`,
-  cache_count: (organisation_id: string): string =>
-    `${URL}/cache_count/${organisation_id}`,
+  cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
+  cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
 // Spare Part Category Interface
@@ -41,6 +39,7 @@ export interface MasterSparePartCategory extends Record<string, unknown> {
   spare_part_category_id: string;
   category_name: string; // Min: 3, Max: 50
   category_code: string; // Min: 2, Max: 10
+  description?: string; // Optional, Max: 300
 
   // Metadata
   status: Status;
@@ -62,99 +61,72 @@ export interface MasterSparePartCategory extends Record<string, unknown> {
   };
 }
 
-// ✅ Spare Part Category Create/Update Schema
+// ✅ MasterSparePartCategory Create/Update Schema
 export const MasterSparePartCategorySchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   category_name: stringMandatory('Category Name', 3, 50),
   category_code: stringMandatory('Category Code', 2, 10),
+  description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterSparePartCategoryDTO = z.infer<
   typeof MasterSparePartCategorySchema
 >;
 
-// ✅ Spare Part Category Query Schema
+// ✅ MasterSparePartCategory Query Schema
 export const SparePartCategoryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> UserOrganisation
-  spare_part_category_ids: multi_select_optional('Spare Part Category'), // ✅ Multi-selection -> MasterSparePartCategory
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  spare_part_category_ids: multi_select_optional('MasterSparePartCategory'), // ✅ Multi-selection -> MasterSparePartCategory
 });
 export type SparePartCategoryQueryDTO = z.infer<
   typeof SparePartCategoryQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterSparePartCategoryPayload = (
-  category: MasterSparePartCategory
-): MasterSparePartCategoryDTO => ({
-  organisation_id: category.organisation_id ?? '',
-  category_name: category.category_name,
-  category_code: category.category_code,
-  status: category.status,
+export const toMasterSparePartCategoryPayload = (row: MasterSparePartCategory): MasterSparePartCategoryDTO => ({
+  organisation_id: row.organisation_id ?? '',
+  category_name: row.category_name,
+  category_code: row.category_code,
+  description: row.description || '',
+  status: row.status,
 });
 
 // Generate a new payload with default values
-export const newMasterSparePartCategoryPayload =
-  (): MasterSparePartCategoryDTO => ({
-    organisation_id: '',
-    category_name: '',
-    category_code: '',
-    status: Status.Active,
-  });
+export const newMasterSparePartCategoryPayload = (): MasterSparePartCategoryDTO => ({
+  organisation_id: '',
+  category_name: '',
+  category_code: '',
+  description: '',
+  status: Status.Active,
+});
 
 // API Methods
-export const findMasterSparePartCategories = async (
-  data: SparePartCategoryQueryDTO
-): Promise<FBR<MasterSparePartCategory[]>> => {
-  return apiPost<FBR<MasterSparePartCategory[]>, SparePartCategoryQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterSparePartCategories = async (data: SparePartCategoryQueryDTO): Promise<FBR<MasterSparePartCategory[]>> => {
+  return apiPost<FBR<MasterSparePartCategory[]>, SparePartCategoryQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterSparePartCategory = async (
-  data: MasterSparePartCategoryDTO
-): Promise<SBR> => {
+export const createMasterSparePartCategory = async (data: MasterSparePartCategoryDTO): Promise<SBR> => {
   return apiPost<SBR, MasterSparePartCategoryDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterSparePartCategory = async (
-  id: string,
-  data: MasterSparePartCategoryDTO
-): Promise<SBR> => {
+export const updateMasterSparePartCategory = async (id: string, data: MasterSparePartCategoryDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterSparePartCategoryDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteMasterSparePartCategory = async (
-  id: string
-): Promise<SBR> => {
+export const deleteMasterSparePartCategory = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
 // API Cache Methods
-export const getMasterSparePartCategoryCacheAdmin = async (): Promise<
-  FBR<MasterSparePartCategory[]>
-> => {
-  return apiGet<FBR<MasterSparePartCategory[]>>(ENDPOINTS.cache_admin);
+export const getMasterSparePartCategoryCache = async (organisation_id: string): Promise<FBR<MasterSparePartCategory[]>> => {
+  return apiGet<FBR<MasterSparePartCategory[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterSparePartCategoryCache = async (
-  organisation_id: string
-): Promise<FBR<MasterSparePartCategory[]>> => {
-  return apiGet<FBR<MasterSparePartCategory[]>>(
-    ENDPOINTS.cache(organisation_id)
-  );
+export const getMasterSparePartCategoryCacheChild = async (organisation_id: string): Promise<FBR<MasterSparePartCategory[]>> => {
+  return apiGet<FBR<MasterSparePartCategory[]>>(ENDPOINTS.cache_child(organisation_id));
 };
 
-export const getMasterSparePartCategoryCacheChild = async (
-  organisation_id: string
-): Promise<FBR<MasterSparePartCategory[]>> => {
-  return apiGet<FBR<MasterSparePartCategory[]>>(
-    ENDPOINTS.cache_child(organisation_id)
-  );
-};
-
-export const getMasterSparePartCategoryCacheCount = async (
-  organisation_id: string
-): Promise<FBR<number>> => {
+export const getMasterSparePartCategoryCacheCount = async (organisation_id: string): Promise<FBR<number>> => {
   return apiGet<FBR<number>>(ENDPOINTS.cache_count(organisation_id));
 };
+

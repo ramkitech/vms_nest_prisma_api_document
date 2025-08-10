@@ -48,7 +48,7 @@ export interface MasterMainUnitDistance extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Unit Distance Create/Update Schema
+// ✅ MasterMainUnitDistance Create/Update Schema
 export const MasterMainUnitDistanceSchema = z.object({
   unit_name: stringMandatory('Unit Name', 1, 50),
   unit_code: stringMandatory('Unit Code', 1, 10),
@@ -58,7 +58,7 @@ export type MasterMainUnitDistanceDTO = z.infer<
   typeof MasterMainUnitDistanceSchema
 >;
 
-// ✅ Master Main Unit Distance Query Schema
+// ✅ MasterMainUnitDistance Query Schema
 export const MasterMainUnitDistanceQuerySchema = BaseQuerySchema.extend({
   unit_ids: multi_select_optional('Unit Distance'), // ✅ Multi-selection -> MasterMainUnitDistance
 });
@@ -67,12 +67,10 @@ export type MasterMainUnitDistanceQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainUnitDistancePayload = (
-  unitDistance: MasterMainUnitDistance
-): MasterMainUnitDistanceDTO => ({
-  unit_name: unitDistance.unit_name,
-  unit_code: unitDistance.unit_code,
-  status: unitDistance.status,
+export const toMasterMainUnitDistancePayload = (row: MasterMainUnitDistance): MasterMainUnitDistanceDTO => ({
+  unit_name: row.unit_name,
+  unit_code: row.unit_code,
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -84,37 +82,24 @@ export const newMasterMainUnitDistancePayload =
   });
 
 // API Methods
-export const findMasterMainUnitDistances = async (
-  data: MasterMainUnitDistanceQueryDTO
-): Promise<FBR<MasterMainUnitDistance[]>> => {
-  return apiPost<FBR<MasterMainUnitDistance[]>, MasterMainUnitDistanceQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findMasterMainUnitDistances = async (data: MasterMainUnitDistanceQueryDTO): Promise<FBR<MasterMainUnitDistance[]>> => {
+  return apiPost<FBR<MasterMainUnitDistance[]>, MasterMainUnitDistanceQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainUnitDistance = async (
-  data: MasterMainUnitDistanceDTO
-): Promise<SBR> => {
+export const createMasterMainUnitDistance = async (data: MasterMainUnitDistanceDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainUnitDistanceDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainUnitDistance = async (
-  id: string,
-  data: MasterMainUnitDistanceDTO
-): Promise<SBR> => {
+export const updateMasterMainUnitDistance = async (id: string, data: MasterMainUnitDistanceDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainUnitDistanceDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteMasterMainUnitDistance = async (
-  id: string
-): Promise<SBR> => {
+export const deleteMasterMainUnitDistance = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
 // API Cache Methods
-export const getMasterMainUnitDistanceCache = async (): Promise<
-  FBR<MasterMainUnitDistance[]>
-> => {
+export const getMasterMainUnitDistanceCache = async (): Promise<FBR<MasterMainUnitDistance[]>> => {
   return apiGet<FBR<MasterMainUnitDistance[]>>(ENDPOINTS.cache);
 };
+

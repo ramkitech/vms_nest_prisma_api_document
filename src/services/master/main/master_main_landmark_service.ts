@@ -66,10 +66,10 @@ export interface MasterMainLandmark extends Record<string, unknown> {
   };
 }
 
-// ✅ Master Main Landmark Create/Update Schema
+// ✅ MasterMainLandmark Create/Update Schema
 export const MasterMainLandmarkSchema = z.object({
-  country_id: single_select_mandatory('Country'), // ✅ Single-selection -> MasterMainCountry
-  state_id: single_select_mandatory('State'), // ✅ Single-selection -> MasterMainState
+  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
+  state_id: single_select_mandatory('MasterMainState'), // ✅ Single-Selection -> MasterMainState
   landmark_name: stringMandatory('Landmark Name', 3, 100),
   location: stringOptional('Location', 0, 100),
   google_location: stringOptional('Google Location', 0, 100),
@@ -82,31 +82,29 @@ export const MasterMainLandmarkSchema = z.object({
 });
 export type MasterMainLandmarkDTO = z.infer<typeof MasterMainLandmarkSchema>;
 
-// ✅ Master Main Landmark Query Schema
+// ✅ MasterMainLandmark Query Schema
 export const MasterMainLandmarkQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('Country'), // ✅ Multi-selection -> MasterMainCountry
-  state_ids: multi_select_optional('State'), // ✅ Multi-selection -> MasterMainState
-  landmark_ids: multi_select_optional('Landmark'), // ✅ Multi-selection -> MasterMainLandmark
+  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-selection -> MasterMainCountry
+  state_ids: multi_select_optional('MasterMainState'), // ✅ Multi-selection -> MasterMainState
+  landmark_ids: multi_select_optional('MasterMainLandmark'), // ✅ Multi-selection -> MasterMainLandmark
 });
 export type MasterMainLandmarkQueryDTO = z.infer<
   typeof MasterMainLandmarkQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toMasterMainLandmarkPayload = (
-  landmark: MasterMainLandmark
-): MasterMainLandmarkDTO => ({
-  country_id: landmark.country_id,
-  state_id: landmark.state_id,
-  landmark_name: landmark.landmark_name,
-  location: landmark.location,
-  google_location: landmark.google_location,
-  locality: landmark.locality,
-  city_district_town: landmark.city_district_town,
-  zip_code: landmark.zip_code,
-  latitude: landmark.latitude,
-  longitude: landmark.longitude,
-  status: landmark.status,
+export const toMasterMainLandmarkPayload = (row: MasterMainLandmark): MasterMainLandmarkDTO => ({
+  country_id: row.country_id,
+  state_id: row.state_id,
+  landmark_name: row.landmark_name,
+  location: row.location,
+  google_location: row.google_location,
+  locality: row.locality,
+  city_district_town: row.city_district_town,
+  zip_code: row.zip_code,
+  latitude: row.latitude,
+  longitude: row.longitude,
+  status: row.status,
 });
 
 // Generate a new payload with default values
