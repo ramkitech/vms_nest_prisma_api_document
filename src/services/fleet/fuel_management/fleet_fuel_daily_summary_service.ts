@@ -42,6 +42,7 @@ export interface FleetFuelDailySummary extends Record<string, unknown> {
     fleet_fuel_daily_summary_id: string;
 
     date: string; // ISO date string
+    date_f?: string;
     day?: string; // Optional, Max: 20
 
     start_fuel_liters: number;
