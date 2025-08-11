@@ -187,7 +187,7 @@ export interface FleetFuelRefillFile extends Record<string, unknown> {
 }
 
 // ✅ FleetFuelRefill Create/Update Schema
-export const FleetFuelRefillchema = z.object({
+export const FleetFuelRefillSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   user_id: single_select_optional('User'),
   vehicle_id: single_select_mandatory('MasterVehicle'),
@@ -271,7 +271,7 @@ export const FleetFuelRefillchema = z.object({
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
-export type FleetFuelRefillDTO = z.infer<typeof FleetFuelRefillchema>;
+export type FleetFuelRefillDTO = z.infer<typeof FleetFuelRefillSchema>;
 
 // ✅ FleetFuelRefill Query Schema
 export const FleetFuelRefillQuerySchema = BaseQuerySchema.extend({
