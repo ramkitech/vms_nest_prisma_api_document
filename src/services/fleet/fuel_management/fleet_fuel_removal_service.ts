@@ -5,20 +5,20 @@ import { SBR, FBR } from '../../../core/BaseResponse';
 // Zod
 import { z } from 'zod';
 import {
-    single_select_mandatory,
-    multi_select_optional,
-    enumMandatory,
-    dateMandatory,
-    enumOptional,
-    single_select_optional,
-    doubleMandatory,
-    numberMandatory,
-    enumArrayOptional,
-    getAllEnums,
-    doubleOptionalLatLng,
-    stringOptional,
-    doubleOptional,
-    numberOptional,
+  single_select_mandatory,
+  multi_select_optional,
+  enumMandatory,
+  dateMandatory,
+  enumOptional,
+  single_select_optional,
+  doubleMandatory,
+  numberMandatory,
+  enumArrayOptional,
+  getAllEnums,
+  doubleOptionalLatLng,
+  stringOptional,
+  doubleOptional,
+  numberOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -39,10 +39,10 @@ import { MasterVehicleFuelRemovalReason } from 'src/services/master/vehicle/mast
 const URL = 'fleet/fuel_management/fleet_fuel_removal';
 
 const ENDPOINTS = {
-    find: `${URL}/search`,
-    create: URL,
-    update: (id: string): string => `${URL}/${id}`,
-    delete: (id: string): string => `${URL}/${id}`,
+  find: `${URL}/search`,
+  create: URL,
+  update: (id: string): string => `${URL}/${id}`,
+  delete: (id: string): string => `${URL}/${id}`,
 };
 
 // ✅ FleetFuelRemoval Interface
@@ -61,6 +61,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
 
   // Event Time
   date_time: string;
+  date_time_f?: string;
 
   // Cost Info
   cost_per_unit?: number;
@@ -353,27 +354,27 @@ export const newFleetFuelRemovalPayload = (): FleetFuelRemovalDTO => ({
 
 // API Methods
 export const findFleetFuelRemoval = async (
-    data: FleetFuelRemovalQueryDTO
+  data: FleetFuelRemovalQueryDTO
 ): Promise<FBR<FleetFuelRemoval[]>> => {
-    return apiPost<FBR<FleetFuelRemoval[]>, FleetFuelRemovalQueryDTO>(
-        ENDPOINTS.find,
-        data
-    );
+  return apiPost<FBR<FleetFuelRemoval[]>, FleetFuelRemovalQueryDTO>(
+    ENDPOINTS.find,
+    data
+  );
 };
 
 export const createFleetFuelRemoval = async (
-    data: FleetFuelRemovalDTO
+  data: FleetFuelRemovalDTO
 ): Promise<SBR> => {
-    return apiPost<SBR, FleetFuelRemovalDTO>(ENDPOINTS.create, data);
+  return apiPost<SBR, FleetFuelRemovalDTO>(ENDPOINTS.create, data);
 };
 
 export const updateFleetFuelRemoval = async (
-    id: string,
-    data: FleetFuelRemovalDTO
+  id: string,
+  data: FleetFuelRemovalDTO
 ): Promise<SBR> => {
-    return apiPatch<SBR, FleetFuelRemovalDTO>(ENDPOINTS.update(id), data);
+  return apiPatch<SBR, FleetFuelRemovalDTO>(ENDPOINTS.update(id), data);
 };
 
 export const deleteFleetFuelRemoval = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.delete(id));
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };

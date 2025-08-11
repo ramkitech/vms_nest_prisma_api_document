@@ -62,6 +62,7 @@ export interface FleetFuelRefill extends Record<string, unknown> {
 
   // Event Time
   date_time: string; // ISO string
+  date_time_f?: string;
 
   // Cost Details
   cost_per_unit?: number;
