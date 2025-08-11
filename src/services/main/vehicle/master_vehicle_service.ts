@@ -97,10 +97,10 @@ const ENDPOINTS = {
   DEVICE_LINK_HISTORY_BY_DEVICE: `${URL}/vehicle_device_link_history_by_device/:id`,
 
   // ✅ Cache Management
-  CACHE: `${URL}/cache/:organisation_id`,
-  CACHE_SIMPLE: `${URL}/cache_simple/:organisation_id`,
-  CACHE_PARENT: `${URL}/cache_parent/:organisation_id`,
-  CACHE_SIMPLE_DROPDOWN: `${URL}/cache_vehicle_simple_dropdown_custom/:organisation_id`,
+  cache: `${URL}/cache/:organisation_id`,
+  cache_simple: `${URL}/cache_simple/:organisation_id`,
+  cache_parent: `${URL}/cache_parent/:organisation_id`,
+  cache_dropdown: `${URL}/cache_dropdown/:organisation_id`,
 };
 
 // 🚀 Vehicle Interface
@@ -1398,7 +1398,7 @@ export const getVehicleCache = async (
   organisationId: string
 ): Promise<FBR<MasterVehicle[]>> => {
   return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.CACHE.replace(':organisation_id', organisationId)
+    ENDPOINTS.cache.replace(':organisation_id', organisationId)
   );
 };
 
@@ -1407,7 +1407,7 @@ export const getVehicleSimpleCache = async (
   organisationId: string
 ): Promise<FBR<MasterVehicle[]>> => {
   return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.CACHE_SIMPLE.replace(':organisation_id', organisationId)
+    ENDPOINTS.cache_simple.replace(':organisation_id', organisationId)
   );
 };
 
@@ -1415,7 +1415,7 @@ export const getVehicleSimpleDropdownCustom = async (
   organisationId: string
 ): Promise<FBR<MasterVehicleDropdown[]>> => {
   return apiGet<FBR<MasterVehicleDropdown[]>>(
-    ENDPOINTS.CACHE_SIMPLE_DROPDOWN.replace(':organisation_id', organisationId)
+    ENDPOINTS.cache_dropdown.replace(':organisation_id', organisationId)
   );
 };
 
@@ -1424,6 +1424,6 @@ export const getVehicleParentCache = async (
   organisationId: string
 ): Promise<FBR<MasterVehicle[]>> => {
   return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.CACHE_PARENT.replace(':organisation_id', organisationId)
+    ENDPOINTS.cache_parent.replace(':organisation_id', organisationId)
   );
 };
