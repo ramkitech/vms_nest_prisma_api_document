@@ -25,6 +25,7 @@ import { User } from 'src/services/main/users/user_service';
 import { MasterVehicle } from '../../main/vehicle/master_vehicle_service';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import { MasterDevice } from 'src/services/main/devices/master_device_service';
+import { FuelConsumptionMonthly } from 'src/services/gps/reports/gps_models/FuelConsumptionMonthly';
 
 const URL = 'fleet/fuel_management/fleet_fuel_daily_summary';
 
@@ -184,8 +185,8 @@ export const findFleetFuelDailySummary = async (
 
 export const findFleetFuelMonthlySummary = async (
     data: FleetFuelDailyMonthlySummaryQueryDTO
-): Promise<FBR<FleetFuelDailySummary[]>> => {
-    return apiPost<FBR<FleetFuelDailySummary[]>, FleetFuelDailyMonthlySummaryQueryDTO>(
+): Promise<FBR<FuelConsumptionMonthly[]>> => {
+    return apiPost<FBR<FuelConsumptionMonthly[]>, FleetFuelDailyMonthlySummaryQueryDTO>(
         ENDPOINTS.find_monthly,
         data
     );
