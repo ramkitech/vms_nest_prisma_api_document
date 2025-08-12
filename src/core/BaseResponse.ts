@@ -45,6 +45,12 @@ export interface SummaryData {
   i_off_ts_f: string;
 }
 
+export interface AWSPresignedUrl {
+  presigned_url: string;
+  file_url: string;
+  file_key: string;
+}
+
 
 export const r_log = (data = {}) => {
   return data;

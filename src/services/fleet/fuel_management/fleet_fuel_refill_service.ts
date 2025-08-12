@@ -1,26 +1,27 @@
 // Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
 import {
-    single_select_mandatory,
-    multi_select_optional,
-    enumMandatory,
-    dateMandatory,
-    enumOptional,
-    single_select_optional,
-    doubleMandatory,
-    numberMandatory,
-    enumArrayOptional,
-    getAllEnums,
-    doubleOptionalLatLng,
-    stringOptional,
-    doubleOptional,
-    numberOptional,
+  single_select_mandatory,
+  multi_select_optional,
+  enumMandatory,
+  dateMandatory,
+  enumOptional,
+  single_select_optional,
+  doubleMandatory,
+  enumArrayOptional,
+  getAllEnums,
+  doubleOptionalLatLng,
+  stringOptional,
+  doubleOptional,
+  numberOptional,
+  nestedArrayOfObjectsOptional,
+  dynamicJsonSchema,
 } from '../../../zod_utils/zod_utils';
-import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
+import { BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
 import { FileType, GPSFuelApproveStatus, PaymentMode, PaymentStatus, RefillEntrySource, RefillMethod, Status, YesNo } from '../../../core/Enums';
@@ -38,10 +39,13 @@ import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicl
 const URL = 'fleet/fuel_management/fleet_fuel_refill';
 
 const ENDPOINTS = {
-    find: `${URL}/search`,
-    create: URL,
-    update: (id: string): string => `${URL}/${id}`,
-    delete: (id: string): string => `${URL}/${id}`,
+  find: `${URL}/search`,
+  create: URL,
+  update: (id: string): string => `${URL}/${id}`,
+  delete: (id: string): string => `${URL}/${id}`,
+  presigned_url: `${URL}/presigned_url`,
+  create_file: `${URL}/create_file`,
+  remove_file: (id: string): string => `${URL}/remove_file/${id}`,
 };
 
 // ✅ FleetFuelRefill Interface
@@ -165,7 +169,7 @@ export interface FleetFuelRefillFile extends Record<string, unknown> {
   fleet_fuel_refill_file_id: string;
 
   // File Details
-  file_type: FileType; 
+  file_type: FileType;
   file_url?: string;
   file_key?: string;
   file_name?: string;
@@ -175,8 +179,8 @@ export interface FleetFuelRefillFile extends Record<string, unknown> {
 
   // Metadata
   status: Status;
-  added_date_time: string; 
-  modified_date_time: string; 
+  added_date_time: string;
+  modified_date_time: string;
 
   // Relations
   organisation_id: string;
@@ -186,17 +190,32 @@ export interface FleetFuelRefillFile extends Record<string, unknown> {
   FleetFuelRefill?: FleetFuelRefill;
 }
 
+// ✅ FleetFuelRefillFile Schema
+export const FleetFuelRefillFileSchema = z.object({
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  fleet_fuel_refill_id: single_select_mandatory('FleetFuelRefill'), // ✅ Single-Selection -> FleetFuelRefill
+  file_type: enumMandatory('File Type', FileType, FileType.Image),
+  file_url: stringOptional('File URL', 0, 300),
+  file_key: stringOptional('File Key', 0, 300),
+  file_name: stringOptional('File Name', 0, 300),
+  file_description: stringOptional('File Description', 0, 2000),
+  file_size: numberOptional('File Size'),
+  file_metadata: dynamicJsonSchema('File Metadata', {}),
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetFuelRefillFileDTO = z.infer<typeof FleetFuelRefillFileSchema>;
+
 // ✅ FleetFuelRefill Create/Update Schema
 export const FleetFuelRefillSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'),
-  user_id: single_select_optional('User'),
-  vehicle_id: single_select_mandatory('MasterVehicle'),
-  driver_id: single_select_optional('MasterDriver'),
-  device_id: single_select_optional('MasterDevice'),
-  vendor_id: single_select_optional('FleetVendor'),
-  fuel_station_id: single_select_optional('FleetVendorFuelStation'),
-  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'),
-  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'),
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // ✅ Single-Selection -> User
+  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+  device_id: single_select_optional('MasterDevice'), // ✅ Single-Selection -> MasterDevice
+  vendor_id: single_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+  fuel_station_id: single_select_optional('FleetVendorFuelStation'), // ✅ Single-Selection -> FleetVendorFuelStation
+  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'), // ✅ Single-Selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
 
   // Refill Quantity
   before_refill_quantity: doubleMandatory('Before Refill Quantity'),
@@ -270,20 +289,27 @@ export const FleetFuelRefillSchema = z.object({
 
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+
+  refill_files: nestedArrayOfObjectsOptional(
+    'Refill Files',
+    FleetFuelRefillFileSchema,
+    [],
+  ),
 });
 export type FleetFuelRefillDTO = z.infer<typeof FleetFuelRefillSchema>;
 
 // ✅ FleetFuelRefill Query Schema
 export const FleetFuelRefillQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('User Organisation IDs'), // ✅ Multi-selection -> UserOrganisation
-  user_ids: multi_select_optional('User IDs'), // ✅ Multi-selection -> User
-  vehicle_ids: multi_select_optional('Master Vehicle IDs'), // ✅ Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('Master Driver IDs'), // ✅ Multi-selection -> MasterDriver
-  device_ids: multi_select_optional('Master Device IDs'), // ✅ Multi-selection -> MasterDevice
-  vendor_ids: multi_select_optional('Vendor IDs'), // ✅ Multi-selection -> FleetVendor
-  fuel_station_ids: multi_select_optional('Fuel Station IDs'), // ✅ Multi-selection -> FleetVendorFuelStation
-  vehicle_fuel_type_ids: multi_select_optional('Vehicle Fuel Type IDs'), // ✅ Multi-selection -> MasterVehicleFuelType
-  vehicle_fuel_unit_ids: multi_select_optional('Vehicle Fuel Unit IDs'), // ✅ Multi-selection -> MasterVehicleFuelUnit
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
+  device_ids: multi_select_optional('MasterDevice'), // ✅ Multi-selection -> MasterDevice
+  vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-selection -> FleetVendor
+  fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // ✅ Multi-selection -> FleetVendorFuelStation
+  vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // ✅ Multi-selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // ✅ Multi-selection -> MasterVehicleFuelUnit
+  fleet_fuel_refill_ids: multi_select_optional('FleetFuelRefill'), // ✅ Multi-selection -> FleetFuelRefill
 
   entry_source: enumArrayOptional(
     'Entry Source',
@@ -309,9 +335,7 @@ export type FleetFuelRefillQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toFleetFuelRefillPayload = (
-  row: FleetFuelRefill
-): FleetFuelRefillDTO => ({
+export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillDTO => ({
   organisation_id: row.organisation_id ?? '',
   user_id: row.user_id || '',
   vehicle_id: row.vehicle_id ?? '',
@@ -326,16 +350,16 @@ export const toFleetFuelRefillPayload = (
   after_refill_quantity: row.after_refill_quantity,
   refill_quantity: row.refill_quantity,
   verified_refill_quantity: row.verified_refill_quantity,
-  diff_refill_quantity: row.diff_refill_quantity || 0,
+  diff_refill_quantity: row.diff_refill_quantity ?? 0,
 
-  odometer_reading: row.odometer_reading || 0,
+  odometer_reading: row.odometer_reading ?? 0,
   is_full_tank: row.is_full_tank,
   is_previous_entries_missed: row.is_previous_entries_missed,
 
   date_time: row.date_time,
 
-  cost_per_unit: row.cost_per_unit || 0,
-  total_cost: row.total_cost || 0,
+  cost_per_unit: row.cost_per_unit ?? 0,
+  total_cost: row.total_cost ?? 0,
 
   invoice_number: row.invoice_number || '',
   payment_mode: row.payment_mode,
@@ -344,30 +368,42 @@ export const toFleetFuelRefillPayload = (
   fuel_card_number: row.fuel_card_number || '',
   payment_notes: row.payment_notes || '',
 
-  refill_method: row.refill_method || RefillMethod.Dispenser,
+  refill_method: row.refill_method ?? RefillMethod.Dispenser,
   refill_details: row.refill_details || '',
   payment_details: row.payment_details || '',
   filled_by_person: row.filled_by_person || '',
 
-  entry_source: row.entry_source || RefillEntrySource.Manual,
+  entry_source: row.entry_source ?? RefillEntrySource.Manual,
   source_reference_id: row.source_reference_id || '',
   source_notes: row.source_notes || '',
 
   admin_verify_status: row.admin_verify_status,
   transporter_verify_status: row.transporter_verify_status,
 
-  latitude: row.latitude || 0,
-  longitude: row.longitude || 0,
+  latitude: row.latitude ?? 0,
+  longitude: row.longitude ?? 0,
   google_location: row.google_location || '',
 
   status: row.status,
 
-  time_zone_id: '',
+  time_zone_id: '', // Needs to be provided manually
+
+  refill_files: row.FleetFuelRefillFile?.map((file) => ({
+    organisation_id: file.organisation_id ?? '',
+    fleet_fuel_refill_id: file.fleet_fuel_refill_id ?? '',
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+    status: file.status,
+  })) ?? [],
 });
 
 // Generate a new payload with default values
 export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
-  // Relations
   organisation_id: '',
   user_id: '',
   vehicle_id: '',
@@ -378,26 +414,21 @@ export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
   vehicle_fuel_type_id: '',
   vehicle_fuel_unit_id: '',
 
-  // Refill Quantity
   before_refill_quantity: 0,
   after_refill_quantity: 0,
   refill_quantity: 0,
   verified_refill_quantity: 0,
   diff_refill_quantity: 0,
 
-  // Odometer & Tank Info
   odometer_reading: 0,
   is_full_tank: YesNo.No,
   is_previous_entries_missed: YesNo.No,
 
-  // Event Time
   date_time: new Date().toISOString(),
 
-  // Cost Details
   cost_per_unit: 0,
   total_cost: 0,
 
-  // Payment Info
   invoice_number: '',
   payment_mode: PaymentMode.Cash,
   payment_status: PaymentStatus.Paid,
@@ -405,56 +436,56 @@ export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
   fuel_card_number: '',
   payment_notes: '',
 
-  // Other Details
   refill_method: RefillMethod.Dispenser,
   refill_details: '',
   payment_details: '',
   filled_by_person: '',
 
-  // Source Details
   entry_source: RefillEntrySource.Manual,
   source_reference_id: '',
   source_notes: '',
 
-  // Verification
   admin_verify_status: GPSFuelApproveStatus.Pending,
   transporter_verify_status: GPSFuelApproveStatus.Pending,
 
-  // Location Details
   latitude: 0,
   longitude: 0,
   google_location: '',
 
-  // Metadata
   status: Status.Active,
 
-  // Required
   time_zone_id: '',
+
+  refill_files: [],
 });
 
 // API Methods
-export const findFleetFuelRefill = async (
-    data: FleetFuelRefillQueryDTO
-): Promise<FBR<FleetFuelRefill[]>> => {
-    return apiPost<FBR<FleetFuelRefill[]>, FleetFuelRefillQueryDTO>(
-        ENDPOINTS.find,
-        data
-    );
+export const findFleetFuelRefill = async (data: FleetFuelRefillQueryDTO): Promise<FBR<FleetFuelRefill[]>> => {
+  return apiPost<FBR<FleetFuelRefill[]>, FleetFuelRefillQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createFleetFuelRefill = async (
-    data: FleetFuelRefillDTO
-): Promise<SBR> => {
-    return apiPost<SBR, FleetFuelRefillDTO>(ENDPOINTS.create, data);
+export const createFleetFuelRefill = async (data: FleetFuelRefillDTO): Promise<SBR> => {
+  return apiPost<SBR, FleetFuelRefillDTO>(ENDPOINTS.create, data);
 };
 
-export const updateFleetFuelRefill = async (
-    id: string,
-    data: FleetFuelRefillDTO
-): Promise<SBR> => {
-    return apiPatch<SBR, FleetFuelRefillDTO>(ENDPOINTS.update(id), data);
+export const updateFleetFuelRefill = async (id: string, data: FleetFuelRefillDTO): Promise<SBR> => {
+  return apiPatch<SBR, FleetFuelRefillDTO>(ENDPOINTS.update(id), data);
 };
 
 export const deleteFleetFuelRefill = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.delete(id));
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
+
+// API Methods Files
+export const getFleetFuelRefillPresignedUrl = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url, data);
+};
+
+export const createFleetFuelRefillFile = async (data: FleetFuelRefillFileDTO): Promise<SBR> => {
+  return apiPost<SBR, FleetFuelRefillFileDTO>(ENDPOINTS.create_file, data);
+};
+
+export const removeFleetFuelRefillFile = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_file(id));
+};
+

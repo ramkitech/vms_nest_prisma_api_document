@@ -8,6 +8,7 @@ import {
   OrderBy,
   YesNo,
   LoginFrom,
+  FileType,
 } from '../core/Enums';
 import {
   enumArrayOptional,
@@ -55,8 +56,13 @@ export const BaseQuerySchema = z.object({
   date_format_id: single_select_optional('MasterMainDateFormat'),
   time_zone_id: single_select_optional('MasterMainTimeZone'),
 });
-
 export type BaseQueryDTO = z.infer<typeof BaseQuerySchema>;
+
+export const FilePresignedUrlSchema = z.object({
+  file_name: stringMandatory('File Name', 1, 255),
+  file_type: enumMandatory('File Type', FileType, FileType.Image),
+});
+export type FilePresignedUrlDTO = z.infer<typeof FilePresignedUrlSchema>;
 
 export const MongoBaseQuerySchema = z.object({
   search: stringOptional('Search', 0, 255, ''),

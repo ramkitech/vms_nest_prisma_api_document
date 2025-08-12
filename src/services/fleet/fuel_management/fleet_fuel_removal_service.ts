@@ -1,6 +1,6 @@
 // Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -12,15 +12,16 @@ import {
   enumOptional,
   single_select_optional,
   doubleMandatory,
-  numberMandatory,
   enumArrayOptional,
   getAllEnums,
   doubleOptionalLatLng,
   stringOptional,
   doubleOptional,
   numberOptional,
+  dynamicJsonSchema,
+  nestedArrayOfObjectsOptional,
 } from '../../../zod_utils/zod_utils';
-import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
+import { BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
 import { FileType, GPSFuelApproveStatus, PaymentMode, PaymentStatus, RefillEntrySource, RefillMethod, Status, YesNo } from '../../../core/Enums';
@@ -43,6 +44,9 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+  presigned_url: `${URL}/presigned_url`,
+  create_file: `${URL}/create_file`,
+  remove_file: (id: string): string => `${URL}/remove_file/${id}`,
 };
 
 // ✅ FleetFuelRemoval Interface
@@ -161,19 +165,36 @@ export interface FleetFuelRemovalFile extends Record<string, unknown> {
   FleetFuelRemoval?: FleetFuelRemoval;
 }
 
+// ✅ FleetFuelRemovalFile Schema
+export const FleetFuelRemovalFileSchema = z.object({
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  fleet_fuel_removal_id: single_select_mandatory('FleetFuelRemoval'), // ✅ Single-Selection -> FleetFuelRemoval
+  file_type: enumMandatory('File Type', FileType, FileType.Image),
+  file_url: stringOptional('File URL', 0, 300),
+  file_key: stringOptional('File Key', 0, 300),
+  file_name: stringOptional('File Name', 0, 300),
+  file_description: stringOptional('File Description', 0, 2000),
+  file_size: numberOptional('File Size'),
+  file_metadata: dynamicJsonSchema('File Metadata', {}),
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetFuelRemovalFileDTO = z.infer<
+  typeof FleetFuelRemovalFileSchema
+>;
 
 // ✅ FleetFuelRemoval Create/Update Schema
 export const FleetFuelRemovalSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'),
-  user_id: single_select_optional('User'),
-  vehicle_id: single_select_mandatory('MasterVehicle'),
-  driver_id: single_select_optional('MasterDriver'),
-  device_id: single_select_optional('MasterDevice'),
-  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'),
-  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'),
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // ✅ Single-Selection -> User
+  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+  device_id: single_select_optional('MasterDevice'), // ✅ Single-Selection -> MasterDevice
+  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'), // ✅ Single-Selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
   fuel_removal_reason_id: single_select_optional(
     'MasterVehicleFuelRemovalReason',
   ),
+  // ✅ Single-Selection -> MasterVehicleFuelRemovalReason
 
   // Removal Quantity
   before_removal_quantity: doubleMandatory('Before Remove Quantity'),
@@ -219,21 +240,28 @@ export const FleetFuelRemovalSchema = z.object({
   google_location: stringOptional('Google Location', 0, 500),
 
   status: enumMandatory('Status', Status, Status.Active),
-
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+
+  removal_files: nestedArrayOfObjectsOptional(
+    'Removal Files',
+    FleetFuelRemovalFileSchema,
+    [],
+  ),
 });
 export type FleetFuelRemovalDTO = z.infer<typeof FleetFuelRemovalSchema>;
 
 // ✅ FleetFuelRemoval Query Schema
 export const FleetFuelRemovalQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('User Organisation IDs'), // ✅ Multi-selection -> UserOrganisation
-  user_ids: multi_select_optional('User IDs'), // ✅ Multi-selection -> User
-  vehicle_ids: multi_select_optional('Master Vehicle IDs'), // ✅ Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('Master Driver IDs'), // ✅ Multi-selection -> MasterDriver
-  device_ids: multi_select_optional('Master Device IDs'), // ✅ Multi-selection -> MasterDevice
-  vehicle_fuel_type_ids: multi_select_optional('Vehicle Fuel Type IDs'), // ✅ Multi-selection -> MasterVehicleFuelType
-  vehicle_fuel_unit_ids: multi_select_optional('Vehicle Fuel Unit IDs'), // ✅ Multi-selection -> MasterVehicleFuelUnit
-  fuel_removal_reason_ids: multi_select_optional('Fuel Removal Reason IDs'), // ✅ Multi-selection -> MasterVehicleFuelRemovalReason
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
+  device_ids: multi_select_optional('MasterDevice'), // ✅ Multi-selection -> MasterDevice
+  vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // ✅ Multi-selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // ✅ Multi-selection -> MasterVehicleFuelUnit
+  fuel_removal_reason_ids: multi_select_optional(
+    'MasterVehicleFuelRemovalReason',
+  ), // ✅ Multi-selection -> MasterVehicleFuelRemovalReason
 
   entry_source: enumArrayOptional(
     'Entry Source',
@@ -259,9 +287,7 @@ export type FleetFuelRemovalQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toFleetFuelRemovalPayload = (
-  row: FleetFuelRemoval
-): FleetFuelRemovalDTO => ({
+export const toFleetFuelRemovalPayload = (row: FleetFuelRemoval): FleetFuelRemovalDTO => ({
   organisation_id: row.organisation_id ?? '',
   user_id: row.user_id || '',
   vehicle_id: row.vehicle_id ?? '',
@@ -275,32 +301,46 @@ export const toFleetFuelRemovalPayload = (
   after_removal_quantity: row.after_removal_quantity,
   removed_quantity: row.removed_quantity,
   verified_quantity: row.verified_quantity,
-  diff_quantity: row.diff_quantity || 0,
+  diff_quantity: row.diff_quantity ?? 0,
 
-  odometer_reading: row.odometer_reading || 0,
+  odometer_reading: row.odometer_reading ?? 0,
 
   date_time: row.date_time,
   removal_details: row.removal_details || '',
 
-  cost_per_unit: row.cost_per_unit || 0,
-  total_cost: row.total_cost || 0,
+  cost_per_unit: row.cost_per_unit ?? 0,
+  total_cost: row.total_cost ?? 0,
 
-  entry_source: row.entry_source || RefillEntrySource.Manual,
+  entry_source: row.entry_source ?? RefillEntrySource.Manual,
   source_reference_id: row.source_reference_id || '',
   source_notes: row.source_notes || '',
 
   admin_verify_status: row.admin_verify_status,
   transporter_verify_status: row.transporter_verify_status,
 
-  latitude: row.latitude || 0,
-  longitude: row.longitude || 0,
+  latitude: row.latitude ?? 0,
+  longitude: row.longitude ?? 0,
   google_location: row.google_location || '',
 
   status: row.status,
 
-  time_zone_id: '', // ✅ You must provide this from context
-});
+  time_zone_id: '', // provide from context
 
+  // map child files -> DTO shape
+  removal_files:
+    row.FleetFuelRemovalFile?.map((f) => ({
+      organisation_id: f.organisation_id ?? '',
+      fleet_fuel_removal_id: f.fleet_fuel_removal_id ?? '',
+      file_type: f.file_type,
+      file_url: f.file_url || '',
+      file_key: f.file_key || '',
+      file_name: f.file_name || '',
+      file_description: f.file_description || '',
+      file_size: f.file_size ?? 0,
+      file_metadata: f.file_metadata ?? {},
+      status: f.status,
+    })) ?? [],
+});
 
 // Generate a new payload with default values
 export const newFleetFuelRemovalPayload = (): FleetFuelRemovalDTO => ({
@@ -350,31 +390,37 @@ export const newFleetFuelRemovalPayload = (): FleetFuelRemovalDTO => ({
 
   // Required
   time_zone_id: '',
+
+  // Children
+  removal_files: [],
 });
 
 // API Methods
-export const findFleetFuelRemoval = async (
-  data: FleetFuelRemovalQueryDTO
-): Promise<FBR<FleetFuelRemoval[]>> => {
-  return apiPost<FBR<FleetFuelRemoval[]>, FleetFuelRemovalQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findFleetFuelRemoval = async (data: FleetFuelRemovalQueryDTO): Promise<FBR<FleetFuelRemoval[]>> => {
+  return apiPost<FBR<FleetFuelRemoval[]>, FleetFuelRemovalQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createFleetFuelRemoval = async (
-  data: FleetFuelRemovalDTO
-): Promise<SBR> => {
+export const createFleetFuelRemoval = async (data: FleetFuelRemovalDTO): Promise<SBR> => {
   return apiPost<SBR, FleetFuelRemovalDTO>(ENDPOINTS.create, data);
 };
 
-export const updateFleetFuelRemoval = async (
-  id: string,
-  data: FleetFuelRemovalDTO
-): Promise<SBR> => {
+export const updateFleetFuelRemoval = async (id: string, data: FleetFuelRemovalDTO): Promise<SBR> => {
   return apiPatch<SBR, FleetFuelRemovalDTO>(ENDPOINTS.update(id), data);
 };
 
 export const deleteFleetFuelRemoval = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+// API Methods Files
+export const getFleetFuelRemovalPresignedUrl = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url, data);
+};
+
+export const createFleetFuelRemovalFile = async (data: FleetFuelRemovalFileDTO): Promise<SBR> => {
+  return apiPost<SBR, FleetFuelRemovalFileDTO>(ENDPOINTS.create_file, data);
+};
+
+export const removeFleetFuelRemovalFile = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_file(id));
 };

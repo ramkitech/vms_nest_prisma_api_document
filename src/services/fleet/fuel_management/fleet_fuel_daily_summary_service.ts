@@ -13,6 +13,7 @@ import {
     single_select_optional,
     doubleMandatory,
     numberMandatory,
+    stringMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -32,6 +33,7 @@ const URL = 'fleet/fuel_management/fleet_fuel_daily_summary';
 const ENDPOINTS = {
     find: `${URL}/search`,
     find_monthly: `${URL}/monthly/search`,
+    find_vehicle_fuel_summary: `${URL}/vehicle_fuel_summary/search`,
     create: URL,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
@@ -90,65 +92,72 @@ export interface FleetFuelDailySummary extends Record<string, unknown> {
 
 // ✅ FleetFuelDailySummary Create/Update Schema
 export const FleetFuelDailySummarySchema = z.object({
-    organisation_id: single_select_mandatory('Organisation ID'),
-    user_id: single_select_optional('User'),
-    vehicle_id: single_select_mandatory('Master Vehicle ID'),
-    driver_id: single_select_optional('Driver ID'),
-    device_id: single_select_optional('Device ID'),
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // ✅ Single-Selection -> User
+  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+  device_id: single_select_optional('MasterDevice'), // ✅ Single-Selection -> MasterDevice
 
-    date: dateMandatory('Date'),
+  date: dateMandatory('Date'),
 
-    start_fuel_liters: doubleMandatory('Start Fuel Liters'),
-    end_fuel_liters: doubleMandatory('End Fuel Liters'),
-    total_km: doubleMandatory('Total KM'),
+  start_fuel_liters: doubleMandatory('Start Fuel Liters'),
+  end_fuel_liters: doubleMandatory('End Fuel Liters'),
+  total_km: doubleMandatory('Total KM'),
 
-    consumed_fuel_liters: doubleMandatory('Consumed Fuel Liters'),
+  consumed_fuel_liters: doubleMandatory('Consumed Fuel Liters'),
 
-    refills_count: numberMandatory('Refills Count'),
-    refill_liters: doubleMandatory('Refill Liters'),
-    removals_count: numberMandatory('Removals Count'),
-    removal_liters: doubleMandatory('Removal Liters'),
+  refills_count: numberMandatory('Refills Count'),
+  refill_liters: doubleMandatory('Refill Liters'),
+  removals_count: numberMandatory('Removals Count'),
+  removal_liters: doubleMandatory('Removal Liters'),
 
-    mileage_kmpl: doubleMandatory('Mileage KMPL'),
-    liters_per_100km: doubleMandatory('Liters Per 100 KM'),
+  mileage_kmpl: doubleMandatory('Mileage KMPL'),
+  liters_per_100km: doubleMandatory('Liters Per 100 KM'),
 
-    status: enumMandatory('Status', Status, Status.Active),
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetFuelDailySummaryDTO = z.infer<
-    typeof FleetFuelDailySummarySchema
+  typeof FleetFuelDailySummarySchema
 >;
 
 // ✅ FleetFuelDailySummary Query Schema
 export const FleetFuelDailySummaryQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('User Organisation IDs'), // ✅ Multi-selection -> UserOrganisation
-    user_ids: multi_select_optional('User IDs'), // ✅ Multi-selection -> User
-    vehicle_ids: multi_select_optional('Master Vehicle IDs'), // ✅ Multi-selection -> MasterVehicle
-    driver_ids: multi_select_optional('Master Driver IDs'), // ✅ Multi-selection -> MasterDriver
-    device_ids: multi_select_optional('Master Device IDs'), // ✅ Multi-selection -> MasterDevice
-    from_date: dateMandatory('From Date'),
-    to_date: dateMandatory('To Date'),
-    vehicle_summary: enumOptional('Vehicle Summary', YesNo, YesNo.No),
-    day_summary: enumOptional('Day Summary', YesNo, YesNo.No),
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
+  device_ids: multi_select_optional('MasterDevice'), // ✅ Multi-selection -> MasterDevice
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
+  vehicle_summary: enumOptional('Vehicle Summary', YesNo, YesNo.No),
+  day_summary: enumOptional('Day Summary', YesNo, YesNo.No),
 });
 export type FleetFuelDailySummaryQueryDTO = z.infer<
-    typeof FleetFuelDailySummaryQuerySchema
+  typeof FleetFuelDailySummaryQuerySchema
 >;
 
-// ✅ GPS Fuel Vehicle Monthly Summary Query Schema
+// ✅ FleetFuelDailyMonthlySummary Query Schema
 export const FleetFuelDailyMonthlySummaryQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('User Organisation IDs'), // ✅ Multi-selection -> UserOrganisation
-    vehicle_ids: multi_select_optional('Master Vehicle IDs'), // ✅ Multi-selection -> MasterVehicle
-    from_date: dateMandatory('From Date'),
-    to_date: dateMandatory('To Date'),
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
 });
 export type FleetFuelDailyMonthlySummaryQueryDTO = z.infer<
-    typeof FleetFuelDailyMonthlySummaryQuerySchema
+  typeof FleetFuelDailyMonthlySummaryQuerySchema
+>;
+
+// ✅ AllVehiclesFuelDailySummary Query Schema
+export const AllVehiclesFuelDailySummaryQuerySchema = BaseQuerySchema.extend({
+  date: dateMandatory('Date'),
+  organisation_utrack_id: stringMandatory('Organisation Utrack ID'),
+});
+export type AllVehiclesFuelDailySummaryDTO = z.infer<
+  typeof AllVehiclesFuelDailySummaryQuerySchema
 >;
 
 // Convert existing data to a payload structure
-export const toFleetFuelDailySummaryPayload = (
-    row: FleetFuelDailySummary
-): FleetFuelDailySummaryDTO => ({
+export const toFleetFuelDailySummaryPayload = (row: FleetFuelDailySummary): FleetFuelDailySummaryDTO => ({
     organisation_id: row.organisation_id ?? '',
     user_id: row.user_id || '',
     vehicle_id: row.vehicle_id ?? '',
@@ -173,38 +182,55 @@ export const toFleetFuelDailySummaryPayload = (
     status: row.status,
 });
 
+// Generate a new payload with default values
+export const newFleetFuelDailySummaryPayload = (): FleetFuelDailySummaryDTO => ({
+  organisation_id: '',
+  user_id: '',
+  vehicle_id: '',
+  driver_id: '',
+  device_id: '',
+
+  date: new Date().toISOString(),
+
+  start_fuel_liters: 0,
+  end_fuel_liters: 0,
+  total_km: 0,
+
+  consumed_fuel_liters: 0,
+
+  refills_count: 0,
+  refill_liters: 0,
+  removals_count: 0,
+  removal_liters: 0,
+
+  mileage_kmpl: 0,
+  liters_per_100km: 0,
+
+  status: Status.Active,
+});
+
 // API Methods
-export const findFleetFuelDailySummary = async (
-    data: FleetFuelDailySummaryQueryDTO
-): Promise<FBR<FleetFuelDailySummary[]>> => {
-    return apiPost<FBR<FleetFuelDailySummary[]>, FleetFuelDailySummaryQueryDTO>(
-        ENDPOINTS.find,
-        data
-    );
+export const findFleetFuelDailySummary = async (data: FleetFuelDailySummaryQueryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
+  return apiPost<FBR<FleetFuelDailySummary[]>, FleetFuelDailySummaryQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const findFleetFuelMonthlySummary = async (
-    data: FleetFuelDailyMonthlySummaryQueryDTO
-): Promise<FBR<FuelConsumptionMonthly[]>> => {
-    return apiPost<FBR<FuelConsumptionMonthly[]>, FleetFuelDailyMonthlySummaryQueryDTO>(
-        ENDPOINTS.find_monthly,
-        data
-    );
+export const findFleetFuelMonthlySummary = async (data: FleetFuelDailyMonthlySummaryQueryDTO): Promise<FBR<FuelConsumptionMonthly[]>> => {
+  return apiPost<FBR<FuelConsumptionMonthly[]>, FleetFuelDailyMonthlySummaryQueryDTO>(ENDPOINTS.find_monthly, data);
 };
 
-export const createFleetFuelDailySummary = async (
-    data: FleetFuelDailySummaryDTO
-): Promise<SBR> => {
-    return apiPost<SBR, FleetFuelDailySummaryDTO>(ENDPOINTS.create, data);
+export const findVehicleFuelSummary = async (data: AllVehiclesFuelDailySummaryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
+  return apiPost<FBR<FleetFuelDailySummary[]>, AllVehiclesFuelDailySummaryDTO>(ENDPOINTS.find_vehicle_fuel_summary, data);
 };
 
-export const updateFleetFuelDailySummary = async (
-    id: string,
-    data: FleetFuelDailySummaryDTO
-): Promise<SBR> => {
-    return apiPatch<SBR, FleetFuelDailySummaryDTO>(ENDPOINTS.update(id), data);
+export const createFleetFuelDailySummary = async (data: FleetFuelDailySummaryDTO): Promise<SBR> => {
+  return apiPost<SBR, FleetFuelDailySummaryDTO>(ENDPOINTS.create, data);
+};
+
+export const updateFleetFuelDailySummary = async (id: string, data: FleetFuelDailySummaryDTO): Promise<SBR> => {
+  return apiPatch<SBR, FleetFuelDailySummaryDTO>(ENDPOINTS.update(id), data);
 };
 
 export const deleteFleetFuelDailySummary = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.delete(id));
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
+
