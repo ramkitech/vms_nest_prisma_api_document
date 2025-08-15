@@ -57,9 +57,9 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   // Quantities
   before_removal_quantity: number;
   after_removal_quantity: number;
-  removed_quantity: number;
-  verified_quantity: number;
-  diff_quantity: number;
+  removal_quantity: number;
+  verified_removal_quantity: number;
+  diff_removal_quantity: number;
 
   odometer_reading?: number;
 
@@ -199,9 +199,9 @@ export const FleetFuelRemovalSchema = z.object({
   // Removal Quantity
   before_removal_quantity: doubleMandatory('Before Remove Quantity'),
   after_removal_quantity: doubleMandatory('After Remove Quantity'),
-  removed_quantity: doubleMandatory('Removal Quantity'),
-  verified_quantity: doubleMandatory('Verified Removal Quantity'),
-  diff_quantity: doubleOptional('Difference Removal Quantity'),
+  removal_quantity: doubleMandatory('Removal Quantity'),
+  verified_removal_quantity: doubleMandatory('Verified Removal Quantity'),
+  diff_removal_quantity: doubleOptional('Difference Removal Quantity'),
 
   odometer_reading: numberOptional('Odometer Reading'),
 
@@ -299,9 +299,9 @@ export const toFleetFuelRemovalPayload = (row: FleetFuelRemoval): FleetFuelRemov
 
   before_removal_quantity: row.before_removal_quantity,
   after_removal_quantity: row.after_removal_quantity,
-  removed_quantity: row.removed_quantity,
-  verified_quantity: row.verified_quantity,
-  diff_quantity: row.diff_quantity ?? 0,
+  removal_quantity: row.removal_quantity,
+  verified_removal_quantity: row.verified_removal_quantity,
+  diff_removal_quantity: row.diff_removal_quantity ?? 0,
 
   odometer_reading: row.odometer_reading ?? 0,
 
@@ -357,9 +357,9 @@ export const newFleetFuelRemovalPayload = (): FleetFuelRemovalDTO => ({
   // Quantities
   before_removal_quantity: 0,
   after_removal_quantity: 0,
-  removed_quantity: 0,
-  verified_quantity: 0,
-  diff_quantity: 0,
+  removal_quantity: 0,
+  verified_removal_quantity: 0,
+  diff_removal_quantity: 0,
 
   odometer_reading: 0,
 

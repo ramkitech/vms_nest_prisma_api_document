@@ -32,7 +32,7 @@ const ENDPOINTS = {
   cache_child: `${URL}/cache_child`,
 };
 
-// Master Device Manufacturer Interface
+// MasterDeviceManufacturer Interface
 export interface MasterDeviceManufacturer extends Record<string, unknown> {
   // Primary Fields
   device_manufacturer_id: string;

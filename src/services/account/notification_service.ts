@@ -7,22 +7,24 @@ import { z } from 'zod';
 import {
   enumArrayOptional,
   enumMandatory,
-  enumOptional,
   getAllEnums,
   multi_select_optional,
   single_select_mandatory,
+  single_select_optional,
   stringMandatory,
   stringOptional,
 } from '../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo } from '../../core/Enums';
+import { AlertSubType, AlertType, Module, Status, YesNo } from '../../core/Enums';
 
 // Other Models
-import { Alert } from '../../services/account/alert_service';
-import { User } from '../../services/main/users/user_service';
 import { UserOrganisation } from '../../services/main/users/user_organisation_service';
+import { User } from '../../services/main/users/user_service';
+import { MasterVehicle } from '../main/vehicle/master_vehicle_service';
+import { MasterDriver } from '../main/drivers/master_driver_service';
+import { GPSGeofenceData } from '../gps/features/geofence/gps_geofence_data_service';
 
 // URL and Endpoints
 const URL = 'account/notifications';
@@ -36,167 +38,161 @@ const ENDPOINTS = {
 
 // Notification Interface
 export interface Notification extends Record<string, unknown> {
-  // Primary Fields
   notification_id: string;
-  notification_title: string;
-  notification_message: string;
+  module: Module;            
+  alert_type: AlertType;      
+  alert_sub_type: AlertSubType;
 
-  is_push_sent?: YesNo;
-  is_sms_sent?: YesNo;
-  is_whatsapp_sent?: YesNo;
-  is_email_sent?: YesNo;
+  // Content
+  notification_title: string;           
+  notification_message: string;       
+  notification_html_message: string;   
 
-  mobile_numbers?: string;
-  emails?: string;
+  notification_key_1?: string; 
+  notification_key_2?: string; 
+  notification_key_3?: string; 
+  notification_key_4?: string; 
+  notification_key_5?: string; 
+  notification_key_6?: string; 
 
   // Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
+  status: Status;                 
+  added_date_time: string;        
+  modified_date_time: string;     
 
-  // Relations
+  // ✅ Relations
   organisation_id: string;
-  UserOrganisation?: UserOrganisation;
+  UserOrganisation: UserOrganisation; 
 
-  alert_id: string;
-  Alert?: Alert;
+  user_id?: string;
+  User?: User | null;                 
+  user_details?: string;              
 
-  // Relations - Child
-  NotificationUserLink?: NotificationUserLink[];
-}
+  vehicle_id?: string;
+  MasterVehicle?: MasterVehicle | null; 
+  vehicle_number?: string;             
+  vehicle_type?: string;               
 
-// Alert User Link Interface
-export interface NotificationUserLink extends Record<string, unknown> {
-  alert_user_link_id: string;
+  driver_id?: string;
+  MasterDriver?: MasterDriver | null; 
+  driver_details?: string;            
 
-  // Relations
-  notification_id: string;
-  Notification?: Notification;
-
-  user_id: string;
-  User?: User;
+  gps_geofence_id?: string;
+  GPSGeofenceData?: GPSGeofenceData | null; 
 }
 
 // ✅ Notification Create/Update Schema
 export const NotificationSchema = z.object({
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // ✅ Single-Selection -> User
+  vehicle_id: single_select_optional('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+  gps_geofence_id: single_select_optional('GPSGeofenceData'), // ✅ Single-Selection -> GPSGeofenceData
+
   notification_title: stringMandatory('Notification Title', 3, 100),
   notification_message: stringMandatory('Notification Message', 3, 500),
+  notification_html_message: stringOptional(
+    'Notification HTML Message',
+    0,
+    500,
+  ),
 
-  is_push_sent: enumOptional('Is Push Sent', YesNo, YesNo.No),
-  is_sms_sent: enumOptional('Is SMS Sent', YesNo, YesNo.No),
-  is_whatsapp_sent: enumOptional('Is WhatsApp Sent', YesNo, YesNo.No),
-  is_email_sent: enumOptional('Is Email Sent', YesNo, YesNo.No),
+  notification_key_1: stringOptional('Notification Key 1', 0, 100),
+  notification_key_2: stringOptional('Notification Key 2', 0, 100),
+  notification_key_3: stringOptional('Notification Key 3', 0, 100),
+  notification_key_4: stringOptional('Notification Key 4', 0, 100),
+  notification_key_5: stringOptional('Notification Key 5', 0, 100),
+  notification_key_6: stringOptional('Notification Key 6', 0, 100),
 
-  mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
-  emails: stringOptional('Emails', 0, 300),
-
-  alert_id: single_select_mandatory('Alert'),
-  organisation_id: single_select_mandatory('Organisation'),
-  user_ids: multi_select_optional('User'),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type NotificationDTO = z.infer<typeof NotificationSchema>;
 
 // ✅ Notification Query Schema
 export const NotificationQuerySchema = BaseQuerySchema.extend({
-  alert_ids: multi_select_optional('Alert'),
-  organisation_ids: multi_select_optional('Organisation'),
-  notification_ids: multi_select_optional('Notification'),
-  is_push_sent: enumArrayOptional(
-    'Is Push Sent',
-    YesNo,
-    getAllEnums(YesNo),
-    0,
-    10,
-    true
+  notification_ids: multi_select_optional('Notification'), // ✅ Multi-selection -> Notification
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
+  gps_geofence_ids: multi_select_optional('GPSGeofenceData'), // ✅ Multi-selection -> GPSGeofenceData
+
+  module: enumArrayOptional('Module', Module, getAllEnums(Module)),
+  alert_type: enumArrayOptional(
+    'Alert Type',
+    AlertType,
+    getAllEnums(AlertType),
   ),
-  is_sms_sent: enumArrayOptional(
-    'Is SMS Sent',
-    YesNo,
-    getAllEnums(YesNo),
-    0,
-    10,
-    true
-  ),
-  is_whatsapp_sent: enumArrayOptional(
-    'Is Whatsapp Sent',
-    YesNo,
-    getAllEnums(YesNo),
-    0,
-    10,
-    true
-  ),
-  is_email_sent: enumArrayOptional(
-    'Is Email Sent',
-    YesNo,
-    getAllEnums(YesNo),
-    0,
-    10,
-    true
+  alert_sub_type: enumArrayOptional(
+    'Alert Sub Type',
+    AlertSubType,
+    getAllEnums(AlertSubType),
   ),
 });
 export type NotificationQueryDTO = z.infer<typeof NotificationQuerySchema>;
 
 // Convert existing data to a payload structure
-export const toNotificationPayload = (
-  notification: Notification
-): NotificationDTO => ({
-  notification_title: notification.notification_title,
-  notification_message: notification.notification_message,
+export const toNotificationPayload = (n: Notification): NotificationDTO => ({
+  // relations (single-selects)
+  organisation_id: n.organisation_id,
+  user_id: n.user_id ?? '',
+  vehicle_id: n.vehicle_id ?? '',
+  driver_id: n.driver_id ?? '',
+  gps_geofence_id: n.gps_geofence_id ?? '',
 
-  is_push_sent: notification.is_push_sent ?? YesNo.No,
-  is_sms_sent: notification.is_sms_sent ?? YesNo.No,
-  is_whatsapp_sent: notification.is_whatsapp_sent ?? YesNo.No,
-  is_email_sent: notification.is_email_sent ?? YesNo.No,
+  // content
+  notification_title: n.notification_title,
+  notification_message: n.notification_message,
+  notification_html_message: n.notification_html_message ?? '',
 
-  mobile_numbers: notification.mobile_numbers ?? '',
-  emails: notification.emails ?? '',
+  // keys
+  notification_key_1: n.notification_key_1 ?? '',
+  notification_key_2: n.notification_key_2 ?? '',
+  notification_key_3: n.notification_key_3 ?? '',
+  notification_key_4: n.notification_key_4 ?? '',
+  notification_key_5: n.notification_key_5 ?? '',
+  notification_key_6: n.notification_key_6 ?? '',
 
-  alert_id: notification.alert_id,
-  organisation_id: notification.organisation_id,
-  user_ids: [],
-  status: notification.status,
+  // metadata
+  status: n.status,
 });
 
 // Generate a new payload with default values
 export const newNotificationPayload = (): NotificationDTO => ({
+  // relations (single-selects)
+  organisation_id: '',
+  user_id: '',
+  vehicle_id: '',
+  driver_id: '',
+  gps_geofence_id: '',
+
+  // content
   notification_title: '',
   notification_message: '',
+  notification_html_message: '',
 
-  is_push_sent: YesNo.No,
-  is_sms_sent: YesNo.No,
-  is_whatsapp_sent: YesNo.No,
-  is_email_sent: YesNo.No,
+  // keys
+  notification_key_1: '',
+  notification_key_2: '',
+  notification_key_3: '',
+  notification_key_4: '',
+  notification_key_5: '',
+  notification_key_6: '',
 
-  mobile_numbers: '',
-  emails: '',
-
-  alert_id: '',
-  organisation_id: '',
-  user_ids: [],
+  // metadata
   status: Status.Active,
 });
 
 // API Methods
-export const findNotifications = async (
-  data: NotificationQueryDTO
-): Promise<FBR<Notification[]>> => {
-  return apiPost<FBR<Notification[]>, NotificationQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findNotifications = async (data: NotificationQueryDTO): Promise<FBR<Notification[]>> => {
+  return apiPost<FBR<Notification[]>, NotificationQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createNotification = async (
-  data: NotificationDTO
-): Promise<SBR> => {
+export const createNotification = async (data: NotificationDTO): Promise<SBR> => {
   return apiPost<SBR, NotificationDTO>(ENDPOINTS.create, data);
 };
 
-export const updateNotification = async (
-  id: string,
-  data: NotificationDTO
-): Promise<SBR> => {
+export const updateNotification = async (id: string, data: NotificationDTO): Promise<SBR> => {
   return apiPatch<SBR, NotificationDTO>(ENDPOINTS.update(id), data);
 };
 
