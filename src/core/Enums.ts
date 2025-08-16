@@ -361,19 +361,168 @@ export enum MenuType {
 }
 
 export enum Module {
-  ABC = 'ABC',
-}
-
-export enum SubModule {
-  ABC = 'ABC',
+  GPSModule = 'GPSModule',
+  FleetModule = 'FleetModule',
+  TripModule = 'TripModule',
+  AccountModule = 'AccountModule',
 }
 
 export enum AlertType {
-  ABC = 'ABC',
+  // GPS Module
+  Fuel = 'Fuel',
+  Temperature = 'Temperature',
+  RelayIgnitionLock = 'RelayIgnitionLock',
+  Genset = 'Genset',
+  DoorSensor = 'DoorSensor',
+  DigitalLocker = 'DigitalLocker',
+  OverSpeed = 'OverSpeed',
+  Ignition = 'Ignition',
+  VehicleMovement = 'VehicleMovement',
+  Geofence = 'Geofence',
+  Trailer = 'Trailer',
+
+  // Fleet Module
+  DocumentExpiry = 'DocumentExpiry',
+  Compliance = 'Compliance',
+  Maintenance = 'Maintenance',
+  Service = 'Service',
+  Inspection = 'Inspection',
+  Tyre = 'Tyre',
+  Incident = 'Incident',
+  Issue = 'Issue',
+  Reminder = 'Reminder',
+
+  // Trip Module
+  Trip = 'Trip',
+  Route = 'Route',
+
+  // Account Module
+  Invoice = 'Invoice',
+  BillDue = 'BillDue',
+  UserAuth = 'UserAuth',
 }
 
 export enum AlertSubType {
-  ABC = 'ABC',
+  // Fuel
+  FuelRefill = 'FuelRefill',
+  FuelRemoval = 'FuelRemoval',
+  LowFuel = 'LowFuel',
+  FuelSensorFault = 'FuelSensorFault',
+
+  // Temperature
+  TemperatureHigh = 'TemperatureHigh',
+  TemperatureLow = 'TemperatureLow',
+  TempProbeFault = 'TempProbeFault',
+
+  // Relay / Immobilizer
+  VehicleLocked = 'VehicleLocked',
+  VehicleUnlocked = 'VehicleUnlocked',
+
+  // Genset
+  GensetOn = 'GensetOn',
+  GensetOff = 'GensetOff',
+
+  // Door sensor
+  DoorOpen = 'DoorOpen',
+  DoorClose = 'DoorClose',
+  DoorOpenTooLong = 'DoorOpenTooLong',
+  DoorTamper = 'DoorTamper',
+
+  // Digital locker
+  DigitalLockerLocked = 'DigitalLockerLocked',
+  DigitalLockerUnlocked = 'DigitalLockerUnlocked',
+  DigitalLockerFailedUnlock = 'DigitalLockerFailedUnlock',
+  DigitalLockerForcedOpen = 'DigitalLockerForcedOpen',
+
+  // Speed
+  OverSpeed = 'OverSpeed',
+
+  // Ignition
+  IgnitionOn = 'IgnitionOn',
+  IgnitionOff = 'IgnitionOff',
+
+  // Movement
+  VehicleMoving = 'VehicleMoving',
+  VehicleStopped = 'VehicleStopped',
+  VehicleStoppedHours = 'VehicleStoppedHours', // stopped ≥ configured hours (dynamic)
+  LessKMTravel = 'LessKMTravel',               // low distance within period (dynamic)
+  TowDetected = 'TowDetected',
+  AfterHours = 'AfterHours',
+
+  // Geofence
+  GeofenceEnter = 'GeofenceEnter',
+  GeofenceExit = 'GeofenceExit',
+
+  // Trailer
+  TrailerConnected = 'TrailerConnected',
+  TrailerDisconnected = 'TrailerDisconnected',
+
+  // ==== Fleet Module ====
+
+  // DocumentExpiry
+  InsuranceExpiry = 'InsuranceExpiry',
+  RegistrationExpiry = 'RegistrationExpiry',
+  PermitExpiry = 'PermitExpiry',
+  PollutionExpiry = 'PollutionExpiry',
+  FitnessExpiry = 'FitnessExpiry',
+  TaxExpiry = 'TaxExpiry',
+
+  // Maintenance
+  MaintenanceDue = 'MaintenanceDue',
+  MaintenanceOverdue = 'MaintenanceOverdue',
+  MaintenanceCompleted = 'MaintenanceCompleted',
+
+  // Service
+  ServiceScheduled = 'ServiceScheduled',
+  ServiceStarted = 'ServiceStarted',
+  ServiceCompleted = 'ServiceCompleted',
+  ServiceOverdue = 'ServiceOverdue',
+
+  // Inspection
+  InspectionScheduled = 'InspectionScheduled',
+  InspectionPassed = 'InspectionPassed',
+  InspectionFailed = 'InspectionFailed',
+  InspectionOverdue = 'InspectionOverdue',
+
+  // Incident
+  CollisionDetected = 'CollisionDetected',
+  Rollover = 'Rollover',
+
+  // Issue
+  IssueCreated = 'IssueCreated',
+  IssueUpdated = 'IssueUpdated',
+  IssueResolved = 'IssueResolved',
+
+  // Reminder
+  ReminderDue = 'ReminderDue',
+  ReminderOverdue = 'ReminderOverdue',
+  ReminderCompleted = 'ReminderCompleted',
+
+  // ==== Trip Module ====
+  // Trip
+  TripPlanned = 'TripPlanned',
+  TripStarted = 'TripStarted',
+  TripPaused = 'TripPaused',
+  TripResumed = 'TripResumed',
+  TripCompleted = 'TripCompleted',
+  TripCancelled = 'TripCancelled',
+
+  // Route
+  RouteDeviation = 'RouteDeviation',
+  WaypointMissed = 'WaypointMissed',
+  UnscheduledStop = 'UnscheduledStop',
+
+  // ==== Account Module ====
+  // Invoice
+  InvoiceGenerated = 'InvoiceGenerated',
+  InvoiceDue = 'InvoiceDue',
+  InvoiceOverdue = 'InvoiceOverdue',
+  InvoicePaid = 'InvoicePaid',
+
+  // UserAuth
+  UserLogin = 'UserLogin',
+  UserLogout = 'UserLogout',
+  PasswordChanged = 'PasswordChanged',
 }
 
 export enum SimStatus {
