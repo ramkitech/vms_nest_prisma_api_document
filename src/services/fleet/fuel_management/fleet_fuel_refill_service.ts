@@ -11,7 +11,6 @@ import {
   dateMandatory,
   enumOptional,
   single_select_optional,
-  doubleMandatory,
   enumArrayOptional,
   getAllEnums,
   doubleOptionalLatLng,
@@ -218,10 +217,10 @@ export const FleetFuelRefillSchema = z.object({
   vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
 
   // Refill Quantity
-  before_refill_quantity: doubleMandatory('Before Refill Quantity'),
-  after_refill_quantity: doubleMandatory('After Refill Quantity'),
-  refill_quantity: doubleMandatory('Refill Quantity'),
-  verified_refill_quantity: doubleMandatory('Verified Refill Quantity'),
+  before_refill_quantity: doubleOptional('Before Refill Quantity'),
+  after_refill_quantity: doubleOptional('After Refill Quantity'),
+  refill_quantity: doubleOptional('Refill Quantity'),
+  verified_refill_quantity: doubleOptional('Verified Refill Quantity'),
   diff_refill_quantity: doubleOptional('Difference Refill Quantity'),
 
   odometer_reading: numberOptional('Odometer Reading'),

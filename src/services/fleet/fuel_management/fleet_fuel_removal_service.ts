@@ -11,7 +11,6 @@ import {
   dateMandatory,
   enumOptional,
   single_select_optional,
-  doubleMandatory,
   enumArrayOptional,
   getAllEnums,
   doubleOptionalLatLng,
@@ -197,10 +196,10 @@ export const FleetFuelRemovalSchema = z.object({
   // ✅ Single-Selection -> MasterVehicleFuelRemovalReason
 
   // Removal Quantity
-  before_removal_quantity: doubleMandatory('Before Remove Quantity'),
-  after_removal_quantity: doubleMandatory('After Remove Quantity'),
-  removal_quantity: doubleMandatory('Removal Quantity'),
-  verified_removal_quantity: doubleMandatory('Verified Removal Quantity'),
+  before_removal_quantity: doubleOptional('Before Remove Quantity'),
+  after_removal_quantity: doubleOptional('After Remove Quantity'),
+  removal_quantity: doubleOptional('Removal Quantity'),
+  verified_removal_quantity: doubleOptional('Verified Removal Quantity'),
   diff_removal_quantity: doubleOptional('Difference Removal Quantity'),
 
   odometer_reading: numberOptional('Odometer Reading'),
