@@ -5,6 +5,8 @@ import { SBR, FBR } from '../../core/BaseResponse';
 // Zod
 import { z } from 'zod';
 import {
+  dateMandatory,
+  doubleOptionalLatLng,
   enumArrayOptional,
   enumMandatory,
   getAllEnums,
@@ -25,6 +27,7 @@ import { User } from '../../services/main/users/user_service';
 import { MasterVehicle } from '../main/vehicle/master_vehicle_service';
 import { MasterDriver } from '../main/drivers/master_driver_service';
 import { GPSGeofenceData } from '../gps/features/geofence/gps_geofence_data_service';
+import { MasterMainLandmark } from '../master/main/master_main_landmark_service';
 
 // URL and Endpoints
 const URL = 'account/notifications';
@@ -39,46 +42,59 @@ const ENDPOINTS = {
 // Notification Interface
 export interface Notification extends Record<string, unknown> {
   notification_id: string;
-  module: Module;            
-  alert_type: AlertType;      
+  module: Module;
+  alert_type: AlertType;
   alert_sub_type: AlertSubType;
 
-  // Content
-  notification_title: string;           
-  notification_message: string;       
-  notification_html_message: string;   
+  // Event Time
+  date_time: string;
+  date_time_f?: string;
 
-  notification_key_1?: string; 
-  notification_key_2?: string; 
-  notification_key_3?: string; 
-  notification_key_4?: string; 
-  notification_key_5?: string; 
-  notification_key_6?: string; 
+  // Content
+  notification_message: string;
+  notification_html_message: string;
+
+  notification_key_1?: string;
+  notification_key_2?: string;
+  notification_key_3?: string;
+  notification_key_4?: string;
+  notification_key_5?: string;
+  notification_key_6?: string;
+
+  // Location Details
+  latitude?: number;
+  longitude?: number;
+  google_location?: string;
+
+  landmark_id?: string;
+  MasterMainLandmark?: MasterMainLandmark;
+  landmark_location?: string;
+  landmark_distance?: number;
 
   // Metadata
-  status: Status;                 
-  added_date_time: string;        
-  modified_date_time: string;     
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
 
   // ✅ Relations
   organisation_id: string;
-  UserOrganisation: UserOrganisation; 
+  UserOrganisation: UserOrganisation;
 
   user_id?: string;
-  User?: User | null;                 
-  user_details?: string;              
+  User?: User | null;
+  user_details?: string;
 
   vehicle_id?: string;
-  MasterVehicle?: MasterVehicle | null; 
-  vehicle_number?: string;             
-  vehicle_type?: string;               
+  MasterVehicle?: MasterVehicle | null;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   driver_id?: string;
-  MasterDriver?: MasterDriver | null; 
-  driver_details?: string;            
+  MasterDriver?: MasterDriver | null;
+  driver_details?: string;
 
   gps_geofence_id?: string;
-  GPSGeofenceData?: GPSGeofenceData | null; 
+  GPSGeofenceData?: GPSGeofenceData | null;
 }
 
 // ✅ Notification Create/Update Schema
@@ -89,13 +105,20 @@ export const NotificationSchema = z.object({
   driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
   gps_geofence_id: single_select_optional('GPSGeofenceData'), // ✅ Single-Selection -> GPSGeofenceData
 
-  notification_title: stringMandatory('Notification Title', 3, 100),
+  // Event Time
+  date_time: dateMandatory('Date Time'),
+
   notification_message: stringMandatory('Notification Message', 3, 500),
   notification_html_message: stringOptional(
     'Notification HTML Message',
     0,
     500,
   ),
+
+  // Location Details
+  latitude: doubleOptionalLatLng('Latitude'),
+  longitude: doubleOptionalLatLng('Longitude'),
+  google_location: stringOptional('Google Location', 0, 500),
 
   notification_key_1: stringOptional('Notification Key 1', 0, 100),
   notification_key_2: stringOptional('Notification Key 2', 0, 100),
@@ -105,6 +128,7 @@ export const NotificationSchema = z.object({
   notification_key_6: stringOptional('Notification Key 6', 0, 100),
 
   status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type NotificationDTO = z.infer<typeof NotificationSchema>;
 
@@ -132,29 +156,35 @@ export const NotificationQuerySchema = BaseQuerySchema.extend({
 export type NotificationQueryDTO = z.infer<typeof NotificationQuerySchema>;
 
 // Convert existing data to a payload structure
-export const toNotificationPayload = (n: Notification): NotificationDTO => ({
+export const toNotificationPayload = (row: Notification): NotificationDTO => ({
   // relations (single-selects)
-  organisation_id: n.organisation_id,
-  user_id: n.user_id ?? '',
-  vehicle_id: n.vehicle_id ?? '',
-  driver_id: n.driver_id ?? '',
-  gps_geofence_id: n.gps_geofence_id ?? '',
+  organisation_id: row.organisation_id,
+  user_id: row.user_id ?? '',
+  vehicle_id: row.vehicle_id ?? '',
+  driver_id: row.driver_id ?? '',
+  gps_geofence_id: row.gps_geofence_id ?? '',
+
+  date_time: row.date_time,
 
   // content
-  notification_title: n.notification_title,
-  notification_message: n.notification_message,
-  notification_html_message: n.notification_html_message ?? '',
+  notification_message: row.notification_message,
+  notification_html_message: row.notification_html_message ?? '',
 
   // keys
-  notification_key_1: n.notification_key_1 ?? '',
-  notification_key_2: n.notification_key_2 ?? '',
-  notification_key_3: n.notification_key_3 ?? '',
-  notification_key_4: n.notification_key_4 ?? '',
-  notification_key_5: n.notification_key_5 ?? '',
-  notification_key_6: n.notification_key_6 ?? '',
+  notification_key_1: row.notification_key_1 ?? '',
+  notification_key_2: row.notification_key_2 ?? '',
+  notification_key_3: row.notification_key_3 ?? '',
+  notification_key_4: row.notification_key_4 ?? '',
+  notification_key_5: row.notification_key_5 ?? '',
+  notification_key_6: row.notification_key_6 ?? '',
 
-  // metadata
-  status: n.status,
+  latitude: row.latitude ?? 0,
+  longitude: row.longitude ?? 0,
+  google_location: row.google_location || '',
+
+  status: row.status,
+
+  time_zone_id: '', // Needs to be provided manually
 });
 
 // Generate a new payload with default values
@@ -166,8 +196,10 @@ export const newNotificationPayload = (): NotificationDTO => ({
   driver_id: '',
   gps_geofence_id: '',
 
+  // date
+  date_time: new Date().toISOString(),
+
   // content
-  notification_title: '',
   notification_message: '',
   notification_html_message: '',
 
@@ -179,8 +211,15 @@ export const newNotificationPayload = (): NotificationDTO => ({
   notification_key_5: '',
   notification_key_6: '',
 
+  // location
+  latitude: 0,
+  longitude: 0,
+  google_location: '',
+
   // metadata
   status: Status.Active,
+
+  time_zone_id: '',
 });
 
 // API Methods
