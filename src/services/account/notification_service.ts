@@ -127,6 +127,14 @@ export const NotificationSchema = z.object({
   notification_key_5: stringOptional('Notification Key 5', 0, 100),
   notification_key_6: stringOptional('Notification Key 6', 0, 100),
 
+  module: enumMandatory('Module', Module, Module.GPSModule),
+  alert_type: enumMandatory('Alert Type', AlertType, AlertType.Ignition),
+  alert_sub_type: enumMandatory(
+    'Alert Sub Type',
+    AlertSubType,
+    AlertSubType.IgnitionOn,
+  ),
+
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
@@ -182,6 +190,11 @@ export const toNotificationPayload = (row: Notification): NotificationDTO => ({
   longitude: row.longitude ?? 0,
   google_location: row.google_location || '',
 
+
+  module: row.module,
+  alert_type: row.alert_type,
+  alert_sub_type: row.alert_sub_type,
+
   status: row.status,
 
   time_zone_id: '', // Needs to be provided manually
@@ -215,6 +228,10 @@ export const newNotificationPayload = (): NotificationDTO => ({
   latitude: 0,
   longitude: 0,
   google_location: '',
+
+  module: Module.GPSModule,
+  alert_type: AlertType.Fuel,
+  alert_sub_type: AlertSubType.FuelRefill,
 
   // metadata
   status: Status.Active,
