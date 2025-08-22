@@ -116,7 +116,7 @@ export interface MasterVehicle extends Record<string, unknown> {
 
   // Database Details
   db_instance: string;
-  db_index: string;
+  db_group: string;
 
   // Admin Account Details
   is_fleet_active: YesNo;

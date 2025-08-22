@@ -85,7 +85,7 @@ export interface MasterDevice extends Record<string, unknown> {
 
   // Database Details
   db_instance: string; // Max: 200
-  db_index: string; // Max: 200
+  db_group: string; // Max: 200
 
   // Images
   device_image_url?: string;

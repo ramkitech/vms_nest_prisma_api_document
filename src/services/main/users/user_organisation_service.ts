@@ -97,7 +97,7 @@ export interface UserOrganisation extends Record<string, unknown> {
   fleet_size: FleetSize;
 
   db_instance: string; // Min: 3, Max: 100
-  db_index: string; // Min: 3, Max: 100
+  db_group: string; // Min: 3, Max: 100
 
   organisation_logo_url?: string; // Min: 0, Max: 300
   organisation_logo_key?: string; // Min: 0, Max: 300
@@ -311,7 +311,7 @@ export interface UserOrganisationSimple extends Record<string, unknown> {
   u_id: string;
 
   db_i: string;
-  db_in: string;
+  db_g: string;
 
   o_logo?: string;
 }

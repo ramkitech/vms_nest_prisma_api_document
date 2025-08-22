@@ -46,7 +46,7 @@ export interface GpsPacket extends Record<string, unknown> {
 
   org_id: string;
 
-  db_index: number;
+  db_group: string;
 
   db_instance: string;
 

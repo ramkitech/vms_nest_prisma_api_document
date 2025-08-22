@@ -5,7 +5,7 @@ export interface GpsSensor extends Record<string, unknown> {
 
   o_id: string;
 
-  db_index: string;
+  db_group: string;
 
   db_instance: string;
 

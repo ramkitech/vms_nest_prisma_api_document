@@ -71,7 +71,7 @@ const ENDPOINTS = {
 export const MultipleVehicleReportSchema = MongoBaseQuerySchema.extend({
   organisation_id: single_select_mandatory('Organisation'),
   db_instance: stringMandatory('DB Instance'),
-  db_index: stringMandatory('DB Index'),
+  db_group: stringMandatory('DB Group'),
   vehicle_ids: multi_select_mandatory('Master Vehicle'),
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
@@ -98,7 +98,7 @@ export type MultipleVehicleReportQueryDTO = z.infer<
 export const MultipleDriverReportSchema = MongoBaseQuerySchema.extend({
   organisation_id: single_select_mandatory('Organisation'),
   db_instance: stringMandatory('DB Instance'),
-  db_index: stringMandatory('DB Index'),
+  db_group: stringMandatory('DB Group'),
   driver_ids: multi_select_mandatory('Master Driver'),
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
@@ -125,7 +125,7 @@ export type MultipleDriverReportQueryDTO = z.infer<
 export const SimpleReportSchema = MongoBaseQuerySchema.extend({
   organisation_id: single_select_mandatory('Organisation'),
   db_instance: stringMandatory('DB Instance'),
-  db_index: stringMandatory('DB Index'),
+  db_group: stringMandatory('DB Group'),
   vehicle_ids: multi_select_mandatory('Master Vehicle'),
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
@@ -140,7 +140,7 @@ export const MultipleVehicleLast24HoursReportSchema =
   MongoBaseQuerySchema.extend({
     organisation_id: single_select_mandatory('Organisation'),
     db_instance: stringMandatory('DB Instance'),
-    db_index: stringMandatory('DB Index'),
+    db_group: stringMandatory('DB Group'),
     vehicle_ids: multi_select_mandatory('Master Vehicle'),
     utilization_km: numberMandatory('Utilization KM'),
      is12am: enumMandatory('Is 12AM', Is12AM, Is12AM.No),
@@ -153,7 +153,7 @@ export type MultipleVehicleLast24HoursReportQueryDTO = z.infer<
 export const SingleVehicleReportSchema = MongoBaseQuerySchema.extend({
   organisation_id: single_select_mandatory('Organisation'),
   db_instance: stringMandatory('DB Instance'),
-  db_index: stringMandatory('DB Index'),
+  db_group: stringMandatory('DB Group'),
   vehicle_id: single_select_mandatory('Master Vehicle'),
   from_date_time: dateTimeMandatory('From Date Time'),
   to_date_time: dateTimeMandatory('To Date Time'),
@@ -167,7 +167,7 @@ export type SingleVehicleReportQueryDTO = z.infer<
 export const VehicleDashboardSummaryQuerySchema = MongoBaseQuerySchema.extend({
   organisation_id: single_select_mandatory('Organisation'),
   db_instance: stringMandatory('DB Instance'),
-  db_index: stringMandatory('DB Index'),
+  db_group: stringMandatory('DB Group'),
   vehicle_id: single_select_mandatory('Master Vehicle'),
 });
 export type VehicleDashboardSummaryQueryDTO = z.infer<

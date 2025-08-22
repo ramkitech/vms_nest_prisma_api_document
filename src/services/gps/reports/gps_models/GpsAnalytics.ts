@@ -3,7 +3,7 @@ export interface GpsAnalytics extends Record<string, unknown> {
   org_id: string;
   v_id: string;
   d_id: string;
-  db_index: string;
+  db_group: string;
   db_instance: string;
   vn: string;
   date: string;
