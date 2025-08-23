@@ -27,6 +27,7 @@ export interface GpsAlert {
 
   // Date Time
   dt: string;
+  dt_f?: string;
   dts: number;
 
   // Location
