@@ -5,10 +5,20 @@ export interface GpsAlert {
   o_id: string; // Orgnaisation ID
   db_i: string; // DB Instance
   db_g: string; // DB Group
+
   u_id: string; // User ID
+  u_f?: string; // User Details
+
   v_id: string; // Vehicle ID
+  vn_f?: string;
+  vt?: string;
+
   d_id: string; // Driver ID
+  dr_f?: string; 
+
   g_id: string; // Geofence ID
+  ge_n?: string;
+  ge_t?: string;
 
   // Type
   module: Module;
