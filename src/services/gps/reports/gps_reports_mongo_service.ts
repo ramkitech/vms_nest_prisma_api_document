@@ -17,16 +17,20 @@ import {
   dateTimeMandatory,
   enumMandatory,
   numberOptional,
+  multi_select_optional,
+  enumArrayOptional,
+  getAllEnums,
 } from '../../../zod_utils/zod_utils';
 import { MongoBaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
-import { TimeSlot, NightDriving, OverSpeed, GPSType, YesNo, BooleanType, Is12AM } from '../../../core/Enums';
+import { TimeSlot, NightDriving, OverSpeed, GPSType, YesNo, BooleanType, Is12AM, Module, AlertType, AlertSubType } from '../../../core/Enums';
 import { GPSOverSpeedViolation } from './gps_models/GPSOverSpeedViolation';
 import { Last24HoursKmReport } from './gps_models/Last24HoursKmReport';
 import { OverSpeedViolationMonthly } from './gps_models/OverSpeedViolationMonthly';
 import { HourlyKmAnalysis } from './gps_models/HourlyKmAnalysis';
 import { DashboardSummaryReport } from './gps_models/DashboardSummaryReport';
 import { KilometerMonthly } from './gps_models/KilometerMonthly';
+import { GpsAlert } from './gps_models/GpsAlert';
 
 // 2. URL and Endpoints
 const URL = 'gps/reports';
@@ -63,6 +67,9 @@ const ENDPOINTS = {
 
   // SBR -> Dashboard Summary
   vehicle_dashboard_summary_report: `${URL}/vehicle_dashboard_summary_report`,
+
+  // FBR -> GPSAlert
+  gps_alert_notifications: `${URL}/gps_alert_notifications`,
 
   find: `${URL}/search`,
 };
@@ -173,6 +180,33 @@ export const VehicleDashboardSummaryQuerySchema = MongoBaseQuerySchema.extend({
 export type VehicleDashboardSummaryQueryDTO = z.infer<
   typeof VehicleDashboardSummaryQuerySchema
 >;
+
+// ✅ AlertReportSchema
+export const AlertReportSchema = MongoBaseQuerySchema.extend({
+  organisation_id: single_select_mandatory('UserOrganisation'),
+  db_instance: stringMandatory('DBInstance'),
+  db_group: stringMandatory('DBGroup'),
+
+  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
+  gps_geofence_ids: multi_select_optional('GPSGeofenceData'), // ✅ Multi-selection -> GPSGeofenceData
+
+  modules: enumArrayOptional('Modules', Module, getAllEnums(Module)),
+  alert_types: enumArrayOptional(
+    'Alert Types',
+    AlertType,
+    getAllEnums(AlertType),
+  ),
+  alert_sub_types: enumArrayOptional(
+    'Alert Sub Types',
+    AlertSubType,
+    getAllEnums(AlertSubType),
+  ),
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
+});
+export type AlertReportQueryDTO = z.infer<typeof AlertReportSchema>;
 
 export const find_test_api = async (
   data: MultipleVehicleReportQueryDTO
@@ -360,4 +394,14 @@ export const vehicle_dashboard_summary_report = async (
     FBR<DashboardSummaryReport[]>,
     VehicleDashboardSummaryQueryDTO
   >(ENDPOINTS.vehicle_dashboard_summary_report, data);
+};
+
+// FBR -> GPSAlert
+export const gps_alert_notifications = async (
+  data: AlertReportQueryDTO
+): Promise<FBR<GpsAlert[]>> => {
+  return apiPost<
+    FBR<GpsAlert[]>,
+    AlertReportQueryDTO
+  >(ENDPOINTS.gps_alert_notifications, data);
 };
