@@ -1,6 +1,6 @@
 import { AlertSubType, AlertType, Module } from "src/core/Enums";
 
-export interface GpsAlert {
+export interface GpsAlert extends Record<string, unknown> {
   // Primary
   o_id: string; // Orgnaisation ID
   db_i: string; // DB Instance
