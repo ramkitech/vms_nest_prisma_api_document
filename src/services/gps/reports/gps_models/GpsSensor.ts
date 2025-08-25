@@ -1,13 +1,13 @@
 export interface GpsSensor extends Record<string, unknown> {
-  si: number;
+   // Primary
+  _id?: string;
 
-  v_id: string;
-
-  o_id: string;
-
-  db_group: string;
-
-  db_instance: string;
+  // Primary
+  o_id: string; // Orgnaisation ID
+  db_i: string; // DB Instance
+  db_g: string; // DB Group
+  v_id: string; // Vehicle ID
+  d_id: string; // Driver ID
 
   // From Date Time
   fdt: string;
@@ -19,9 +19,12 @@ export interface GpsSensor extends Record<string, unknown> {
 
   // Duration -> seconds
   s: number;
+  ts: number;
 
   // Distance -> Meters
   me: number;
+  dm: number;
+  dmc: boolean;
 
   // Start Location
   s_la: number;
@@ -40,7 +43,10 @@ export interface GpsSensor extends Record<string, unknown> {
   e_ld: number;
 
   // Type
-  t: string; // Stoppage, Ignition, Genset, Door
+  t: string; // OverSpeed, Stoppage, Ignition, Genset, Door
+
+  // OverSpeed
+  os: boolean;
 
   // Motion
   m: boolean;
@@ -55,9 +61,11 @@ export interface GpsSensor extends Record<string, unknown> {
   s_g: boolean;
 
   // processed fields
-  s_f: string;
-  fdt_f: string;
-  tdt_f: string;
-  vn_f: string;
-  vt: string;
+  si?: number;
+  s_f?: string;
+  fdt_f?: string;
+  tdt_f?: string;
+  vn_f?: string;
+  vt?: string;
+  dr_f?: string;
 }

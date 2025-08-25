@@ -2,25 +2,16 @@ import { AlertSubType, AlertType, Module } from "src/core/Enums";
 
 export interface GpsAlert extends Record<string, unknown> {
   // Primary
-  _id?: string; 
+  _id?: string;
 
+  // Primary
   o_id: string; // Orgnaisation ID
   db_i: string; // DB Instance
   db_g: string; // DB Group
-
   u_id: string; // User ID
-  u_f?: string; // User Details
-
   v_id: string; // Vehicle ID
-  vn_f?: string;
-  vt?: string;
-
   d_id: string; // Driver ID
-  dr_f?: string; 
-
   g_id: string; // Geofence ID
-  ge_n?: string;
-  ge_t?: string;
 
   // Type
   module: Module;
@@ -29,7 +20,6 @@ export interface GpsAlert extends Record<string, unknown> {
 
   // Date Time
   dt: string;
-  dt_f?: string;
   dts: number;
 
   // Location
@@ -51,4 +41,14 @@ export interface GpsAlert extends Record<string, unknown> {
   key_4?: string;
   key_5?: string;
   key_6?: string;
+
+  // processed fields
+  si?: number;
+  s_f?: string;
+  dt_f?: string;
+  u_f?: string;
+  vn_f?: string;
+  vt?: string;
+  dr_f?: string;
+  ge_f?: string;
 }

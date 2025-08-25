@@ -56,20 +56,20 @@ const ENDPOINTS = {
   genset_sensor_report: `${URL}/genset_sensor_report`,
   door_sensor_report: `${URL}/door_sensor_report`,
 
+  // FBR -> GPSAlert
+  gps_alert_notifications: `${URL}/gps_alert_notifications`,
+
   // FBR -> GpsPacket
   vehicle_gps_raw_data_report: `${URL}/vehicle_gps_raw_data_report`,
   vehicle_fuel_raw_data_report: `${URL}/vehicle_fuel_raw_data_report`,
-  vehicle_track_history_report: `${URL}/vehicle_track_history_report`,
   vehicle_temperature_raw_data_report: `${URL}/vehicle_temperature_raw_data_report`,
+  vehicle_track_history_report: `${URL}/vehicle_track_history_report`,
 
   // FBR -> GpsPacket -> Processed Cumulative Distance
   all_vehicles_last_24_hours_km_report: `${URL}/all_vehicles_last_24_hours_km_report`,
 
   // SBR -> Dashboard Summary
   vehicle_dashboard_summary_report: `${URL}/vehicle_dashboard_summary_report`,
-
-  // FBR -> GPSAlert
-  gps_alert_notifications: `${URL}/gps_alert_notifications`,
 
   find: `${URL}/search`,
 };
@@ -150,7 +150,7 @@ export const MultipleVehicleLast24HoursReportSchema =
     db_group: stringMandatory('DB Group'),
     vehicle_ids: multi_select_mandatory('Master Vehicle'),
     utilization_km: numberMandatory('Utilization KM'),
-     is12am: enumMandatory('Is 12AM', Is12AM, Is12AM.No),
+    is12am: enumMandatory('Is 12AM', Is12AM, Is12AM.No),
   });
 export type MultipleVehicleLast24HoursReportQueryDTO = z.infer<
   typeof MultipleVehicleLast24HoursReportSchema
@@ -317,6 +317,16 @@ export const ignition_sensor_report = async (
 };
 
 // FBR -> GpsSensor
+export const genset_sensor_report = async (
+  data: SimpleReportQueryDTO
+): Promise<FBR<GpsSensor[]>> => {
+  return apiPost<FBR<GpsSensor[]>, SimpleReportQueryDTO>(
+    ENDPOINTS.genset_sensor_report,
+    data
+  );
+};
+
+// FBR -> GpsSensor
 export const door_sensor_report = async (
   data: SimpleReportQueryDTO
 ): Promise<FBR<GpsSensor[]>> => {
@@ -326,14 +336,14 @@ export const door_sensor_report = async (
   );
 };
 
-// FBR -> GpsSensor
-export const genset_sensor_report = async (
-  data: SimpleReportQueryDTO
-): Promise<FBR<GpsSensor[]>> => {
-  return apiPost<FBR<GpsSensor[]>, SimpleReportQueryDTO>(
-    ENDPOINTS.genset_sensor_report,
-    data
-  );
+// FBR -> GPSAlert
+export const gps_alert_notifications = async (
+  data: AlertReportQueryDTO
+): Promise<FBR<GpsAlert[]>> => {
+  return apiPost<
+    FBR<GpsAlert[]>,
+    AlertReportQueryDTO
+  >(ENDPOINTS.gps_alert_notifications, data);
 };
 
 // FBR -> GpsPacket
@@ -394,14 +404,4 @@ export const vehicle_dashboard_summary_report = async (
     FBR<DashboardSummaryReport[]>,
     VehicleDashboardSummaryQueryDTO
   >(ENDPOINTS.vehicle_dashboard_summary_report, data);
-};
-
-// FBR -> GPSAlert
-export const gps_alert_notifications = async (
-  data: AlertReportQueryDTO
-): Promise<FBR<GpsAlert[]>> => {
-  return apiPost<
-    FBR<GpsAlert[]>,
-    AlertReportQueryDTO
-  >(ENDPOINTS.gps_alert_notifications, data);
 };
