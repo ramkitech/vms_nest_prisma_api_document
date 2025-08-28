@@ -59,6 +59,8 @@ import { MasterVehicleStatusType } from '../../../services/master/vehicle/master
 import { MasterVehicleOwnershipType } from '../../../services/master/vehicle/master_vehicle_ownership_type_service';
 import { MasterVehicleType } from '../../../services/master/vehicle/master_vehicle_type_service';
 import { MasterVehicleFuelType } from '../../../services/master/vehicle/master_vehicle_fuel_type_service';
+import { MasterVehicleAssociatedTo } from 'src/services/master/vehicle/master_vehicle_associated_to_service';
+import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicle_fuel_unit_service';
 
 // ✅ URL and Endpoints
 const URL = 'main/master_vehicle';
@@ -182,36 +184,65 @@ export interface MasterVehicle extends Record<string, unknown> {
 
   organisation_sub_company_id: string;
   OrganisationSubCompany?: OrganisationSubCompany;
+  sub_company_name?: string;
 
   organisation_branch_id?: string;
   OrganisationBranch?: OrganisationBranch;
-
-  organisation_tag_id?: string;
-  OrganisationTag?: OrganisationTag;
+  branch_name?: string;
+  branch_city?: string;
 
   organisation_color_id?: string;
   OrganisationColor?: OrganisationColor;
+  color_name?: string;
+  color_code?: string;
 
-  vehicle_make_id?: string;
-  MasterVehicleMake?: MasterVehicleMake;
-
-  vehicle_model_id?: string;
-  MasterVehicleModel?: MasterVehicleModel;
-
-  vehicle_sub_model_id?: string;
-  MasterVehicleSubModel?: MasterVehicleSubModel;
+  organisation_tag_id?: string;
+  OrganisationTag?: OrganisationTag;
+  tag_name?: string;
 
   vehicle_type_id?: string;
   MasterVehicleType?: MasterVehicleType;
+  vehicle_type?: string;
+
+  vehicle_make_id?: string;
+  MasterVehicleMake?: MasterVehicleMake;
+  vehicle_make?: string;
+
+  vehicle_model_id?: string;
+  MasterVehicleModel?: MasterVehicleModel;
+  vehicle_model?: string;
+
+  vehicle_sub_model_id?: string;
+  MasterVehicleSubModel?: MasterVehicleSubModel;
+  vehicle_sub_model?: string;
 
   vehicle_status_type_id?: string;
   MasterVehicleStatusType?: MasterVehicleStatusType;
+  status_type?: string;
 
   vehicle_ownership_type_id?: string;
   MasterVehicleOwnershipType?: MasterVehicleOwnershipType;
+  ownership_type?: string;
+
+  vehicle_associated_to_id?: string;
+  MasterVehicleAssociatedTo?: MasterVehicleAssociatedTo;
+  associated_to?: string;
 
   vehicle_fuel_type_id?: string;
-  MasterVehicleFuelType?: MasterVehicleFuelType;
+  PrimaryFuelType?: MasterVehicleFuelType;
+  fuel_type?: string;
+
+  vehicle_fuel_unit_id?: string;
+  PrimaryFuelUnit?: MasterVehicleFuelUnit;
+  fuel_unit?: string;
+
+  secondary_vehicle_fuel_type_id?: string;
+  SecondaryMasterVehicleFuelType?: MasterVehicleFuelType;
+  secondary_fuel_type?: string;
+
+  secondary_vehicle_fuel_unit_id?: string;
+  SecondaryMasterVehicleFuelUnit?: MasterVehicleFuelUnit;
+  secondary_fuel_unit?: string;
 
   // ✅ Relations - Child
   // Relations - Dummy
