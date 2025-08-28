@@ -50,6 +50,8 @@ export interface MasterDriver extends Record<string, unknown> {
   driver_pan?: string; // Max: 10
   driver_aadhaar?: string; // Max: 12
 
+  driver_details?: string; // Min: 3, Max: 200
+
   password?: string; // Max: 20
   can_login: YesNo;
 

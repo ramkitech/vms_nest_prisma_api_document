@@ -1,5 +1,4 @@
 export interface GpsAnalytics extends Record<string, unknown> {
-  si: number;
   org_id: string;
   v_id: string;
   d_id: string;
@@ -18,6 +17,7 @@ export interface GpsAnalytics extends Record<string, unknown> {
   night_driving: NightDriving;
 
   // processed fields
+  si: number;
   date_f: string;
   vn_f: string;
   vt: string;
