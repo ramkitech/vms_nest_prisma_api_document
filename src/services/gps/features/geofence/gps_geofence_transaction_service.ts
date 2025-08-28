@@ -22,7 +22,7 @@ import { Status, GeofenceStatusType } from '../../../../core/Enums';
 import { UserOrganisation } from '../../../../services/main/users/user_organisation_service';
 import { MasterVehicle } from '../../../../services/main/vehicle/master_vehicle_service';
 import { MasterDriver } from '../../../../services/main/drivers/master_driver_service';
-import { GPSGeofenceData } from '../../../../services/gps/features/geofence/gps_geofence_data_service';
+import { GPSGeofence } from './gps_geofence_service';
 
 // URL and Endpoints
 const URL = 'gps/features/gps_geofence_transaction';
@@ -57,48 +57,51 @@ export interface GPSGeofenceTransaction extends Record<string, unknown> {
   driver_details?: string;
 
   gps_geofence_id: string;
-  GPSGeofenceData?: GPSGeofenceData;
+  GPSGeofenceData?: GPSGeofence;
   geofence_details?: string;
 }
 
-// ✅ GPS Geofence Transaction Create/Update Schema
+// ✅ GPSGeofenceTransaction Create/Update Schema
 export const GPSGeofenceTransactionSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation ID'),
+  organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
   driver_id: single_select_optional('Driver ID'),
   gps_geofence_id: single_select_mandatory('GPS Geofence ID'),
   geofence_status_type: enumMandatory(
     'Geofence Status Type',
     GeofenceStatusType,
-    GeofenceStatusType.Enter
+    GeofenceStatusType.Enter,
   ),
   geofence_time: dateMandatory('Geofence Time'),
   status: enumMandatory('Status', Status, Status.Active),
+
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type GPSGeofenceTransactionDTO = z.infer<
   typeof GPSGeofenceTransactionSchema
 >;
 
-// ✅ GPS Geofence Transaction Query Schema
+// ✅ GPSGeofenceTransaction Query Schema
 export const GPSGeofenceTransactionQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('User Organisation IDs'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('Master Vehicle IDs'), // ✅ Multi-selection -> Master Vehicle
-  driver_ids: multi_select_optional('Master Driver IDs'), // ✅ Multi-selection -> Master Driver
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
   gps_geofence_ids: multi_select_optional('Gps Geofence IDs'), // ✅ Multi-selection -> Gps Geofence
   geofence_status_type: enumArrayOptional(
     'Geofence Status Type',
     GeofenceStatusType,
-    getAllEnums(GeofenceStatusType)
+    getAllEnums(GeofenceStatusType),
   ),
+
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
 });
 export type GPSGeofenceTransactionQueryDTO = z.infer<
   typeof GPSGeofenceTransactionQuerySchema
 >;
 
 // Payload Conversions
-export const toGPSGeofenceTransactionPayload = (
-  data: GPSGeofenceTransaction
-): GPSGeofenceTransactionDTO => ({
+export const toGPSGeofenceTransactionPayload = (data: GPSGeofenceTransaction): GPSGeofenceTransactionDTO => ({
   organisation_id: data.organisation_id,
   vehicle_id: data.vehicle_id,
   gps_geofence_id: data.gps_geofence_id,
@@ -106,42 +109,33 @@ export const toGPSGeofenceTransactionPayload = (
   geofence_status_type: data.geofence_status_type,
   geofence_time: data.geofence_time,
   status: data.status,
+  time_zone_id: '',
 });
 
-export const newGPSGeofenceTransactionPayload =
-  (): GPSGeofenceTransactionDTO => ({
-    organisation_id: '',
-    vehicle_id: '',
-    gps_geofence_id: '',
-    driver_id: '',
-    geofence_status_type: GeofenceStatusType.Enter,
-    geofence_time: new Date().toISOString(),
-    status: Status.Active,
-  });
+export const newGPSGeofenceTransactionPayload = (): GPSGeofenceTransactionDTO => ({
+  organisation_id: '',
+  vehicle_id: '',
+  gps_geofence_id: '',
+  driver_id: '',
+  geofence_status_type: GeofenceStatusType.Enter,
+  geofence_time: new Date().toISOString(),
+  status: Status.Active,
+  time_zone_id: '',
+});
 
-// 9. API Methods (CRUD)
-
-export const findGPSGeofenceTransactions = async (
-  data: GPSGeofenceTransactionQueryDTO
-): Promise<FBR<GPSGeofenceTransaction[]>> => {
-  return apiPost(ENDPOINTS.find, data);
+// API Methods
+export const findGPSGeofenceTransaction = async (data: GPSGeofenceTransactionQueryDTO): Promise<FBR<GPSGeofenceTransaction[]>> => {
+  return apiPost<FBR<GPSGeofenceTransaction[]>, GPSGeofenceTransactionQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createGPSGeofenceTransaction = async (
-  data: GPSGeofenceTransactionDTO
-): Promise<SBR> => {
-  return apiPost(ENDPOINTS.create, data);
+export const createGPSGeofenceTransaction = async (data: GPSGeofenceTransactionDTO): Promise<SBR> => {
+  return apiPost<SBR, GPSGeofenceTransactionDTO>(ENDPOINTS.create, data);
 };
 
-export const updateGPSGeofenceTransaction = async (
-  id: string,
-  data: GPSGeofenceTransactionDTO
-): Promise<SBR> => {
-  return apiPatch(ENDPOINTS.update(id), data);
+export const updateGPSGeofenceTransaction = async (id: string, data: GPSGeofenceTransactionDTO): Promise<SBR> => {
+  return apiPatch<SBR, GPSGeofenceTransactionDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteGPSGeofenceTransaction = async (
-  id: string
-): Promise<SBR> => {
-  return apiDelete(ENDPOINTS.delete(id));
+export const deleteGPSGeofenceTransaction = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };

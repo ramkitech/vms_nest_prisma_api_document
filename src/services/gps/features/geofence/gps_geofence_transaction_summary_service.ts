@@ -22,7 +22,7 @@ import { Status } from '../../../../core/Enums';
 import { MasterVehicle } from '../../../../services/main/vehicle/master_vehicle_service';
 import { UserOrganisation } from '../../../../services/main/users/user_organisation_service';
 import { MasterDriver } from '../../../../services/main/drivers/master_driver_service';
-import { GPSGeofenceData } from '../../../../services/gps/features/geofence/gps_geofence_data_service';
+import { GPSGeofence } from './gps_geofence_service';
 import { GPSGeofenceTransaction } from '../../../../services/gps/features/geofence/gps_geofence_transaction_service';
 
 // URL and Endpoints
@@ -60,7 +60,7 @@ export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
   driver_details?: string;
 
   gps_geofence_id: string;
-  GPSGeofenceData?: GPSGeofenceData;
+  GPSGeofenceData?: GPSGeofence;
   geofence_details?: string;
 
   enter_gps_geofence_transaction_id: string;
@@ -73,32 +73,34 @@ export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
   duration_seconds_f?: string;
 }
 
-// ✅ GPS Geofence Transaction Summary Create/Update Schema
+// ✅ GPSGeofenceTransaction Summary Create/Update Schema
 export const GPSGeofenceTransactionSummarySchema = z.object({
-  organisation_id: single_select_mandatory('Organisation ID'),
+  organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
   driver_id: single_select_optional('Driver ID'),
   gps_geofence_id: single_select_mandatory('GPS Geofence ID'),
   enter_gps_geofence_transaction_id: single_select_mandatory(
-    'Enter GPS Geofence Transaction ID'
+    'Enter GPS Geofence Transaction ID',
   ),
   exit_gps_geofence_transaction_id: single_select_optional(
-    'Exit GPS Geofence Transaction ID'
+    'Exit GPS Geofence Transaction ID',
   ),
   geofence_enter_date_time: dateMandatory('Geofence Enter Date Time'),
   geofence_exit_date_time: dateOptional('Geofence Exit Date Time'),
   duration_seconds: numberOptional('Duration Seconds'),
   status: enumMandatory('Status', Status, Status.Active),
+
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type GPSGeofenceTransactionSummaryDTO = z.infer<
   typeof GPSGeofenceTransactionSummarySchema
 >;
 
-// ✅ GPS Geofence Transaction Summary Query Schema
+// ✅ GPSGeofenceTransaction Summary Query Schema
 export const GPSGeofenceTransactionSummaryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('User Organisation IDs'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('Master Vehicle IDs'), // ✅ Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('Master Driver IDs'), // ✅ Multi-selection -> Master Driver
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
   gps_geofence_ids: multi_select_optional('Gps Geofence IDs'), // ✅ Multi-selection -> Gps Geofence
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
@@ -108,9 +110,7 @@ export type GPSGeofenceTransactionSummaryQueryDTO = z.infer<
 >;
 
 // Payload Conversions
-export const toGPSGeofenceTransactionSummaryPayload = (
-  data: GPSGeofenceTransactionSummary
-): GPSGeofenceTransactionSummaryDTO => ({
+export const toGPSGeofenceTransactionSummaryPayload = (data: GPSGeofenceTransactionSummary): GPSGeofenceTransactionSummaryDTO => ({
   organisation_id: data.organisation_id,
   vehicle_id: data.vehicle_id,
   driver_id: data.driver_id || '',
@@ -121,44 +121,36 @@ export const toGPSGeofenceTransactionSummaryPayload = (
   geofence_exit_date_time: data.geofence_exit_date_time || '',
   duration_seconds: data.duration_seconds || 0,
   status: data.status,
+  time_zone_id: '',
 });
 
-export const newGPSGeofenceTransactionSummaryPayload =
-  (): GPSGeofenceTransactionSummaryDTO => ({
-    organisation_id: '',
-    vehicle_id: '',
-    driver_id: '',
-    gps_geofence_id: '',
-    enter_gps_geofence_transaction_id: '',
-    exit_gps_geofence_transaction_id: '',
-    geofence_enter_date_time: '',
-    geofence_exit_date_time: '',
-    duration_seconds: 0,
-    status: Status.Active,
-  });
+export const newGPSGeofenceTransactionSummaryPayload = (): GPSGeofenceTransactionSummaryDTO => ({
+  organisation_id: '',
+  vehicle_id: '',
+  driver_id: '',
+  gps_geofence_id: '',
+  enter_gps_geofence_transaction_id: '',
+  exit_gps_geofence_transaction_id: '',
+  geofence_enter_date_time: '',
+  geofence_exit_date_time: '',
+  duration_seconds: 0,
+  status: Status.Active,
+  time_zone_id: '',
+});
 
 // API Methods
-export const findGPSGeofenceTransactionSummaries = async (
-  data: GPSGeofenceTransactionSummaryQueryDTO
-): Promise<FBR<GPSGeofenceTransactionSummary[]>> => {
-  return apiPost(ENDPOINTS.find, data);
+export const findGPSGeofenceTransactionSummary = async (data: GPSGeofenceTransactionSummaryQueryDTO): Promise<FBR<GPSGeofenceTransactionSummary[]>> => {
+  return apiPost<FBR<GPSGeofenceTransactionSummary[]>, GPSGeofenceTransactionSummaryQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createGPSGeofenceTransactionSummary = async (
-  data: GPSGeofenceTransactionSummaryDTO
-): Promise<SBR> => {
-  return apiPost(ENDPOINTS.create, data);
+export const createGPSGeofenceTransactionSummary = async (data: GPSGeofenceTransactionSummaryDTO): Promise<SBR> => {
+  return apiPost<SBR, GPSGeofenceTransactionSummaryDTO>(ENDPOINTS.create, data);
 };
 
-export const updateGPSGeofenceTransactionSummary = async (
-  id: string,
-  data: GPSGeofenceTransactionSummaryDTO
-): Promise<SBR> => {
-  return apiPatch(ENDPOINTS.update(id), data);
+export const updateGPSGeofenceTransactionSummary = async (id: string, data: GPSGeofenceTransactionSummaryDTO): Promise<SBR> => {
+  return apiPatch<SBR, GPSGeofenceTransactionSummaryDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteGPSGeofenceTransactionSummary = async (
-  id: string
-): Promise<SBR> => {
-  return apiDelete(ENDPOINTS.delete(id));
+export const deleteGPSGeofenceTransactionSummary = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };

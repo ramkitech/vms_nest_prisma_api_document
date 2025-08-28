@@ -23,10 +23,10 @@ import { BaseQuerySchema } from '../../../../zod_utils/zod_base_schema';
 import { Status, GeofenceType, GeofencePurposeType } from '../../../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from '../../../../services/main/users/user_organisation_service';
+import { UserOrganisation } from '../../../main/users/user_organisation_service';
 
 // URL and Endpoints
-const URL = 'gps/features/gps_geofence_data';
+const URL = 'gps/features/gps_geofence';
 
 const ENDPOINTS = {
   find: `${URL}/search`,
@@ -36,17 +36,20 @@ const ENDPOINTS = {
 };
 
 // Model Interface
-export interface GPSGeofenceData extends Record<string, unknown> {
+export interface GPSGeofence extends Record<string, unknown> {
   gps_geofence_id: string;
   geofence_name: string;
-  location_name: string;
+  geofence_purpose_type: GeofencePurposeType;
+  geofence_description?: string;
+  geofence_location: string;
+
   geofence_type: GeofenceType;
+  radius_m?: number;
   radius_km?: number;
   latitude?: number;
   longitude?: number;
   poliline_data?: GPSGeofencePolilineData[];
-  geofence_description?: string;
-  geofence_purpose_type: GeofencePurposeType;
+  
   status: Status;
   added_date_time: string;
   modified_date_time: string;
@@ -63,7 +66,7 @@ export interface GPSGeofencePolilineData {
   longitude: number;
 }
 
-// ✅ GPS Geofence Poliline Data Create/Update Schema
+// ✅ GPSGeofenceSchema Poliline Data Create/Update Schema
 export const GPSGeofencePolilineDataSchema = z.object({
   latitude: doubleMandatoryLatLng('latitude'),
   longitude: doubleMandatoryLatLng('longitude'),
@@ -72,103 +75,105 @@ export type GPSGeofencePolilineDataDTO = z.infer<
   typeof GPSGeofencePolilineDataSchema
 >;
 
-// ✅ GPS Geofence Data Create/Update Schema
-export const GPSGeofenceDataSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation ID'),
+// ✅ GPSGeofenceSchema Create/Update Schema
+export const GPSGeofenceSchema = z.object({
+  organisation_id: single_select_mandatory('UserOrganisation'),
+
   geofence_name: stringMandatory('Geofence Name', 3, 100),
-  location_name: stringMandatory('Location Name', 3, 100),
+  geofence_location: stringMandatory('Geofence Location', 3, 200),
+  geofence_description: stringOptional('Geofence Description', 0, 500),
+  geofence_purpose_type: enumMandatory(
+    'Geofence Purpuse Type',
+    GeofencePurposeType,
+    GeofencePurposeType.TripSourceLocation,
+  ),
+
   geofence_type: enumMandatory(
     'Geofence Type',
     GeofenceType,
-    GeofenceType.Circle
+    GeofenceType.Circle,
   ),
   radius_km: doubleOptional('radius_km'),
+  radius_m: doubleOptional('radius_m'),
   latitude: doubleOptionalLatLng('latitude'),
   longitude: doubleOptionalLatLng('longitude'),
   poliline_data: nestedArrayOfObjectsOptional(
     'Polyline Data',
     GPSGeofencePolilineDataSchema,
-    []
+    [],
   ),
-  geofence_description: stringOptional('Geofence Description', 0, 500),
-  geofence_purpose_type: enumMandatory(
-    'Geofence Purpuse Type',
-    GeofencePurposeType,
-    GeofencePurposeType.TripSourceLocation
-  ),
+
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type GPSGeofenceDataDTO = z.infer<typeof GPSGeofenceDataSchema>;
+export type GPSGeofenceDTO = z.infer<typeof GPSGeofenceSchema>;
 
-// ✅ GPS Geofence Data Query Schema
-export const GPSGeofenceDataQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('User Organisation IDs'), // ✅ Multi-selection -> UserOrganisation
-  geofence_type: enumArrayOptional(
-    'Geofence Type',
-    GeofenceType,
-    getAllEnums(GeofenceType)
-  ),
+// ✅ GPSGeofence Query Schema
+export const GPSGeofenceQuerySchema = BaseQuerySchema.extend({
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
   geofence_purpose_type: enumArrayOptional(
     'Geofence Purpose Type',
     GeofencePurposeType,
-    getAllEnums(GeofencePurposeType)
+    getAllEnums(GeofencePurposeType),
   ),
+  geofence_type: enumArrayOptional(
+    'Geofence Type',
+    GeofenceType,
+    getAllEnums(GeofenceType),
+  ),
+  gps_geofence_ids: multi_select_optional('GPSGeofence'), // ✅ Multi-selection -> GPSGeofence
 });
-export type GPSGeofenceDataQueryDTO = z.infer<
-  typeof GPSGeofenceDataQuerySchema
->;
+export type GPSGeofenceQueryDTO = z.infer<typeof GPSGeofenceQuerySchema>;
 
 // Payload Conversions
-export const toGPSGeofenceDataPayload = (
-  data: GPSGeofenceData
-): GPSGeofenceDataDTO => ({
+export const toGPSGeofencePayload = (
+  data: GPSGeofence
+): GPSGeofenceDTO => ({
   organisation_id: data.organisation_id,
   geofence_name: data.geofence_name,
-  location_name: data.location_name,
+  geofence_location: data.geofence_location,
+  geofence_description: data.geofence_description ?? '',
+  geofence_purpose_type: data.geofence_purpose_type,
+
   geofence_type: data.geofence_type,
+  radius_m: data.radius_m,
   radius_km: data.radius_km,
   latitude: data.latitude,
   longitude: data.longitude,
   poliline_data: data.poliline_data ?? [],
-  geofence_description: data.geofence_description ?? '',
-  geofence_purpose_type: data.geofence_purpose_type,
+  
   status: data.status,
 });
 
-export const newGPSGeofenceDataPayload = (): GPSGeofenceDataDTO => ({
+export const newGPSGeofencePayload = (): GPSGeofenceDTO => ({
   organisation_id: '',
   geofence_name: '',
-  location_name: '',
+  geofence_location: '',
+  geofence_description: '',
+  geofence_purpose_type: GeofencePurposeType.TripSourceLocation,
+
   geofence_type: GeofenceType.Circle,
+  radius_m: 0,
   radius_km: 0,
   latitude: 0,
   longitude: 0,
   poliline_data: [],
-  geofence_description: '',
-  geofence_purpose_type: GeofencePurposeType.TripSourceLocation,
+  
   status: Status.Active,
 });
 
-// 8. ✅ API Methods (CRUD)
-export const findGPSGeofenceData = async (
-  data: GPSGeofenceDataQueryDTO
-): Promise<FBR<GPSGeofenceData[]>> => {
-  return apiPost(ENDPOINTS.find, data);
+// API Methods
+export const findGPSGeofence = async (data: GPSGeofenceQueryDTO): Promise<FBR<GPSGeofence[]>> => {
+  return apiPost<FBR<GPSGeofence[]>, GPSGeofenceQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createGPSGeofenceData = async (
-  data: GPSGeofenceDataDTO
-): Promise<SBR> => {
-  return apiPost(ENDPOINTS.create, data);
+export const createGPSGeofence = async (data: GPSGeofenceDTO): Promise<SBR> => {
+  return apiPost<SBR, GPSGeofenceDTO>(ENDPOINTS.create, data);
 };
 
-export const updateGPSGeofenceData = async (
-  id: string,
-  data: GPSGeofenceDataDTO
-): Promise<SBR> => {
-  return apiPatch(ENDPOINTS.update(id), data);
+export const updateGPSGeofence = async (id: string, data: GPSGeofenceDTO): Promise<SBR> => {
+  return apiPatch<SBR, GPSGeofenceDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteGPSGeofenceData = async (id: string): Promise<SBR> => {
-  return apiDelete(ENDPOINTS.delete(id));
+export const deleteGPSGeofence = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
