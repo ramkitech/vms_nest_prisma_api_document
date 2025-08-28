@@ -51,6 +51,8 @@ export interface GPSGeofenceData extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
+  geofence_details?: String;
+
   // Relations
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
