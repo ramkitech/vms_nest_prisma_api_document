@@ -52,18 +52,25 @@ export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   driver_id?: string;
   MasterDriver?: MasterDriver;
+  driver_details?: string;
 
   gps_geofence_id: string;
   GPSGeofenceData?: GPSGeofenceData;
+  geofence_details?: string;
 
   enter_gps_geofence_transaction_id: string;
   EnterGPSGeofenceTransaction?: GPSGeofenceTransaction;
 
   exit_gps_geofence_transaction_id?: string;
   ExitGPSGeofenceTransaction?: GPSGeofenceTransaction;
+
+  // processed fields
+  duration_seconds_f?: string;
 }
 
 // ✅ GPS Geofence Transaction Summary Create/Update Schema

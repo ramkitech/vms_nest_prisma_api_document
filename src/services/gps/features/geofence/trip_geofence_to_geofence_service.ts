@@ -47,14 +47,6 @@ export interface TripGeofenceToGeofence extends Record<string, unknown> {
   distance_meters?: number;
   max_speed?: number;
   avg_speed?: number;
-  start_fuel_liters?: number;
-  end_fuel_liters?: number;
-  consumed_fuel_liters?: number;
-  refill_fuel_liters?: number;
-  removal_fuel_liters?: number;
-  refills_count?: number;
-  removals_count?: number;
-  mileage?: number;
 
   status: Status;
   added_date_time: string;
@@ -65,25 +57,36 @@ export interface TripGeofenceToGeofence extends Record<string, unknown> {
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   driver_id?: string;
   MasterDriver?: MasterDriver;
+  driver_details?: string;
 
   from_geofence_id: string;
   FromGeofence?: GPSGeofenceData;
+  from_geofence_details?: string;
 
   to_geofence_id: string;
   ToGeofence?: GPSGeofenceData;
+  to_geofence_details?: string;
+
+  // processed fields
+  duration_seconds_f?: string;
+  travel_duration_seconds_f?: string;
+  stopped_duration_seconds_f?: string;
+  distance_km_f?: string;
 }
 
 // ✅ Trip Geofence To Geofence Create/Update Schema
 export const TripGeofenceToGeofenceSchema = z.object({
   organisation_id: single_select_mandatory('Organisation ID'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
+  driver_id: single_select_optional('Driver ID'),
   from_geofence_id: single_select_mandatory('From Geofence ID'),
   to_geofence_id: single_select_mandatory('To Geofence ID'),
-  driver_id: single_select_optional('Driver ID'),
-
+  
   from_geofence_exit_date_time: dateMandatory('From Geofence Exit Date Time'),
   to_geofence_enter_date_time: dateMandatory('To Geofence Enter Date Time'),
   duration_seconds: numberMandatory('Duration Seconds'),
@@ -94,14 +97,6 @@ export const TripGeofenceToGeofenceSchema = z.object({
   distance_meters: doubleOptional('Distance KM'),
   max_speed: numberOptional('Max Speed'),
   avg_speed: numberOptional('Avg Speed'),
-  start_fuel_liters: doubleOptional('Start Fuel Liters'),
-  end_fuel_liters: doubleOptional('End Fuel Liters'),
-  consumed_fuel_liters: doubleOptional('Consumed Fuel Liters'),
-  refill_fuel_liters: doubleOptional('Refill Fuel Liters'),
-  removal_fuel_liters: doubleOptional('Removals Fuel Liters'),
-  refills_count: numberOptional('Refills Count'),
-  removals_count: numberOptional('Removals Count'),
-  mileage: doubleOptional('Mileage'),
 
   status: enumMandatory('Status', Status, Status.Active),
 });
@@ -140,14 +135,6 @@ export const toTripGeofenceToGeofencePayload = (
   distance_meters: data.distance_meters,
   max_speed: data.max_speed || 0,
   avg_speed: data.avg_speed || 0,
-  start_fuel_liters: data.start_fuel_liters,
-  end_fuel_liters: data.end_fuel_liters,
-  consumed_fuel_liters: data.consumed_fuel_liters,
-  refill_fuel_liters: data.refill_fuel_liters,
-  removal_fuel_liters: data.removal_fuel_liters,
-  refills_count: data.refills_count || 0,
-  removals_count: data.removals_count || 0,
-  mileage: data.mileage,
   status: data.status,
 });
 
@@ -166,14 +153,6 @@ export const newTripGeofenceToGeofencePayload =
     distance_meters: 0,
     max_speed: 0,
     avg_speed: 0,
-    start_fuel_liters: 0,
-    end_fuel_liters: 0,
-    consumed_fuel_liters: 0,
-    refill_fuel_liters: 0,
-    removal_fuel_liters: 0,
-    refills_count: 0,
-    removals_count: 0,
-    mileage: 0,
     status: Status.Active,
   });
 

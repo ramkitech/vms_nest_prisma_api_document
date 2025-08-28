@@ -49,20 +49,24 @@ export interface GPSGeofenceTransaction extends Record<string, unknown> {
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   driver_id?: string;
   MasterDriver?: MasterDriver;
+  driver_details?: string;
 
   gps_geofence_id: string;
   GPSGeofenceData?: GPSGeofenceData;
+  geofence_details?: string;
 }
 
 // ✅ GPS Geofence Transaction Create/Update Schema
 export const GPSGeofenceTransactionSchema = z.object({
   organisation_id: single_select_mandatory('Organisation ID'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
-  gps_geofence_id: single_select_mandatory('GPS Geofence ID'),
   driver_id: single_select_optional('Driver ID'),
+  gps_geofence_id: single_select_mandatory('GPS Geofence ID'),
   geofence_status_type: enumMandatory(
     'Geofence Status Type',
     GeofenceStatusType,
