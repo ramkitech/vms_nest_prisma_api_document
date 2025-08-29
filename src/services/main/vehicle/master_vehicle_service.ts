@@ -244,6 +244,10 @@ export interface MasterVehicle extends Record<string, unknown> {
   SecondaryMasterVehicleFuelUnit?: MasterVehicleFuelUnit;
   secondary_fuel_unit?: string;
 
+  vehicle_total_fuel_quantity?: number;
+  vehicle_tank_1_fuel_quantity?: number;
+  vehicle_tank_2_fuel_quantity?: number;
+
   // ✅ Relations - Child
   // Relations - Dummy
   Dummy_Driver?: MasterDriver[];
@@ -686,7 +690,7 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
 
 // ✅ Vehicle Create/Update Schema
 export const VehicleSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation ID'), // Single selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_number: stringMandatory('Vehicle Number', 2, 50),
   vehicle_name: stringOptional('Vehicle Name', 0, 50),
   odometer_reading: numberOptional('Odometer Reading'),
@@ -709,22 +713,33 @@ export const VehicleSchema = z.object({
   status: enumMandatory('Status', Status, Status.Active),
 
   organisation_sub_company_id: single_select_optional(
-    'Organisation Sub Company ID'
-  ), // Single selection -> OrganisationSubCompany
-  organisation_branch_id: single_select_optional('Organisation Branch ID'), // Single selection -> OrganisationBranch
-  organisation_tag_id: single_select_optional('Organisation Tag ID'), // Single selection -> OrganisationTag
-  organisation_color_id: single_select_optional('Organisation Color ID'), // Single selection -> OrganisationColor
-  organisation_group_ids: multi_select_optional('Organisation Groups'), // Multi selection -> OrganisationGroup
+    'Organisation Sub Company ID',
+  ), // ✅ Single-Selection -> OrganisationSubCompany
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
+  organisation_tag_id: single_select_optional('OrganisationTag'), // ✅ Single-Selection -> OrganisationTag
+  organisation_color_id: single_select_optional('OrganisationColor'), // ✅ Single-Selection -> OrganisationColor
+  organisation_group_ids: multi_select_optional('OrganisationGroup'), // Multi selection -> OrganisationGroup
 
-  vehicle_make_id: single_select_optional('Vehicle Make ID'), // Single selection -> MasterVehicleMake
-  vehicle_model_id: single_select_optional('Vehicle Model ID'), // Single selection -> MasterVehicleModel
-  vehicle_sub_model_id: single_select_optional('Vehicle Sub Model ID'), // Single selection -> MasterVehicleSubModel
-  vehicle_type_id: single_select_optional('Vehicle Type ID'), // Single selection -> MasterVehicleType
-  vehicle_status_type_id: single_select_optional('Vehicle Status Type ID'), // Single selection -> MasterVehicleStatusType
+  vehicle_type_id: single_select_optional('MasterVehicleType'), // ✅ Single-Selection -> MasterVehicleType
+  vehicle_make_id: single_select_optional('MasterVehicleMake'), // ✅ Single-Selection -> MasterVehicleMake
+  vehicle_model_id: single_select_optional('MasterVehicleModel'), // ✅ Single-Selection -> MasterVehicleModel
+  vehicle_sub_model_id: single_select_optional('MasterVehicleSubModel'), // ✅ Single-Selection -> MasterVehicleSubModel
+  vehicle_status_type_id: single_select_optional('MasterVehicleStatusType'), // ✅ Single-Selection -> MasterVehicleStatusType
   vehicle_ownership_type_id: single_select_optional(
-    'Vehicle Ownership Type ID'
-  ), // Single selection -> MasterVehicleOwnershipType
-  vehicle_fuel_type_id: single_select_optional('Vehicle Fuel Type ID'), // Single selection -> MasterVehicleFuelType
+    'MasterVehicleOwnershipType',
+  ), // ✅ Single-Selection -> MasterVehicleOwnershipType
+  vehicle_associated_to_id: single_select_optional('MasterVehicleAssociatedTo'), // ✅ Single-Selection -> MasterVehicleAssociatedTo
+  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'), // ✅ Single-Selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
+  secondary_vehicle_fuel_type_id: single_select_optional(
+    'Vehicle Secondary Fuel Type ID',
+  ), // ✅ Single-Selection -> MasterVehicleFuelType
+  secondary_vehicle_fuel_unit_id: single_select_optional(
+    'Vehicle Secondary Fuel Unit ID',
+  ), // ✅ Single-Selection -> MasterVehicleFuelUnit
+  vehicle_total_fuel_quantity: numberOptional('Vehicle Total Fuel Quantity'),
+  vehicle_tank_1_fuel_quantity: numberOptional('Vehicle Tank 1 Fuel Quantity'),
+  vehicle_tank_2_fuel_quantity: numberOptional('Vehicle Tank 2 Fuel Quantity'),
 });
 export type VehicleDTO = z.infer<typeof VehicleSchema>;
 
@@ -1077,17 +1092,28 @@ export const toVehiclePayload = (vehicle: MasterVehicle): VehicleDTO => ({
   organisation_branch_id: vehicle.organisation_branch_id || '',
   organisation_tag_id: vehicle.organisation_tag_id || '',
   organisation_color_id: vehicle.organisation_color_id || '',
-  organisation_group_ids:
-    vehicle.VehicleOrganisationGroupLink?.map((v) => v.organisation_group_id) ??
+  organisation_group_ids: vehicle.VehicleOrganisationGroupLink?.map((v) => v.organisation_group_id) ??
     [],
 
+  vehicle_type_id: vehicle.vehicle_type_id || '',
   vehicle_make_id: vehicle.vehicle_make_id || '',
   vehicle_model_id: vehicle.vehicle_model_id || '',
   vehicle_sub_model_id: vehicle.vehicle_sub_model_id || '',
-  vehicle_type_id: vehicle.vehicle_type_id || '',
   vehicle_status_type_id: vehicle.vehicle_status_type_id || '',
   vehicle_ownership_type_id: vehicle.vehicle_ownership_type_id || '',
+  vehicle_associated_to_id: vehicle.vehicle_associated_to_id || '',
+
   vehicle_fuel_type_id: vehicle.vehicle_fuel_type_id || '',
+  vehicle_fuel_unit_id: vehicle.vehicle_fuel_unit_id || '',
+
+  secondary_vehicle_fuel_type_id: vehicle.secondary_vehicle_fuel_type_id || '',
+  secondary_vehicle_fuel_unit_id: vehicle.secondary_vehicle_fuel_unit_id || '',
+
+  vehicle_total_fuel_quantity: vehicle.vehicle_total_fuel_quantity || 0,
+  vehicle_tank_1_fuel_quantity: vehicle.vehicle_tank_1_fuel_quantity || 0,
+  vehicle_tank_2_fuel_quantity: vehicle.vehicle_tank_2_fuel_quantity || 0,
+
+
 });
 
 // ✅ Convert API Response to Frontend Data
@@ -1120,13 +1146,20 @@ export const newVehiclePayload = (): VehicleDTO => ({
   organisation_color_id: '',
   organisation_group_ids: [],
 
+  vehicle_type_id: '',
   vehicle_make_id: '',
   vehicle_model_id: '',
   vehicle_sub_model_id: '',
-  vehicle_type_id: '',
   vehicle_status_type_id: '',
   vehicle_ownership_type_id: '',
+  vehicle_associated_to_id: '',
   vehicle_fuel_type_id: '',
+  vehicle_fuel_unit_id: '',
+  secondary_vehicle_fuel_type_id: '',
+  secondary_vehicle_fuel_unit_id: '',
+  vehicle_total_fuel_quantity: 0,
+  vehicle_tank_1_fuel_quantity: 0,
+  vehicle_tank_2_fuel_quantity: 0
 });
 
 // ✅ Convert Vehicle Detail GPS Main to API Payload
