@@ -613,10 +613,14 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   km_last_24?: number;
   t_s_last_24_moving?: number;
   t_s_last_24_ignition?: number;
+  t_s_last_24_moving_f?: string;
+  t_s_last_24_ignition_f?: string;
 
   km_today?: number;
   t_s_today_moving?: number;
   t_s_today_ignition?: number;
+  t_s_today_moving_f?: string;
+  t_s_today_ignition_f?: string;
   km_this_week_sunday?: number;
   km_this_week_monday?: number;
   km_this_month?: number;
