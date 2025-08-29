@@ -610,7 +610,13 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   ld?: number;
 
   // Kilometer Analytics
+  km_last_24?: number;
+  t_s_last_24_moving?: number;
+  t_s_last_24_ignition?: number;
+
   km_today?: number;
+  t_s_today_moving?: number;
+  t_s_today_ignition?: number;
   km_this_week_sunday?: number;
   km_this_week_monday?: number;
   km_this_month?: number;
@@ -623,8 +629,6 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   km_slotted_this_month?: number;
   km_slotted_this_year?: number;
   km_slotted_this_financial_year?: number;
-
-  km_total_distance?: number;
 
   is_valid?: boolean;
   is_live?: boolean;
