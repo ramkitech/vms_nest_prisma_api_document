@@ -720,7 +720,7 @@ export const VehicleSchema = z.object({
   organisation_color_id: single_select_optional('OrganisationColor'), // ✅ Single-Selection -> OrganisationColor
   organisation_group_ids: multi_select_optional('OrganisationGroup'), // Multi selection -> OrganisationGroup
 
-  vehicle_type_id: single_select_optional('MasterVehicleType'), // ✅ Single-Selection -> MasterVehicleType
+  vehicle_type_id: single_select_mandatory('MasterVehicleType'), // ✅ Single-Selection -> MasterVehicleType
   vehicle_make_id: single_select_optional('MasterVehicleMake'), // ✅ Single-Selection -> MasterVehicleMake
   vehicle_model_id: single_select_optional('MasterVehicleModel'), // ✅ Single-Selection -> MasterVehicleModel
   vehicle_sub_model_id: single_select_optional('MasterVehicleSubModel'), // ✅ Single-Selection -> MasterVehicleSubModel
