@@ -690,6 +690,7 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
 
 // ✅ Vehicle Create/Update Schema
 export const VehicleSchema = z.object({
+  
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_number: stringMandatory('Vehicle Number', 2, 50),
   vehicle_name: stringOptional('Vehicle Name', 0, 50),
