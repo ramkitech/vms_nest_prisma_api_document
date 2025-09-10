@@ -33,7 +33,7 @@ const ENDPOINTS = {
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Organisation Group Interface
+// OrganisationGroup Interface
 export interface OrganisationGroup extends Record<string, unknown> {
   // Primary Fields
   organisation_group_id: string;

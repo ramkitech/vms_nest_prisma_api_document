@@ -17,7 +17,7 @@ import {
 import { BaseQuerySchema } from '../../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, GeofenceType, GeofencePurposeType, YesNo, NotificationType, NotificationPreference } from '../../../../core/Enums';
+import { Status, YesNo, NotificationType, NotificationPreference } from '../../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../main/users/user_organisation_service';
@@ -34,7 +34,7 @@ const ENDPOINTS = {
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// Model Interface
+// UserNotificationPreferences Interface
 export interface UserNotificationPreferences extends Record<string, unknown> {
 
   notification_preference_id: string;
@@ -49,6 +49,7 @@ export interface UserNotificationPreferences extends Record<string, unknown> {
   notification_list: NotificationPreference[];
 
   is_all_vehicles: YesNo;
+
   // Metadata
   status: Status;
   added_date_time: string;
@@ -59,14 +60,14 @@ export interface UserNotificationPreferences extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-    UserNotificationPreferenceUserLink: UserNotificationPreferenceUserLink[];
-    UserNotificationPreferenceVehicleLink: UserNotificationPreferenceVehicleLink[];
-  
-    // Count
-    _count?: {
-      UserNotificationPreferenceUserLink: number;
-      UserNotificationPreferenceVehicleLink: number;
-    };
+  UserNotificationPreferenceUserLink: UserNotificationPreferenceUserLink[];
+  UserNotificationPreferenceVehicleLink: UserNotificationPreferenceVehicleLink[];
+
+  // Count
+  _count?: {
+    UserNotificationPreferenceUserLink: number;
+    UserNotificationPreferenceVehicleLink: number;
+  };
 }
 
 export interface UserNotificationPreferenceVehicleLink extends Record<string, unknown> {
@@ -83,12 +84,13 @@ export interface UserNotificationPreferenceVehicleLink extends Record<string, un
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
+
   notification_preference_id: string;
   UserNotificationPreferences?: UserNotificationPreferences;
 
   // Relations - Child
-  
-    // Count
+
+  // Count
 }
 
 export interface UserNotificationPreferenceUserLink extends Record<string, unknown> {
@@ -103,46 +105,13 @@ export interface UserNotificationPreferenceUserLink extends Record<string, unkno
   // Relations
   user_id: string;
   User?: User;
+
   notification_preference_id: string;
   UserNotificationPreferences?: UserNotificationPreferences;
 
   // Relations - Child
-  
-    // Count
-}
 
-export interface UserNotificationPreferences extends Record<string, unknown> {
-
-  notification_preference_id: string;
-
-  notification_name: string;
-  notification_status: YesNo;
-  notification_type: NotificationType;
-  mobile_numbers?: string;
-  email_ids?: string;
-  cc_email_ids?: string;
-
-  notification_list: NotificationPreference[];
-
-  is_all_vehicles: YesNo;
-  // Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // Relations
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-    UserNotificationPreferenceUserLink: UserNotificationPreferenceUserLink[];
-    UserNotificationPreferenceVehicleLink: UserNotificationPreferenceVehicleLink[];
-  
-    // Count
-    _count?: {
-      UserNotificationPreferenceUserLink: number;
-      UserNotificationPreferenceVehicleLink: number;
-    };
+  // Count
 }
 
 // ✅ UserNotificationPreferences Create/Update Schema
@@ -203,9 +172,7 @@ export type UserNotificationPreferencesQueryDTO = z.infer<
 >;
 
 // Payload Conversions
-export const toUserNotificationPreferencesPayload = (
-  data: UserNotificationPreferences
-): UserNotificationPreferencesDTO => ({
+export const toUserNotificationPreferencesPayload = (data: UserNotificationPreferences): UserNotificationPreferencesDTO => ({
   organisation_id: data.organisation_id,
   notification_name: data.notification_name,
   notification_status: data.notification_status,

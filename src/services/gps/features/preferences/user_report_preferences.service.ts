@@ -8,8 +8,6 @@ import {
   enumMandatory,
   enumArrayOptional,
   single_select_mandatory,
-  single_select_optional,
-  dateMandatory,
   getAllEnums,
   multi_select_optional,
   stringMandatory,
@@ -19,12 +17,11 @@ import {
 import { BaseQuerySchema } from '../../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, GeofenceStatusType, YesNo, ReportType, ReportPreference } from '../../../../core/Enums';
+import { Status, YesNo, ReportType, ReportPreference } from '../../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../main/users/user_organisation_service';
 import { MasterVehicle } from '../../../main/vehicle/master_vehicle_service';
-import { MasterDriver } from '../../../main/drivers/master_driver_service';
 
 // URL and Endpoints
 const URL = 'gps/features/user_report_preferences';
@@ -36,7 +33,7 @@ const ENDPOINTS = {
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// Model Interface
+// UserReportsPreferences Interface
 export interface UserReportsPreferences extends Record<string, unknown> {
   report_preference_id: string;
 
@@ -59,13 +56,12 @@ export interface UserReportsPreferences extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-
   UserReportsPreferencesVehicleLink: UserReportsPreferencesVehicleLink[]
 
   // Count
-    _count?: {
-      UserReportsPreferencesVehicleLink: number;
-    };
+  _count?: {
+    UserReportsPreferencesVehicleLink: number;
+  };
 
 }
 
@@ -83,12 +79,13 @@ export interface UserReportsPreferencesVehicleLink extends Record<string, unknow
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
+
   report_preference_id: string;
   UserReportsPreferences?: UserReportsPreferences;
 
   // Relations - Child
-  
-    // Count
+
+  // Count
 }
 
 // ✅ UserReportPreferences Create/Update Schema
@@ -144,7 +141,7 @@ export const toUserReportsPreferencesPayload = (data: UserReportsPreferences): U
   report_type: data.report_type,
   email_ids: data.email_ids,
   cc_email_ids: data.report_name,
-  is_all_vehicles:data.is_all_vehicles,
+  is_all_vehicles: data.is_all_vehicles,
   report_list: data.report_list,
   vehicle_ids:
     data.UserReportsPreferencesVehicleLink?.map((v) => v.vehicle_id) ?? [],
