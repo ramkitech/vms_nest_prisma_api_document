@@ -202,7 +202,7 @@ export const FleetFuelRemovalSchema = z.object({
   after_removal_quantity: doubleOptional('After Remove Quantity'),
   removal_quantity: doubleOptional('Removal Quantity'),
   verified_removal_quantity: doubleOptional('Verified Removal Quantity'),
-  diff_removal_quantity: doubleOptional('Difference Removal Quantity'),
+  diff_removal_quantity: doubleOptional('Difference Removal Quantity', -100),
 
   odometer_reading: numberOptional('Odometer Reading'),
 

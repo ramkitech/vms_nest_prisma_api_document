@@ -223,7 +223,7 @@ export const FleetFuelRefillSchema = z.object({
   after_refill_quantity: doubleOptional('After Refill Quantity'),
   refill_quantity: doubleOptional('Refill Quantity'),
   verified_refill_quantity: doubleOptional('Verified Refill Quantity'),
-  diff_refill_quantity: doubleOptional('Difference Refill Quantity'),
+  diff_refill_quantity: doubleOptional('Difference Refill Quantity', -100),
 
   odometer_reading: numberOptional('Odometer Reading'),
   is_full_tank: enumMandatory('Is Full Tank', YesNo, YesNo.No),
