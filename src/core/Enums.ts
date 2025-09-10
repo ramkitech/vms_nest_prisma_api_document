@@ -159,6 +159,28 @@ export enum NotificationType {
   Whatsapp = 'Whatsapp',
   Message = 'Message',
   Email = 'Email',
+  Push = 'Push',
+}
+
+export enum NotificationPreference {
+  GeofenceEnter = 'GeofenceEnter',
+  GeofenceExit = 'GeofenceExit',
+  FuelRemoval = 'FuelRemoval',
+  FuelRefill = 'FuelRefill',
+  IgnitionOn = 'IgnitionOn',
+  IgnitionOff = 'IgnitionOff',
+}
+
+export enum ReportPreference {
+  FleetFuelRefillReport = 'FleetFuelRefillReport',
+  FleetFuelRemovalReport = 'FleetFuelRemovalReport',
+  FleetFuelConsumptionReport = 'FleetFuelConsumptionReport',
+}
+
+export enum ReportType {
+  Daily = 'Daily',
+  Weekly = 'Weekly',
+  Monthly = 'Monthly',
 }
 
 export enum GeofenceType {
