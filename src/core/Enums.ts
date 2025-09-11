@@ -156,8 +156,8 @@ export enum DeviceType {
 }
 
 export enum NotificationType {
-  // Whatsapp = 'Whatsapp',
-  // Message = 'Message',
+  Whatsapp = 'Whatsapp',
+  Message = 'Message',
   Email = 'Email',
   Push = 'Push',
 }

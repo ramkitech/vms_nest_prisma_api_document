@@ -1,5 +1,5 @@
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
 import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
 
 // Zod
@@ -23,7 +23,7 @@ import {
 import { BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { FileType, GPSFuelApproveStatus, PaymentMode, PaymentStatus, RefillEntrySource, RefillMethod, Status, YesNo } from '../../../core/Enums';
+import { FileType, GPSFuelApproveStatus, RefillEntrySource, Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';

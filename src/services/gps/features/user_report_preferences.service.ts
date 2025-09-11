@@ -1,6 +1,6 @@
 // Axios
-import { apiPost, apiPatch, apiDelete } from '../../../../core/apiCall';
-import { SBR, FBR } from '../../../../core/BaseResponse';
+import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -13,15 +13,15 @@ import {
   stringMandatory,
   stringOptional,
   enumArrayMandatory,
-} from '../../../../zod_utils/zod_utils';
-import { BaseQuerySchema } from '../../../../zod_utils/zod_base_schema';
+} from '../../../zod_utils/zod_utils';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo, ReportType, ReportPreference } from '../../../../core/Enums';
+import { Status, YesNo, ReportType, ReportPreference } from '../../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from '../../../main/users/user_organisation_service';
-import { MasterVehicle } from '../../../main/vehicle/master_vehicle_service';
+import { UserOrganisation } from '../../main/users/user_organisation_service';
+import { MasterVehicle } from '../../main/vehicle/master_vehicle_service';
 
 // URL and Endpoints
 const URL = 'gps/features/user_report_preferences';
