@@ -68,6 +68,10 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   date_f?: string;
   date_time_f?: string;
 
+  // Verification
+  admin_verify_status: GPSFuelApproveStatus;
+  transporter_verify_status: GPSFuelApproveStatus;
+
   // Cost Info
   cost_per_unit?: number;
   total_cost?: number;
@@ -82,10 +86,6 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   entry_source: RefillEntrySource;
   source_reference_id?: string;
   source_notes?: string;
-
-  // Verification
-  admin_verify_status: GPSFuelApproveStatus;
-  transporter_verify_status: GPSFuelApproveStatus;
 
   // Location Details
   latitude?: number;
@@ -208,6 +208,19 @@ export const FleetFuelRemovalSchema = z.object({
 
   // Event Time
   date_time: dateMandatory('Date Time'),
+
+  // Verification
+  admin_verify_status: enumMandatory(
+    'Admin Fuel Verify Status',
+    GPSFuelApproveStatus,
+    GPSFuelApproveStatus.Pending,
+  ),
+  transporter_verify_status: enumMandatory(
+    'Transporter Fuel Verify Status',
+    GPSFuelApproveStatus,
+    GPSFuelApproveStatus.Pending,
+  ),
+
   removal_details: stringOptional('Removal Details', 0, 300),
 
   // Cost Details
@@ -222,18 +235,6 @@ export const FleetFuelRemovalSchema = z.object({
   ),
   source_reference_id: stringOptional('Source Reference ID', 0, 100),
   source_notes: stringOptional('Source Notes', 0, 500),
-
-  // Verification
-  admin_verify_status: enumMandatory(
-    'Admin Fuel Verify Status',
-    GPSFuelApproveStatus,
-    GPSFuelApproveStatus.Pending,
-  ),
-  transporter_verify_status: enumMandatory(
-    'Transporter Fuel Verify Status',
-    GPSFuelApproveStatus,
-    GPSFuelApproveStatus.Pending,
-  ),
 
   // Location Details
   latitude: doubleOptionalLatLng('Latitude'),

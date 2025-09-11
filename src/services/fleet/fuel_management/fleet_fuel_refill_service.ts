@@ -52,16 +52,12 @@ export interface FleetFuelRefill extends Record<string, unknown> {
   // Primary Fields
   fleet_fuel_refill_id: string;
 
-  // Quantities
+  // Refill Quantity
   before_refill_quantity: number;
   after_refill_quantity: number;
   refill_quantity: number;
   verified_refill_quantity: number;
   diff_refill_quantity: number;
-
-  odometer_reading?: number;
-  is_full_tank: YesNo;
-  is_previous_entries_missed: YesNo;
 
   // Event Time
   date_time: string;
@@ -69,39 +65,31 @@ export interface FleetFuelRefill extends Record<string, unknown> {
   date_f?: string;
   date_time_f?: string;
 
+  // Verification
+  admin_verify_status: GPSFuelApproveStatus;
+  transporter_verify_status: GPSFuelApproveStatus;
+
   // Cost Details
   cost_per_unit?: number;
   total_cost?: number;
-
-  // Payment Info
-  invoice_number?: string;
-  payment_mode: PaymentMode;
-  payment_status: PaymentStatus;
-  payment_reference_number?: string;
-  fuel_card_number?: string;
-  payment_notes?: string;
-
-  // Other Details
-  refill_method?: RefillMethod;
-  refill_details?: string;
-  payment_details?: string;
-  filled_by_person?: string;
 
   // Source Details
   entry_source: RefillEntrySource;
   source_reference_id?: string;
   source_notes?: string;
 
-  // Verification
-  admin_verify_status: GPSFuelApproveStatus;
-  transporter_verify_status: GPSFuelApproveStatus;
+  // Refill Details
+  refill_method?: RefillMethod;
+  refill_details?: string;
+  filled_by_person?: string;
 
-  // Analytics Fields
-  last_refill_date?: string; // ISO string
-  last_odometer_reading?: number;
-  last_refill_quantity?: number;
-  diff_distance?: number;
-  fuel_efficiency?: number;
+  // Payment Details
+  invoice_number?: string;
+  payment_mode: PaymentMode;
+  payment_status: PaymentStatus;
+  payment_reference_number?: string;
+  fuel_card_number?: string;
+  payment_notes?: string;
 
   // Location Details
   latitude?: number;
@@ -112,6 +100,17 @@ export interface FleetFuelRefill extends Record<string, unknown> {
   MasterMainLandmark?: MasterMainLandmark;
   landmark_location?: string;
   landmark_distance?: number;
+
+  // Analytics Fields
+  odometer_reading?: number;
+  tank_size?: number;
+  is_full_tank: YesNo;
+  is_previous_entries_missed: YesNo;
+  last_refill_date?: string; // ISO string
+  last_odometer_reading?: number;
+  last_refill_quantity?: number;
+  diff_distance?: number;
+  fuel_efficiency?: number;
 
   // Metadata
   status: Status;
@@ -225,51 +224,8 @@ export const FleetFuelRefillSchema = z.object({
   verified_refill_quantity: doubleOptional('Verified Refill Quantity'),
   diff_refill_quantity: doubleOptional('Difference Refill Quantity', -100),
 
-  odometer_reading: numberOptional('Odometer Reading'),
-  is_full_tank: enumMandatory('Is Full Tank', YesNo, YesNo.No),
-  is_previous_entries_missed: enumMandatory(
-    'Is Previous Entries Missed',
-    YesNo,
-    YesNo.No,
-  ),
-
   // Event Time
   date_time: dateMandatory('Date Time'),
-
-  // Cost Details
-  cost_per_unit: doubleOptional('Cost Per Unit'),
-  total_cost: doubleOptional('Total Cost'),
-
-  // Payment Info
-  invoice_number: stringOptional('Invoice Number', 0, 100),
-  payment_mode: enumMandatory('Payment Mode', PaymentMode, PaymentMode.Cash),
-  payment_status: enumMandatory(
-    'Payment Status',
-    PaymentStatus,
-    PaymentStatus.Paid,
-  ),
-  payment_reference_number: stringOptional('Payment Reference Number', 0, 100),
-  fuel_card_number: stringOptional('Fuel Card Number', 0, 50),
-  payment_notes: stringOptional('Payment Notes', 0, 500),
-
-  //Other Details
-  refill_method: enumOptional(
-    'Refill Method',
-    RefillMethod,
-    RefillMethod.Dispenser,
-  ),
-  refill_details: stringOptional('Refill Details', 0, 300),
-  payment_details: stringOptional('Payment Details', 0, 300),
-  filled_by_person: stringOptional('Filled By Person', 0, 100),
-
-  // Source Details
-  entry_source: enumOptional(
-    'Entry Source',
-    RefillEntrySource,
-    RefillEntrySource.Manual,
-  ),
-  source_reference_id: stringOptional('Source Reference ID', 0, 100),
-  source_notes: stringOptional('Source Notes', 0, 500),
 
   // Verification
   admin_verify_status: enumMandatory(
@@ -283,11 +239,56 @@ export const FleetFuelRefillSchema = z.object({
     GPSFuelApproveStatus.Pending,
   ),
 
+  // Cost Details
+  cost_per_unit: doubleOptional('Cost Per Unit'),
+  total_cost: doubleOptional('Total Cost'),
+
+  // Source Details
+  entry_source: enumOptional(
+    'Entry Source',
+    RefillEntrySource,
+    RefillEntrySource.Manual,
+  ),
+  source_reference_id: stringOptional('Source Reference ID', 0, 100),
+  source_notes: stringOptional('Source Notes', 0, 500),
+
+  // Refill Details
+  refill_method: enumOptional(
+    'Refill Method',
+    RefillMethod,
+    RefillMethod.Dispenser,
+  ),
+  refill_details: stringOptional('Refill Details', 0, 300),
+  filled_by_person: stringOptional('Filled By Person', 0, 100),
+
+  // Payment Details
+  invoice_number: stringOptional('Invoice Number', 0, 100),
+  payment_mode: enumMandatory('Payment Mode', PaymentMode, PaymentMode.Cash),
+  payment_status: enumMandatory(
+    'Payment Status',
+    PaymentStatus,
+    PaymentStatus.Paid,
+  ),
+  payment_reference_number: stringOptional('Payment Reference Number', 0, 100),
+  fuel_card_number: stringOptional('Fuel Card Number', 0, 50),
+  payment_notes: stringOptional('Payment Notes', 0, 500),
+
   // Location Details
   latitude: doubleOptionalLatLng('Latitude'),
   longitude: doubleOptionalLatLng('Longitude'),
   google_location: stringOptional('Google Location', 0, 500),
 
+  // Analytics Fields
+  odometer_reading: numberOptional('Odometer Reading'),
+  tank_size: numberOptional('Tank Size'),
+  is_full_tank: enumMandatory('Is Full Tank', YesNo, YesNo.No),
+  is_previous_entries_missed: enumMandatory(
+    'Is Previous Entries Missed',
+    YesNo,
+    YesNo.No,
+  ),
+
+  // Other
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
@@ -353,14 +354,21 @@ export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillD
   verified_refill_quantity: row.verified_refill_quantity,
   diff_refill_quantity: row.diff_refill_quantity ?? 0,
 
-  odometer_reading: row.odometer_reading ?? 0,
-  is_full_tank: row.is_full_tank,
-  is_previous_entries_missed: row.is_previous_entries_missed,
-
   date_time: row.date_time,
+
+  admin_verify_status: row.admin_verify_status,
+  transporter_verify_status: row.transporter_verify_status,
 
   cost_per_unit: row.cost_per_unit ?? 0,
   total_cost: row.total_cost ?? 0,
+
+  entry_source: row.entry_source ?? RefillEntrySource.Manual,
+  source_reference_id: row.source_reference_id || '',
+  source_notes: row.source_notes || '',
+
+  refill_method: row.refill_method ?? RefillMethod.Dispenser,
+  refill_details: row.refill_details || '',
+  filled_by_person: row.filled_by_person || '',
 
   invoice_number: row.invoice_number || '',
   payment_mode: row.payment_mode,
@@ -369,21 +377,14 @@ export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillD
   fuel_card_number: row.fuel_card_number || '',
   payment_notes: row.payment_notes || '',
 
-  refill_method: row.refill_method ?? RefillMethod.Dispenser,
-  refill_details: row.refill_details || '',
-  payment_details: row.payment_details || '',
-  filled_by_person: row.filled_by_person || '',
-
-  entry_source: row.entry_source ?? RefillEntrySource.Manual,
-  source_reference_id: row.source_reference_id || '',
-  source_notes: row.source_notes || '',
-
-  admin_verify_status: row.admin_verify_status,
-  transporter_verify_status: row.transporter_verify_status,
-
   latitude: row.latitude ?? 0,
   longitude: row.longitude ?? 0,
   google_location: row.google_location || '',
+
+  odometer_reading: row.odometer_reading ?? 0,
+  tank_size: row.tank_size ?? 0,
+  is_full_tank: row.is_full_tank,
+  is_previous_entries_missed: row.is_previous_entries_missed,
 
   status: row.status,
 
@@ -421,15 +422,21 @@ export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
   verified_refill_quantity: 0,
   diff_refill_quantity: 0,
 
-  odometer_reading: 0,
-  is_full_tank: YesNo.No,
-  is_previous_entries_missed: YesNo.No,
-
   date_time: new Date().toISOString(),
+
+  admin_verify_status: GPSFuelApproveStatus.Pending,
+  transporter_verify_status: GPSFuelApproveStatus.Pending,
 
   cost_per_unit: 0,
   total_cost: 0,
 
+  entry_source: RefillEntrySource.Manual,
+  source_reference_id: '',
+  source_notes: '',
+
+  refill_method: RefillMethod.Dispenser,
+  refill_details: '',
+  filled_by_person: '',
   invoice_number: '',
   payment_mode: PaymentMode.Cash,
   payment_status: PaymentStatus.Paid,
@@ -437,21 +444,14 @@ export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
   fuel_card_number: '',
   payment_notes: '',
 
-  refill_method: RefillMethod.Dispenser,
-  refill_details: '',
-  payment_details: '',
-  filled_by_person: '',
-
-  entry_source: RefillEntrySource.Manual,
-  source_reference_id: '',
-  source_notes: '',
-
-  admin_verify_status: GPSFuelApproveStatus.Pending,
-  transporter_verify_status: GPSFuelApproveStatus.Pending,
-
   latitude: 0,
   longitude: 0,
   google_location: '',
+
+  odometer_reading: 0,
+  tank_size: 0,
+  is_full_tank: YesNo.No,
+  is_previous_entries_missed: YesNo.No,
 
   status: Status.Active,
 
