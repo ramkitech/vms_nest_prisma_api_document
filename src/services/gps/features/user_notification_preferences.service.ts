@@ -17,7 +17,7 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo, NotificationType, NotificationPreference } from '../../../core/Enums';
+import { Status, YesNo, NotificationType, NotificationPreference, OnOff } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
@@ -40,7 +40,7 @@ export interface UserNotificationPreferences extends Record<string, unknown> {
   notification_preference_id: string;
 
   notification_name: string;
-  notification_status: YesNo;
+  notification_status: OnOff;
   notification_type: NotificationType;
   mobile_numbers?: string;
   email_ids?: string;
@@ -48,7 +48,7 @@ export interface UserNotificationPreferences extends Record<string, unknown> {
 
   notification_list: NotificationPreference[];
 
-  is_all_vehicles: YesNo;
+  all_vehicles: YesNo;
 
   // Metadata
   status: Status;
@@ -118,7 +118,7 @@ export interface UserNotificationPreferenceUserLink extends Record<string, unkno
 export const UserNotificationPreferencesSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   notification_name: stringMandatory('Notification Name', 3, 100),
-  notification_status: enumMandatory('Notification Status', YesNo, YesNo.No),
+  notification_status: enumMandatory('Notification Status', OnOff, OnOff.On),
   notification_type: enumMandatory(
     'Notification Type',
     NotificationType,
@@ -128,7 +128,7 @@ export const UserNotificationPreferencesSchema = z.object({
   email_ids: stringOptional('Email IDs', 0, 300),
   cc_email_ids: stringOptional('CC email IDs', 0, 300),
 
-  is_all_vehicles: enumMandatory('Is All Vehicles', YesNo, YesNo.No),
+  all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.Yes),
 
   notification_list: enumArrayMandatory(
     'Notification List',
@@ -153,16 +153,16 @@ export const UserNotificationPreferencesQuerySchema = BaseQuerySchema.extend({
   ), // ✅ Multi-Selection -> UserNotificationPreferences
   notification_status: enumArrayOptional(
     'Notification Status',
-    YesNo,
-    getAllEnums(YesNo),
+    OnOff,
+    getAllEnums(OnOff),
   ),
   notification_type: enumArrayOptional(
     'Notification Type',
     NotificationType,
     getAllEnums(NotificationType),
   ),
-  is_all_vehicles: enumArrayOptional(
-    'Is All Vehicles',
+  all_vehicles: enumArrayOptional(
+    'All Vehicles',
     YesNo,
     getAllEnums(YesNo),
   ),
@@ -181,7 +181,7 @@ export const toUserNotificationPreferencesPayload = (data: UserNotificationPrefe
   email_ids: data.email_ids ?? '',
   cc_email_ids: data.cc_email_ids ?? '',
   notification_list: data.notification_list ?? [],
-  is_all_vehicles: data.is_all_vehicles,
+  all_vehicles: data.all_vehicles,
 
   status: data.status,
   vehicle_ids:
@@ -193,13 +193,13 @@ export const toUserNotificationPreferencesPayload = (data: UserNotificationPrefe
 export const newUserNotificationPreferencesPayload = (): UserNotificationPreferencesDTO => ({
   organisation_id: '',
   notification_name: '',
-  notification_status: YesNo.No,
+  notification_status: OnOff.On,
   notification_type: NotificationType.Push,
   mobile_numbers: '',
   email_ids: '',
   cc_email_ids: '',
   notification_list: [],
-  is_all_vehicles: YesNo.No,
+  all_vehicles: YesNo.Yes,
 
   vehicle_ids: [],
   user_ids: [],

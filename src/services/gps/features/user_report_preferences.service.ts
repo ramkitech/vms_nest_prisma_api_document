@@ -17,7 +17,7 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo, ReportType, ReportPreference } from '../../../core/Enums';
+import { Status, YesNo, ReportType, ReportPreference, OnOff } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
@@ -38,14 +38,14 @@ export interface UserReportsPreferences extends Record<string, unknown> {
   report_preference_id: string;
 
   report_name: string;
-  report_status: YesNo;
+  report_status: OnOff;
   report_type: ReportType;
   email_ids: string;
   cc_email_ids?: string;
 
   report_list: ReportPreference[];
 
-  is_all_vehicles: YesNo;
+  all_vehicles: YesNo;
 
   status: Status;
   added_date_time: string;
@@ -92,12 +92,12 @@ export interface UserReportsPreferencesVehicleLink extends Record<string, unknow
 export const UserReportPreferencesSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   report_name: stringMandatory('Report Name', 3, 100),
-  report_status: enumMandatory('Report Status', YesNo, YesNo.No),
+  report_status: enumMandatory('Report Status', OnOff, OnOff.On),
   report_type: enumMandatory('Report Type', ReportType, ReportType.Daily),
   email_ids: stringMandatory('Email IDs', 3, 300),
   cc_email_ids: stringOptional('CC email IDs', 0, 300),
 
-  is_all_vehicles: enumMandatory('Is All Vehicles', YesNo, YesNo.No),
+  all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.Yes),
 
   report_list: enumArrayMandatory(
     'Report List',
@@ -117,14 +117,14 @@ export type UserReportPreferencesDTO = z.infer<
 export const UserReportPreferencesQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
   report_preference_ids: multi_select_optional('UserReportPreferences'), // ✅ Multi-Selection -> UserNotificationPreferences
-  report_status: enumArrayOptional('Report Status', YesNo, getAllEnums(YesNo)),
+  report_status: enumArrayOptional('Report Status', OnOff, getAllEnums(OnOff)),
   report_type: enumArrayOptional(
     'Report Type',
     ReportType,
     getAllEnums(ReportType),
   ),
-  is_all_vehicles: enumArrayOptional(
-    'Is All Vehicles',
+  all_vehicles: enumArrayOptional(
+    'All Vehicles',
     YesNo,
     getAllEnums(YesNo),
   ),
@@ -141,7 +141,7 @@ export const toUserReportsPreferencesPayload = (data: UserReportsPreferences): U
   report_type: data.report_type,
   email_ids: data.email_ids,
   cc_email_ids: data.report_name,
-  is_all_vehicles: data.is_all_vehicles,
+  all_vehicles: data.all_vehicles,
   report_list: data.report_list,
   vehicle_ids:
     data.UserReportsPreferencesVehicleLink?.map((v) => v.vehicle_id) ?? [],
@@ -153,11 +153,11 @@ export const toUserReportsPreferencesPayload = (data: UserReportsPreferences): U
 export const newUserReportsPreferencesPayload = (): UserReportPreferencesDTO => ({
   organisation_id: '',
   report_name: '',
-  report_status: YesNo.Yes,
+  report_status: OnOff.On,
   report_type: ReportType.Daily,
   email_ids: '',
   cc_email_ids: '',
-  is_all_vehicles: YesNo.Yes,
+  all_vehicles: YesNo.Yes,
   report_list: [],
   vehicle_ids: [],
 

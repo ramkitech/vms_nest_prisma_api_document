@@ -98,6 +98,11 @@ export enum YesNo {
   No = 'No',
 }
 
+export enum OnOff {
+  On = 'On',
+  Off = 'Off',
+}
+
 export enum IssueSource {
   Direct = 'Direct',
   Inspection = 'Inspection',
