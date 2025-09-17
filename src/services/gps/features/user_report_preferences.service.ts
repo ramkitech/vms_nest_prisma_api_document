@@ -137,8 +137,8 @@ export const toUserReportsPreferencesPayload = (data: UserReportsPreferences): U
   report_types: data.report_types,
   report_list: data.report_list,
 
-  email_ids: data.email_ids,
-  cc_email_ids: data.report_name,
+  email_ids: data.email_ids || '',
+  cc_email_ids: data.cc_email_ids || '',
   all_vehicles: data.all_vehicles,
   
   vehicle_ids:
