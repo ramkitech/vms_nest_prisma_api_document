@@ -41,12 +41,12 @@ export interface UserNotificationPreferences extends Record<string, unknown> {
 
   notification_name: string;
   notification_status: OnOff;
-  notification_type: NotificationType;
+  notification_types: NotificationType[];
+  notification_list: NotificationPreference[];
+
   mobile_numbers?: string;
   email_ids?: string;
   cc_email_ids?: string;
-
-  notification_list: NotificationPreference[];
 
   all_vehicles: YesNo;
 
@@ -105,6 +105,7 @@ export interface UserNotificationPreferenceUserLink extends Record<string, unkno
   // Relations
   user_id: string;
   User?: User;
+  user_details?: string;
 
   notification_preference_id: string;
   UserNotificationPreferences?: UserNotificationPreferences;
@@ -119,27 +120,26 @@ export const UserNotificationPreferencesSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   notification_name: stringMandatory('Notification Name', 3, 100),
   notification_status: enumMandatory('Notification Status', OnOff, OnOff.On),
-  notification_type: enumMandatory(
-    'Notification Type',
-    NotificationType,
-    NotificationType.Push,
-  ),
-  mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
-  email_ids: stringOptional('Email IDs', 0, 300),
-  cc_email_ids: stringOptional('CC email IDs', 0, 300),
-
-  all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.Yes),
-
   notification_list: enumArrayMandatory(
     'Notification List',
     NotificationPreference,
     getAllEnums(NotificationPreference),
   ),
+  notification_types: enumArrayMandatory(
+    'Notification Type',
+    NotificationType,
+    getAllEnums(NotificationType),
+  ),
+
+  mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
+  email_ids: stringOptional('Email IDs', 0, 300),
+  cc_email_ids: stringOptional('CC email IDs', 0, 300),
+  user_ids: multi_select_optional('User'), // Multi selection -> User
+
+  all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.No),
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
 
   status: enumMandatory('Status', Status, Status.Active),
-
-  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
-  user_ids: multi_select_optional('User'), // Multi selection -> User
 });
 export type UserNotificationPreferencesDTO = z.infer<
   typeof UserNotificationPreferencesSchema
@@ -156,16 +156,7 @@ export const UserNotificationPreferencesQuerySchema = BaseQuerySchema.extend({
     OnOff,
     getAllEnums(OnOff),
   ),
-  notification_type: enumArrayOptional(
-    'Notification Type',
-    NotificationType,
-    getAllEnums(NotificationType),
-  ),
-  all_vehicles: enumArrayOptional(
-    'All Vehicles',
-    YesNo,
-    getAllEnums(YesNo),
-  ),
+  all_vehicles: enumArrayOptional('All Vehicles', YesNo, getAllEnums(YesNo)),
 });
 export type UserNotificationPreferencesQueryDTO = z.infer<
   typeof UserNotificationPreferencesQuerySchema
@@ -174,13 +165,16 @@ export type UserNotificationPreferencesQueryDTO = z.infer<
 // Payload Conversions
 export const toUserNotificationPreferencesPayload = (data: UserNotificationPreferences): UserNotificationPreferencesDTO => ({
   organisation_id: data.organisation_id,
+
   notification_name: data.notification_name,
   notification_status: data.notification_status,
-  notification_type: data.notification_type,
+  notification_types: data.notification_types?? [],
+  notification_list: data.notification_list ?? [],
+
   mobile_numbers: data.mobile_numbers ?? '',
   email_ids: data.email_ids ?? '',
   cc_email_ids: data.cc_email_ids ?? '',
-  notification_list: data.notification_list ?? [],
+  
   all_vehicles: data.all_vehicles,
 
   status: data.status,
@@ -194,11 +188,13 @@ export const newUserNotificationPreferencesPayload = (): UserNotificationPrefere
   organisation_id: '',
   notification_name: '',
   notification_status: OnOff.On,
-  notification_type: NotificationType.Push,
+  notification_types: [],
+  notification_list: [],
+
   mobile_numbers: '',
   email_ids: '',
   cc_email_ids: '',
-  notification_list: [],
+  
   all_vehicles: YesNo.Yes,
 
   vehicle_ids: [],

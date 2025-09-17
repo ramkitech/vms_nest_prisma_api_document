@@ -39,14 +39,15 @@ export interface UserReportsPreferences extends Record<string, unknown> {
 
   report_name: string;
   report_status: OnOff;
-  report_type: ReportType;
+  report_types: ReportType[];
+  report_list: ReportPreference[];
+
   email_ids: string;
   cc_email_ids?: string;
 
-  report_list: ReportPreference[];
-
   all_vehicles: YesNo;
 
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
@@ -91,23 +92,27 @@ export interface UserReportsPreferencesVehicleLink extends Record<string, unknow
 // ✅ UserReportPreferences Create/Update Schema
 export const UserReportPreferencesSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
+
   report_name: stringMandatory('Report Name', 3, 100),
   report_status: enumMandatory('Report Status', OnOff, OnOff.On),
-  report_type: enumMandatory('Report Type', ReportType, ReportType.Daily),
-  email_ids: stringMandatory('Email IDs', 3, 300),
-  cc_email_ids: stringOptional('CC email IDs', 0, 300),
-
-  all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.Yes),
-
+  report_types: enumArrayMandatory(
+    'Report Type',
+    ReportType,
+    getAllEnums(ReportType),
+  ),
   report_list: enumArrayMandatory(
     'Report List',
     ReportPreference,
     getAllEnums(ReportPreference),
   ),
 
-  status: enumMandatory('Status', Status, Status.Active),
+  email_ids: stringMandatory('Email IDs', 3, 300),
+  cc_email_ids: stringOptional('CC email IDs', 0, 300),
 
+  all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.No),
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
+
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type UserReportPreferencesDTO = z.infer<
   typeof UserReportPreferencesSchema
@@ -116,18 +121,9 @@ export type UserReportPreferencesDTO = z.infer<
 // ✅ UserReportPreferences Query Schema
 export const UserReportPreferencesQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  report_preference_ids: multi_select_optional('UserReportPreferences'), // ✅ Multi-Selection -> UserNotificationPreferences
+  report_preference_ids: multi_select_optional('UserReportPreferences'), // ✅ Multi-Selection -> UserReportPreferences
   report_status: enumArrayOptional('Report Status', OnOff, getAllEnums(OnOff)),
-  report_type: enumArrayOptional(
-    'Report Type',
-    ReportType,
-    getAllEnums(ReportType),
-  ),
-  all_vehicles: enumArrayOptional(
-    'All Vehicles',
-    YesNo,
-    getAllEnums(YesNo),
-  ),
+  all_vehicles: enumArrayOptional('All Vehicles', YesNo, getAllEnums(YesNo)),
 });
 export type UserReportPreferencesQueryDTO = z.infer<
   typeof UserReportPreferencesQuerySchema
@@ -138,11 +134,13 @@ export const toUserReportsPreferencesPayload = (data: UserReportsPreferences): U
   organisation_id: data.organisation_id,
   report_name: data.report_name,
   report_status: data.report_status,
-  report_type: data.report_type,
+  report_types: data.report_types,
+  report_list: data.report_list,
+
   email_ids: data.email_ids,
   cc_email_ids: data.report_name,
   all_vehicles: data.all_vehicles,
-  report_list: data.report_list,
+  
   vehicle_ids:
     data.UserReportsPreferencesVehicleLink?.map((v) => v.vehicle_id) ?? [],
 
@@ -154,11 +152,13 @@ export const newUserReportsPreferencesPayload = (): UserReportPreferencesDTO => 
   organisation_id: '',
   report_name: '',
   report_status: OnOff.On,
-  report_type: ReportType.Daily,
+  report_types: [],
+  report_list: [],
+
   email_ids: '',
   cc_email_ids: '',
   all_vehicles: YesNo.Yes,
-  report_list: [],
+  
   vehicle_ids: [],
 
   status: Status.Active
