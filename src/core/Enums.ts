@@ -167,19 +167,37 @@ export enum NotificationType {
   Push = 'Push',
 }
 
-export enum NotificationPreference {
-  GeofenceEnter = 'GeofenceEnter',
-  GeofenceExit = 'GeofenceExit',
-  FuelRemoval = 'FuelRemoval',
-  FuelRefill = 'FuelRefill',
-  IgnitionOn = 'IgnitionOn',
-  IgnitionOff = 'IgnitionOff',
+export enum ReportPreference {
+  AlVehiclesFullAnalysisReport = 'AlVehiclesFullAnalysisReport',
+  AllDriversPerformanceReport = 'AllDriversPerformanceReport',
+  MonthlyKilometersSummaryReport = 'MonthlyKilometersSummaryReport',
+  VehicleStoppageReport = 'VehicleStoppageReport',
+  GeofenceReport = 'GeofenceReport',
+  GeofenceToGeofenceReport = 'GeofenceToGeofenceReport',
+  VehicleIgnitionActivityLogReport = 'VehicleIgnitionActivityLogReport',
+  AllVehiclesIgnitionTimeSummaryReport = 'AllVehiclesIgnitionTimeSummaryReport',
+  AllVehiclesOverSpeedViolationReport = 'AllVehiclesOverSpeedViolationReport',
+  MonthlyOverSpeedSummaryReport = 'MonthlyOverSpeedSummaryReport',
+  FuelConsumptionReport = 'FuelConsumptionReport',
+  FuelRefillReport = 'FuelRefillReport',
+  FuelRemovalReport = 'FuelRemovalReport',
 }
 
-export enum ReportPreference {
-  FleetFuelRefillReport = 'FleetFuelRefillReport',
-  FleetFuelRemovalReport = 'FleetFuelRemovalReport',
-  FleetFuelConsumptionReport = 'FleetFuelConsumptionReport',
+export enum NotificationPreference {
+  VehicleMoving = 'VehicleMoving',
+  VehicleStopped = 'VehicleStopped',
+  IgnitionOn = 'IgnitionOn',
+  IgnitionOff = 'IgnitionOff',
+  GeofenceEnter = 'GeofenceEnter',
+  GeofenceExit = 'GeofenceExit',
+  FuelSuddenIncrease = 'FuelSuddenIncrease',
+  FuelSuddenDecrease = 'FuelSuddenDecrease',
+  OverSpeed70 = 'OverSpeed70',
+  OverSpeed80 = 'OverSpeed80',
+  OverSpeed90 = 'OverSpeed90',
+  OverSpeed100 = 'OverSpeed100',
+  OverSpeed110 = 'OverSpeed110',
+  OverSpeed120 = 'OverSpeed120',
 }
 
 export enum ReportType {
