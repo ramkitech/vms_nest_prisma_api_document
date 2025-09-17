@@ -168,7 +168,7 @@ export enum NotificationType {
 }
 
 export enum ReportPreference {
-  AlVehiclesFullAnalysisReport = 'AlVehiclesFullAnalysisReport',
+  AllVehiclesFullAnalysisReport = 'AllVehiclesFullAnalysisReport',
   AllDriversPerformanceReport = 'AllDriversPerformanceReport',
   MonthlyKilometersSummaryReport = 'MonthlyKilometersSummaryReport',
   VehicleStoppageReport = 'VehicleStoppageReport',
