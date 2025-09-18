@@ -1,3 +1,5 @@
+import { FileType, Status } from "./Enums";
+
 export interface PageData {
   total_count: number;
   page_count: number;
@@ -49,6 +51,26 @@ export interface AWSPresignedUrl {
   presigned_url: string;
   file_url: string;
   file_key: string;
+}
+
+// ✅ BaseCommionFile Interface
+export interface BaseCommionFile extends Record<string, unknown> {
+  // Usage Type
+  usage_type?: string;
+
+  // File Details
+  file_type: FileType;
+  file_url?: string;
+  file_key?: string;
+  file_name?: string;
+  file_description?: string;
+  file_size?: number;
+  file_metadata?: Record<string, unknown>;
+
+  // Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
 }
 
 

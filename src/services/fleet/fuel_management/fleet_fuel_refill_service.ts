@@ -1,6 +1,6 @@
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
+import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR, AWSPresignedUrl, BR, BaseCommionFile } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -18,12 +18,11 @@ import {
   doubleOptional,
   numberOptional,
   nestedArrayOfObjectsOptional,
-  dynamicJsonSchema,
 } from '../../../zod_utils/zod_utils';
-import { BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
+import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { FileType, GPSFuelApproveStatus, PaymentMode, PaymentStatus, RefillEntrySource, RefillMethod, Status, YesNo } from '../../../core/Enums';
+import { GPSFuelApproveStatus, PaymentMode, PaymentStatus, RefillEntrySource, RefillMethod, Status, YesNo } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
@@ -164,44 +163,21 @@ export interface FleetFuelRefill extends Record<string, unknown> {
 }
 
 // ✅ FleetFuelRefillFile Interface
-export interface FleetFuelRefillFile extends Record<string, unknown> {
+export interface FleetFuelRefillFile extends BaseCommionFile {
   // Primary Fields
   fleet_fuel_refill_file_id: string;
 
-  // File Details
-  file_type: FileType;
-  file_url?: string;
-  file_key?: string;
-  file_name?: string;
-  file_description?: string;
-  file_size?: number;
-  file_metadata?: Record<string, unknown>;
-
-  // Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // Relations
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-
+  // Parent
   fleet_fuel_refill_id: string;
-  FleetFuelRefill?: FleetFuelRefill;
+
+  // Organisation Id
+  organisation_id: string;
 }
 
 // ✅ FleetFuelRefillFile Schema
-export const FleetFuelRefillFileSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  fleet_fuel_refill_id: single_select_mandatory('FleetFuelRefill'), // ✅ Single-Selection -> FleetFuelRefill
-  file_type: enumMandatory('File Type', FileType, FileType.Image),
-  file_url: stringOptional('File URL', 0, 300),
-  file_key: stringOptional('File Key', 0, 300),
-  file_name: stringOptional('File Name', 0, 300),
-  file_description: stringOptional('File Description', 0, 2000),
-  file_size: numberOptional('File Size'),
-  file_metadata: dynamicJsonSchema('File Metadata', {}),
-  status: enumMandatory('Status', Status, Status.Active),
+export const FleetFuelRefillFileSchema = BaseFileSchema.extend({
+  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  fleet_fuel_refill_id: single_select_optional('FleetFuelRefill'), // ✅ Single-Selection -> FleetFuelRefill
 });
 export type FleetFuelRefillFileDTO = z.infer<typeof FleetFuelRefillFileSchema>;
 
@@ -292,7 +268,7 @@ export const FleetFuelRefillSchema = z.object({
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
-  refill_files: nestedArrayOfObjectsOptional(
+  FleetFuelRefillFile: nestedArrayOfObjectsOptional(
     'Refill Files',
     FleetFuelRefillFileSchema,
     [],
@@ -390,9 +366,11 @@ export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillD
 
   time_zone_id: '', // Needs to be provided manually
 
-  refill_files: row.FleetFuelRefillFile?.map((file) => ({
+  FleetFuelRefillFile: row.FleetFuelRefillFile?.map((file) => ({
     organisation_id: file.organisation_id ?? '',
     fleet_fuel_refill_id: file.fleet_fuel_refill_id ?? '',
+    fleet_fuel_refill_file_id: file.fleet_fuel_refill_file_id ?? '',
+    usage_type: file.usage_type || '',
     file_type: file.file_type,
     file_url: file.file_url || '',
     file_key: file.file_key || '',
@@ -457,7 +435,7 @@ export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
 
   time_zone_id: '',
 
-  refill_files: [],
+  FleetFuelRefillFile: [],
 });
 
 // API Methods

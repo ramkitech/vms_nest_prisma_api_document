@@ -31,6 +31,20 @@ export const OrderBySchema = z.array(
   })
 );
 
+// ✅ BaseFileSchema Schema
+export const BaseFileSchema = z.object({
+  usage_type: stringOptional('Usage Type', 0, 100),
+  file_type: enumMandatory('File Type', FileType, FileType.Image),
+  file_url: stringOptional('File URL', 0, 300),
+  file_key: stringOptional('File Key', 0, 300),
+  file_name: stringOptional('File Name', 0, 300),
+  file_description: stringOptional('File Description', 0, 2000),
+  file_size: numberOptional('File Size'),
+  file_metadata: dynamicJsonSchema('File Metadata', {}),
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type BaseFileDTO = z.infer<typeof BaseFileSchema>;
+
 export const BaseQuerySchema = z.object({
   search: stringOptional('Search', 0, 255, ''),
   status: enumArrayOptional('Status', Status, getAllEnums(Status), 0, 10, true),
