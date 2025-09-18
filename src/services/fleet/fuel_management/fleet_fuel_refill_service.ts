@@ -370,7 +370,7 @@ export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillD
     organisation_id: file.organisation_id ?? '',
     fleet_fuel_refill_id: file.fleet_fuel_refill_id ?? '',
     fleet_fuel_refill_file_id: file.fleet_fuel_refill_file_id ?? '',
-    usage_type: file.usage_type || '',
+    usage_type: file.usage_type,
     file_type: file.file_type,
     file_url: file.file_url || '',
     file_key: file.file_key || '',

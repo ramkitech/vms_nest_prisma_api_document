@@ -33,7 +33,7 @@ export const OrderBySchema = z.array(
 
 // ✅ BaseFileSchema Schema
 export const BaseFileSchema = z.object({
-  usage_type: stringOptional('Usage Type', 0, 100),
+  usage_type: stringMandatory('Usage Type', 3, 100),
   file_type: enumMandatory('File Type', FileType, FileType.Image),
   file_url: stringOptional('File URL', 0, 300),
   file_key: stringOptional('File Key', 0, 300),

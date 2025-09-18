@@ -56,7 +56,7 @@ export interface AWSPresignedUrl {
 // ✅ BaseCommionFile Interface
 export interface BaseCommionFile extends Record<string, unknown> {
   // Usage Type
-  usage_type?: string;
+  usage_type: string;
 
   // File Details
   file_type: FileType;
