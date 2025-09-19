@@ -269,7 +269,7 @@ export const FleetFuelRefillSchema = z.object({
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
   FleetFuelRefillFile: nestedArrayOfObjectsOptional(
-    'Refill Files',
+    'FleetFuelRefillFile',
     FleetFuelRefillFileSchema,
     [],
   ),
