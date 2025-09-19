@@ -1,6 +1,6 @@
 // Axios
 import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
+import { SBR, FBR, AWSPresignedUrl, BR, BaseCommionFile } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -20,7 +20,7 @@ import {
   dynamicJsonSchema,
   nestedArrayOfObjectsOptional,
 } from '../../../zod_utils/zod_utils';
-import { BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
+import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
 import { FileType, GPSFuelApproveStatus, RefillEntrySource, Status } from '../../../core/Enums';
@@ -140,44 +140,21 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
 }
 
 // ✅ FleetFuelRemovalFile Interface
-export interface FleetFuelRemovalFile extends Record<string, unknown> {
+export interface FleetFuelRemovalFile extends BaseCommionFile {
   // Primary Fields
   fleet_fuel_removal_file_id: string;
 
-  // File Details
-  file_type: FileType;
-  file_url?: string;
-  file_key?: string;
-  file_name?: string;
-  file_description?: string;
-  file_size?: number;
-  file_metadata?: Record<string, unknown>;
-
-  // Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // Relations
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-
+  // Parent
   fleet_fuel_removal_id: string;
-  FleetFuelRemoval?: FleetFuelRemoval;
+
+  // Organisation Id
+  organisation_id: string;
 }
 
 // ✅ FleetFuelRemovalFile Schema
-export const FleetFuelRemovalFileSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  fleet_fuel_removal_id: single_select_mandatory('FleetFuelRemoval'), // ✅ Single-Selection -> FleetFuelRemoval
-  file_type: enumMandatory('File Type', FileType, FileType.Image),
-  file_url: stringOptional('File URL', 0, 300),
-  file_key: stringOptional('File Key', 0, 300),
-  file_name: stringOptional('File Name', 0, 300),
-  file_description: stringOptional('File Description', 0, 2000),
-  file_size: numberOptional('File Size'),
-  file_metadata: dynamicJsonSchema('File Metadata', {}),
-  status: enumMandatory('Status', Status, Status.Active),
+export const FleetFuelRemovalFileSchema = BaseFileSchema.extend({
+  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  fleet_fuel_removal_id: single_select_optional('FleetFuelRemoval'), // ✅ Single-Selection -> FleetFuelRemoval
 });
 export type FleetFuelRemovalFileDTO = z.infer<
   typeof FleetFuelRemovalFileSchema
@@ -244,8 +221,8 @@ export const FleetFuelRemovalSchema = z.object({
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
-  removal_files: nestedArrayOfObjectsOptional(
-    'Removal Files',
+  FleetFuelRemovalFile: nestedArrayOfObjectsOptional(
+    'FleetFuelRemovalFile',
     FleetFuelRemovalFileSchema,
     [],
   ),
@@ -329,18 +306,20 @@ export const toFleetFuelRemovalPayload = (row: FleetFuelRemoval): FleetFuelRemov
   time_zone_id: '', // provide from context
 
   // map child files -> DTO shape
-  removal_files:
-    row.FleetFuelRemovalFile?.map((f) => ({
-      organisation_id: f.organisation_id ?? '',
-      fleet_fuel_removal_id: f.fleet_fuel_removal_id ?? '',
-      file_type: f.file_type,
-      file_url: f.file_url || '',
-      file_key: f.file_key || '',
-      file_name: f.file_name || '',
-      file_description: f.file_description || '',
-      file_size: f.file_size ?? 0,
-      file_metadata: f.file_metadata ?? {},
-      status: f.status,
+  FleetFuelRemovalFile:
+    row.FleetFuelRemovalFile?.map((file) => ({
+      organisation_id: file.organisation_id ?? '',
+      fleet_fuel_removal_id: file.fleet_fuel_removal_id ?? '',
+      fleet_fuel_removal_file_id: file.fleet_fuel_removal_file_id ?? '',
+      usage_type: file.usage_type,
+      file_type: file.file_type,
+      file_url: file.file_url || '',
+      file_key: file.file_key || '',
+      file_name: file.file_name || '',
+      file_description: file.file_description || '',
+      file_size: file.file_size ?? 0,
+      file_metadata: file.file_metadata ?? {},
+      status: file.status,
     })) ?? [],
 });
 
@@ -394,7 +373,7 @@ export const newFleetFuelRemovalPayload = (): FleetFuelRemovalDTO => ({
   time_zone_id: '',
 
   // Children
-  removal_files: [],
+  FleetFuelRemovalFile: [],
 });
 
 // API Methods
