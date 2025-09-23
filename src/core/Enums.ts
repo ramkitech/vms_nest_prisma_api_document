@@ -167,7 +167,7 @@ export enum NotificationType {
   Push = 'Push',
 }
 
-export enum ReportPreference {
+export enum ReportList {
   AllVehiclesFullAnalysisReport = 'AllVehiclesFullAnalysisReport',
   AllDriversPerformanceReport = 'AllDriversPerformanceReport',
   MonthlyKilometersSummaryReport = 'MonthlyKilometersSummaryReport',

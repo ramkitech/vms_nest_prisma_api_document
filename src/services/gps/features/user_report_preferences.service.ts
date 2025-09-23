@@ -17,7 +17,7 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo, ReportType, ReportPreference, OnOff } from '../../../core/Enums';
+import { Status, YesNo, ReportType, ReportList, OnOff } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
@@ -40,7 +40,7 @@ export interface UserReportsPreferences extends Record<string, unknown> {
   report_name: string;
   report_status: OnOff;
   report_types: ReportType[];
-  report_list: ReportPreference[];
+  report_list: ReportList[];
 
   email_ids: string;
   cc_email_ids?: string;
@@ -58,10 +58,12 @@ export interface UserReportsPreferences extends Record<string, unknown> {
 
   // Relations - Child
   UserReportsPreferencesVehicleLink: UserReportsPreferencesVehicleLink[]
+  UserReportsAutomationMail: UserReportsAutomationMail[]
 
   // Count
   _count?: {
     UserReportsPreferencesVehicleLink: number;
+    UserReportsAutomationMail: number;
   };
 
 }
@@ -89,6 +91,62 @@ export interface UserReportsPreferencesVehicleLink extends Record<string, unknow
   // Count
 }
 
+export interface UserReportsAutomationMail extends Record<string, unknown> {
+
+  automation_mail_id: string;
+
+  report_name: string;
+  report_type: ReportType;
+  from_date: string;
+  to_date: string;
+  date: string;
+
+  all_vehicles: YesNo;
+
+  // Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // Relations
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  report_preference_id: string;
+  UserReportsPreferences?: UserReportsPreferences;
+
+  // Relations - Child
+  UserReportsAutomationVehicleLink: UserReportsAutomationVehicleLink[]
+
+  // Count
+  _count?: {
+    UserReportsAutomationVehicleLink: number;
+  };
+}
+
+export interface UserReportsAutomationVehicleLink extends Record<string, unknown> {
+
+  automation_vehicle_id: string;
+
+  // Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // Relations
+  vehicle_id: string;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
+
+  automation_mail_id: string;
+  UserReportsAutomationMail?: UserReportsAutomationMail;
+
+  // Relations - Child
+
+  // Count
+}
+
 // ✅ UserReportPreferences Create/Update Schema
 export const UserReportPreferencesSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
@@ -102,8 +160,8 @@ export const UserReportPreferencesSchema = z.object({
   ),
   report_list: enumArrayMandatory(
     'Report List',
-    ReportPreference,
-    getAllEnums(ReportPreference),
+    ReportList,
+    getAllEnums(ReportList),
   ),
 
   email_ids: stringMandatory('Email IDs', 3, 300),
@@ -140,7 +198,7 @@ export const toUserReportsPreferencesPayload = (data: UserReportsPreferences): U
   email_ids: data.email_ids || '',
   cc_email_ids: data.cc_email_ids || '',
   all_vehicles: data.all_vehicles,
-  
+
   vehicle_ids:
     data.UserReportsPreferencesVehicleLink?.map((v) => v.vehicle_id) ?? [],
 
@@ -158,7 +216,7 @@ export const newUserReportsPreferencesPayload = (): UserReportPreferencesDTO => 
   email_ids: '',
   cc_email_ids: '',
   all_vehicles: YesNo.Yes,
-  
+
   vehicle_ids: [],
 
   status: Status.Active

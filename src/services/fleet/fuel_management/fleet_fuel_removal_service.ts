@@ -17,7 +17,6 @@ import {
   stringOptional,
   doubleOptional,
   numberOptional,
-  dynamicJsonSchema,
   nestedArrayOfObjectsOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
