@@ -37,6 +37,8 @@ export enum LoginFrom {
   Web = 'Web',
   Android = 'Android',
   IPhone = 'IPhone',
+  AndroidPWA = 'AndroidPWA',
+  iOSPWA = 'iOSPWA',
 }
 
 export enum Status {
