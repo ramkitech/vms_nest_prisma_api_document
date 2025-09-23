@@ -28,6 +28,7 @@ const URL = 'gps/features/user_report_preferences';
 
 const ENDPOINTS = {
   find: `${URL}/search`,
+  find_automation_mail: `${URL}/automation_mail/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
@@ -147,6 +148,22 @@ export interface UserReportsAutomationVehicleLink extends Record<string, unknown
   // Count
 }
 
+// ✅ UserReportsAutomationMail Query Schema
+export const UserReportsAutomationMailQuerySchema = BaseQuerySchema.extend({
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  report_preference_ids: multi_select_optional('UserReportPreferences'), // ✅ Multi-Selection -> UserReportPreferences
+  automation_mail_ids: multi_select_optional('UserReportPreferences'), // ✅ Multi-Selection -> UserReportsAutomationMail
+  all_vehicles: enumArrayOptional('All Vehicles', YesNo, getAllEnums(YesNo)),
+  report_type: enumArrayOptional(
+    'Report Type',
+    ReportType,
+    getAllEnums(ReportType),
+  ),
+});
+export type UserReportsAutomationMailQueryDTO = z.infer<
+  typeof UserReportsAutomationMailQuerySchema
+>;
+
 // ✅ UserReportPreferences Create/Update Schema
 export const UserReportPreferencesSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
@@ -238,4 +255,8 @@ export const updateUserReportsPreferences = async (id: string, data: UserReportP
 
 export const deleteUserReportsPreferences = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+export const findUserReportsAutomationMail = async (data: UserReportsAutomationMailQueryDTO): Promise<FBR<UserReportsAutomationMail[]>> => {
+  return apiPost<FBR<UserReportsAutomationMail[]>, UserReportsAutomationMailQueryDTO>(ENDPOINTS.find_automation_mail, data);
 };
