@@ -25,10 +25,11 @@ import { MasterVehicle } from '../../main/vehicle/master_vehicle_service';
 
 // URL and Endpoints
 const URL = 'gps/features/user_report_preferences';
+const URL_AUTOMATION_MAIL = 'gps/features/user_report_preferences_automation_mail';
 
 const ENDPOINTS = {
   find: `${URL}/search`,
-  find_automation_mail: `${URL}/automation_mail/search`,
+  find_automation_mail: `${URL_AUTOMATION_MAIL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
