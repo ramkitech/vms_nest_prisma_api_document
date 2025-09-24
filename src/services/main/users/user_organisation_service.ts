@@ -72,6 +72,7 @@ import { MasterVendorType } from '../../../services/master/expense/master_vendor
 import { MasterSparePartCategory } from '../../../services/master/spare_part/master_spare_part_category_service';
 import { MasterSparePartSubCategory } from '../../../services/master/spare_part/master_spare_part_sub_category_service';
 import { MasterSparePartUnit } from '../../../services/master/spare_part/master_spare_part_unit_service';
+import { MasterMainLanguage } from 'src/services/master/main/master_main_language_service';
 
 const URL = 'user/organisation';
 
@@ -94,6 +95,9 @@ export interface UserOrganisation extends Record<string, unknown> {
   organisation_email: string; // Min: 3, Max: 100
   organisation_mobile?: string; // Min: 0, Max: 20
 
+  organisation_code?: string; // Min: 0, Max: 20
+  organisation_utrack_id?: string; // Min: 0, Max: 20
+
   fleet_size: FleetSize;
 
   db_instance: string; // Min: 3, Max: 100
@@ -102,27 +106,31 @@ export interface UserOrganisation extends Record<string, unknown> {
   organisation_logo_url?: string; // Min: 0, Max: 300
   organisation_logo_key?: string; // Min: 0, Max: 300
 
-  // Company Address
-  address?: string;
-  locality?: string;
-  city_district_town?: string;
-  state?: string;
-  zip_code?: string;
-  landmark?: string;
-  latitude?: number;
-  longitude?: number;
-
   // Billing Information
   company_cin?: string;
   company_tin_gstin?: string;
-  billing_address?: string;
-  billing_locality?: string;
-  billing_city_district_town?: string;
-  billing_state?: string;
-  billing_zip_code?: string;
-  billing_landmark?: string;
-  billing_latitude?: number;
-  billing_longitude?: number;
+  billing_address_line1?:string;
+  billing_address_line2?:string;
+  billing_locality_landmark?:string;
+  billing_neighborhood?:string;
+  billing_town_city?:string;
+  billing_district_county?:string;
+  billing_state_province_region?:string;
+  billing_postal_code?:string;
+  billing_country?:string;
+  billing_country_code?:string;
+
+  // Company Address
+  address_line1?:string;
+  address_line2?:string;
+  locality_landmark?:string;
+  neighborhood?:string;
+  town_city?:string;
+  district_county?:string;
+  state_province_region?:string;
+  postal_code?:string;
+  country?:string;
+  country_code?:string;
 
   // Metadata
   status: Status;
@@ -147,6 +155,9 @@ export interface UserOrganisation extends Record<string, unknown> {
 
   date_format_id?: string;
   MasterMainDateFormat?: MasterMainDateFormat;
+
+  language_id?: string;
+  MasterMainLanguage?: MasterMainLanguage;
 
   distance_unit_id?: string;
   MasterMainUnitDistance?: MasterMainUnitDistance;
@@ -331,29 +342,39 @@ export const UserOrganisationSchema = z.object({
   organisation_logo_url: stringOptional('Organisation Logo URL', 0, 300),
   organisation_logo_key: stringOptional('Organisation Logo Key', 0, 300),
 
+  // Billing Address
   company_cin: stringOptional('Company CIN', 0, 50),
   company_tin_gstin: stringOptional('Company TIN/GSTIN', 0, 50),
-  billing_address: stringOptional('Billing Address', 0, 100),
-  billing_locality: stringOptional('Billing Locality', 0, 100),
-  billing_city_district_town: stringOptional(
-    'Billing City/District/Town',
+  billing_address_line1: stringOptional('Billing Address Line 1', 0, 150),
+  billing_address_line2: stringOptional('Billing Address Line 2', 0, 150),
+  billing_locality_landmark: stringOptional(
+    'Billing Locality Landmark',
     0,
-    100
+    150,
   ),
-  billing_state: stringOptional('Billing State', 0, 100),
-  billing_zip_code: stringOptional('Billing Zip Code', 0, 10),
-  billing_landmark: stringOptional('Billing Landmark', 0, 100),
-  billing_latitude: doubleOptionalLatLng('Billing Latitude'),
-  billing_longitude: doubleOptionalLatLng('Billing Longitude'),
+  billing_neighborhood: stringOptional('Billing Neighborhood', 0, 100),
+  billing_town_city: stringOptional('Billing Town/City', 0, 100),
+  billing_district_county: stringOptional('Billing District/County', 0, 100),
+  billing_state_province_region: stringOptional(
+    'Billing State/Province/Region',
+    0,
+    100,
+  ),
+  billing_postal_code: stringOptional('Billing Postal Code', 0, 20),
+  billing_country: stringOptional('Billing Country', 0, 100),
+  billing_country_code: stringOptional('Billing Country Code', 0, 5),
 
-  address: stringOptional('Address', 0, 100),
-  locality: stringOptional('Locality', 0, 100),
-  city_district_town: stringOptional('City/District/Town', 0, 100),
-  state: stringOptional('State', 0, 100),
-  zip_code: stringOptional('Zip Code', 0, 10),
-  landmark: stringOptional('Landmark', 0, 100),
-  latitude: doubleOptionalLatLng('Latitude'),
-  longitude: doubleOptionalLatLng('Longitude'),
+  // Address
+  address_line1: stringOptional('Address Line 1', 0, 150),
+  address_line2: stringOptional('Address Line 2', 0, 150),
+  locality_landmark: stringOptional('Locality Landmark', 0, 150),
+  neighborhood: stringOptional('Neighborhood', 0, 100),
+  town_city: stringOptional('Town/City', 0, 100),
+  district_county: stringOptional('District/County', 0, 100),
+  state_province_region: stringOptional('State/Province/Region', 0, 100),
+  postal_code: stringOptional('Postal Code', 0, 20),
+  country: stringOptional('Country', 0, 100),
+  country_code: stringOptional('Country Code', 0, 5),
 
   status: enumMandatory('Status', Status, Status.Active),
 
@@ -363,6 +384,7 @@ export const UserOrganisationSchema = z.object({
   time_zone_id: single_select_optional('Time Zone ID'), // Single selection -> MasterMainTimeZone
   currency_id: single_select_optional('Currency ID'), // Single selection -> MasterMainCurrency
   date_format_id: single_select_optional('Date Format ID'), // Single selection -> MasterMainDateFormat
+  language_id: single_select_optional('Language ID'), // Single selection -> MasterMainLanguage
   distance_unit_id: single_select_optional('Distance Unit ID'), // Single selection -> MasterMainUnitDistance
   mileage_unit_id: single_select_optional('Mileage Unit ID'), // Single selection -> MasterMainUnitMileage
   volume_unit_id: single_select_optional('Volume Unit ID'), // Single selection -> MasterMainUnitVolume
@@ -377,6 +399,7 @@ export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
   time_zone_ids: multi_select_optional('Time Zone IDs', 100, []), // Multi-selection -> MasterMainTimeZone
   currency_ids: multi_select_optional('Currency IDs', 100, []), // Multi-selection -> MasterMainCurrency
   date_format_ids: multi_select_optional('Date Format IDs', 100, []), // Multi-selection -> MasterMainDateFormat
+  language_ids: multi_select_optional('Language IDs', 100, []), // Multi-selection -> MasterMainDateFormat  
   distance_unit_ids: multi_select_optional('Distance Unit IDs', 100, []), // Multi-selection -> MasterMainUnitDistance
   mileage_unit_ids: multi_select_optional('Mileage Unit IDs', 100, []), // Multi-selection -> MasterMainUnitMileage
   volume_unit_ids: multi_select_optional('Volume Unit IDs', 100, []), // Multi-selection -> MasterMainUnitVolume
@@ -407,6 +430,7 @@ export const toUserOrganisationPayload = (
   time_zone_id: organisation.time_zone_id ?? '',
   currency_id: organisation.currency_id ?? '',
   date_format_id: organisation.date_format_id ?? '',
+  language_id: organisation.language_id ?? '',
   distance_unit_id: organisation.distance_unit_id ?? '',
   mileage_unit_id: organisation.mileage_unit_id ?? '',
   volume_unit_id: organisation.volume_unit_id ?? '',
@@ -414,24 +438,28 @@ export const toUserOrganisationPayload = (
   // Billing Information
   company_cin: organisation.company_cin ?? '',
   company_tin_gstin: organisation.company_tin_gstin ?? '',
-  billing_address: organisation.billing_address ?? '',
-  billing_locality: organisation.billing_locality ?? '',
-  billing_city_district_town: organisation.billing_city_district_town ?? '',
-  billing_state: organisation.billing_state ?? '',
-  billing_zip_code: organisation.billing_zip_code ?? '',
-  billing_landmark: organisation.billing_landmark ?? '',
-  billing_latitude: organisation.billing_latitude ?? undefined,
-  billing_longitude: organisation.billing_longitude ?? undefined,
+  billing_address_line1: organisation.billing_address_line1 ?? '',
+  billing_address_line2: organisation.billing_address_line2 ?? '',
+  billing_locality_landmark: organisation.billing_locality_landmark ?? '',
+  billing_neighborhood: organisation.billing_neighborhood ?? '',
+  billing_town_city: organisation.billing_town_city ?? '',
+  billing_district_county: organisation.billing_district_county ?? '',
+  billing_state_province_region: organisation.billing_state_province_region ?? '',
+  billing_postal_code: organisation.billing_postal_code ?? '',
+  billing_country: organisation.billing_country ?? '',
+  billing_country_code: organisation.billing_country_code ?? '',
 
   // Company Address
-  address: organisation.address ?? '',
-  locality: organisation.locality ?? '',
-  city_district_town: organisation.city_district_town ?? '',
-  state: organisation.state ?? '',
-  zip_code: organisation.zip_code ?? '',
-  landmark: organisation.landmark ?? '',
-  latitude: organisation.latitude ?? undefined,
-  longitude: organisation.longitude ?? undefined,
+  address_line1: organisation.address_line1 ?? '',
+  address_line2: organisation.address_line2 ?? '',
+  locality_landmark: organisation.locality_landmark ?? '',
+  neighborhood: organisation.neighborhood ?? '',
+  town_city: organisation.town_city ?? '',
+  district_county: organisation.district_county ?? '',
+  state_province_region: organisation.state_province_region ?? '',
+  postal_code: organisation.postal_code ?? '',
+  country: organisation.country ?? '',
+  country_code: organisation.country_code ?? '',
 });
 
 // Generate a new payload with default values
@@ -453,6 +481,7 @@ export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
   time_zone_id: '',
   currency_id: '',
   date_format_id: '',
+  language_id: '',
   distance_unit_id: '',
   mileage_unit_id: '',
   volume_unit_id: '',
@@ -460,24 +489,28 @@ export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
   // Billing Information
   company_cin: '',
   company_tin_gstin: '',
-  billing_address: '',
-  billing_locality: '',
-  billing_city_district_town: '',
-  billing_state: '',
-  billing_zip_code: '',
-  billing_landmark: '',
-  billing_latitude: undefined,
-  billing_longitude: undefined,
+  billing_address_line1: '',
+  billing_address_line2: '',
+  billing_locality_landmark: '',
+  billing_neighborhood: '',
+  billing_town_city: '',
+  billing_district_county: '',
+  billing_state_province_region: '',
+  billing_postal_code: '',
+  billing_country: '',
+  billing_country_code: '',
 
   // Company Address
-  address: '',
-  locality: '',
-  city_district_town: '',
-  state: '',
-  zip_code: '',
-  landmark: '',
-  latitude: undefined,
-  longitude: undefined,
+  address_line1: '',
+  address_line2: '',
+  locality_landmark: '',
+  neighborhood: '',
+  town_city: '',
+  district_county: '',
+  state_province_region: '',
+  postal_code: '',
+  country: '',
+  country_code: '',
 });
 
 // API Methods

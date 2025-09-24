@@ -1,6 +1,6 @@
 // Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../core/apiCall';
-import { SBR, FBR } from '../../core/BaseResponse';
+import { SBR, FBR, BaseCommionFile, BR, AWSPresignedUrl } from '../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -17,7 +17,7 @@ import {
   stringMandatory,
   stringOptional,
 } from '../../zod_utils/zod_utils';
-import { BaseQuerySchema } from '../../zod_utils/zod_base_schema';
+import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../zod_utils/zod_base_schema';
 
 // Enums
 import { FileType, Status, TicketStatus } from '../../core/Enums';
@@ -36,34 +36,10 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: `${URL}/cache`,
-  presignedUrl: (fileName: string): string =>
-    `${URL}/presigned_url/${fileName}`,
+  presigned_url: `${URL}/presigned_url`,
   createFile: `${URL}/create_file`,
   removeFile: (id: string): string => `${URL}/remove_file/${id}`,
 };
-
-// Ticket File Interface
-export interface TicketFile extends Record<string, unknown> {
-  ticket_file_id: string;
-  file_type: FileType;
-  file_url?: string;
-  file_key?: string;
-  file_description?: string;
-  file_size?: number;
-  file_metadata?: Record<string, unknown>;
-
-  // Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // Relations
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-
-  ticket_id: string;
-  Ticket?: Ticket;
-}
 
 // Ticket Interface
 export interface Ticket extends Record<string, unknown> {
@@ -89,21 +65,33 @@ export interface Ticket extends Record<string, unknown> {
   admin_id?: string;
   UserAdmin?: UserAdmin;
 
-  // Relations - Child
-  TicketFile?: TicketFile[];
+  // Child Relations
+    TicketFile?: TicketFile[];
+  
+  // Optional Count
+    _count?: {
+      TicketFile?: number;
+  };
 }
 
-// ✅ Ticket File Schema
-export const TicketFileSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'),
-  ticket_id: single_select_mandatory('Ticket'),
-  file_type: enumMandatory('File Type', FileType, FileType.Image),
-  file_url: stringOptional('File URL', 0, 300),
-  file_key: stringOptional('File Key', 0, 300),
-  file_description: stringOptional('File Description', 0, 2000),
-  file_size: numberOptional('File Size'),
-  file_metadata: dynamicJsonSchema('File Metadata', {}),
-  status: enumMandatory('Status', Status, Status.Active),
+// Ticket File Interface
+export interface TicketFile extends BaseCommionFile {
+  // Primary Fields
+  ticket_file_id: string;
+
+  // Parent
+  ticket_id: string;
+
+  // Organisation Id
+  organisation_id: string;
+}
+
+
+
+// ✅ TicketFile Schema
+export const TicketFileSchema = BaseFileSchema.extend({
+  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  ticket_id: single_select_optional('Ticket'), // ✅ Single-Selection -> Ticket
 });
 export type TicketFileDTO = z.infer<typeof TicketFileSchema>;
 
@@ -120,14 +108,16 @@ export const TicketSchema = z.object({
   organisation_id: single_select_mandatory('User Organisation'),
   user_id: single_select_mandatory('User'),
   admin_id: single_select_optional('User Admin'),
-  ticket_files: nestedArrayOfObjectsOptional(
-    'TicketFiles',
+  TicketFile: nestedArrayOfObjectsOptional(
+    'TicketFileSchema',
     TicketFileSchema,
     []
   ),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type TicketDTO = z.infer<typeof TicketSchema>;
+
+
 
 // ✅ Ticket Query Schema
 export const TicketQuerySchema = BaseQuerySchema.extend({
@@ -155,8 +145,22 @@ export const toTicketPayload = (ticket: Ticket): TicketDTO => ({
   organisation_id: ticket.organisation_id,
   user_id: ticket.user_id,
   admin_id: ticket.admin_id ?? '',
-  ticket_files: [],
   status: ticket.status,
+
+  TicketFile: ticket.TicketFile?.map((file) => ({
+    organisation_id: file.organisation_id ?? '',
+    ticket_id: file.ticket_id ?? '',
+    ticket_file_id: file.ticket_file_id ?? '',
+    usage_type: file.usage_type,
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+    status: file.status,
+  })) ?? [],
 });
 
 // Generate a new payload with default values
@@ -168,7 +172,7 @@ export const newTicketPayload = (): TicketDTO => ({
   description: '',
   admin_message: '',
   ticket_status: TicketStatus.Open,
-  ticket_files: [],
+  TicketFile: [],
   status: Status.Active,
 });
 
@@ -195,10 +199,8 @@ export const deleteTicket = async (id: string): Promise<SBR> => {
 };
 
 // File API Methods
-export const getPresignedUrl = async (
-  fileName: string
-): Promise<FBR<{ url: string }>> => {
-  return apiGet<FBR<{ url: string }>>(ENDPOINTS.presignedUrl(fileName));
+export const getTicketFilePresignedUrl = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url, data);
 };
 
 export const createTicketFile = async (data: TicketFileDTO): Promise<SBR> => {
