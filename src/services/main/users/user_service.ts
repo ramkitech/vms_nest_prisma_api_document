@@ -255,10 +255,7 @@ export const createUser = async (data: CreateUserDTO): Promise<SBR> => {
   return apiPost<SBR, CreateUserDTO>(ENDPOINTS.create, data);
 };
 
-export const updateUser = async (
-  id: string,
-  data: CreateUserDTO
-): Promise<SBR> => {
+export const updateUser = async (id: string, data: CreateUserDTO): Promise<SBR> => {
   return apiPatch<SBR, CreateUserDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -267,15 +264,11 @@ export const deleteUser = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getUserCache = async (
-  organisation_id: string
-): Promise<FBR<User[]>> => {
+export const getUserCache = async (organisation_id: string): Promise<FBR<User[]>> => {
   return apiGet<FBR<User[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getUserCacheSimple = async (
-  organisation_id: string
-): Promise<FBR<User[]>> => {
+export const getUserCacheSimple = async (organisation_id: string): Promise<FBR<User[]>> => {
   return apiGet<FBR<User[]>>(ENDPOINTS.cacheSimple(organisation_id));
 };
 
@@ -285,34 +278,16 @@ export const getUserPresignedUrl = async (fileName: string): Promise<SBR> => {
 };
 
 // Update Default Language
-export const updateUserDefaultLanguage = async (
-  id: string,
-  data: UserDefaultLanguageDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, UserDefaultLanguageDTO>(
-    ENDPOINTS.updateDefaultLanguage(id),
-    data
-  );
+export const updateUserDefaultLanguage = async (id: string, data: UserDefaultLanguageDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserDefaultLanguageDTO>(ENDPOINTS.updateDefaultLanguage(id), data);
 };
 
 // Update Default Language
-export const updateUserDefaultTimezone = async (
-  id: string,
-  data: UserDefaultTimeZoneDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, UserDefaultTimeZoneDTO>(
-    ENDPOINTS.updateDefaultTimezone(id),
-    data
-  );
+export const updateUserDefaultTimezone = async (id: string, data: UserDefaultTimeZoneDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserDefaultTimeZoneDTO>(ENDPOINTS.updateDefaultTimezone(id), data);
 };
 
 // Update Default Language
-export const updateUserDefaultDateformat = async (
-  id: string,
-  data: UserDefaultDateFormatDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, UserDefaultDateFormatDTO>(
-    ENDPOINTS.updateDefaultDateformat(id),
-    data
-  );
+export const updateUserDefaultDateformat = async (id: string, data: UserDefaultDateFormatDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserDefaultDateFormatDTO>(ENDPOINTS.updateDefaultDateformat(id), data);
 };
