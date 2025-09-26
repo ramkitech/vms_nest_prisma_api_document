@@ -101,6 +101,11 @@ export interface User extends Record<string, unknown> {
 
   // Relations - Child
   UserVehicleLink: UserVehicleLink[];
+
+  // Count
+  _count?: {
+    UserVehicleLink: number;
+  };
 }
 
 export interface UserVehicleLink extends Record<string, unknown> {
