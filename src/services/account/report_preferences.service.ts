@@ -197,7 +197,7 @@ export const OrganisationReportsPreferenceSchema = z.object({
     getAllEnums(ReportChannel),
   ),
   mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
-  email_ids: stringMandatory('Email IDs', 3, 300),
+  email_ids: stringOptional('Email IDs', 0, 300),
   cc_email_ids: stringOptional('CC email IDs', 0, 300),
 
   all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.No),
