@@ -13,34 +13,36 @@ import {
   multi_select_optional,
   getAllEnums,
   nestedArrayOfObjectsOptional,
+  stringOptional,
+  enumArrayMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, NotificationType, TrackHistoryLinkStatus } from '../../../core/Enums';
+import { Status, TrackHistoryLinkStatus, NotificationChannel } from '../../../core/Enums';
 
 // Other Models
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 
-// 2. URL and Endpoints
 const URL = 'gps/features/gps_track_history_share_link';
 
 const ENDPOINTS = {
   find: `${URL}/search`,
+  create_notification: `${URL}/create_notification`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  createNotification: `${URL}/create_notifications`,
 };
 
-// 3. Model Interface
+// GPSTrackHistoryShareLink Interface
 export interface GPSTrackHistoryShareLink extends Record<string, unknown> {
-  // Primary Fields
+
   gps_track_history_share_link_id: string;
+
+  // Primary Fields
   from_date_time: string;
   to_date_time: string;
-  expiry_date_time: string;
   link_status: TrackHistoryLinkStatus;
 
   // Metadata
@@ -54,19 +56,30 @@ export interface GPSTrackHistoryShareLink extends Record<string, unknown> {
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
-  trip_id?: string;
-  // Trip?: Trip;
+  // Relations - Child
+  GPSTrackHistoryShareLinkNotification?: GPSTrackHistoryShareLinkNotification[];
 
-  // Child
-  GPSTrackHistoryShareLinkNotifications?: GPSTrackHistoryShareLinkNotification[];
+  // Count
+  _count?: {
+    GPSTrackHistoryShareLinkNotification?: number;
+  };
 }
 
-export interface GPSTrackHistoryShareLinkNotification
-  extends Record<string, unknown> {
-  gps_track_history_share_link_notifications_id: string;
-  type: NotificationType;
-  to_recipients: string;
+// GPSTrackHistoryShareLinkNotification Interface
+export interface GPSTrackHistoryShareLinkNotification extends Record<string, unknown> {
+
+  gps_track_history_share_link_notification_id: string;
+
+  // Primary Fields
+  notification_channels: NotificationChannel[];
+  mobile_numbers?: string;
+  email_ids?: string;
+  cc_email_ids?: string;
+
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
@@ -77,123 +90,119 @@ export interface GPSTrackHistoryShareLinkNotification
 
   gps_track_history_share_link_id: string;
   GPSTrackHistoryShareLink?: GPSTrackHistoryShareLink;
+
+  // Relations - Child
+
+  // Count
+  _count?: {
+
+  };
 }
 
-// ✅ GPS Track History Share Link Notifications Create/Update Schema
-export const GPSTrackHistoryShareLinkNotificationsSchema = z.object({
-  organisation_id: single_select_optional('Organisation ID'),
+// ✅ GPSTrackHistoryShareLinkNotification Create/Update Schema
+export const GPSTrackHistoryShareLinkNotificationSchema = z.object({
+  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   gps_track_history_share_link_id: single_select_optional(
-    'GPS Track History Share Link ID'
+    'GPSTrackHistoryShareLink',
   ),
-  type: enumMandatory('Type', NotificationType, NotificationType.Email),
-  to_recipients: stringMandatory('To Recipients', 3, 500),
+  notification_channels: enumArrayMandatory(
+    'Notification Channels',
+    NotificationChannel,
+    getAllEnums(NotificationChannel),
+  ),
+  mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
+  email_ids: stringOptional('Email IDs', 0, 300),
+  cc_email_ids: stringOptional('CC email IDs', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type GPSTrackHistoryShareLinkNotificationsDTO = z.infer<
-  typeof GPSTrackHistoryShareLinkNotificationsSchema
+export type GPSTrackHistoryShareLinkNotificationDTO = z.infer<
+  typeof GPSTrackHistoryShareLinkNotificationSchema
 >;
 
-// ✅ GPS Track History Share Link Create/Update Schema
+// ✅ GPSTrackHistoryShareLink Create/Update Schema
 export const GPSTrackHistoryShareLinkSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation ID'),
-  vehicle_id: single_select_mandatory('MasterVehicle ID'),
-  trip_id: single_select_optional('Trip ID'),
+  organisation_id: single_select_mandatory('UserOrganisation'),
+  vehicle_id: single_select_mandatory('MasterVehicle'),
   from_date_time: stringMandatory('From Date Time'),
   to_date_time: stringMandatory('To Date Time'),
 
   link_status: enumMandatory(
     'Track History Link Status',
     TrackHistoryLinkStatus,
-    TrackHistoryLinkStatus.Active
+    TrackHistoryLinkStatus.Active,
   ),
   status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
-  notifications: nestedArrayOfObjectsOptional(
-    'Notifications',
-    GPSTrackHistoryShareLinkNotificationsSchema,
-    []
+  GPSTrackHistoryShareLinkNotification: nestedArrayOfObjectsOptional(
+    'GPSTrackHistoryShareLinkNotification',
+    GPSTrackHistoryShareLinkNotificationSchema,
+    [],
   ),
 });
 export type GPSTrackHistoryShareLinkDTO = z.infer<
   typeof GPSTrackHistoryShareLinkSchema
 >;
 
-// ✅ GPS Track History Share Link Query Schema
+// ✅ GPSTrackHistoryShareLink Query Schema
 export const GPSTrackHistoryShareLinkQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('User Organisation IDs'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle IDs'), // ✅ Multi-selection -> MasterVehicle
-  trip_ids: multi_select_optional('Trip IDs'), // ✅ Multi-selection -> Trip
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
   link_status: enumArrayOptional(
     'Track History Link Status',
     TrackHistoryLinkStatus,
-    getAllEnums(TrackHistoryLinkStatus)
+    getAllEnums(TrackHistoryLinkStatus),
   ),
+  gps_track_history_share_link_ids: multi_select_optional(
+    'GPSTrackHistoryShareLink',
+  ), // ✅ Multi-selection -> GPSTrackHistoryShareLink
 });
 
 export type GPSTrackHistoryShareLinkQueryDTO = z.infer<
   typeof GPSTrackHistoryShareLinkQuerySchema
 >;
 
-// 5. Payload Conversions
-export const toGPSTrackHistoryShareLinkPayload = (
-  link: GPSTrackHistoryShareLink
-): GPSTrackHistoryShareLinkDTO => ({
-  organisation_id: link.organisation_id,
-  vehicle_id: link.vehicle_id,
-  trip_id: link.trip_id ?? '',
-  from_date_time: link.from_date_time,
-  to_date_time: link.to_date_time,
-  link_status: link.link_status,
-  status: link.status,
-  notifications: [],
+// Convert existing data to a payload structure
+export const toGPSTrackHistoryShareLinkPayload = (data: GPSTrackHistoryShareLink): GPSTrackHistoryShareLinkDTO => ({
+  organisation_id: data.organisation_id,
+  vehicle_id: data.vehicle_id,
+  from_date_time: data.from_date_time,
+  to_date_time: data.to_date_time,
+  link_status: data.link_status,
+  status: data.status,
+  GPSTrackHistoryShareLinkNotification: [],
+  time_zone_id: '', // Needs to be provided manually
 });
 
-export const newGPSTrackHistoryShareLinkPayload =
-  (): GPSTrackHistoryShareLinkDTO => ({
-    organisation_id: '',
-    vehicle_id: '',
-    trip_id: '',
-    from_date_time: '',
-    to_date_time: '',
-    link_status: TrackHistoryLinkStatus.Active,
-    status: Status.Active,
-    notifications: [],
-  });
+// Generate a new payload with default values
+export const newGPSTrackHistoryShareLinkPayload = (): GPSTrackHistoryShareLinkDTO => ({
+  organisation_id: '',
+  vehicle_id: '',
+  from_date_time: '',
+  to_date_time: '',
+  link_status: TrackHistoryLinkStatus.Active,
+  status: Status.Active,
+  GPSTrackHistoryShareLinkNotification: [],
+  time_zone_id: '', // Needs to be provided manually
+});
 
-// 6. API Methods (CRUD)
-export const findGPSTrackHistoryShareLinks = async (
-  data: GPSTrackHistoryShareLinkQueryDTO
-): Promise<FBR<GPSTrackHistoryShareLink[]>> => {
-  return apiPost<
-    FBR<GPSTrackHistoryShareLink[]>,
-    GPSTrackHistoryShareLinkQueryDTO
-  >(ENDPOINTS.find, data);
+// API Methods
+export const findGPSTrackHistoryShareLink = async (data: GPSTrackHistoryShareLinkQueryDTO): Promise<FBR<GPSTrackHistoryShareLink[]>> => {
+  return apiPost<FBR<GPSTrackHistoryShareLink[]>, GPSTrackHistoryShareLinkQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createGPSTrackHistoryShareLink = async (
-  data: GPSTrackHistoryShareLinkDTO
-): Promise<SBR> => {
+export const createGPSTrackHistoryShareLink = async (data: GPSTrackHistoryShareLinkDTO): Promise<SBR> => {
   return apiPost<SBR, GPSTrackHistoryShareLinkDTO>(ENDPOINTS.create, data);
 };
 
-export const updateGPSTrackHistoryShareLink = async (
-  id: string,
-  data: GPSTrackHistoryShareLinkDTO
-): Promise<SBR> => {
+export const updateGPSTrackHistoryShareLink = async (id: string, data: GPSTrackHistoryShareLinkDTO): Promise<SBR> => {
   return apiPatch<SBR, GPSTrackHistoryShareLinkDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteGPSTrackHistoryShareLink = async (
-  id: string
-): Promise<SBR> => {
+export const deleteGPSTrackHistoryShareLink = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-export const createGPSTrackHistoryNotification = async (
-  data: GPSTrackHistoryShareLinkNotificationsDTO
-): Promise<SBR> => {
-  return apiPost<SBR, GPSTrackHistoryShareLinkNotificationsDTO>(
-    ENDPOINTS.createNotification,
-    data
-  );
+export const createGPSTrackHistoryShareLinkNotification = async (data: GPSTrackHistoryShareLinkNotificationDTO): Promise<SBR> => {
+  return apiPost<SBR, GPSTrackHistoryShareLinkNotificationDTO>(ENDPOINTS.create_notification, data);
 };

@@ -1,17 +1,15 @@
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from '../../core/apiCall';
+import { apiPost, apiPatch, apiDelete } from '../../core/apiCall';
 import { SBR, FBR, BaseCommionFile, BR, AWSPresignedUrl } from '../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
 import {
-  dynamicJsonSchema,
   enumArrayOptional,
   enumMandatory,
   getAllEnums,
   multi_select_optional,
   nestedArrayOfObjectsOptional,
-  numberOptional,
   single_select_mandatory,
   single_select_optional,
   stringMandatory,
@@ -20,7 +18,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../zod_utils/zod_base_schema';
 
 // Enums
-import { FileType, Status, TicketStatus } from '../../core/Enums';
+import { Status, TicketStatus } from '../../core/Enums';
 
 // Other Models
 import { User } from '../../services/main/users/user_service';
@@ -66,11 +64,11 @@ export interface Ticket extends Record<string, unknown> {
   UserAdmin?: UserAdmin;
 
   // Child Relations
-    TicketFile?: TicketFile[];
-  
+  TicketFile?: TicketFile[];
+
   // Optional Count
-    _count?: {
-      TicketFile?: number;
+  _count?: {
+    TicketFile?: number;
   };
 }
 
@@ -85,8 +83,6 @@ export interface TicketFile extends BaseCommionFile {
   // Organisation Id
   organisation_id: string;
 }
-
-
 
 // ✅ TicketFile Schema
 export const TicketFileSchema = BaseFileSchema.extend({
@@ -109,15 +105,13 @@ export const TicketSchema = z.object({
   user_id: single_select_mandatory('User'),
   admin_id: single_select_optional('User Admin'),
   TicketFile: nestedArrayOfObjectsOptional(
-    'TicketFileSchema',
+    'TicketFile',
     TicketFileSchema,
     []
   ),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type TicketDTO = z.infer<typeof TicketSchema>;
-
-
 
 // ✅ Ticket Query Schema
 export const TicketQuerySchema = BaseQuerySchema.extend({
@@ -177,9 +171,7 @@ export const newTicketPayload = (): TicketDTO => ({
 });
 
 // API Methods
-export const findTickets = async (
-  data: TicketQueryDTO
-): Promise<FBR<Ticket[]>> => {
+export const findTickets = async (data: TicketQueryDTO): Promise<FBR<Ticket[]>> => {
   return apiPost<FBR<Ticket[]>, TicketQueryDTO>(ENDPOINTS.find, data);
 };
 
@@ -187,10 +179,7 @@ export const createTicket = async (data: TicketDTO): Promise<SBR> => {
   return apiPost<SBR, TicketDTO>(ENDPOINTS.create, data);
 };
 
-export const updateTicket = async (
-  id: string,
-  data: TicketDTO
-): Promise<SBR> => {
+export const updateTicket = async (id: string, data: TicketDTO): Promise<SBR> => {
   return apiPatch<SBR, TicketDTO>(ENDPOINTS.update(id), data);
 };
 

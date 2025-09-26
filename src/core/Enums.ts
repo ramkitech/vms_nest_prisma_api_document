@@ -162,13 +162,6 @@ export enum DeviceType {
   Web = 'Web',
 }
 
-export enum NotificationType {
-  Whatsapp = 'Whatsapp',
-  Message = 'Message',
-  Email = 'Email',
-  Push = 'Push',
-}
-
 export enum ReportList {
   AllVehiclesFullAnalysisReport = 'AllVehiclesFullAnalysisReport',
   AllDriversPerformanceReport = 'AllDriversPerformanceReport',
@@ -183,6 +176,37 @@ export enum ReportList {
   FuelConsumptionReport = 'FuelConsumptionReport',
   FuelRefillReport = 'FuelRefillReport',
   FuelRemovalReport = 'FuelRemovalReport',
+}
+
+export enum NotificationList {
+  VehicleMoving = 'VehicleMoving',
+  VehicleStopped = 'VehicleStopped',
+  IgnitionOn = 'IgnitionOn',
+  IgnitionOff = 'IgnitionOff',
+  GeofenceEnter = 'GeofenceEnter',
+  GeofenceExit = 'GeofenceExit',
+  FuelSuddenIncrease = 'FuelSuddenIncrease',
+  FuelSuddenDecrease = 'FuelSuddenDecrease',
+  OverSpeed = 'OverSpeed',
+}
+
+export enum NotificationChannel {
+  Push = 'Push',
+  WhatsApp = 'WhatsApp',
+  SMS = 'SMS',
+  Email = 'Email',
+}
+
+export enum ReportChannel {
+  WhatsApp = 'WhatsApp',
+  SMS = 'SMS',
+  Email = 'Email',
+}
+
+export enum ReportType {
+  Daily = 'Daily',
+  Weekly = 'Weekly',
+  Monthly = 'Monthly',
 }
 
 export enum NotificationPreference {
@@ -200,12 +224,6 @@ export enum NotificationPreference {
   OverSpeed100 = 'OverSpeed100',
   OverSpeed110 = 'OverSpeed110',
   OverSpeed120 = 'OverSpeed120',
-}
-
-export enum ReportType {
-  Daily = 'Daily',
-  Weekly = 'Weekly',
-  Monthly = 'Monthly',
 }
 
 export enum GeofenceType {
