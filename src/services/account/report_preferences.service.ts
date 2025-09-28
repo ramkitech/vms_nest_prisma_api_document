@@ -235,7 +235,7 @@ export type OrganisationReportsPreferenceQueryDTO = z.infer<
 >;
 
 // Payload Conversions
-export const toOrganisationNotificationPreferencePayload = (data: OrganisationReportsPreference): OrganisationReportsPreferenceDTO => ({
+export const toOrganisationReportsPreferencePayload = (data: OrganisationReportsPreference): OrganisationReportsPreferenceDTO => ({
   organisation_id: data.organisation_id,
 
   report_name: data.report_name,
@@ -254,7 +254,7 @@ export const toOrganisationNotificationPreferencePayload = (data: OrganisationRe
   status: Status.Active,
 });
 
-export const newOrganisationNotificationPreferencePayload = (): OrganisationReportsPreferenceDTO => ({
+export const newOrganisationReportsPreferencePayload = (): OrganisationReportsPreferenceDTO => ({
   organisation_id: '',
   report_name: '',
   report_status: OnOff.On,
@@ -274,19 +274,19 @@ export const newOrganisationNotificationPreferencePayload = (): OrganisationRepo
 });
 
 // API Methods
-export const findOrganisationNotificationPreference = async (data: OrganisationReportsPreferenceQueryDTO): Promise<FBR<OrganisationReportsPreference[]>> => {
+export const findOrganisationReportsPreference = async (data: OrganisationReportsPreferenceQueryDTO): Promise<FBR<OrganisationReportsPreference[]>> => {
   return apiPost<FBR<OrganisationReportsPreference[]>, OrganisationReportsPreferenceQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createOrganisationNotificationPreference = async (data: OrganisationReportsPreferenceDTO): Promise<SBR> => {
+export const createOrganisationReportsPreference = async (data: OrganisationReportsPreferenceDTO): Promise<SBR> => {
   return apiPost<SBR, OrganisationReportsPreferenceDTO>(ENDPOINTS.create, data);
 };
 
-export const updateOrganisationNotificationPreference = async (id: string, data: OrganisationReportsPreferenceDTO): Promise<SBR> => {
+export const updateOrganisationReportsPreference = async (id: string, data: OrganisationReportsPreferenceDTO): Promise<SBR> => {
   return apiPatch<SBR, OrganisationReportsPreferenceDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteOrganisationNotificationPreference = async (id: string): Promise<SBR> => {
+export const deleteOrganisationReportsPreference = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
