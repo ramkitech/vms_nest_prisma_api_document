@@ -192,14 +192,14 @@ export enum NotificationList {
 
 export enum NotificationChannel {
   Push = 'Push',
-  WhatsApp = 'WhatsApp',
-  SMS = 'SMS',
+  // WhatsApp = 'WhatsApp',
+  // SMS = 'SMS',
   Email = 'Email',
 }
 
 export enum ReportChannel {
-  WhatsApp = 'WhatsApp',
-  SMS = 'SMS',
+  // WhatsApp = 'WhatsApp',
+  // SMS = 'SMS',
   Email = 'Email',
 }
 

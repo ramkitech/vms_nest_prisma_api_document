@@ -140,7 +140,7 @@ export const CreateUserSchema = z.object({
   mobile: stringOptional('Mobile', 0, 20),
   password: stringOptional('Password', 0, 20),
 
-  can_login: enumMandatory('Can Login', YesNo, YesNo.No),
+  can_login: enumMandatory('Can Login', YesNo, YesNo.Yes),
   is_root_user: enumMandatory('Is Root User', YesNo, YesNo.No),
   all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.No),
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
