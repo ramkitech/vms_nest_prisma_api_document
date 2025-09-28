@@ -35,8 +35,8 @@ const ENDPOINTS = {
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// OrganisationReportsPreference Interface
-export interface OrganisationReportsPreference extends Record<string, unknown> {
+// OrganisationReportPreference Interface
+export interface OrganisationReportPreference extends Record<string, unknown> {
   report_preference_id: string;
 
   report_name: string;
@@ -61,19 +61,19 @@ export interface OrganisationReportsPreference extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  OrganisationReportsPreferenceVehicleLink: OrganisationReportsPreferenceVehicleLink[]
-  OrganisationReportsAutomationMail: OrganisationReportsAutomationMail[]
+  OrganisationReportPreferenceVehicleLink: OrganisationReportPreferenceVehicleLink[]
+  OrganisationReportAutomationMail: OrganisationReportAutomationMail[]
 
   // Count
   _count?: {
-    OrganisationReportsPreferenceVehicleLink: number;
-    OrganisationReportsAutomationMail: number;
+    OrganisationReportPreferenceVehicleLink: number;
+    OrganisationReportAutomationMail: number;
   };
 
 }
 
-// OrganisationReportsPreferenceVehicleLink Interface
-export interface OrganisationReportsPreferenceVehicleLink extends Record<string, unknown> {
+// OrganisationReportPreferenceVehicleLink Interface
+export interface OrganisationReportPreferenceVehicleLink extends Record<string, unknown> {
 
   report_preference_vehicle_id: string;
 
@@ -89,15 +89,15 @@ export interface OrganisationReportsPreferenceVehicleLink extends Record<string,
   vehicle_type?: string;
 
   report_preference_id: string;
-  OrganisationReportsPreference?: OrganisationReportsPreference;
+  OrganisationReportPreference?: OrganisationReportPreference;
 
   // Relations - Child
 
   // Count
 }
 
-// OrganisationReportsAutomationMail Interface
-export interface OrganisationReportsAutomationMail extends Record<string, unknown> {
+// OrganisationReportAutomationMail Interface
+export interface OrganisationReportAutomationMail extends Record<string, unknown> {
 
   report_automation_mail_id: string;
 
@@ -119,19 +119,19 @@ export interface OrganisationReportsAutomationMail extends Record<string, unknow
   UserOrganisation?: UserOrganisation;
 
   report_preference_id: string;
-  OrganisationReportsPreference?: OrganisationReportsPreference;
+  OrganisationReportPreference?: OrganisationReportPreference;
 
   // Relations - Child
-  OrganisationReportsAutomationMailVehicleLink: OrganisationReportsAutomationMailVehicleLink[]
+  OrganisationReportAutomationMailVehicleLink: OrganisationReportAutomationMailVehicleLink[]
 
   // Count
   _count?: {
-    OrganisationReportsAutomationMailVehicleLink: number;
+    OrganisationReportAutomationMailVehicleLink: number;
   };
 }
 
-// OrganisationReportsAutomationMailVehicleLink Interface
-export interface OrganisationReportsAutomationMailVehicleLink extends Record<string, unknown> {
+// OrganisationReportAutomationMailVehicleLink Interface
+export interface OrganisationReportAutomationMailVehicleLink extends Record<string, unknown> {
 
   report_automation_mail_vehicle_id: string;
 
@@ -147,35 +147,35 @@ export interface OrganisationReportsAutomationMailVehicleLink extends Record<str
   vehicle_type?: string;
 
   automation_mail_id: string;
-  OrganisationReportsAutomationMail?: OrganisationReportsAutomationMail;
+  OrganisationReportAutomationMail?: OrganisationReportAutomationMail;
 
   // Relations - Child
 
   // Count
 }
 
-// ✅ OrganisationReportsAutomationMail Query Schema
-export const OrganisationReportsAutomationMailQuerySchema =
+// ✅ OrganisationReportAutomationMail Query Schema
+export const OrganisationReportAutomationMailQuerySchema =
   BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     report_preference_ids: multi_select_optional(
-      'OrganisationReportsPreference',
-    ), // ✅ Multi-Selection -> OrganisationReportsPreference
+      'OrganisationReportPreference',
+    ), // ✅ Multi-Selection -> OrganisationReportPreference
     report_automation_mail_ids: multi_select_optional(
-      'OrganisationReportsAutomationMail',
-    ), // ✅ Multi-Selection -> OrganisationReportsAutomationMail
+      'OrganisationReportAutomationMail',
+    ), // ✅ Multi-Selection -> OrganisationReportAutomationMail
     report_type: enumArrayOptional(
       'Report Type',
       ReportType,
       getAllEnums(ReportType),
     ),
   });
-export type OrganisationReportsAutomationMailQueryDTO = z.infer<
-  typeof OrganisationReportsAutomationMailQuerySchema
+export type OrganisationReportAutomationMailQueryDTO = z.infer<
+  typeof OrganisationReportAutomationMailQuerySchema
 >;
 
-// ✅ OrganisationReportsPreference Create/Update Schema
-export const OrganisationReportsPreferenceSchema = z.object({
+// ✅ OrganisationReportPreference Create/Update Schema
+export const OrganisationReportPreferenceSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
 
   report_name: stringMandatory('Report Name', 3, 100),
@@ -205,14 +205,14 @@ export const OrganisationReportsPreferenceSchema = z.object({
 
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type OrganisationReportsPreferenceDTO = z.infer<
-  typeof OrganisationReportsPreferenceSchema
+export type OrganisationReportPreferenceDTO = z.infer<
+  typeof OrganisationReportPreferenceSchema
 >;
 
-// ✅ OrganisationReportsPreference Query Schema
-export const OrganisationReportsPreferenceQuerySchema = BaseQuerySchema.extend({
+// ✅ OrganisationReportPreference Query Schema
+export const OrganisationReportPreferenceQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  report_preference_ids: multi_select_optional('OrganisationReportsPreference'), // ✅ Multi-Selection -> OrganisationReportsPreference
+  report_preference_ids: multi_select_optional('OrganisationReportPreference'), // ✅ Multi-Selection -> OrganisationReportPreference
   report_status: enumArrayOptional('Report Status', OnOff, getAllEnums(OnOff)),
   report_types: enumArrayOptional(
     'Report Type',
@@ -230,12 +230,12 @@ export const OrganisationReportsPreferenceQuerySchema = BaseQuerySchema.extend({
     getAllEnums(ReportChannel),
   ),
 });
-export type OrganisationReportsPreferenceQueryDTO = z.infer<
-  typeof OrganisationReportsPreferenceQuerySchema
+export type OrganisationReportPreferenceQueryDTO = z.infer<
+  typeof OrganisationReportPreferenceQuerySchema
 >;
 
 // Payload Conversions
-export const toOrganisationReportsPreferencePayload = (data: OrganisationReportsPreference): OrganisationReportsPreferenceDTO => ({
+export const toOrganisationReportPreferencePayload = (data: OrganisationReportPreference): OrganisationReportPreferenceDTO => ({
   organisation_id: data.organisation_id,
 
   report_name: data.report_name,
@@ -249,12 +249,12 @@ export const toOrganisationReportsPreferencePayload = (data: OrganisationReports
   cc_email_ids: data.cc_email_ids || '',
   all_vehicles: data.all_vehicles,
 
-  vehicle_ids: data.OrganisationReportsPreferenceVehicleLink?.map((v) => v.vehicle_id) ?? [],
+  vehicle_ids: data.OrganisationReportPreferenceVehicleLink?.map((v) => v.vehicle_id) ?? [],
 
   status: Status.Active,
 });
 
-export const newOrganisationReportsPreferencePayload = (): OrganisationReportsPreferenceDTO => ({
+export const newOrganisationReportPreferencePayload = (): OrganisationReportPreferenceDTO => ({
   organisation_id: '',
   report_name: '',
   report_status: OnOff.On,
@@ -274,22 +274,22 @@ export const newOrganisationReportsPreferencePayload = (): OrganisationReportsPr
 });
 
 // API Methods
-export const findOrganisationReportsPreference = async (data: OrganisationReportsPreferenceQueryDTO): Promise<FBR<OrganisationReportsPreference[]>> => {
-  return apiPost<FBR<OrganisationReportsPreference[]>, OrganisationReportsPreferenceQueryDTO>(ENDPOINTS.find, data);
+export const findOrganisationReportPreference = async (data: OrganisationReportPreferenceQueryDTO): Promise<FBR<OrganisationReportPreference[]>> => {
+  return apiPost<FBR<OrganisationReportPreference[]>, OrganisationReportPreferenceQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createOrganisationReportsPreference = async (data: OrganisationReportsPreferenceDTO): Promise<SBR> => {
-  return apiPost<SBR, OrganisationReportsPreferenceDTO>(ENDPOINTS.create, data);
+export const createOrganisationReportPreference = async (data: OrganisationReportPreferenceDTO): Promise<SBR> => {
+  return apiPost<SBR, OrganisationReportPreferenceDTO>(ENDPOINTS.create, data);
 };
 
-export const updateOrganisationReportsPreference = async (id: string, data: OrganisationReportsPreferenceDTO): Promise<SBR> => {
-  return apiPatch<SBR, OrganisationReportsPreferenceDTO>(ENDPOINTS.update(id), data);
+export const updateOrganisationReportPreference = async (id: string, data: OrganisationReportPreferenceDTO): Promise<SBR> => {
+  return apiPatch<SBR, OrganisationReportPreferenceDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteOrganisationReportsPreference = async (id: string): Promise<SBR> => {
+export const deleteOrganisationReportPreference = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-export const findUserReportsAutomationMail = async (data: OrganisationReportsAutomationMailQueryDTO): Promise<FBR<OrganisationReportsAutomationMail[]>> => {
-  return apiPost<FBR<OrganisationReportsAutomationMail[]>, OrganisationReportsAutomationMailQueryDTO>(ENDPOINTS.find_automation_mail, data);
+export const findUserReportAutomationMail = async (data: OrganisationReportAutomationMailQueryDTO): Promise<FBR<OrganisationReportAutomationMail[]>> => {
+  return apiPost<FBR<OrganisationReportAutomationMail[]>, OrganisationReportAutomationMailQueryDTO>(ENDPOINTS.find_automation_mail, data);
 };
