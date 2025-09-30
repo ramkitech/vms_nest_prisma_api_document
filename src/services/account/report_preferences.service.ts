@@ -111,6 +111,7 @@ export interface OrganisationReportAutomationMail extends Record<string, unknown
   date_f?: string;
 
   all_vehicles: YesNo;
+  vehicle_ids?: string[];
 
   // Metadata
   status: Status;
