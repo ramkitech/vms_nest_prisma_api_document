@@ -106,6 +106,9 @@ export interface OrganisationReportAutomationMail extends Record<string, unknown
   from_date?: string;
   to_date?: string;
   date?: string;
+  from_date_f?: string;
+  to_date_f?: string;
+  date_f?: string;
 
   all_vehicles: YesNo;
 
@@ -290,6 +293,6 @@ export const deleteOrganisationReportPreference = async (id: string): Promise<SB
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-export const findUserReportAutomationMail = async (data: OrganisationReportAutomationMailQueryDTO): Promise<FBR<OrganisationReportAutomationMail[]>> => {
+export const findOrganisationReportAutomationMail = async (data: OrganisationReportAutomationMailQueryDTO): Promise<FBR<OrganisationReportAutomationMail[]>> => {
   return apiPost<FBR<OrganisationReportAutomationMail[]>, OrganisationReportAutomationMailQueryDTO>(ENDPOINTS.find_automation_mail, data);
 };
