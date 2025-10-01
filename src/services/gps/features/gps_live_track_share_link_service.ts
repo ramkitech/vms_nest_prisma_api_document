@@ -46,16 +46,6 @@ export interface GPSLiveTrackShareLink extends Record<string, unknown> {
   // Primary Fields
   link_type: LinkType;
 
-  // Location Details
-  latitude?: number;
-  longitude?: number;
-  google_location?: string;
-
-  landmark_id?: string;
-  MasterMainLandmark?: MasterMainLandmark;
-  landmark_location?: string;
-  landmark_distance?: number;
-
   expiry_date_time: string;
   link_status: LinkStatus;
 
@@ -136,8 +126,6 @@ export const GPSLiveTrackShareLinkSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('Vehicle ID'),
 
-  link_type: enumMandatory('Link Type', LinkType, LinkType.CurrentLocation),
-
   expire_milliseconds: numberOptional('Expire Milliseconds'),
 
   link_status: enumMandatory('Link Status', LinkStatus, LinkStatus.Active),
@@ -173,7 +161,6 @@ export type GPSLiveTrackShareLinkStatusDTO = z.infer<
 export const GPSLiveTrackShareLinkQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
   vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  link_type: enumArrayOptional('Link Type', LinkType, getAllEnums(LinkType)),
   link_status: enumArrayOptional(
     'Link Status',
     LinkStatus,
@@ -189,7 +176,6 @@ export type GPSLiveTrackShareLinkQueryDTO = z.infer<
 export const toGPSLiveTrackShareLinkPayload = (data: GPSLiveTrackShareLink): GPSLiveTrackShareLinkDTO => ({
   organisation_id: data.organisation_id,
   vehicle_id: data.vehicle_id,
-  link_type: data.link_type,
   expire_milliseconds: 0,
   link_status: data.link_status,
   status: data.status,
@@ -200,7 +186,6 @@ export const toGPSLiveTrackShareLinkPayload = (data: GPSLiveTrackShareLink): GPS
 export const newGPSLiveTrackShareLinkPayload = (): GPSLiveTrackShareLinkDTO => ({
   organisation_id: '',
   vehicle_id: '',
-  link_type: LinkType.CurrentLocation,
   expire_milliseconds: 0,
   link_status: LinkStatus.Active,
   status: Status.Active,
