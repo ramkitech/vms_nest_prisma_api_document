@@ -20,12 +20,11 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, LinkStatus, LinkType, NotificationChannel, } from '../../../core/Enums';
+import { Status, LinkStatus, LinkType, ShareChannel, } from '../../../core/Enums';
 
 // Other Models
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { MasterMainLandmark } from 'src/services/master/main/master_main_landmark_service';
 
 const URL = 'gps/features/gps_live_track_share_link';
 
@@ -78,7 +77,7 @@ export interface GPSLiveTrackShareLinkNotification extends Record<string, unknow
   gps_live_track_share_link_notification_id: string;
 
   // Primary Fields
-  notification_channels: NotificationChannel[];
+  share_channels: ShareChannel[];
   mobile_numbers?: string;
   email_ids?: string;
   cc_email_ids?: string;
@@ -107,10 +106,10 @@ export interface GPSLiveTrackShareLinkNotification extends Record<string, unknow
 export const GPSLiveTrackShareLinkNotificationSchema = z.object({
   organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   gps_live_track_share_link_id: single_select_optional('GPSLiveTrackShareLink'),
-  notification_channels: enumArrayMandatory(
-    'Notification Channels',
-    NotificationChannel,
-    getAllEnums(NotificationChannel),
+  share_channels: enumArrayMandatory(
+    'Share Channels',
+    ShareChannel,
+    getAllEnums(ShareChannel),
   ),
   mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
   email_ids: stringOptional('Email IDs', 0, 300),

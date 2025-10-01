@@ -19,7 +19,7 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, TrackHistoryLinkStatus, NotificationChannel } from '../../../core/Enums';
+import { Status, TrackHistoryLinkStatus, ShareChannel } from '../../../core/Enums';
 
 // Other Models
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
@@ -74,7 +74,7 @@ export interface GPSTrackHistoryShareLinkNotification extends Record<string, unk
   gps_track_history_share_link_notification_id: string;
 
   // Primary Fields
-  notification_channels: NotificationChannel[];
+  share_channels: ShareChannel[];
   mobile_numbers?: string;
   email_ids?: string;
   cc_email_ids?: string;
@@ -105,10 +105,10 @@ export const GPSTrackHistoryShareLinkNotificationSchema = z.object({
   gps_track_history_share_link_id: single_select_optional(
     'GPSTrackHistoryShareLink',
   ),
-  notification_channels: enumArrayMandatory(
-    'Notification Channels',
-    NotificationChannel,
-    getAllEnums(NotificationChannel),
+  share_channels: enumArrayMandatory(
+    'Share Channels',
+    ShareChannel,
+    getAllEnums(ShareChannel),
   ),
   mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
   email_ids: stringOptional('Email IDs', 0, 300),

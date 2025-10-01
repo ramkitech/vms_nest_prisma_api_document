@@ -190,6 +190,12 @@ export enum NotificationList {
   OverSpeed = 'OverSpeed',
 }
 
+export enum ShareChannel {
+  // WhatsApp = 'WhatsApp',
+  // SMS = 'SMS',
+  Email = 'Email',
+}
+
 export enum NotificationChannel {
   Push = 'Push',
   // WhatsApp = 'WhatsApp',
