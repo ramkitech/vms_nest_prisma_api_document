@@ -1,6 +1,6 @@
 // Axios
 import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -194,8 +194,8 @@ export const findGPSTrackHistoryShareLink = async (data: GPSTrackHistoryShareLin
   return apiPost<FBR<GPSTrackHistoryShareLink[]>, GPSTrackHistoryShareLinkQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createGPSTrackHistoryShareLink = async (data: GPSTrackHistoryShareLinkDTO): Promise<SBR> => {
-  return apiPost<SBR, GPSTrackHistoryShareLinkDTO>(ENDPOINTS.create, data);
+export const createGPSTrackHistoryShareLink = async (data: GPSTrackHistoryShareLinkDTO): Promise<BR<GPSTrackHistoryShareLink>> => {
+  return apiPost<BR<GPSTrackHistoryShareLink>, GPSTrackHistoryShareLinkDTO>(ENDPOINTS.create, data);
 };
 
 export const updateTrackHistoryLinkStatus = async (id: string, data: GPSTrackHistoryShareLinkUpdateLinkStatusDTO): Promise<SBR> => {
