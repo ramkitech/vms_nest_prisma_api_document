@@ -12,7 +12,6 @@ import {
   single_select_mandatory,
   multi_select_optional,
   getAllEnums,
-  nestedArrayOfObjectsOptional,
   stringOptional,
   enumArrayMandatory,
 } from '../../../zod_utils/zod_utils';
@@ -31,7 +30,7 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create_notification: `${URL}/create_notification`,
   create: URL,
-  update: (id: string): string => `${URL}/${id}`,
+  update_track_history_link_status: (id: string): string => `${URL}/update_track_history_link_status/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 };
 
@@ -133,15 +132,21 @@ export const GPSTrackHistoryShareLinkSchema = z.object({
   ),
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
-
-  GPSTrackHistoryShareLinkNotification: nestedArrayOfObjectsOptional(
-    'GPSTrackHistoryShareLinkNotification',
-    GPSTrackHistoryShareLinkNotificationSchema,
-    [],
-  ),
 });
 export type GPSTrackHistoryShareLinkDTO = z.infer<
   typeof GPSTrackHistoryShareLinkSchema
+>;
+
+// ✅ GPSTrackHistoryShareLink Update Link Status Schema
+export const GPSTrackHistoryShareLinkUpdateLinkStatusSchema = z.object({
+  link_status: enumMandatory(
+    'Track History Link Status',
+    TrackHistoryLinkStatus,
+    TrackHistoryLinkStatus.Active,
+  ),
+});
+export type GPSTrackHistoryShareLinkUpdateLinkStatusDTO = z.infer<
+  typeof GPSTrackHistoryShareLinkUpdateLinkStatusSchema
 >;
 
 // ✅ GPSTrackHistoryShareLink Query Schema
@@ -170,7 +175,6 @@ export const toGPSTrackHistoryShareLinkPayload = (data: GPSTrackHistoryShareLink
   to_date_time: data.to_date_time,
   link_status: data.link_status,
   status: data.status,
-  GPSTrackHistoryShareLinkNotification: [],
   time_zone_id: '', // Needs to be provided manually
 });
 
@@ -182,7 +186,6 @@ export const newGPSTrackHistoryShareLinkPayload = (): GPSTrackHistoryShareLinkDT
   to_date_time: '',
   link_status: TrackHistoryLinkStatus.Active,
   status: Status.Active,
-  GPSTrackHistoryShareLinkNotification: [],
   time_zone_id: '', // Needs to be provided manually
 });
 
@@ -195,8 +198,8 @@ export const createGPSTrackHistoryShareLink = async (data: GPSTrackHistoryShareL
   return apiPost<SBR, GPSTrackHistoryShareLinkDTO>(ENDPOINTS.create, data);
 };
 
-export const updateGPSTrackHistoryShareLink = async (id: string, data: GPSTrackHistoryShareLinkDTO): Promise<SBR> => {
-  return apiPatch<SBR, GPSTrackHistoryShareLinkDTO>(ENDPOINTS.update(id), data);
+export const update_track_history_link_status = async (id: string, data: GPSTrackHistoryShareLinkUpdateLinkStatusDTO): Promise<SBR> => {
+  return apiPatch<SBR, GPSTrackHistoryShareLinkUpdateLinkStatusDTO>(ENDPOINTS.update_track_history_link_status(id), data);
 };
 
 export const deleteGPSTrackHistoryShareLink = async (id: string): Promise<SBR> => {

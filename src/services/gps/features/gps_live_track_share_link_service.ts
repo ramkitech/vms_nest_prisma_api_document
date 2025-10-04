@@ -1,6 +1,6 @@
 // Axios
 import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -14,7 +14,6 @@ import {
   numberOptional,
   numberMandatory,
   getAllEnums,
-  nestedArrayOfObjectsOptional,
   enumArrayMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
@@ -105,7 +104,7 @@ export interface GPSLiveTrackShareLinkNotification extends Record<string, unknow
 // ✅ GPSLiveTrackShareLinkNotification Create/Update Schema
 export const GPSLiveTrackShareLinkNotificationSchema = z.object({
   organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  gps_live_track_share_link_id: single_select_optional('GPSLiveTrackShareLink'),
+  gps_live_track_share_link_id: single_select_optional('GPSLiveTrackShareLink'), // ✅ Single-Selection -> GPSLiveTrackShareLink
   share_channels: enumArrayMandatory(
     'Share Channels',
     ShareChannel,
@@ -129,31 +128,25 @@ export const GPSLiveTrackShareLinkSchema = z.object({
 
   link_status: enumMandatory('Link Status', LinkStatus, LinkStatus.Active),
   status: enumMandatory('Status', Status, Status.Active),
-
-  GPSLiveTrackShareLinkNotification: nestedArrayOfObjectsOptional(
-    'GPSLiveTrackShareLinkNotification',
-    GPSLiveTrackShareLinkNotificationSchema,
-    [],
-  ),
 });
 export type GPSLiveTrackShareLinkDTO = z.infer<
   typeof GPSLiveTrackShareLinkSchema
 >;
 
 // ✅ GPSLiveTrackShareLink Update Time Schema
-export const GPSLiveTrackShareLinkTimeSchema = z.object({
+export const GPSLiveTrackShareLinkUpdateExpiryTimeSchema = z.object({
   expire_milliseconds: numberMandatory('Expire Milliseconds'),
 });
-export type GPSLiveTrackShareLinkTimeDTO = z.infer<
-  typeof GPSLiveTrackShareLinkTimeSchema
+export type GPSLiveTrackShareLinkUpdateExpiryTimeDTO = z.infer<
+  typeof GPSLiveTrackShareLinkUpdateExpiryTimeSchema
 >;
 
-// ✅ GPSLiveTrackShareLinkk Update Link Status Schema
-export const GPSLiveTrackShareLinkStatusSchema = z.object({
+// ✅ GPSLiveTrackShareLink Update Link Status Schema
+export const GPSLiveTrackShareLinkUpdateLinkStatusSchema = z.object({
   link_status: enumMandatory('Link Status', LinkStatus, LinkStatus.Active),
 });
-export type GPSLiveTrackShareLinkStatusDTO = z.infer<
-  typeof GPSLiveTrackShareLinkStatusSchema
+export type GPSLiveTrackShareLinkUpdateLinkStatusDTO = z.infer<
+  typeof GPSLiveTrackShareLinkUpdateLinkStatusSchema
 >;
 
 // ✅ GPSLiveTrackShareLink Query Schema
@@ -178,7 +171,6 @@ export const toGPSLiveTrackShareLinkPayload = (data: GPSLiveTrackShareLink): GPS
   expire_milliseconds: 0,
   link_status: data.link_status,
   status: data.status,
-  GPSLiveTrackShareLinkNotification: [],
 });
 
 // Generate a new payload with default values
@@ -188,7 +180,6 @@ export const newGPSLiveTrackShareLinkPayload = (): GPSLiveTrackShareLinkDTO => (
   expire_milliseconds: 0,
   link_status: LinkStatus.Active,
   status: Status.Active,
-  GPSLiveTrackShareLinkNotification: [],
 });
 
 // API Methods
@@ -196,16 +187,16 @@ export const findGPSLiveTrackShareLink = async (data: GPSLiveTrackShareLinkQuery
   return apiPost<FBR<GPSLiveTrackShareLink[]>, GPSLiveTrackShareLinkQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createGPSLiveTrackShareLink = async (data: GPSLiveTrackShareLinkDTO): Promise<SBR> => {
-  return apiPost<SBR, GPSLiveTrackShareLinkDTO>(ENDPOINTS.create, data);
+export const createGPSLiveTrackShareLink = async (data: GPSLiveTrackShareLinkDTO): Promise<BR<GPSLiveTrackShareLink>> => {
+  return apiPost<BR<GPSLiveTrackShareLink>, GPSLiveTrackShareLinkDTO>(ENDPOINTS.create, data);
 };
 
-export const extendGPSLiveTrackLinkTime = async (id: string, data: GPSLiveTrackShareLinkTimeDTO): Promise<SBR> => {
-  return apiPatch<SBR, GPSLiveTrackShareLinkTimeDTO>(ENDPOINTS.extend_live_track_link_time(id), data);
+export const extendGPSLiveTrackLinkTime = async (id: string, data: GPSLiveTrackShareLinkUpdateExpiryTimeDTO): Promise<SBR> => {
+  return apiPatch<SBR, GPSLiveTrackShareLinkUpdateExpiryTimeDTO>(ENDPOINTS.extend_live_track_link_time(id), data);
 };
 
-export const updateGPSLiveTrackLinkStatus = async (id: string, data: GPSLiveTrackShareLinkStatusDTO): Promise<SBR> => {
-  return apiPatch<SBR, GPSLiveTrackShareLinkStatusDTO>(ENDPOINTS.update_live_track_link_status(id), data);
+export const updateGPSLiveTrackLinkStatus = async (id: string, data: GPSLiveTrackShareLinkUpdateLinkStatusDTO): Promise<SBR> => {
+  return apiPatch<SBR, GPSLiveTrackShareLinkUpdateLinkStatusDTO>(ENDPOINTS.update_live_track_link_status(id), data);
 };
 
 export const deleteGPSLiveTrackShareLink = async (id: string): Promise<SBR> => {
