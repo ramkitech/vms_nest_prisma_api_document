@@ -198,7 +198,7 @@ export const createGPSTrackHistoryShareLink = async (data: GPSTrackHistoryShareL
   return apiPost<SBR, GPSTrackHistoryShareLinkDTO>(ENDPOINTS.create, data);
 };
 
-export const update_track_history_link_status = async (id: string, data: GPSTrackHistoryShareLinkUpdateLinkStatusDTO): Promise<SBR> => {
+export const updateTrackHistoryLinkStatus = async (id: string, data: GPSTrackHistoryShareLinkUpdateLinkStatusDTO): Promise<SBR> => {
   return apiPatch<SBR, GPSTrackHistoryShareLinkUpdateLinkStatusDTO>(ENDPOINTS.update_track_history_link_status(id), data);
 };
 
