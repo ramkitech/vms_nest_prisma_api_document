@@ -98,7 +98,7 @@ export const stringArrayOptional = (
 export const numberMandatory = (
   fieldName: string,
   min: number = 1,
-  max: number = 1000000000,
+  max: number = 100000000000000,
   defaultValue: number = 0
 ) => {
   return z.preprocess(
@@ -117,7 +117,7 @@ export const numberMandatory = (
 export const numberOptional = (
   fieldName: string,
   min: number = 0,
-  max: number = 1000000000000,
+  max: number = 100000000000000,
   defaultValue: number = 0
 ) => {
   return z.preprocess(
