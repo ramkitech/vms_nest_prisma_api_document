@@ -615,16 +615,31 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
 
   // Kilometer Analytics
   km_last_24?: number;
-  t_s_last_24_moving?: number;
-  t_s_last_24_ignition?: number;
-  t_s_last_24_moving_f?: string;
-  t_s_last_24_ignition_f?: string;
+  t_s_last_24_moving_on?: number;
+  t_s_last_24_moving_off?: number;
+  t_s_last_24_ignition_on?: number;
+  t_s_last_24_ignition_off?: number;
+  max_speed_last_24?: number;
+  avg_speed_last_24?: number;
+
+  t_s_last_24_moving_on_f?: string;
+  t_s_last_24_moving_off_f?: string;
+  t_s_last_24_ignition_on_f?: string;
+  t_s_last_24_ignition_off_f?: string;
 
   km_today?: number;
-  t_s_today_moving?: number;
-  t_s_today_ignition?: number;
-  t_s_today_moving_f?: string;
-  t_s_today_ignition_f?: string;
+  t_s_today_moving_on?: number;
+  t_s_today_moving_off?: number;
+  t_s_today_ignition_on?: number;
+  t_s_today_ignition_off?: number;
+  max_speed_today?: number;
+  avg_speed_today?: number;
+
+  t_s_today_moving_on_f?: string;
+  t_s_today_moving_off_f?: string;
+  t_s_today_ignition_on_f?: string;
+  t_s_today_ignition_off_f?: string;
+
   km_this_week_sunday?: number;
   km_this_week_monday?: number;
   km_this_month?: number;
@@ -690,7 +705,7 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
 
 // ✅ Vehicle Create/Update Schema
 export const VehicleSchema = z.object({
-  
+
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_number: stringMandatory('Vehicle Number', 2, 50),
   vehicle_name: stringOptional('Vehicle Name', 0, 50),
