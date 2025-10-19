@@ -40,9 +40,7 @@ export const LoginUserSchema = z.object({
   identifier: stringMandatory('Identifier', 3, 100),
   password: stringMandatory('Password', 3, 20),
 
-  endpoint: stringOptional('endpoint', 0, 10000),
-  p256dh: stringOptional('p256dh', 0, 255),
-  auth: stringOptional('auth', 0, 255),
+  fcm_token: stringOptional('fcm_token', 0, 10000),
 
   platform: enumOptional('Login From', LoginFrom, LoginFrom.Web),
 
@@ -61,8 +59,8 @@ export const LoginUserSchema = z.object({
 export type LoginUserDTO = z.infer<typeof LoginUserSchema>;
 
 export const LogoutSchema = z.object({
-  endpoint: z.string().optional(),
-  device_id: z.string().optional(),
+  fcm_token: stringOptional('fcm_token', 0, 10000),
+  device_id: stringOptional('device_id', 0, 120),
 });
 export type LogoutDTO = z.infer<typeof LogoutSchema>;
 
