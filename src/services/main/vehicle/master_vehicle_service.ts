@@ -497,6 +497,7 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   fuel?: YesNo;
   fuel_bluetooth?: YesNo;
   fuel_tank_size?: number;
+  over_speed_kmph?: number;
   gps_lock_relay?: YesNo;
   gps_door_locker?: YesNo;
   door_sensor?: YesNo;
@@ -834,6 +835,12 @@ export type VehicleDetailBodyDTO = z.infer<typeof VehicleDetailBodySchema>;
 
 // ✅ Vehicle Detail GPS Main Schema
 export const VehicleDetailGPSMainSchema = z.object({
+  temperature: enumOptional('Temperature', YesNo, YesNo.No),
+  duel_temperature: enumOptional('Dual Temperature', YesNo, YesNo.No),
+  fuel: enumOptional('Fuel', YesNo, YesNo.No),
+  fuel_bluetooth: enumOptional('Fuel Bluetooth', YesNo, YesNo.No),
+  fuel_tank_size: numberOptional('Fuel Tank Size'),
+  over_speed_kmph: numberOptional('Over Speed KMPH'),
   gps_lock_relay: enumOptional('GPS Lock Relay', YesNo, YesNo.No),
   gps_door_locker: enumOptional('GPS Door Locker', YesNo, YesNo.No),
   door_sensor: enumOptional('Door Sensor', YesNo, YesNo.No),
@@ -1182,6 +1189,12 @@ export const newVehiclePayload = (): VehicleDTO => ({
 export const toVehicleDetailsGPSPayload = (
   vehicleGPS?: VehicleDetailGPS
 ): VehicleDetailGPSMainDTO => ({
+  temperature: vehicleGPS?.temperature ?? YesNo.No,
+  duel_temperature: vehicleGPS?.duel_temperature ?? YesNo.No,
+  fuel: vehicleGPS?.fuel ?? YesNo.No,
+  fuel_bluetooth: vehicleGPS?.fuel_bluetooth ?? YesNo.No,
+  fuel_tank_size: vehicleGPS?.fuel_tank_size ?? 0,
+  over_speed_kmph: vehicleGPS?.over_speed_kmph ?? 0,
   gps_lock_relay: vehicleGPS?.gps_lock_relay ?? YesNo.No,
   gps_door_locker: vehicleGPS?.gps_door_locker ?? YesNo.No,
   door_sensor: vehicleGPS?.door_sensor ?? YesNo.No,
@@ -1191,6 +1204,7 @@ export const toVehicleDetailsGPSPayload = (
   is_front_cam: vehicleGPS?.is_front_cam ?? YesNo.No,
   camera_extra_count: vehicleGPS?.camera_extra_count ?? 0,
   status: vehicleGPS ? vehicleGPS?.status : Status.Active,
+
 });
 
 // ✅ Convert Vehicle Detail Body Data to API Payload
