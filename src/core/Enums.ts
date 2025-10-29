@@ -813,3 +813,26 @@ export enum BusStopType {
   BranchGate = 'BranchGate',
   ParkingStop = 'ParkingStop',
 }
+
+export enum EnrollmentStatus {
+  Active = 'Active',
+  Inactive = 'Inactive',
+}
+
+export enum TransportPlanType {
+  Both = 'Both',
+  PickupOnly = 'PickupOnly',
+  DropOnly = 'DropOnly',
+}
+
+export enum ApprovalStatus {
+  Pending = 'Pending',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
+}
+
+export enum StudentLeaveType {
+  FullDay = 'FullDay',
+  PickupOnly = 'PickupOnly',
+  DropOnly = 'DropOnly',
+}
