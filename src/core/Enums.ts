@@ -799,3 +799,17 @@ export enum PaymentMode {
   BankTransfer = 'BankTransfer',
   Other = 'Other',
 }
+
+
+export enum BusLeg {
+  Pickup = 'Pickup',
+  Drop = 'Drop'
+}
+
+
+export enum BusStopType {
+  FixedStop = 'FixedStop',
+  HomeStop = 'HomeStop',
+  BranchGate = 'BranchGate',
+  ParkingStop = 'ParkingStop',
+}
