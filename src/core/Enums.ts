@@ -836,3 +836,8 @@ export enum StudentLeaveType {
   PickupOnly = 'PickupOnly',
   DropOnly = 'DropOnly',
 }
+
+export enum HolidayType {
+  FullDay = 'FullDay',
+  HalfDay = 'HalfDay',
+}
