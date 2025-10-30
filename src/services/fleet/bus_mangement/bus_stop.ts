@@ -17,6 +17,7 @@ import {
   doubleMandatoryLatLng,
   nestedArrayOfObjectsOptional,
   numberOptional,
+  getAllEnums,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -30,16 +31,13 @@ import { OrganisationBranch } from 'src/services/master/organisation/organisatio
 // --------------------------------------------------------------
 // URL & ENDPOINTS
 // --------------------------------------------------------------
-const URL = 'master/bus/stop';
+const URL = 'bus_stop';
 
 const ENDPOINTS = {
-  find: `${URL}/search`,
   create: URL,
+  find: `${URL}/search`,
   update: (id: string): string => `${URL}/${id}`,
-  delete: (id: string): string => `${URL}/${id}`,
-  cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cache_count: (organisation_id: string): string =>
-    `${URL}/cache_count/${organisation_id}`,
+  remove: (id: string): string => `${URL}/${id}`,
 };
 
 // --------------------------------------------------------------
@@ -91,7 +89,7 @@ export interface BusStop extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations
-  organisation_id?: string;
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   organisation_branch_id?: string;
@@ -105,17 +103,17 @@ export interface BusStop extends Record<string, unknown> {
 // Zod Schemas
 // --------------------------------------------------------------
 
-// ✅ Polygon Data Schema
+// ✅ BusStop Polygon Data Create/Update Schema
 export const BusStopPolygonDataSchema = z.object({
-  latitude: doubleMandatoryLatLng('Latitude'),
-  longitude: doubleMandatoryLatLng('Longitude'),
+  latitude: doubleMandatoryLatLng('latitude'),
+  longitude: doubleMandatoryLatLng('longitude'),
 });
 export type BusStopPolygonDataDTO = z.infer<typeof BusStopPolygonDataSchema>;
 
-// ✅ Create/Update Schema
+// ✅ BusStop Create/Update Schema
 export const BusStopSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'),
-  organisation_branch_id: single_select_optional('OrganisationBranch'),
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
 
   stop_name: stringMandatory('Stop Name', 3, 120),
   stop_code: stringOptional('Stop Code', 0, 50),
@@ -136,27 +134,44 @@ export const BusStopSchema = z.object({
 
   google_location: stringOptional('Google Location', 0, 500),
 
-  geofence_type: enumMandatory('Geofence Type', GeofenceType, GeofenceType.Circle),
+  geofence_type: enumMandatory(
+    'Geofence Type',
+    GeofenceType,
+    GeofenceType.Circle,
+  ),
   stop_latitude: doubleOptionalLatLng('Stop Latitude'),
   stop_longitude: doubleOptionalLatLng('Stop Longitude'),
   radius_meters: doubleOptional('Radius Meters'),
   radius_km: doubleOptional('Radius KM'),
-  polygon_data: nestedArrayOfObjectsOptional('Polygon Data', BusStopPolygonDataSchema, []),
+  polygon_data: nestedArrayOfObjectsOptional(
+    'Polygon Data',
+    BusStopPolygonDataSchema,
+    [],
+  ),
 
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type BusStopDTO = z.infer<typeof BusStopSchema>;
 
-// ✅ Query Schema
+// ✅ BusStop Query Schema
 export const BusStopQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'),
-  organisation_branch_ids: multi_select_optional('OrganisationBranch'),
-  bus_stop_ids: multi_select_optional('BusStop'),
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
+  bus_stop_ids: multi_select_optional('BusStop'), // ✅ Multi-selection -> BusStop
 
-  stop_type: enumArrayOptional('Stop Type', BusStopType, Object.values(BusStopType)),
-  geofence_type: enumArrayOptional('Geofence Type', GeofenceType, Object.values(GeofenceType)),
+  stop_type: enumArrayOptional(
+    'Stop Type',
+    BusStopType,
+    getAllEnums(BusStopType),
+  ),
+  geofence_type: enumArrayOptional(
+    'Geofence Type',
+    GeofenceType,
+    getAllEnums(GeofenceType),
+  ),
 });
 export type BusStopQueryDTO = z.infer<typeof BusStopQuerySchema>;
+
 
 // --------------------------------------------------------------
 // Payload Helpers
@@ -164,7 +179,7 @@ export type BusStopQueryDTO = z.infer<typeof BusStopQuerySchema>;
 
 // Convert existing data to DTO
 export const toBusStopPayload = (row: BusStop): BusStopDTO => ({
-  organisation_id: row.organisation_id ?? '',
+  organisation_id: row.organisation_id,
   organisation_branch_id: row.organisation_branch_id ?? '',
   stop_name: row.stop_name,
   stop_code: row.stop_code || '',
@@ -236,14 +251,5 @@ export const updateBusStop = async (id: string, data: BusStopDTO): Promise<SBR> 
 };
 
 export const deleteBusStop = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-// Optional Cache APIs
-export const getBusStopCache = async (organisation_id: string): Promise<FBR<BusStop[]>> => {
-  return apiGet<FBR<BusStop[]>>(ENDPOINTS.cache(organisation_id));
-};
-
-export const getBusStopCacheCount = async (organisation_id: string): Promise<FBR<BusStop>> => {
-  return apiGet<FBR<BusStop>>(ENDPOINTS.cache_count(organisation_id));
+  return apiDelete<SBR>(ENDPOINTS.remove(id));
 };
