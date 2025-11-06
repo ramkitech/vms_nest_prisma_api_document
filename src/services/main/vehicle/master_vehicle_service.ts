@@ -103,6 +103,7 @@ const ENDPOINTS = {
   cache_simple: `${URL}/cache_simple/:organisation_id`,
   cache_parent: `${URL}/cache_parent/:organisation_id`,
   cache_dropdown: `${URL}/cache_dropdown/:organisation_id`,
+  cache_dropdown_live_data: `${URL}/cache_dropdown_live_data/:organisation_id`,
 };
 
 // 🚀 Vehicle Interface
@@ -1518,6 +1519,14 @@ export const getVehicleSimpleDropdownCustom = async (
 ): Promise<FBR<MasterVehicleDropdown[]>> => {
   return apiGet<FBR<MasterVehicleDropdown[]>>(
     ENDPOINTS.cache_dropdown.replace(':organisation_id', organisationId)
+  );
+};
+
+export const getVehicleSimpleDropdownCacheLiveData = async (
+  organisationId: string
+): Promise<FBR<MasterVehicleDropdown[]>> => {
+  return apiGet<FBR<MasterVehicleDropdown[]>>(
+    ENDPOINTS.cache_dropdown_live_data.replace(':organisation_id', organisationId)
   );
 };
 
