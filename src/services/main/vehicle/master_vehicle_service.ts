@@ -372,6 +372,12 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
   is_front_cam: YesNo;
   camera_extra_count: number;
 
+  vehicle_fuel_type_id: string;
+  vehicle_fuel_unit_id: string;
+
+  latitude: number;
+  longitude: number;
+
 }
 
 // 🚀 Vehicle Detail Body Interface
