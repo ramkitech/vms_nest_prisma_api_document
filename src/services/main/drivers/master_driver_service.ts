@@ -11,15 +11,21 @@ import {
   single_select_mandatory,
   multi_select_optional,
   enumArrayOptional,
+  single_select_optional,
+  getAllEnums,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo } from '../../../core/Enums';
+import { Status, YesNo, DriverType } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
+import { OrganisationSubCompany } from 'src/services/master/organisation/organisation_sub_company_service';
+import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
+import { OrganisationColor } from 'src/services/master/organisation/organisation_color_service';
+import { OrganisationTag } from 'src/services/master/organisation/organisation_tag_service';
 
 const URL = 'main/master_driver';
 
@@ -54,20 +60,27 @@ export interface MasterDriver extends Record<string, unknown> {
 
   password?: string; // Max: 20
   can_login: YesNo;
+  driver_type: DriverType;
 
   // ✅ Image Fields
   driver_image_url?: string;
   driver_image_key?: string;
+  driver_image_name?: string;
   driver_aadhaar_front_image_url?: string;
   driver_aadhaar_front_image_key?: string;
+  driver_aadhaar_front_image_name?: string;
   driver_aadhaar_back_image_url?: string;
   driver_aadhaar_back_image_key?: string;
+  driver_aadhaar_back_image_name?: string;
   driver_pan_image_url?: string;
   driver_pan_image_key?: string;
+  driver_pan_image_name?: string;
   driver_license_back_image_url?: string;
   driver_license_back_image_key?: string;
+  driver_license_back_image_name?: string;
   driver_license_front_image_url?: string;
   driver_license_front_image_key?: string;
+  driver_license_front_image_name?: string;
 
   // ✅ Metadata
   status: Status;
@@ -83,7 +96,19 @@ export interface MasterDriver extends Record<string, unknown> {
 
   // ✅ Relations - Organisation
   organisation_id: string;
-  UserOrganisation?: UserOrganisation;
+  UserOrganisation: UserOrganisation;
+
+  organisation_sub_company_id?: string;
+  OrganisationSubCompany?: OrganisationSubCompany;
+
+  organisation_branch_id?: string;
+  OrganisationBranch?: OrganisationBranch;
+
+  organisation_color_id?: string;
+  OrganisationColor?: OrganisationColor;
+
+  organisation_tag_id?: string;
+  OrganisationTag?: OrganisationTag;
 
   // ✅ Relations - Dummy
   Dummy_MasterVehicle?: MasterVehicle[];
@@ -158,7 +183,11 @@ export interface AssignRemoveDriverHistory extends Record<string, unknown> {
 
 // ✅ MasterDriver Create/Update Schema
 export const MasterDriverSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_sub_company_id: single_select_optional('OrganisationSubCompany'), // ✅ Single-Selection -> OrganisationSubCompany
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
+  organisation_color_id: single_select_optional('OrganisationColor'), // ✅ Single-Selection -> OrganisationColor
+  organisation_tag_id: single_select_optional('OrganisationTag'), // ✅ Single-Selection -> OrganisationTag
 
   driver_code: stringOptional('Driver Code', 0, 50),
   driver_first_name: stringMandatory('Driver First Name', 3, 100),
@@ -168,53 +197,76 @@ export const MasterDriverSchema = z.object({
   driver_license: stringOptional('Driver License', 0, 20),
   driver_pan: stringOptional('Driver PAN', 0, 10),
   driver_aadhaar: stringOptional('Driver Aadhaar', 0, 12),
-  password: stringOptional('Password', 0, 6),
 
+  password: stringOptional('Password', 0, 6),
   can_login: enumMandatory('Can Login', YesNo, YesNo.No),
+  driver_type: enumMandatory('Driver Type', DriverType, DriverType.Driver),
 
   driver_image_url: stringOptional('Driver Image URL', 0, 300),
   driver_image_key: stringOptional('Driver Image Key', 0, 300),
+  driver_image_name: stringOptional('Driver Image Name', 0, 300),
   driver_aadhaar_front_image_url: stringOptional(
     'Driver Aadhaar Front Image URL',
     0,
-    300
+    300,
   ),
   driver_aadhaar_front_image_key: stringOptional(
     'Driver Aadhaar Front Image Key',
     0,
-    300
+    300,
+  ),
+  driver_aadhaar_front_image_name: stringOptional(
+    'Driver Aadhaar Front Image Name',
+    0,
+    300,
   ),
   driver_aadhaar_back_image_url: stringOptional(
     'Driver Aadhaar Back Image URL',
     0,
-    300
+    300,
   ),
   driver_aadhaar_back_image_key: stringOptional(
     'Driver Aadhaar Back Image Key',
     0,
-    300
+    300,
+  ),
+  driver_aadhaar_back_image_name: stringOptional(
+    'Driver Aadhaar Back Image Name',
+    0,
+    300,
   ),
   driver_pan_image_url: stringOptional('Driver PAN Image URL', 0, 300),
   driver_pan_image_key: stringOptional('Driver PAN Image Key', 0, 300),
+  driver_pan_image_name: stringOptional('Driver PAN Image Name', 0, 300),
   driver_license_back_image_url: stringOptional(
     'Driver License Back Image URL',
     0,
-    300
+    300,
   ),
   driver_license_back_image_key: stringOptional(
     'Driver License Back Image Key',
     0,
-    300
+    300,
+  ),
+  driver_license_back_image_name: stringOptional(
+    'Driver License Back Image Name',
+    0,
+    300,
   ),
   driver_license_front_image_url: stringOptional(
     'Driver License Front Image URL',
     0,
-    300
+    300,
   ),
   driver_license_front_image_key: stringOptional(
     'Driver License Front Image Key',
     0,
-    300
+    300,
+  ),
+  driver_license_front_image_name: stringOptional(
+    'Driver License Front Image Name',
+    0,
+    300,
   ),
 
   status: enumMandatory('Status', Status, Status.Active),
@@ -223,11 +275,24 @@ export type MasterDriverDTO = z.infer<typeof MasterDriverSchema>;
 
 // ✅ MasterDriver Query Schema
 export const DriverQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation IDs', 100, []), // Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('Vehicle IDs', 100, []), // Multi-selection -> Vehicle
-  driver_ids: multi_select_optional('Driver IDs', 100, []), // Multi-selection -> MasterDriver
-  can_login: enumArrayOptional('Can Login', YesNo),
-  is_vehicle_assigned: enumArrayOptional('Iss Vehicle Sssigned', YesNo),
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // ✅ Multi-Selection -> OrganisationSubCompany
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-Selection -> OrganisationBranch
+  organisation_color_ids: multi_select_optional('OrganisationColor'), // ✅ Multi-Selection -> OrganisationColor
+  organisation_tag_ids: multi_select_optional('OrganisationTag'), // ✅ Multi-Selection -> OrganisationTag
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
+  can_login: enumArrayOptional('Can Login', YesNo, getAllEnums(YesNo)),
+  driver_type: enumArrayOptional(
+    'Driver Type',
+    DriverType,
+    getAllEnums(DriverType),
+  ),
+  is_vehicle_assigned: enumArrayOptional(
+    'Iss Vehicle Assigned',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
 });
 export type DriverQueryDTO = z.infer<typeof DriverQuerySchema>;
 
@@ -244,22 +309,33 @@ export const toDriverPayload = (driver?: MasterDriver): MasterDriverDTO => ({
 
   password: driver?.password || '',
   can_login: driver?.can_login || YesNo.No,
+  driver_type: driver?.driver_type || DriverType.Driver,
 
   driver_image_url: driver?.driver_image_url || '',
   driver_image_key: driver?.driver_image_key || '',
+  driver_image_name: driver?.driver_image_name || '',
   driver_aadhaar_front_image_url: driver?.driver_aadhaar_front_image_url || '',
   driver_aadhaar_front_image_key: driver?.driver_aadhaar_front_image_key || '',
+  driver_aadhaar_front_image_name: driver?.driver_aadhaar_front_image_name || '',
   driver_aadhaar_back_image_url: driver?.driver_aadhaar_back_image_url || '',
   driver_aadhaar_back_image_key: driver?.driver_aadhaar_back_image_key || '',
+  driver_aadhaar_back_image_name: driver?.driver_aadhaar_back_image_name || '',
   driver_pan_image_url: driver?.driver_pan_image_url || '',
   driver_pan_image_key: driver?.driver_pan_image_key || '',
+  driver_pan_image_name: driver?.driver_pan_image_name || '',
   driver_license_back_image_url: driver?.driver_license_back_image_url || '',
   driver_license_back_image_key: driver?.driver_license_back_image_key || '',
+  driver_license_back_image_name: driver?.driver_license_back_image_name || '',
   driver_license_front_image_url: driver?.driver_license_front_image_url || '',
   driver_license_front_image_key: driver?.driver_license_front_image_key || '',
+  driver_license_front_image_name: driver?.driver_license_front_image_name || '',
 
   status: driver?.status || Status.Active,
   organisation_id: driver?.organisation_id || '',
+  organisation_sub_company_id: driver?.organisation_sub_company_id || '',
+  organisation_branch_id: driver?.organisation_branch_id || '',
+  organisation_color_id: driver?.organisation_color_id || '',
+  organisation_tag_id: driver?.organisation_tag_id || '',
 });
 
 // ✅ Create New Driver Payload
@@ -275,22 +351,33 @@ export const newDriverPayload = (): MasterDriverDTO => ({
 
   password: '',
   can_login: YesNo.No,
+  driver_type: DriverType.Driver,
 
   driver_image_url: '',
   driver_image_key: '',
+  driver_image_name: '',
   driver_aadhaar_front_image_url: '',
   driver_aadhaar_front_image_key: '',
+  driver_aadhaar_front_image_name: '',
   driver_aadhaar_back_image_url: '',
   driver_aadhaar_back_image_key: '',
+  driver_aadhaar_back_image_name: '',
   driver_pan_image_url: '',
   driver_pan_image_key: '',
+  driver_pan_image_name: '',
   driver_license_back_image_url: '',
   driver_license_back_image_key: '',
+  driver_license_back_image_name: '',
   driver_license_front_image_url: '',
   driver_license_front_image_key: '',
+  driver_license_front_image_name: '',
 
   status: Status.Active,
   organisation_id: '',
+  organisation_sub_company_id: '',
+  organisation_branch_id: '',
+  organisation_color_id: '',
+  organisation_tag_id: '',
 });
 
 // API Methods

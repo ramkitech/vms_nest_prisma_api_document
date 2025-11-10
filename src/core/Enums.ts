@@ -841,3 +841,8 @@ export enum HolidayType {
   FullDay = 'FullDay',
   HalfDay = 'HalfDay',
 }
+
+export enum DriverType {
+  Driver = 'Driver',
+  Helper = 'Helper',
+}
