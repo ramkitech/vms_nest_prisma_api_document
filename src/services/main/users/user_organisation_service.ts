@@ -11,7 +11,8 @@ import {
   single_select_optional,
   multi_select_optional,
   enumMandatory,
-  doubleOptionalLatLng,
+  enumArrayOptional,
+  getAllEnums,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -83,54 +84,55 @@ const ENDPOINTS = {
   delete: (id: string): string => `${URL}/${id}`,
   cache: (): string => `${URL}/cache`,
   cache_simple: (): string => `${URL}/cache_simple`,
-  presignedUrl: (fileName: string): string =>
-    `${URL}/presigned_url/${fileName}`,
+  presignedUrl: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 };
 
 // UserOrganisation Interface
 export interface UserOrganisation extends Record<string, unknown> {
   // Primary Fields
   organisation_id: string;
-  organisation_name: string; // Min: 3, Max: 100
-  organisation_email: string; // Min: 3, Max: 100
-  organisation_mobile?: string; // Min: 0, Max: 20
+  organisation_name: string;
+  organisation_email?: string;
+  organisation_mobile?: string;
 
-  organisation_code?: string; // Min: 0, Max: 20
-  organisation_utrack_id?: string; // Min: 0, Max: 20
+  organisation_code?: string;
+  organisation_utrack_id?: string;
 
   fleet_size: FleetSize;
 
-  db_instance: string; // Min: 3, Max: 100
-  db_group: string; // Min: 3, Max: 100
+  db_instance: string;
+  db_group: string;
 
-  organisation_logo_url?: string; // Min: 0, Max: 300
-  organisation_logo_key?: string; // Min: 0, Max: 300
+  logo_url?: string;
+  logo_key?: string;
+  logo_name?: string;
 
-  // Billing Information
   company_cin?: string;
   company_tin_gstin?: string;
-  billing_address_line1?:string;
-  billing_address_line2?:string;
-  billing_locality_landmark?:string;
-  billing_neighborhood?:string;
-  billing_town_city?:string;
-  billing_district_county?:string;
-  billing_state_province_region?:string;
-  billing_postal_code?:string;
-  billing_country?:string;
-  billing_country_code?:string;
+
+  // Billing Address
+  billing_address_line1?: string;
+  billing_address_line2?: string;
+  billing_locality_landmark?: string;
+  billing_neighborhood?: string;
+  billing_town_city?: string;
+  billing_district_county?: string;
+  billing_state_province_region?: string;
+  billing_postal_code?: string;
+  billing_country?: string;
+  billing_country_code?: string;
 
   // Company Address
-  address_line1?:string;
-  address_line2?:string;
-  locality_landmark?:string;
-  neighborhood?:string;
-  town_city?:string;
-  district_county?:string;
-  state_province_region?:string;
-  postal_code?:string;
-  country?:string;
-  country_code?:string;
+  address_line1?: string;
+  address_line2?: string;
+  locality_landmark?: string;
+  neighborhood?: string;
+  town_city?: string;
+  district_county?: string;
+  state_province_region?: string;
+  postal_code?: string;
+  country?: string;
+  country_code?: string;
 
   // Metadata
   status: Status;
@@ -147,17 +149,17 @@ export interface UserOrganisation extends Record<string, unknown> {
   state_id?: string;
   MasterMainState?: MasterMainState;
 
-  time_zone_id?: string;
-  MasterMainTimeZone?: MasterMainTimeZone;
-
   currency_id?: string;
   MasterMainCurrency?: MasterMainCurrency;
 
-  date_format_id?: string;
-  MasterMainDateFormat?: MasterMainDateFormat;
-
   language_id?: string;
   MasterMainLanguage?: MasterMainLanguage;
+
+  time_zone_id?: string;
+  MasterMainTimeZone?: MasterMainTimeZone;
+
+  date_format_id?: string;
+  MasterMainDateFormat?: MasterMainDateFormat;
 
   distance_unit_id?: string;
   MasterMainUnitDistance?: MasterMainUnitDistance;
@@ -174,9 +176,6 @@ export interface UserOrganisation extends Record<string, unknown> {
   MasterDriver: MasterDriver[];
   MasterDevice: MasterDevice[];
   MasterVehicle: MasterVehicle[];
-  // VehicleOdometerHistory: VehicleOdometerHistory[]
-  // VehicleDocument:        VehicleDocument[]
-  // VehicleDocumentFile:    VehicleDocumentFile[]
 
   // Child - Master
   OrganisationBranch: OrganisationBranch[];
@@ -184,119 +183,6 @@ export interface UserOrganisation extends Record<string, unknown> {
   OrganisationGroup: OrganisationGroup[];
   OrganisationSubCompany: OrganisationSubCompany[];
   OrganisationTag: OrganisationTag[];
-
-  MasterExpenseName: MasterExpenseName[];
-  MasterExpenseType: MasterExpenseType[];
-  MasterVendorType: MasterVendorType[];
-
-  MasterUserRole: MasterUserRole[];
-  MasterUserStatus: MasterUserStatus[];
-
-  MasterVehicleFuelType: MasterVehicleFuelType[];
-  MasterVehicleOwnershipType: MasterVehicleOwnershipType[];
-  MasterVehicleModel: MasterVehicleModel[];
-  MasterVehicleMake: MasterVehicleMake[];
-  MasterVehicleStatusType: MasterVehicleStatusType[];
-  MasterVehicleSubModel: MasterVehicleSubModel[];
-  MasterVehicleType: MasterVehicleType[];
-
-  MasterTyreGrade: MasterTyreGrade[];
-  MasterTyreMake: MasterTyreMake[];
-  MasterTyreModel: MasterTyreModel[];
-
-  MasterFleetIncidentType: MasterFleetIncidentType[];
-  MasterFleetIncidentStatus: MasterFleetIncidentStatus[];
-  MasterFleetIncidentSeverity: MasterFleetIncidentSeverity[];
-  MasterFleetInsuranceClaimStatus: MasterFleetInsuranceClaimStatus[];
-  MasterFleetServiceTask: MasterFleetServiceTask[];
-
-  MasterTripPartyType: MasterTripPartyType[];
-
-  MasterSparePartCategory: MasterSparePartCategory[];
-  MasterSparePartSubCategory: MasterSparePartSubCategory[];
-  MasterSparePartUnit: MasterSparePartUnit[];
-
-  // Child - Fleet
-  // FleetFuelRefills  FleetFuelRefills[]
-  // FleetFuelRemovals FleetFuelRemovals[]
-
-  // VehicleIncident             FleetIncidentManagement[]
-  // FleetIncidentManagementCost FleetIncidentManagementCost[]
-  // IncidentManagementFile      FleetIncidentManagementFile[]
-
-  // InspectionTemplate             FleetInspectionTemplate[]
-  // InspectionSchedule             FleetInspectionSchedule[]
-  // InspectionScheduleTracking     FleetInspectionScheduleTracking[]
-  // Inspection                     FleetInspection[]
-  // FleetInspectionFile            FleetInspectionFile[]
-  // FleetInspectionScheduleVehicle FleetInspectionScheduleVehicle[]
-
-  // VehicleIssues            FleetIssueManagement[]
-  // FleetIssueManagementFile FleetIssueManagementFile[]
-
-  // FleetReminders FleetReminders[]
-
-  // FleetServiceSchedule    FleetServiceSchedule[]
-  // FleetServiceJobCard     FleetServiceJobCard[]
-  // FleetServiceJobCardFile FleetServiceJobCardFile[]
-
-  // FleetSpareParts                     FleetSpareParts[]
-  // FleetSparePartsInventory            FleetSparePartsInventory[]
-  // FleetSparePartsPurchaseOrders       FleetSparePartsPurchaseOrders[]
-  // FleetSparePartsPurchaseOrderDetails FleetSparePartsPurchaseOrderDetails[]
-  // FleetSparePartsUsage                FleetSparePartsUsage[]
-  // FleetSparePartsUsageDetails         FleetSparePartsUsageDetails[]
-
-  // FleetTyreInventory                  FleetTyreInventory[]
-  // FleetAxleTemplate                   FleetAxleTemplate[]
-  // FleetAxlePosition                   FleetAxlePosition[]
-  // FleetTyrePosition                   FleetTyrePosition[]
-  // FleetTyreUsageHistory               FleetTyreUsageHistory[]
-  // FleetTyreInspectionSchedule         FleetTyreInspectionSchedule[]
-  // FleetTyreInspectionScheduleTracking FleetTyreInspectionScheduleTracking[]
-  // FleetTyreInspection                 FleetTyreInspection[]
-  // FleetTyreRetreading                 FleetTyreRetreading[]
-  // FleetTyreDamageRepair               FleetTyreDamageRepair[]
-  // FleetTyreRotation                   FleetTyreRotation[]
-  // FleetTyreRotationDetails            FleetTyreRotationDetails[]
-
-  // FleetMasterVendor         FleetVendor[]
-  // FleetVendorContactPersons FleetVendorContactPersons[]
-  // FleetVendorDocuments      FleetVendorDocuments[]
-
-  // FleetWorkshop FleetWorkshop[]
-
-  // FleetTripParty              FleetTripParty[]
-  // FleetTripPartyGroup         FleetTripPartyGroup[]
-  // FleetTripPartyContactPerson FleetTripPartyContactPerson[]
-
-  // Child - GPS
-  // GPSLiveTrackShareLink                 GPSLiveTrackShareLink[]
-  // GPSLiveTrackShareLinkNotifications    GPSLiveTrackShareLinkNotifications[]
-  // GPSTrackHistoryShareLink              GPSTrackHistoryShareLink[]
-  // GPSTrackHistoryShareLinkNotifications GPSTrackHistoryShareLinkNotifications[]
-  // GPSLockRelayLog                       GPSLockRelayLog[]
-  // GPSLockDigitalDoorLog                 GPSLockDigitalDoorLog[]
-  // GPSGeofenceData                       GPSGeofenceData[]
-  // GPSGeofenceTransaction                GPSGeofenceTransaction[]
-  // GPSGeofenceTransactionSummary         GPSGeofenceTransactionSummary[]
-  // TripGeofenceToGeofence                TripGeofenceToGeofence[]
-  // GPSFuelVehicleDailySummary            GPSFuelVehicleDailySummary[]
-  // GPSFuelVehicleRefill                  GPSFuelVehicleRefill[]
-  // GPSFuelVehicleRemoval                 GPSFuelVehicleRemoval[]
-
-  // Child - Trip
-  // Trip Trip[]
-
-  // Child - Account
-  // BookMark BookMark[]
-  // Alert Alert[]
-  // Notification Notification[]
-  // Ticket Ticket[]
-  // TicketFile TicketFile[]
-  // FasttagDetails FasttagDetails[]
-  // EWayBillDetails EWayBillDetails[]
-  // UserLoginPush UserLoginPush[]
 
   // ✅ Count of child relations
   _count?: {
@@ -330,21 +216,26 @@ export interface UserOrganisationSimple extends Record<string, unknown> {
 // ✅ Create Organisation Create/Update Schema
 export const UserOrganisationSchema = z.object({
   organisation_name: stringMandatory('Organisation Name', 3, 100),
-  organisation_email: stringMandatory('Organisation Email', 3, 100),
+  organisation_email: stringOptional('Organisation Email', 0, 100),
   organisation_mobile: stringOptional('Organisation Mobile', 0, 20),
+
+  organisation_code: stringOptional('Organisation Code', 0, 20),
+  organisation_utrack_id: stringOptional('Organisation UTrack ID', 0, 20),
 
   fleet_size: enumMandatory(
     'Fleet Size',
     FleetSize,
-    FleetSize.Fleet_1_to_50_Vehicles
+    FleetSize.Fleet_1_to_50_Vehicles,
   ),
 
-  organisation_logo_url: stringOptional('Organisation Logo URL', 0, 300),
-  organisation_logo_key: stringOptional('Organisation Logo Key', 0, 300),
+  logo_url: stringOptional('Logo URL', 0, 300),
+  logo_key: stringOptional('Logo Key', 0, 300),
+  logo_name: stringOptional('Logo Name', 0, 300),
 
-  // Billing Address
   company_cin: stringOptional('Company CIN', 0, 50),
   company_tin_gstin: stringOptional('Company TIN/GSTIN', 0, 50),
+
+  // Billing Address
   billing_address_line1: stringOptional('Billing Address Line 1', 0, 150),
   billing_address_line2: stringOptional('Billing Address Line 2', 0, 150),
   billing_locality_landmark: stringOptional(
@@ -378,32 +269,34 @@ export const UserOrganisationSchema = z.object({
 
   status: enumMandatory('Status', Status, Status.Active),
 
-  industry_id: single_select_mandatory('Industry ID'), // Single selection -> MasterMainIndustry
-  country_id: single_select_mandatory('Country ID'), // Single selection -> MasterMainCountry
-  state_id: single_select_optional('State ID'), // Single selection -> MasterMainState
-  time_zone_id: single_select_optional('Time Zone ID'), // Single selection -> MasterMainTimeZone
-  currency_id: single_select_optional('Currency ID'), // Single selection -> MasterMainCurrency
-  date_format_id: single_select_optional('Date Format ID'), // Single selection -> MasterMainDateFormat
-  language_id: single_select_optional('Language ID'), // Single selection -> MasterMainLanguage
-  distance_unit_id: single_select_optional('Distance Unit ID'), // Single selection -> MasterMainUnitDistance
-  mileage_unit_id: single_select_optional('Mileage Unit ID'), // Single selection -> MasterMainUnitMileage
-  volume_unit_id: single_select_optional('Volume Unit ID'), // Single selection -> MasterMainUnitVolume
+  industry_id: single_select_mandatory('MasterMainIndustry'), // ✅ Single-Selection -> MasterMainIndustry
+  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
+  state_id: single_select_optional('MasterMainState'), // ✅ Single-Selection -> MasterMainState
+  currency_id: single_select_optional('MasterMainCurrency'), // ✅ Single-Selection -> MasterMainCurrency
+  language_id: single_select_optional('MasterMainLanguage'), // ✅ Single-Selection -> MasterMainLanguage
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
+  date_format_id: single_select_optional('MasterMainDateFormat'), // ✅ Single-Selection -> MasterMainDateFormat
+  distance_unit_id: single_select_optional('MasterMainUnitDistance'), // ✅ Single-Selection -> MasterMainUnitDistance
+  mileage_unit_id: single_select_optional('MasterMainUnitMileage'), // ✅ Single-Selection -> MasterMainUnitMileage
+  volume_unit_id: single_select_optional('MasterMainUnitVolume'), // ✅ Single-Selection -> MasterMainUnitVolume
 });
 export type UserOrganisationDTO = z.infer<typeof UserOrganisationSchema>;
 
 // ✅ Organisation Query Schema
 export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
-  industry_ids: multi_select_optional('Industry IDs', 100, []), // Multi-selection -> MasterMainIndustry
-  country_ids: multi_select_optional('Country IDs', 100, []), // Multi-selection -> MasterMainCountry
-  state_ids: multi_select_optional('State IDs', 100, []), // Multi-selection -> MasterMainState
-  time_zone_ids: multi_select_optional('Time Zone IDs', 100, []), // Multi-selection -> MasterMainTimeZone
-  currency_ids: multi_select_optional('Currency IDs', 100, []), // Multi-selection -> MasterMainCurrency
-  date_format_ids: multi_select_optional('Date Format IDs', 100, []), // Multi-selection -> MasterMainDateFormat
-  language_ids: multi_select_optional('Language IDs', 100, []), // Multi-selection -> MasterMainDateFormat  
-  distance_unit_ids: multi_select_optional('Distance Unit IDs', 100, []), // Multi-selection -> MasterMainUnitDistance
-  mileage_unit_ids: multi_select_optional('Mileage Unit IDs', 100, []), // Multi-selection -> MasterMainUnitMileage
-  volume_unit_ids: multi_select_optional('Volume Unit IDs', 100, []), // Multi-selection -> MasterMainUnitVolume
-  organisation_ids: multi_select_optional('Organisation IDs', 100, []), // Multi-selection -> UserOrganisation
+  industry_ids: multi_select_optional('MasterMainIndustry'), // ✅ Multi-Selection -> MasterMainIndustry
+  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-Selection -> MasterMainCountry
+  state_ids: multi_select_optional('MasterMainState'), // ✅ Multi-Selection -> MasterMainState
+  currency_ids: multi_select_optional('MasterMainCurrency'), // ✅ Multi-Selection -> MasterMainCurrency
+  language_ids: multi_select_optional('MasterMainLanguage'), // ✅ Multi-Selection -> MasterMainLanguage
+  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // ✅ Multi-Selection -> MasterMainTimeZone
+  date_format_ids: multi_select_optional('MasterMainDateFormat'), // ✅ Multi-Selection -> MasterMainDateFormat
+  fleet_size: enumArrayOptional(
+    'Fleet Size',
+    FleetSize,
+    getAllEnums(FleetSize),
+  ),
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
 });
 export type UserOrganisationQueryDTO = z.infer<
   typeof UserOrganisationQuerySchema
@@ -414,30 +307,24 @@ export const toUserOrganisationPayload = (
   organisation: UserOrganisation
 ): UserOrganisationDTO => ({
   organisation_name: organisation.organisation_name,
-  organisation_email: organisation.organisation_email,
+  organisation_email: organisation.organisation_email ?? '',
   organisation_mobile: organisation.organisation_mobile ?? '',
+
+  organisation_code: organisation.organisation_code ?? '',
+  organisation_utrack_id: organisation.organisation_utrack_id ?? '',
 
   fleet_size: organisation.fleet_size,
 
-  organisation_logo_url: organisation.organisation_logo_url ?? '',
-  organisation_logo_key: organisation.organisation_logo_key ?? '',
+  logo_url: organisation.logo_url ?? '',
+  logo_key: organisation.logo_key ?? '',
+  logo_name: organisation.logo_name ?? '',
 
   status: organisation.status,
 
-  industry_id: organisation.industry_id,
-  country_id: organisation.country_id,
-  state_id: organisation.state_id ?? '',
-  time_zone_id: organisation.time_zone_id ?? '',
-  currency_id: organisation.currency_id ?? '',
-  date_format_id: organisation.date_format_id ?? '',
-  language_id: organisation.language_id ?? '',
-  distance_unit_id: organisation.distance_unit_id ?? '',
-  mileage_unit_id: organisation.mileage_unit_id ?? '',
-  volume_unit_id: organisation.volume_unit_id ?? '',
-
-  // Billing Information
   company_cin: organisation.company_cin ?? '',
   company_tin_gstin: organisation.company_tin_gstin ?? '',
+
+  // Billing Address
   billing_address_line1: organisation.billing_address_line1 ?? '',
   billing_address_line2: organisation.billing_address_line2 ?? '',
   billing_locality_landmark: organisation.billing_locality_landmark ?? '',
@@ -460,6 +347,19 @@ export const toUserOrganisationPayload = (
   postal_code: organisation.postal_code ?? '',
   country: organisation.country ?? '',
   country_code: organisation.country_code ?? '',
+
+  industry_id: organisation.industry_id,
+  country_id: organisation.country_id,
+  state_id: organisation.state_id ?? '',
+  currency_id: organisation.currency_id ?? '',
+
+  language_id: organisation.language_id ?? '',
+  time_zone_id: organisation.time_zone_id ?? '',
+  date_format_id: organisation.date_format_id ?? '',
+
+  distance_unit_id: organisation.distance_unit_id ?? '',
+  mileage_unit_id: organisation.mileage_unit_id ?? '',
+  volume_unit_id: organisation.volume_unit_id ?? '',
 });
 
 // Generate a new payload with default values
@@ -468,27 +368,21 @@ export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
   organisation_email: '',
   organisation_mobile: '',
 
+  organisation_code: '',
+  organisation_utrack_id: '',
+
   fleet_size: FleetSize.Fleet_1_to_50_Vehicles,
 
-  organisation_logo_url: '',
-  organisation_logo_key: '',
+  logo_url: '',
+  logo_key: '',
+  logo_name: '',
 
   status: Status.Active,
 
-  industry_id: '',
-  country_id: '',
-  state_id: '',
-  time_zone_id: '',
-  currency_id: '',
-  date_format_id: '',
-  language_id: '',
-  distance_unit_id: '',
-  mileage_unit_id: '',
-  volume_unit_id: '',
-
-  // Billing Information
   company_cin: '',
   company_tin_gstin: '',
+
+  // Billing Address
   billing_address_line1: '',
   billing_address_line2: '',
   billing_locality_landmark: '',
@@ -511,6 +405,19 @@ export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
   postal_code: '',
   country: '',
   country_code: '',
+
+  industry_id: '',
+  country_id: '',
+  state_id: '',
+  currency_id: '',
+
+  language_id: '',
+  time_zone_id: '',
+  date_format_id: '',
+
+  distance_unit_id: '',
+  mileage_unit_id: '',
+  volume_unit_id: '',
 });
 
 // API Methods
