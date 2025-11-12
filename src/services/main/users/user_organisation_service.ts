@@ -26,7 +26,6 @@ import { MasterMainState } from '../../../services/master/main/master_main_state
 import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
 import { MasterMainCurrency } from '../../../services/master/main/master_main_currency_service';
 import { MasterMainDateFormat } from '../../../services/master/main/master_main_date_format_service';
-import { MasterMainUnitDistance } from '../../../services/master/main/master_main_unit_distance_service';
 import { MasterMainUnitMileage } from '../../../services/master/main/master_main_unit_mileage_service';
 import { MasterMainUnitVolume } from '../../../services/master/main/master_main_unit_volume_service';
 
@@ -42,37 +41,6 @@ import { OrganisationGroup } from '../../../services/master/organisation/organis
 import { OrganisationSubCompany } from '../../../services/master/organisation/organisation_sub_company_service';
 import { OrganisationTag } from '../../../services/master/organisation/organisation_tag_service';
 
-import { MasterExpenseName } from '../../../services/master/expense/master_expense_name_service';
-import { MasterExpenseType } from '../../../services/master/expense/master_expense_type_service';
-
-import { MasterUserRole } from '../../../services/master/user/master_user_role_service';
-import { MasterUserStatus } from '../../../services/master/user/master_user_status_service';
-
-import { MasterVehicleFuelType } from '../../../services/master/vehicle/master_vehicle_fuel_type_service';
-import { MasterVehicleOwnershipType } from '../../../services/master/vehicle/master_vehicle_ownership_type_service';
-import { MasterVehicleMake } from '../../../services/master/vehicle/master_vehicle_make_service';
-import { MasterVehicleModel } from '../../../services/master/vehicle/master_vehicle_model_service';
-import { MasterVehicleSubModel } from '../../../services/master/vehicle/master_vehicle_sub_model_service';
-import { MasterVehicleStatusType } from '../../../services/master/vehicle/master_vehicle_status_type_service';
-import { MasterVehicleType } from '../../../services/master/vehicle/master_vehicle_type_service';
-
-import { MasterTyreGrade } from '../../../services/master/tyre/master_tyre_grade_service';
-import { MasterTyreMake } from '../../../services/master/tyre/master_tyre_make_service';
-import { MasterTyreModel } from '../../../services/master/tyre/master_tyre_model_service';
-
-import { MasterFleetIncidentType } from '../../../services/master/fleet/master_fleet_incident_type_service';
-import { MasterFleetIncidentStatus } from '../../../services/master/fleet/master_fleet_incident_status_service';
-import { MasterFleetIncidentSeverity } from '../../../services/master/fleet/master_fleet_incident_severity_service';
-import { MasterFleetInsuranceClaimStatus } from '../../../services/master/fleet/master_fleet_insurance_claim_status_service';
-import { MasterFleetServiceTask } from '../../../services/master/fleet/master_fleet_service_task_service';
-
-import { MasterTripPartyType } from '../../../services/master/trip/master_trip_party_type_service';
-
-import { MasterVendorType } from '../../../services/master/expense/master_vendor_type_service';
-
-import { MasterSparePartCategory } from '../../../services/master/spare_part/master_spare_part_category_service';
-import { MasterSparePartSubCategory } from '../../../services/master/spare_part/master_spare_part_sub_category_service';
-import { MasterSparePartUnit } from '../../../services/master/spare_part/master_spare_part_unit_service';
 import { MasterMainLanguage } from 'src/services/master/main/master_main_language_service';
 
 const URL = 'user/organisation';
@@ -84,7 +52,7 @@ const ENDPOINTS = {
   delete: (id: string): string => `${URL}/${id}`,
   cache: (): string => `${URL}/cache`,
   cache_simple: (): string => `${URL}/cache_simple`,
-  presignedUrl: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 };
 
 // UserOrganisation Interface
@@ -162,7 +130,7 @@ export interface UserOrganisation extends Record<string, unknown> {
   MasterMainDateFormat?: MasterMainDateFormat;
 
   distance_unit_id?: string;
-  MasterMainUnitDistance?: MasterMainUnitDistance;
+  UserOrganisation?: UserOrganisation;
 
   mileage_unit_id?: string;
   MasterMainUnitMileage?: MasterMainUnitMileage;
@@ -213,7 +181,7 @@ export interface UserOrganisationSimple extends Record<string, unknown> {
   o_logo?: string;
 }
 
-// ✅ Create Organisation Create/Update Schema
+// ✅ UserOrganisation Create/Update Schema
 export const UserOrganisationSchema = z.object({
   organisation_name: stringMandatory('Organisation Name', 3, 100),
   organisation_email: stringOptional('Organisation Email', 0, 100),
@@ -276,13 +244,13 @@ export const UserOrganisationSchema = z.object({
   language_id: single_select_optional('MasterMainLanguage'), // ✅ Single-Selection -> MasterMainLanguage
   time_zone_id: single_select_mandatory('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
   date_format_id: single_select_optional('MasterMainDateFormat'), // ✅ Single-Selection -> MasterMainDateFormat
-  distance_unit_id: single_select_optional('MasterMainUnitDistance'), // ✅ Single-Selection -> MasterMainUnitDistance
+  distance_unit_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   mileage_unit_id: single_select_optional('MasterMainUnitMileage'), // ✅ Single-Selection -> MasterMainUnitMileage
   volume_unit_id: single_select_optional('MasterMainUnitVolume'), // ✅ Single-Selection -> MasterMainUnitVolume
 });
 export type UserOrganisationDTO = z.infer<typeof UserOrganisationSchema>;
 
-// ✅ Organisation Query Schema
+// ✅ UserOrganisation Query Schema
 export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
   industry_ids: multi_select_optional('MasterMainIndustry'), // ✅ Multi-Selection -> MasterMainIndustry
   country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-Selection -> MasterMainCountry
@@ -303,9 +271,7 @@ export type UserOrganisationQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toUserOrganisationPayload = (
-  organisation: UserOrganisation
-): UserOrganisationDTO => ({
+export const toUserOrganisationPayload = (organisation: UserOrganisation): UserOrganisationDTO => ({
   organisation_name: organisation.organisation_name,
   organisation_email: organisation.organisation_email ?? '',
   organisation_mobile: organisation.organisation_mobile ?? '',
@@ -421,25 +387,15 @@ export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
 });
 
 // API Methods
-export const findUserOrganisations = async (
-  data: UserOrganisationQueryDTO
-): Promise<FBR<UserOrganisation[]>> => {
-  return apiPost<FBR<UserOrganisation[]>, UserOrganisationQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+export const findUserOrganisation = async (data: UserOrganisationQueryDTO): Promise<FBR<UserOrganisation[]>> => {
+  return apiPost<FBR<UserOrganisation[]>, UserOrganisationQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createUserOrganisation = async (
-  data: UserOrganisationDTO
-): Promise<SBR> => {
+export const createUserOrganisation = async (data: UserOrganisationDTO): Promise<SBR> => {
   return apiPost<SBR, UserOrganisationDTO>(ENDPOINTS.create, data);
 };
 
-export const updateUserOrganisation = async (
-  id: string,
-  data: UserOrganisationDTO
-): Promise<SBR> => {
+export const updateUserOrganisation = async (id: string, data: UserOrganisationDTO): Promise<SBR> => {
   return apiPatch<SBR, UserOrganisationDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -448,21 +404,15 @@ export const deleteUserOrganisation = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
-export const getUserOrganisationCache = async (): Promise<
-  FBR<UserOrganisation[]>
-> => {
+export const getUserOrganisationCache = async (): Promise<FBR<UserOrganisation[]>> => {
   return apiGet<FBR<UserOrganisation[]>>(ENDPOINTS.cache());
 };
 
-export const getUserOrganisationCacheSimple = async (): Promise<
-  FBR<UserOrganisationSimple[]>
-> => {
+export const getUserOrganisationCacheSimple = async (): Promise<FBR<UserOrganisationSimple[]>> => {
   return apiGet<FBR<UserOrganisationSimple[]>>(ENDPOINTS.cache_simple());
 };
 
 // Generate presigned URL for file uploads
-export const getUserOrganisationPresignedUrl = async (
-  fileName: string
-): Promise<SBR> => {
-  return apiGet<SBR>(ENDPOINTS.presignedUrl(fileName));
+export const getUserOrganisation_presigned_url = async ( file_name: string): Promise<SBR> => {
+  return apiGet<SBR>(ENDPOINTS.presigned_url(file_name));
 };

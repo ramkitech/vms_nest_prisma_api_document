@@ -62,7 +62,7 @@ export interface MasterMainTimeZone extends Record<string, unknown> {
 // ✅ MasterMainTimeZone Create/Update Schema
 export const MasterMainTimeZoneSchema = z.object({
   country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
-  time_zone_identifier: stringOptional('Time Zone Identifier', 0, 100),
+  time_zone_identifier: stringMandatory('Time Zone Identifier', 2, 100),
   time_zone_code: stringMandatory('Time Zone Code', 2, 50),
   time_zone_abbrevation: stringMandatory('Time Zone Abbreviation', 2, 100),
   time_zone_offset: stringMandatory('Time Zone Offset', 2, 100),
