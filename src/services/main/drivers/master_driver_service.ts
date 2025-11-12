@@ -17,33 +17,33 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo, DriverType } from '../../../core/Enums';
+import { Status, YesNo, DriverType, LoginFrom } from '../../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 import { OrganisationSubCompany } from 'src/services/master/organisation/organisation_sub_company_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
 import { OrganisationColor } from 'src/services/master/organisation/organisation_color_service';
 import { OrganisationTag } from 'src/services/master/organisation/organisation_tag_service';
+import { UserOrganisation } from '../users/user_organisation_service';
 
 const URL = 'main/master_driver';
 
 const ENDPOINTS = {
-  FIND: `${URL}/search`,
-  CREATE: `${URL}`,
-  UPDATE: `${URL}/:id`,
-  DELETE: `${URL}/:id`,
+  find: `${URL}/search`,
+  create: `${URL}`,
+  update: (id: string): string => `${URL}/${id}`,
+  delete: (id: string): string => `${URL}/${id}`,
 
-  // ✅ Presigned URL for file uploads
-  PRESIGNED_URL: `${URL}/presigned_url/:fileName`,
+  // Cache
+  cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
+  cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 
-  // ✅ Cache Management
-  CACHE: `${URL}/cache/:organisation_id`,
-  CACHE_SIMPLE: `${URL}/cache_simple/:organisation_id`,
+  // Presigned URL for file uploads
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 };
 
-// ✅ Master Driver Interface
+// ✅ MasterDriver Interface
 export interface MasterDriver extends Record<string, unknown> {
   // ✅ Primary Fields
   driver_id: string;
@@ -66,21 +66,6 @@ export interface MasterDriver extends Record<string, unknown> {
   driver_image_url?: string;
   driver_image_key?: string;
   driver_image_name?: string;
-  driver_aadhaar_front_image_url?: string;
-  driver_aadhaar_front_image_key?: string;
-  driver_aadhaar_front_image_name?: string;
-  driver_aadhaar_back_image_url?: string;
-  driver_aadhaar_back_image_key?: string;
-  driver_aadhaar_back_image_name?: string;
-  driver_pan_image_url?: string;
-  driver_pan_image_key?: string;
-  driver_pan_image_name?: string;
-  driver_license_back_image_url?: string;
-  driver_license_back_image_key?: string;
-  driver_license_back_image_name?: string;
-  driver_license_front_image_url?: string;
-  driver_license_front_image_key?: string;
-  driver_license_front_image_name?: string;
 
   // ✅ Metadata
   status: Status;
@@ -112,55 +97,16 @@ export interface MasterDriver extends Record<string, unknown> {
 
   // ✅ Relations - Dummy
   Dummy_MasterVehicle?: MasterVehicle[];
-
-  // ✅ Relations - Child
-  // TripGeofenceToGeofence?: TripGeofenceToGeofence[];
-  // GPSGeofenceTransaction?: GPSGeofenceTransaction[];
-  // GPSFuelVehicleDailySummary?: GPSFuelVehicleDailySummary[];
-  // GPSFuelVehicleRefill?: GPSFuelVehicleRefill[];
-  // GPSFuelVehicleRemoval?: GPSFuelVehicleRemoval[];
-  // GPSLockRelayLog?: GPSLockRelayLog[];
-  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[];
-  // GPSGeofenceTransactionSummary?: GPSGeofenceTransactionSummary[];
-
-  // Inspection?: FleetInspection[];
-  // IncidentManagement?: FleetIncidentManagement[];
-  // IssueManagement?: FleetIssueManagement[];
-  // FleetServiceSchedule?: FleetServiceSchedule[];
-  // FleetServiceJobCard?: FleetServiceJobCard[];
-  // FleetReminders?: FleetReminders[];
-  // FleetFuelRefills?: FleetFuelRefills[];
-  // FleetFuelRemovals?: FleetFuelRemovals[];
-  // FleetTyreDamageRepair?: FleetTyreDamageRepair[];
-  // FleetTyreRotation?: FleetTyreRotation[];
-  // AlertDriverLink?: AlertDriverLink[];
+  DriverLoginPush?: DriverLoginPush[];
 
   // ✅ Count (Child Relations)
   _count?: {
     AssignRemoveDriverHistory: number;
-    TripGeofenceToGeofence: number;
-    GPSGeofenceTransaction: number;
-    GPSFuelVehicleDailySummary: number;
-    GPSFuelVehicleRefill: number;
-    GPSFuelVehicleRemoval: number;
-    GPSLockRelayLog: number;
-    GPSLockDigitalDoorLog: number;
-    GPSGeofenceTransactionSummary: number;
-    Inspection: number;
-    IncidentManagement: number;
-    IssueManagement: number;
-    FleetServiceSchedule: number;
-    FleetServiceJobCard: number;
-    FleetReminders: number;
-    FleetFuelRefills: number;
-    FleetFuelRemovals: number;
-    FleetTyreDamageRepair: number;
-    FleetTyreRotation: number;
-    AlertDriverLink: number;
+    DriverLoginPush: number;
   };
 }
 
-// ✅ Assign Remove Driver History Interface
+// ✅ AssignRemoveDriverHistory Interface
 export interface AssignRemoveDriverHistory extends Record<string, unknown> {
   // ✅ Primary Fields
   history_id: string;
@@ -177,6 +123,38 @@ export interface AssignRemoveDriverHistory extends Record<string, unknown> {
   Vehicle?: MasterVehicle;
 
   // ✅ Relations - Driver
+  driver_id: string;
+  MasterDriver?: MasterDriver;
+}
+
+// ✅ DriverLoginPush Interface
+export interface DriverLoginPush extends Record<string, unknown> {
+
+  driver_login_push_id: string;
+
+  fcm_token: string;
+
+  platform: LoginFrom;
+  MasterDriver_agent?: string;
+  ip_address?: string;
+
+  device_id?: string;
+  device_model?: string;
+  os_name?: string;
+  os_version?: string;
+  browser_name?: string;
+  browser_version?: string;
+  app_version?: string;
+
+  // Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // Relations
+  organisation_id: string;
+  UserOrganisation: UserOrganisation;
+
   driver_id: string;
   MasterDriver?: MasterDriver;
 }
@@ -198,83 +176,20 @@ export const MasterDriverSchema = z.object({
   driver_pan: stringOptional('Driver PAN', 0, 10),
   driver_aadhaar: stringOptional('Driver Aadhaar', 0, 12),
 
-  password: stringOptional('Password', 0, 6),
+  password: stringOptional('Password', 0, 20),
   can_login: enumMandatory('Can Login', YesNo, YesNo.No),
   driver_type: enumMandatory('Driver Type', DriverType, DriverType.Driver),
 
   driver_image_url: stringOptional('Driver Image URL', 0, 300),
   driver_image_key: stringOptional('Driver Image Key', 0, 300),
   driver_image_name: stringOptional('Driver Image Name', 0, 300),
-  driver_aadhaar_front_image_url: stringOptional(
-    'Driver Aadhaar Front Image URL',
-    0,
-    300,
-  ),
-  driver_aadhaar_front_image_key: stringOptional(
-    'Driver Aadhaar Front Image Key',
-    0,
-    300,
-  ),
-  driver_aadhaar_front_image_name: stringOptional(
-    'Driver Aadhaar Front Image Name',
-    0,
-    300,
-  ),
-  driver_aadhaar_back_image_url: stringOptional(
-    'Driver Aadhaar Back Image URL',
-    0,
-    300,
-  ),
-  driver_aadhaar_back_image_key: stringOptional(
-    'Driver Aadhaar Back Image Key',
-    0,
-    300,
-  ),
-  driver_aadhaar_back_image_name: stringOptional(
-    'Driver Aadhaar Back Image Name',
-    0,
-    300,
-  ),
-  driver_pan_image_url: stringOptional('Driver PAN Image URL', 0, 300),
-  driver_pan_image_key: stringOptional('Driver PAN Image Key', 0, 300),
-  driver_pan_image_name: stringOptional('Driver PAN Image Name', 0, 300),
-  driver_license_back_image_url: stringOptional(
-    'Driver License Back Image URL',
-    0,
-    300,
-  ),
-  driver_license_back_image_key: stringOptional(
-    'Driver License Back Image Key',
-    0,
-    300,
-  ),
-  driver_license_back_image_name: stringOptional(
-    'Driver License Back Image Name',
-    0,
-    300,
-  ),
-  driver_license_front_image_url: stringOptional(
-    'Driver License Front Image URL',
-    0,
-    300,
-  ),
-  driver_license_front_image_key: stringOptional(
-    'Driver License Front Image Key',
-    0,
-    300,
-  ),
-  driver_license_front_image_name: stringOptional(
-    'Driver License Front Image Name',
-    0,
-    300,
-  ),
 
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterDriverDTO = z.infer<typeof MasterDriverSchema>;
 
 // ✅ MasterDriver Query Schema
-export const DriverQuerySchema = BaseQuerySchema.extend({
+export const MasterDriverQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
   organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // ✅ Multi-Selection -> OrganisationSubCompany
   organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-Selection -> OrganisationBranch
@@ -294,7 +209,7 @@ export const DriverQuerySchema = BaseQuerySchema.extend({
     getAllEnums(YesNo),
   ),
 });
-export type DriverQueryDTO = z.infer<typeof DriverQuerySchema>;
+export type MasterDriverQueryDTO = z.infer<typeof MasterDriverQuerySchema>;
 
 // ✅ Convert Driver Data to API Payload
 export const toDriverPayload = (driver?: MasterDriver): MasterDriverDTO => ({
@@ -314,23 +229,9 @@ export const toDriverPayload = (driver?: MasterDriver): MasterDriverDTO => ({
   driver_image_url: driver?.driver_image_url || '',
   driver_image_key: driver?.driver_image_key || '',
   driver_image_name: driver?.driver_image_name || '',
-  driver_aadhaar_front_image_url: driver?.driver_aadhaar_front_image_url || '',
-  driver_aadhaar_front_image_key: driver?.driver_aadhaar_front_image_key || '',
-  driver_aadhaar_front_image_name: driver?.driver_aadhaar_front_image_name || '',
-  driver_aadhaar_back_image_url: driver?.driver_aadhaar_back_image_url || '',
-  driver_aadhaar_back_image_key: driver?.driver_aadhaar_back_image_key || '',
-  driver_aadhaar_back_image_name: driver?.driver_aadhaar_back_image_name || '',
-  driver_pan_image_url: driver?.driver_pan_image_url || '',
-  driver_pan_image_key: driver?.driver_pan_image_key || '',
-  driver_pan_image_name: driver?.driver_pan_image_name || '',
-  driver_license_back_image_url: driver?.driver_license_back_image_url || '',
-  driver_license_back_image_key: driver?.driver_license_back_image_key || '',
-  driver_license_back_image_name: driver?.driver_license_back_image_name || '',
-  driver_license_front_image_url: driver?.driver_license_front_image_url || '',
-  driver_license_front_image_key: driver?.driver_license_front_image_key || '',
-  driver_license_front_image_name: driver?.driver_license_front_image_name || '',
 
   status: driver?.status || Status.Active,
+
   organisation_id: driver?.organisation_id || '',
   organisation_sub_company_id: driver?.organisation_sub_company_id || '',
   organisation_branch_id: driver?.organisation_branch_id || '',
@@ -356,21 +257,6 @@ export const newDriverPayload = (): MasterDriverDTO => ({
   driver_image_url: '',
   driver_image_key: '',
   driver_image_name: '',
-  driver_aadhaar_front_image_url: '',
-  driver_aadhaar_front_image_key: '',
-  driver_aadhaar_front_image_name: '',
-  driver_aadhaar_back_image_url: '',
-  driver_aadhaar_back_image_key: '',
-  driver_aadhaar_back_image_name: '',
-  driver_pan_image_url: '',
-  driver_pan_image_key: '',
-  driver_pan_image_name: '',
-  driver_license_back_image_url: '',
-  driver_license_back_image_key: '',
-  driver_license_back_image_name: '',
-  driver_license_front_image_url: '',
-  driver_license_front_image_key: '',
-  driver_license_front_image_name: '',
 
   status: Status.Active,
   organisation_id: '',
@@ -381,48 +267,32 @@ export const newDriverPayload = (): MasterDriverDTO => ({
 });
 
 // API Methods
-export const findDrivers = async (
-  payload: DriverQueryDTO
-): Promise<FBR<MasterDriver[]>> => {
-  return apiPost<FBR<MasterDriver[]>, DriverQueryDTO>(ENDPOINTS.FIND, payload);
+export const findMasterDriver = async (data: MasterDriverQueryDTO): Promise<FBR<MasterDriver[]>> => {
+  return apiPost<FBR<MasterDriver[]>, MasterDriverQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createDriver = async (payload: MasterDriverDTO): Promise<SBR> => {
-  return apiPost<SBR, MasterDriverDTO>(ENDPOINTS.CREATE, payload);
+export const createMasterDriver = async (data: MasterDriverDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterDriverDTO>(ENDPOINTS.create, data);
 };
 
-export const updateDriver = async (
-  id: string,
-  payload: MasterDriverDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, MasterDriverDTO>(
-    ENDPOINTS.UPDATE.replace(':id', id),
-    payload
-  );
+export const updateMasterDriver = async (id: string, data: MasterDriverDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterDriverDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteDriver = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.DELETE.replace(':id', id));
+export const deleteMasterDriver = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-export const getPresignedUrlForDriver = async (
-  fileName: string
-): Promise<SBR> => {
-  return apiGet<SBR>(ENDPOINTS.PRESIGNED_URL.replace(':fileName', fileName));
+// API Cache Methods
+export const getMasterDriverCache = async (organisation_id: string): Promise<FBR<MasterDriver[]>> => {
+  return apiGet<FBR<MasterDriver[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getDriverCache = async (
-  organisationId: string
-): Promise<FBR<MasterDriver[]>> => {
-  return apiGet<FBR<MasterDriver[]>>(
-    ENDPOINTS.CACHE.replace(':organisation_id', organisationId)
-  );
+export const getMasterDriverCacheSimple = async (organisation_id: string): Promise<FBR<MasterDriver[]>> => {
+  return apiGet<FBR<MasterDriver[]>>(ENDPOINTS.cache_simple(organisation_id));
 };
 
-export const getDriverSimpleCache = async (
-  organisationId: string
-): Promise<FBR<MasterDriver[]>> => {
-  return apiGet<FBR<MasterDriver[]>>(
-    ENDPOINTS.CACHE_SIMPLE.replace(':organisation_id', organisationId)
-  );
+// Generate presigned URL for file uploads
+export const getMasterDriver_presigned_url = async (fileName: string): Promise<SBR> => {
+  return apiGet<SBR>(ENDPOINTS.presigned_url(fileName));
 };

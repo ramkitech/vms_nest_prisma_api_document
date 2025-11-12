@@ -16,7 +16,7 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo } from '../../../core/Enums';
+import { LoginFrom, Status, YesNo } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
@@ -37,20 +37,15 @@ const ENDPOINTS = {
 
   // Cache
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
-  cacheSimple: (organisation_id: string): string =>
-    `${URL}/cache_simple/${organisation_id}`,
+  cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 
   // Presigned URL for file uploads
-  presignedUrl: (fileName: string): string =>
-    `${URL}/presigned_url/${fileName}`,
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 
   // Default Settings
-  updateDefaultLanguage: (id: string): string =>
-    `${URL}/default_language/${id}`,
-  updateDefaultTimezone: (id: string): string =>
-    `${URL}/default_timezone/${id}`,
-  updateDefaultDateformat: (id: string): string =>
-    `${URL}/default_date_format/${id}`,
+  update_default_language: (id: string): string => `${URL}/default_language/${id}`,
+  update_default_timezone: (id: string): string => `${URL}/default_timezone/${id}`,
+  update_default_date_format: (id: string): string => `${URL}/default_date_format/${id}`,
 };
 
 // User Interface
@@ -103,10 +98,12 @@ export interface User extends Record<string, unknown> {
 
   // Relations - Child
   UserVehicleLink: UserVehicleLink[];
+  UserLoginPush: UserLoginPush[];
 
   // Count
   _count?: {
     UserVehicleLink: number;
+    UserLoginPush: number;
   };
 }
 
@@ -127,14 +124,41 @@ export interface UserVehicleLink extends Record<string, unknown> {
 
   user_id: string;
   User?: User;
-
-  // Relations - Child
-
-  // Count
 }
 
-// ✅ Create User Create/Update Schema
-export const CreateUserSchema = z.object({
+export interface UserLoginPush extends Record<string, unknown> {
+
+  user_login_push_id: string;
+
+  fcm_token: string;
+
+  platform: LoginFrom;
+  user_agent?: string;
+  ip_address?: string;
+
+  device_id?: string;
+  device_model?: string;
+  os_name?: string;
+  os_version?: string;
+  browser_name?: string;
+  browser_version?: string;
+  app_version?: string;
+
+  // Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // Relations
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  user_id: string;
+  User?: User;
+}
+
+// ✅ User Create/Update Schema
+export const UserSchema = z.object({
   first_name: stringMandatory('First Name', 2, 100),
   last_name: stringOptional('Last Name', 0, 100),
   email: stringMandatory('Email', 3, 100),
@@ -160,7 +184,7 @@ export const CreateUserSchema = z.object({
 
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type CreateUserDTO = z.infer<typeof CreateUserSchema>;
+export type UserDTO = z.infer<typeof UserSchema>;
 
 // ✅ User Query Schema
 export const UserQuerySchema = BaseQuerySchema.extend({
@@ -199,7 +223,7 @@ export type UserDefaultDateFormatDTO = z.infer<
 >;
 
 // Generate a new payload with default values
-export const newUserPayload = (): CreateUserDTO => ({
+export const newUserPayload = (): UserDTO => ({
   first_name: '',
   last_name: '',
   email: '',
@@ -227,46 +251,46 @@ export const newUserPayload = (): CreateUserDTO => ({
 });
 
 // Convert existing data to a payload structure
-export const toUserPayload = (data: User): CreateUserDTO => ({
+export const toUserPayload = (data: User): UserDTO => ({
   first_name: data.first_name,
-  last_name: data.last_name ?? '',
+  last_name: data.last_name || '',
   email: data.email,
-  mobile: data.mobile ?? '',
-  username: data.username ?? '',
-  password: data.password ?? '',
+  mobile: data.mobile || '',
+  username: data.username || '',
+  password: data.password || '',
 
   can_login: data.can_login,
   is_root_user: data.is_root_user,
   all_vehicles: data.all_vehicles,
 
-  user_image_url: data.user_image_url ?? '',
-  user_image_key: data.user_image_key ?? '',
-  user_image_name: data.user_image_name ?? '',
+  user_image_url: data.user_image_url || '',
+  user_image_key: data.user_image_key || '',
+  user_image_name: data.user_image_name || '',
 
-  organisation_id: data.organisation_id ?? '',
-  user_role_id: data.user_role_id ?? '',
-  user_status_id: data.user_status_id ?? '',
-  language_id: data.language_id ?? '',
-  date_format_id: data.date_format_id ?? '',
-  time_zone_id: data.time_zone_id ?? '',
+  organisation_id: data.organisation_id || '',
+  user_role_id: data.user_role_id || '',
+  user_status_id: data.user_status_id || '',
+  language_id: data.language_id || '',
+  date_format_id: data.date_format_id || '',
+  time_zone_id: data.time_zone_id || '',
 
   status: data.status,
 
   vehicle_ids:
-    data.UserVehicleLink?.map((v) => v.vehicle_id) ?? [],
+    data.UserVehicleLink?.map((v) => v.vehicle_id) || [],
 });
 
 // API Methods
-export const findUsers = async (data: UserQueryDTO): Promise<FBR<User[]>> => {
+export const findUser = async (data: UserQueryDTO): Promise<FBR<User[]>> => {
   return apiPost<FBR<User[]>, UserQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createUser = async (data: CreateUserDTO): Promise<SBR> => {
-  return apiPost<SBR, CreateUserDTO>(ENDPOINTS.create, data);
+export const createUser = async (data: UserDTO): Promise<SBR> => {
+  return apiPost<SBR, UserDTO>(ENDPOINTS.create, data);
 };
 
-export const updateUser = async (id: string, data: CreateUserDTO): Promise<SBR> => {
-  return apiPatch<SBR, CreateUserDTO>(ENDPOINTS.update(id), data);
+export const updateUser = async (id: string, data: UserDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserDTO>(ENDPOINTS.update(id), data);
 };
 
 export const deleteUser = async (id: string): Promise<SBR> => {
@@ -279,25 +303,25 @@ export const getUserCache = async (organisation_id: string): Promise<FBR<User[]>
 };
 
 export const getUserCacheSimple = async (organisation_id: string): Promise<FBR<User[]>> => {
-  return apiGet<FBR<User[]>>(ENDPOINTS.cacheSimple(organisation_id));
+  return apiGet<FBR<User[]>>(ENDPOINTS.cache_simple(organisation_id));
 };
 
 // Generate presigned URL for file uploads
-export const getUserPresignedUrl = async (fileName: string): Promise<SBR> => {
-  return apiGet<SBR>(ENDPOINTS.presignedUrl(fileName));
+export const getUser_presigned_url = async (fileName: string): Promise<SBR> => {
+  return apiGet<SBR>(ENDPOINTS.presigned_url(fileName));
 };
 
 // Update Default Language
 export const updateUserDefaultLanguage = async (id: string, data: UserDefaultLanguageDTO): Promise<SBR> => {
-  return apiPatch<SBR, UserDefaultLanguageDTO>(ENDPOINTS.updateDefaultLanguage(id), data);
+  return apiPatch<SBR, UserDefaultLanguageDTO>(ENDPOINTS.update_default_language(id), data);
 };
 
 // Update Default Language
 export const updateUserDefaultTimezone = async (id: string, data: UserDefaultTimeZoneDTO): Promise<SBR> => {
-  return apiPatch<SBR, UserDefaultTimeZoneDTO>(ENDPOINTS.updateDefaultTimezone(id), data);
+  return apiPatch<SBR, UserDefaultTimeZoneDTO>(ENDPOINTS.update_default_timezone(id), data);
 };
 
 // Update Default Language
 export const updateUserDefaultDateformat = async (id: string, data: UserDefaultDateFormatDTO): Promise<SBR> => {
-  return apiPatch<SBR, UserDefaultDateFormatDTO>(ENDPOINTS.updateDefaultDateformat(id), data);
+  return apiPatch<SBR, UserDefaultDateFormatDTO>(ENDPOINTS.update_default_date_format(id), data);
 };

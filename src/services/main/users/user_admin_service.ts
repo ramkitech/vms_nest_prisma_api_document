@@ -25,17 +25,18 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  presignedUrl: (fileName: string): string =>
-    `${URL}/presigned_url/${fileName}`,
+ 
+  presigned_url: (fileName: string): string =>`${URL}/presigned_url/${fileName}`,
 
   // Cache
   cache: `${URL}/cache`,
 };
 
-// User Admin Interface
+// UserAdmin Interface
 export interface UserAdmin extends Record<string, unknown> {
   // Primary Fields
   admin_id: string;
+
   admin_name: string;
   email: string;
   password?: string;
@@ -52,13 +53,12 @@ export interface UserAdmin extends Record<string, unknown> {
   modified_date_time: string;
 }
 
-// ✅ Create UserAdmin Create/Update Schema
+// ✅ UserAdmin Create/Update Schema
 export const UserAdminSchema = z.object({
-  admin_name: stringMandatory('Admin Name', 2, 100),
+  admin_name: stringMandatory('Admin Name', 3, 100),
   email: stringMandatory('Email', 3, 100),
   password: stringOptional('Password', 0, 20),
   mobile: stringOptional('Password', 0, 20),
-
   admin_role: enumMandatory('Admin Role', AdminRole, AdminRole.MasterAdmin),
 
   admin_image_url: stringOptional('Admin Image URL', 0, 300),
@@ -84,12 +84,12 @@ export type UserAdminQueryDTO = z.infer<typeof UserAdminQuerySchema>;
 export const toUserAdminPayload = (admin: UserAdmin): UserAdminDTO => ({
   admin_name: admin.admin_name,
   email: admin.email,
-  password: admin.password ?? '',
-  mobile: admin.mobile ?? '',
+  password: admin.password || '',
+  mobile: admin.mobile || '',
   admin_role: admin.admin_role,
-  admin_image_url: admin.admin_image_url ?? '',
-  admin_image_key: admin.admin_image_key ?? '',
-  admin_image_name: admin.admin_image_name ?? '',
+  admin_image_url: admin.admin_image_url || '',
+  admin_image_key: admin.admin_image_key || '',
+  admin_image_name: admin.admin_image_name || '',
   status: admin.status,
 });
 
@@ -107,9 +107,7 @@ export const newUserAdminPayload = (): UserAdminDTO => ({
 });
 
 // API Methods
-export const findUserAdmins = async (
-  data: UserAdminQueryDTO
-): Promise<FBR<UserAdmin[]>> => {
+export const findUserAdmin = async (data: UserAdminQueryDTO): Promise<FBR<UserAdmin[]>> => {
   return apiPost<FBR<UserAdmin[]>, UserAdminQueryDTO>(ENDPOINTS.find, data);
 };
 
@@ -117,10 +115,7 @@ export const createUserAdmin = async (data: UserAdminDTO): Promise<SBR> => {
   return apiPost<SBR, UserAdminDTO>(ENDPOINTS.create, data);
 };
 
-export const updateUserAdmin = async (
-  id: string,
-  data: UserAdminDTO
-): Promise<SBR> => {
+export const updateUserAdmin = async (id: string, data: UserAdminDTO): Promise<SBR> => {
   return apiPatch<SBR, UserAdminDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -129,10 +124,8 @@ export const deleteUserAdmin = async (id: string): Promise<SBR> => {
 };
 
 // Presigned URL Fetch
-export const getPresignedUrl = async (
-  fileName: string
-): Promise<FBR<{ url: string }>> => {
-  return apiGet<FBR<{ url: string }>>(ENDPOINTS.presignedUrl(fileName));
+export const get_presigned_url = async ( file_name: string): Promise<FBR<{ url: string }>> => {
+  return apiGet<FBR<{ url: string }>>(ENDPOINTS.presigned_url(file_name));
 };
 
 // API Cache Methods
