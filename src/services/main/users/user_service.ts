@@ -33,6 +33,8 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
+  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
+  update_profile: (id: string): string => `${URL}/update_profile/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
   // Cache
@@ -186,6 +188,31 @@ export const UserSchema = z.object({
 });
 export type UserDTO = z.infer<typeof UserSchema>;
 
+// ✅ User Update logo Schema
+export const UserLogoSchema = z.object({
+  user_image_url: stringMandatory('User Image URL', 0, 300),
+  user_image_key: stringMandatory('User Image Key', 0, 300),
+  user_image_name: stringMandatory('User Image Name', 0, 300),
+});
+export type UserLogoDTO = z.infer<typeof UserLogoSchema>;
+
+// ✅ User Update Profile Schema
+export const UserProfileSchema = z.object({
+  first_name: stringMandatory('First Name', 2, 100),
+  last_name: stringOptional('Last Name', 0, 100),
+  email: stringMandatory('Email', 3, 100),
+  username: stringOptional('Mobile', 0, 100),
+  mobile: stringOptional('Mobile', 0, 20),
+  password: stringOptional('Password', 0, 20),
+
+  user_image_url: stringOptional('User Image URL', 0, 300),
+  user_image_key: stringOptional('User Image Key', 0, 300),
+  user_image_name: stringOptional('User Image Name', 0, 300),
+
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type UserProfileDTO = z.infer<typeof UserProfileSchema>;
+
 // ✅ User Query Schema
 export const UserQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
@@ -280,6 +307,28 @@ export const toUserPayload = (data: User): UserDTO => ({
     data.UserVehicleLink?.map((v) => v.vehicle_id) || [],
 });
 
+// Convert existing data to a payload structure
+export const toUserLogoPayload = (data: User): UserLogoDTO => ({
+  user_image_url: data.user_image_url || '',
+  user_image_key: data.user_image_key || '',
+  user_image_name: data.user_image_name || '',
+});
+
+// Convert existing data to a payload structure
+export const toUserProfilePayload = (data: User): UserProfileDTO => ({
+  first_name: data.first_name,
+  last_name: data.last_name || '',
+  email: data.email,
+  mobile: data.mobile || '',
+  username: data.username || '',
+  password: data.password || '',
+
+  user_image_url: data.user_image_url || '',
+  user_image_key: data.user_image_key || '',
+  user_image_name: data.user_image_name || '',
+  status: data.status,
+});
+
 // API Methods
 export const findUser = async (data: UserQueryDTO): Promise<FBR<User[]>> => {
   return apiPost<FBR<User[]>, UserQueryDTO>(ENDPOINTS.find, data);
@@ -291,6 +340,14 @@ export const createUser = async (data: UserDTO): Promise<SBR> => {
 
 export const updateUser = async (id: string, data: UserDTO): Promise<SBR> => {
   return apiPatch<SBR, UserDTO>(ENDPOINTS.update(id), data);
+};
+
+export const updateUserLogo = async (id: string, data: UserLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserLogoDTO>(ENDPOINTS.update_logo(id), data);
+};
+
+export const updateUserProfile = async (id: string, data: UserProfileDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserProfileDTO>(ENDPOINTS.update_profile(id), data);
 };
 
 export const deleteUser = async (id: string): Promise<SBR> => {

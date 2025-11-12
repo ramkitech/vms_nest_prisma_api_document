@@ -1,6 +1,6 @@
 // Imports
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, BaseCommonFile, BR, AWSPresignedUrl } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -13,8 +13,9 @@ import {
   enumArrayOptional,
   single_select_optional,
   getAllEnums,
+  nestedArrayOfObjectsOptional,
 } from '../../../zod_utils/zod_utils';
-import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
+import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
 import { Status, YesNo, DriverType, LoginFrom } from '../../../core/Enums';
@@ -33,6 +34,8 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
+  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
+  update_profile: (id: string): string => `${URL}/update_profile/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
   // Cache
@@ -41,6 +44,11 @@ const ENDPOINTS = {
 
   // Presigned URL for file uploads
   presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+
+  // File
+  presigned_url_file: `${URL}/presigned_url`,
+  create_file: `${URL}/create_file`,
+  remove_file: (id: string): string => `${URL}/remove_file/${id}`,
 };
 
 // ✅ MasterDriver Interface
@@ -98,12 +106,24 @@ export interface MasterDriver extends Record<string, unknown> {
   // ✅ Relations - Dummy
   Dummy_MasterVehicle?: MasterVehicle[];
   DriverLoginPush?: DriverLoginPush[];
+  MasterDriverFile?: MasterDriverFile[];
 
   // ✅ Count (Child Relations)
   _count?: {
     AssignRemoveDriverHistory: number;
     DriverLoginPush: number;
+    MasterDriverFile: number;
   };
+}
+
+// Ticket File Interface
+export interface MasterDriverFile extends BaseCommonFile {
+  // Primary Fields
+  driver_file_id: string;
+  // Parent
+  driver_id: string;
+  // Organisation Id
+  organisation_id: string;
 }
 
 // ✅ AssignRemoveDriverHistory Interface
@@ -159,6 +179,13 @@ export interface DriverLoginPush extends Record<string, unknown> {
   MasterDriver?: MasterDriver;
 }
 
+// ✅ MasterDriver File Schema
+export const MasterDriverFileSchema = BaseFileSchema.extend({
+  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+});
+export type MasterDriverFileDTO = z.infer<typeof MasterDriverFileSchema>;
+
 // ✅ MasterDriver Create/Update Schema
 export const MasterDriverSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
@@ -185,8 +212,47 @@ export const MasterDriverSchema = z.object({
   driver_image_name: stringOptional('Driver Image Name', 0, 300),
 
   status: enumMandatory('Status', Status, Status.Active),
+
+  MasterDriverFileSchema: nestedArrayOfObjectsOptional(
+    'MasterDriverFileSchema',
+    MasterDriverFileSchema,
+    [],
+  ),
 });
 export type MasterDriverDTO = z.infer<typeof MasterDriverSchema>;
+
+// ✅ MasterDriver Update logo Schema
+export const MasterDriverLogoSchema = z.object({
+  driver_image_url: stringMandatory('Driver Image URL', 0, 300),
+  driver_image_key: stringMandatory('Driver Image Key', 0, 300),
+  driver_image_name: stringMandatory('Driver Image Name', 0, 300),
+});
+export type MasterDriverLogoDTO = z.infer<typeof MasterDriverLogoSchema>;
+
+// ✅ MasterDriver Update Profile Schema
+export const MasterDriverProfileSchema = z.object({
+  driver_code: stringOptional('Driver Code', 0, 50),
+  driver_first_name: stringMandatory('Driver First Name', 3, 100),
+  driver_last_name: stringOptional('Driver Last Name', 0, 100),
+  driver_mobile: stringOptional('Driver Mobile', 0, 20),
+  driver_email: stringOptional('Driver Email', 0, 100),
+  driver_license: stringOptional('Driver License', 0, 20),
+  driver_pan: stringOptional('Driver PAN', 0, 10),
+  driver_aadhaar: stringOptional('Driver Aadhaar', 0, 12),
+
+  driver_image_url: stringOptional('Driver Image URL', 0, 300),
+  driver_image_key: stringOptional('Driver Image Key', 0, 300),
+  driver_image_name: stringOptional('Driver Image Name', 0, 300),
+
+  status: enumMandatory('Status', Status, Status.Active),
+
+  MasterDriverFileSchema: nestedArrayOfObjectsOptional(
+    'MasterDriverFileSchema',
+    MasterDriverFileSchema,
+    [],
+  ),
+});
+export type MasterDriverProfileDTO = z.infer<typeof MasterDriverProfileSchema>;
 
 // ✅ MasterDriver Query Schema
 export const MasterDriverQuerySchema = BaseQuerySchema.extend({
@@ -237,6 +303,61 @@ export const toDriverPayload = (driver?: MasterDriver): MasterDriverDTO => ({
   organisation_branch_id: driver?.organisation_branch_id || '',
   organisation_color_id: driver?.organisation_color_id || '',
   organisation_tag_id: driver?.organisation_tag_id || '',
+
+  MasterDriverFileSchema: driver?.MasterDriverFile?.map((file) => ({
+    organisation_id: file.organisation_id ?? '',
+    driver_id: file.driver_id ?? '',
+    driver_file_id: file.driver_file_id ?? '',
+    usage_type: file.usage_type,
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+    status: file.status,
+  })) ?? [],
+});
+
+// ✅ Convert Driver Data to API Payload
+export const toDriverLogoPayload = (driver?: MasterDriver): MasterDriverLogoDTO => ({
+  driver_image_url: driver?.driver_image_url || '',
+  driver_image_key: driver?.driver_image_key || '',
+  driver_image_name: driver?.driver_image_name || '',
+});
+
+// ✅ Convert Driver Data to API Payload
+export const toDriverProfilePayload = (driver?: MasterDriver): MasterDriverProfileDTO => ({
+  driver_code: driver?.driver_code || '',
+  driver_first_name: driver?.driver_first_name || '',
+  driver_last_name: driver?.driver_last_name || '',
+  driver_mobile: driver?.driver_mobile || '',
+  driver_email: driver?.driver_email || '',
+  driver_license: driver?.driver_license || '',
+  driver_pan: driver?.driver_pan || '',
+  driver_aadhaar: driver?.driver_aadhaar || '',
+
+  driver_image_url: driver?.driver_image_url || '',
+  driver_image_key: driver?.driver_image_key || '',
+  driver_image_name: driver?.driver_image_name || '',
+
+  status: driver?.status || Status.Active,
+
+  MasterDriverFileSchema: driver?.MasterDriverFile?.map((file) => ({
+    organisation_id: file.organisation_id ?? '',
+    driver_id: file.driver_id ?? '',
+    driver_file_id: file.driver_file_id ?? '',
+    usage_type: file.usage_type,
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+    status: file.status,
+  })) ?? [],
 });
 
 // ✅ Create New Driver Payload
@@ -264,6 +385,8 @@ export const newDriverPayload = (): MasterDriverDTO => ({
   organisation_branch_id: '',
   organisation_color_id: '',
   organisation_tag_id: '',
+
+  MasterDriverFileSchema: [],
 });
 
 // API Methods
@@ -277,6 +400,14 @@ export const createMasterDriver = async (data: MasterDriverDTO): Promise<SBR> =>
 
 export const updateMasterDriver = async (id: string, data: MasterDriverDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterDriverDTO>(ENDPOINTS.update(id), data);
+};
+
+export const updateMasterDriverLogo = async (id: string, data: MasterDriverLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterDriverLogoDTO>(ENDPOINTS.update_logo(id), data);
+};
+
+export const updateMasterDriverProfile = async (id: string, data: MasterDriverProfileDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterDriverProfileDTO>(ENDPOINTS.update_profile(id), data);
 };
 
 export const deleteMasterDriver = async (id: string): Promise<SBR> => {
@@ -295,4 +426,17 @@ export const getMasterDriverCacheSimple = async (organisation_id: string): Promi
 // Generate presigned URL for file uploads
 export const getMasterDriver_presigned_url = async (fileName: string): Promise<SBR> => {
   return apiGet<SBR>(ENDPOINTS.presigned_url(fileName));
+};
+
+// File API Methods
+export const get_master_driver_presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url_file, data);
+};
+
+export const create_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterDriverFileDTO>(ENDPOINTS.create_file, data);
+};
+
+export const remove_file = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_file(id));
 };

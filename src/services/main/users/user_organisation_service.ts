@@ -49,6 +49,7 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
+  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (): string => `${URL}/cache`,
   cache_simple: (): string => `${URL}/cache_simple`,
@@ -244,11 +245,21 @@ export const UserOrganisationSchema = z.object({
   language_id: single_select_optional('MasterMainLanguage'), // ✅ Single-Selection -> MasterMainLanguage
   time_zone_id: single_select_mandatory('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
   date_format_id: single_select_optional('MasterMainDateFormat'), // ✅ Single-Selection -> MasterMainDateFormat
-  distance_unit_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  distance_unit_id: single_select_optional('MasterMainUnitDistance'), // ✅ Single-Selection -> MasterMainUnitDistance
   mileage_unit_id: single_select_optional('MasterMainUnitMileage'), // ✅ Single-Selection -> MasterMainUnitMileage
   volume_unit_id: single_select_optional('MasterMainUnitVolume'), // ✅ Single-Selection -> MasterMainUnitVolume
 });
 export type UserOrganisationDTO = z.infer<typeof UserOrganisationSchema>;
+
+// ✅ UserOrganisation Update logo Schema
+export const UserOrganisationLogoSchema = z.object({
+  logo_url: stringMandatory('Logo URL', 0, 300),
+  logo_key: stringMandatory('Logo Key', 0, 300),
+  logo_name: stringMandatory('Logo Name', 0, 300),
+});
+export type UserOrganisationLogoDTO = z.infer<
+  typeof UserOrganisationLogoSchema
+>;
 
 // ✅ UserOrganisation Query Schema
 export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
@@ -328,6 +339,13 @@ export const toUserOrganisationPayload = (organisation: UserOrganisation): UserO
   volume_unit_id: organisation.volume_unit_id || '',
 });
 
+// Convert existing data to a payload structure
+export const toUserOrganisationLogoPayload = (organisation: UserOrganisation): UserOrganisationLogoDTO => ({
+  logo_url: organisation.logo_url || '',
+  logo_key: organisation.logo_key || '',
+  logo_name: organisation.logo_name || '',
+});
+
 // Generate a new payload with default values
 export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
   organisation_name: '',
@@ -397,6 +415,10 @@ export const createUserOrganisation = async (data: UserOrganisationDTO): Promise
 
 export const updateUserOrganisation = async (id: string, data: UserOrganisationDTO): Promise<SBR> => {
   return apiPatch<SBR, UserOrganisationDTO>(ENDPOINTS.update(id), data);
+};
+
+export const updateUserOrganisationLogo = async (id: string, data: UserOrganisationLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserOrganisationLogoDTO>(ENDPOINTS.update_logo(id), data);
 };
 
 export const deleteUserOrganisation = async (id: string): Promise<SBR> => {
