@@ -1,6 +1,6 @@
 // Axios
 import { apiPost, apiPatch, apiDelete } from '../../core/apiCall';
-import { SBR, FBR, BaseCommionFile, BR, AWSPresignedUrl } from '../../core/BaseResponse';
+import { SBR, FBR, BaseCommonFile, BR, AWSPresignedUrl } from '../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -32,11 +32,11 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
+  update_verify_status: (id: string): string => `${URL}/verify_status/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  cache: `${URL}/cache`,
   presigned_url: `${URL}/presigned_url`,
-  createFile: `${URL}/create_file`,
-  removeFile: (id: string): string => `${URL}/remove_file/${id}`,
+  create_file: `${URL}/create_file`,
+  remove_file: (id: string): string => `${URL}/remove_file/${id}`,
 };
 
 // Ticket Interface
@@ -73,59 +73,62 @@ export interface Ticket extends Record<string, unknown> {
 }
 
 // Ticket File Interface
-export interface TicketFile extends BaseCommionFile {
+export interface TicketFile extends BaseCommonFile {
   // Primary Fields
   ticket_file_id: string;
-
   // Parent
   ticket_id: string;
-
   // Organisation Id
   organisation_id: string;
 }
 
-// ✅ TicketFile Schema
+// ✅ Ticket File Schema
 export const TicketFileSchema = BaseFileSchema.extend({
   organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   ticket_id: single_select_optional('Ticket'), // ✅ Single-Selection -> Ticket
 });
 export type TicketFileDTO = z.infer<typeof TicketFileSchema>;
 
-// ✅ Ticket Create/Update Schema
+// ✅ Ticket Create/update Schema
 export const TicketSchema = z.object({
   subject: stringMandatory('Subject', 3, 100),
-  description: stringOptional('Description', 0, 300),
-  admin_message: stringOptional('Admin Message', 0, 300),
-  ticket_status: enumMandatory(
-    'Ticket Status',
-    TicketStatus,
-    TicketStatus.Open
-  ),
-  organisation_id: single_select_mandatory('User Organisation'),
-  user_id: single_select_mandatory('User'),
-  admin_id: single_select_optional('User Admin'),
-  TicketFile: nestedArrayOfObjectsOptional(
-    'TicketFile',
+  description: stringOptional('Description', 0, 500),
+
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
+
+  TicketFileSchema: nestedArrayOfObjectsOptional(
+    'TicketFileSchema',
     TicketFileSchema,
-    []
+    [],
   ),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type TicketDTO = z.infer<typeof TicketSchema>;
 
+// ✅ Ticket Verify Schema
+export const TicketVerifySchema = z.object({
+  admin_id: single_select_mandatory('UserAdmin'), // ✅ Single-Selection -> UserAdmin
+  admin_message: stringOptional('Admin Message', 0, 500),
+  ticket_status: enumMandatory('TicketStatus', TicketStatus, TicketStatus.Open),
+  TicketFileSchema: nestedArrayOfObjectsOptional(
+    'TicketFileSchema',
+    TicketFileSchema,
+    [],
+  ),
+});
+export type TicketVerifyDTO = z.infer<typeof TicketVerifySchema>;
+
 // ✅ Ticket Query Schema
 export const TicketQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('User Organisation'),
-  user_ids: multi_select_optional('User'),
-  admin_ids: multi_select_optional('User Admin'),
-  ticket_ids: multi_select_optional('Ticket'),
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
+  admin_ids: multi_select_optional('UserAdmin'), // ✅ Multi-selection -> UserAdmin
+  ticket_ids: multi_select_optional('Ticket'), // ✅ Multi-selection -> Ticket
   ticket_status: enumArrayOptional(
     'Ticket Status',
     TicketStatus,
     getAllEnums(TicketStatus),
-    0,
-    10,
-    true
   ),
 });
 export type TicketQueryDTO = z.infer<typeof TicketQuerySchema>;
@@ -134,14 +137,33 @@ export type TicketQueryDTO = z.infer<typeof TicketQuerySchema>;
 export const toTicketPayload = (ticket: Ticket): TicketDTO => ({
   subject: ticket.subject,
   description: ticket.description ?? '',
-  admin_message: ticket.admin_message ?? '',
-  ticket_status: ticket.ticket_status,
   organisation_id: ticket.organisation_id,
   user_id: ticket.user_id,
-  admin_id: ticket.admin_id ?? '',
   status: ticket.status,
 
-  TicketFile: ticket.TicketFile?.map((file) => ({
+  TicketFileSchema: ticket.TicketFile?.map((file) => ({
+    organisation_id: file.organisation_id ?? '',
+    ticket_id: file.ticket_id ?? '',
+    ticket_file_id: file.ticket_file_id ?? '',
+    usage_type: file.usage_type,
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+    status: file.status,
+  })) ?? [],
+});
+
+// Convert existing data to a payload structure
+export const toVerifyTicketPayload = (ticket: Ticket): TicketVerifyDTO => ({
+  admin_message: ticket.admin_message ?? '',
+  ticket_status: ticket.ticket_status,
+  admin_id: ticket.admin_id ?? '',
+
+  TicketFileSchema: ticket.TicketFile?.map((file) => ({
     organisation_id: file.organisation_id ?? '',
     ticket_id: file.ticket_id ?? '',
     ticket_file_id: file.ticket_file_id ?? '',
@@ -161,12 +183,9 @@ export const toTicketPayload = (ticket: Ticket): TicketDTO => ({
 export const newTicketPayload = (): TicketDTO => ({
   organisation_id: '',
   user_id: '',
-  admin_id: '',
   subject: '',
   description: '',
-  admin_message: '',
-  ticket_status: TicketStatus.Open,
-  TicketFile: [],
+  TicketFileSchema: [],
   status: Status.Active,
 });
 
@@ -183,6 +202,10 @@ export const updateTicket = async (id: string, data: TicketDTO): Promise<SBR> =>
   return apiPatch<SBR, TicketDTO>(ENDPOINTS.update(id), data);
 };
 
+export const updateVerifyStatus = async (id: string, data: TicketVerifyDTO): Promise<SBR> => {
+  return apiPatch<SBR, TicketVerifyDTO>(ENDPOINTS.update_verify_status(id), data);
+};
+
 export const deleteTicket = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
@@ -193,9 +216,9 @@ export const getTicketFilePresignedUrl = async (data: FilePresignedUrlDTO): Prom
 };
 
 export const createTicketFile = async (data: TicketFileDTO): Promise<SBR> => {
-  return apiPost<SBR, TicketFileDTO>(ENDPOINTS.createFile, data);
+  return apiPost<SBR, TicketFileDTO>(ENDPOINTS.create_file, data);
 };
 
 export const removeTicketFile = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.removeFile(id));
+  return apiDelete<SBR>(ENDPOINTS.remove_file(id));
 };

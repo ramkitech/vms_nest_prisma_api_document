@@ -11,6 +11,7 @@ import {
   multi_select_optional,
   enumMandatory,
   enumArrayOptional,
+  single_select_mandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -72,6 +73,7 @@ export interface User extends Record<string, unknown> {
 
   user_image_url?: string;
   user_image_key?: string;
+  user_image_name?: string;
 
   // Metadata
   status: Status;
@@ -135,7 +137,7 @@ export interface UserVehicleLink extends Record<string, unknown> {
 export const CreateUserSchema = z.object({
   first_name: stringMandatory('First Name', 2, 100),
   last_name: stringOptional('Last Name', 0, 100),
-  email: stringMandatory('Email', 2, 100),
+  email: stringMandatory('Email', 3, 100),
   username: stringOptional('Mobile', 0, 100),
   mobile: stringOptional('Mobile', 0, 20),
   password: stringOptional('Password', 0, 20),
@@ -147,8 +149,9 @@ export const CreateUserSchema = z.object({
 
   user_image_url: stringOptional('User Image URL', 0, 300),
   user_image_key: stringOptional('User Image Key', 0, 300),
+  user_image_name: stringOptional('User Image Name', 0, 300),
 
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   user_role_id: single_select_optional('MasterUserRole'), // ✅ Single-Selection -> MasterUserRole
   user_status_id: single_select_optional('MasterUserStatus'), // ✅ Single-Selection -> MasterUserStatus
   language_id: single_select_optional('MasterMainLanguage'), // ✅ Single-Selection -> MasterMainLanguage
@@ -211,6 +214,7 @@ export const newUserPayload = (): CreateUserDTO => ({
 
   user_image_url: '',
   user_image_key: '',
+  user_image_name: '',
 
   organisation_id: '',
   user_role_id: '',
@@ -219,7 +223,7 @@ export const newUserPayload = (): CreateUserDTO => ({
   time_zone_id: '',
   date_format_id: '',
 
-  status: Status.Active,
+  status: Status.Active
 });
 
 // Convert existing data to a payload structure
@@ -237,6 +241,7 @@ export const toUserPayload = (data: User): CreateUserDTO => ({
 
   user_image_url: data.user_image_url ?? '',
   user_image_key: data.user_image_key ?? '',
+  user_image_name: data.user_image_name ?? '',
 
   organisation_id: data.organisation_id ?? '',
   user_role_id: data.user_role_id ?? '',

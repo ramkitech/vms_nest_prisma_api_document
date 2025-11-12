@@ -1,6 +1,6 @@
 // Axios
 import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR, AWSPresignedUrl, BR, BaseCommionFile } from '../../../core/BaseResponse';
+import { SBR, FBR, AWSPresignedUrl, BR, BaseCommonFile } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -163,7 +163,7 @@ export interface FleetFuelRefill extends Record<string, unknown> {
 }
 
 // ✅ FleetFuelRefillFile Interface
-export interface FleetFuelRefillFile extends BaseCommionFile {
+export interface FleetFuelRefillFile extends BaseCommonFile {
   // Primary Fields
   fleet_fuel_refill_file_id: string;
 

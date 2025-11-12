@@ -53,8 +53,8 @@ export interface AWSPresignedUrl {
   file_key: string;
 }
 
-// ✅ BaseCommionFile Interface
-export interface BaseCommionFile extends Record<string, unknown> {
+// ✅ BaseCommonFile Interface
+export interface BaseCommonFile extends Record<string, unknown> {
   // Usage Type
   usage_type: string;
 
