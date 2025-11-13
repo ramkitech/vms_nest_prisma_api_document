@@ -50,6 +50,7 @@ const ENDPOINTS = {
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   update_logo: (id: string): string => `${URL}/update_logo/${id}`,
+  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
   cache: (): string => `${URL}/cache`,
   cache_simple: (): string => `${URL}/cache_simple`,
@@ -421,6 +422,10 @@ export const updateUserOrganisationLogo = async (id: string, data: UserOrganisat
   return apiPatch<SBR, UserOrganisationLogoDTO>(ENDPOINTS.update_logo(id), data);
 };
 
+export const deleteUserOrganisationLogo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
+};
+
 export const deleteUserOrganisation = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
@@ -435,6 +440,6 @@ export const getUserOrganisationCacheSimple = async (): Promise<FBR<UserOrganisa
 };
 
 // Generate presigned URL for file uploads
-export const getUserOrganisation_presigned_url = async ( file_name: string): Promise<SBR> => {
+export const get_user_organisation_presigned_url = async ( file_name: string): Promise<SBR> => {
   return apiGet<SBR>(ENDPOINTS.presigned_url(file_name));
 };

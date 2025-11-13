@@ -35,6 +35,7 @@ const ENDPOINTS = {
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   update_logo: (id: string): string => `${URL}/update_logo/${id}`,
+  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
@@ -406,6 +407,10 @@ export const updateMasterDriverLogo = async (id: string, data: MasterDriverLogoD
   return apiPatch<SBR, MasterDriverLogoDTO>(ENDPOINTS.update_logo(id), data);
 };
 
+export const deleteMasterDriverLogo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
+};
+
 export const updateMasterDriverProfile = async (id: string, data: MasterDriverProfileDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterDriverProfileDTO>(ENDPOINTS.update_profile(id), data);
 };
@@ -424,7 +429,7 @@ export const getMasterDriverCacheSimple = async (organisation_id: string): Promi
 };
 
 // Generate presigned URL for file uploads
-export const getMasterDriver_presigned_url = async (fileName: string): Promise<SBR> => {
+export const get_master_driver_presigned_url = async (fileName: string): Promise<SBR> => {
   return apiGet<SBR>(ENDPOINTS.presigned_url(fileName));
 };
 
