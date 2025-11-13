@@ -22,6 +22,7 @@ const ENDPOINTS = {
   driver_change_password: `${URL}/driver_change_password`,
 
   admin_login: `${URL}/admin_login`,
+  admin_logout: `${URL}/admin_logout`,
   admin_change_password: `${URL}/admin_change_password`,
 };
 
@@ -40,14 +41,14 @@ export interface DriverResponse extends Record<string, unknown> {
   user: MasterDriver;
 }
 
-export const ChangePasswordSchema = z.object({
+export const UserChangePasswordSchema = z.object({
   user_id: stringUUIDMandatory('user_id'),
   old_password: stringMandatory('Old Password', 3, 20),
   new_password: stringMandatory('New Password Size', 3, 20),
 });
-export type UserChangePasswordDTO = z.infer<typeof ChangePasswordSchema>;
+export type UserChangePasswordDTO = z.infer<typeof UserChangePasswordSchema>;
 
-export const LoginUserSchema = z.object({
+export const UserLoginSchema = z.object({
   identifier: stringMandatory('Identifier', 3, 100),
   password: stringMandatory('Password', 3, 20),
 
@@ -67,13 +68,13 @@ export const LoginUserSchema = z.object({
   browser_version: stringOptional('browser_version', 0, 60),
   app_version: stringOptional('app_version', 0, 40),
 });
-export type LoginUserDTO = z.infer<typeof LoginUserSchema>;
+export type UserLoginDTO = z.infer<typeof UserLoginSchema>;
 
-export const LogoutSchema = z.object({
+export const UserLogoutSchema = z.object({
   fcm_token: stringOptional('fcm_token', 0, 10000),
   device_id: stringOptional('device_id', 0, 120),
 });
-export type LogoutDTO = z.infer<typeof LogoutSchema>;
+export type UserLogoutDTO = z.infer<typeof UserLogoutSchema>;
 
 export const DriverChangePasswordSchema = z.object({
   driver_id: stringUUIDMandatory('driver_id'),
@@ -84,7 +85,9 @@ export type DriverChangePasswordDTO = z.infer<
   typeof DriverChangePasswordSchema
 >;
 
-export const LoginDriverSchema = z.object({
+export const DriverLoginSchema = z.object({
+  organisation_id: stringUUIDMandatory('organisation_id'),
+
   identifier: stringMandatory('Identifier', 3, 100),
   password: stringMandatory('Password', 3, 20),
 
@@ -104,19 +107,13 @@ export const LoginDriverSchema = z.object({
   browser_version: stringOptional('browser_version', 0, 60),
   app_version: stringOptional('app_version', 0, 40),
 });
-export type LoginDriverDTO = z.infer<typeof LoginDriverSchema>;
+export type DriverLoginDTO = z.infer<typeof DriverLoginSchema>;
 
 export const DriverLogoutSchema = z.object({
   fcm_token: stringOptional('fcm_token', 0, 10000),
   device_id: stringOptional('device_id', 0, 120),
 });
 export type DriverLogoutDTO = z.infer<typeof DriverLogoutSchema>;
-
-export const LoginAdminSchema = z.object({
-  email: stringMandatory('Email', 3, 100),
-  password: stringMandatory('Password', 3, 20),
-});
-export type LoginAdminDTO = z.infer<typeof LoginAdminSchema>;
 
 export const AdminChangePasswordSchema = z.object({
   admin_id: stringUUIDMandatory('admin_id'),
@@ -125,15 +122,43 @@ export const AdminChangePasswordSchema = z.object({
 });
 export type AdminChangePasswordDTO = z.infer<typeof AdminChangePasswordSchema>;
 
+export const AdminLoginSchema = z.object({
+  identifier: stringMandatory('Identifier', 3, 100),
+  password: stringMandatory('Password', 3, 20),
+
+  fcm_token: stringOptional('fcm_token', 0, 10000),
+
+  platform: enumOptional('Login From', LoginFrom, LoginFrom.Web),
+
+  user_agent: stringOptional('user_agent', 0, 500),
+  ip_address: stringOptional('ip_address', 0, 45),
+
+  device_id: stringOptional('device_id', 0, 120),
+
+  device_model: stringOptional('device_model', 0, 120),
+  os_name: stringOptional('os_name', 0, 80),
+  os_version: stringOptional('os_version', 0, 60),
+  browser_name: stringOptional('browser_name', 0, 80),
+  browser_version: stringOptional('browser_version', 0, 60),
+  app_version: stringOptional('app_version', 0, 40),
+});
+export type AdminLoginDTO = z.infer<typeof AdminLoginSchema>;
+
+export const AdminLogoutSchema = z.object({
+  fcm_token: stringOptional('fcm_token', 0, 10000),
+  device_id: stringOptional('device_id', 0, 120),
+});
+export type AdminLogoutDTO = z.infer<typeof AdminLogoutSchema>;
+
 // API Methods
 
 // User
-export const user_login = async (data: LoginUserDTO): Promise<BR<UserResponse>> => {
-  return apiPost<BR<UserResponse>, LoginUserDTO>(ENDPOINTS.user_login, data);
+export const user_login = async (data: UserLoginDTO): Promise<BR<UserResponse>> => {
+  return apiPost<BR<UserResponse>, UserLoginDTO>(ENDPOINTS.user_login, data);
 };
 
-export const user_logout = async (data: LogoutDTO): Promise<SBR> => {
-  return apiPost<SBR, LogoutDTO>(ENDPOINTS.user_logout, data);
+export const user_logout = async (data: UserLogoutDTO): Promise<SBR> => {
+  return apiPost<SBR, UserLogoutDTO>(ENDPOINTS.user_logout, data);
 };
 
 export const user_change_password = async (data: UserChangePasswordDTO): Promise<SBR> => {
@@ -141,8 +166,12 @@ export const user_change_password = async (data: UserChangePasswordDTO): Promise
 };
 
 // UserAdmin
-export const admin_login = async (data: LoginAdminDTO): Promise<BR<AdminResponse>> => {
-  return apiPost<BR<AdminResponse>, LoginAdminDTO>(ENDPOINTS.admin_login, data);
+export const admin_login = async (data: AdminLoginDTO): Promise<BR<AdminResponse>> => {
+  return apiPost<BR<AdminResponse>, AdminLoginDTO>(ENDPOINTS.admin_login, data);
+};
+
+export const admin_logout = async (data: AdminLogoutDTO): Promise<SBR> => {
+  return apiPost<SBR, AdminLogoutDTO>(ENDPOINTS.admin_logout, data);
 };
 
 export const admin_change_password = async (data: AdminChangePasswordDTO): Promise<SBR> => {
@@ -150,8 +179,8 @@ export const admin_change_password = async (data: AdminChangePasswordDTO): Promi
 };
 
 // MasterDriver
-export const driver_login = async (data: LoginDriverDTO): Promise<BR<DriverResponse>> => {
-  return apiPost<BR<DriverResponse>, LoginDriverDTO>(ENDPOINTS.driver_login, data);
+export const driver_login = async (data: DriverLoginDTO): Promise<BR<DriverResponse>> => {
+  return apiPost<BR<DriverResponse>, DriverLoginDTO>(ENDPOINTS.driver_login, data);
 };
 
 export const driver_logout = async (data: DriverLogoutDTO): Promise<SBR> => {
