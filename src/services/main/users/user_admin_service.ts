@@ -200,7 +200,6 @@ export const deleteUserAdminLogo = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
-
 export const updateUserAdminProfile = async (id: string, data: UserAdminProfileDTO): Promise<SBR> => {
   return apiPatch<SBR, UserAdminProfileDTO>(ENDPOINTS.update_profile(id), data);
 };
