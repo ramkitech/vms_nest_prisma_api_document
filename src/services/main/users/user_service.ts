@@ -1,6 +1,6 @@
 // Imports
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -33,10 +33,11 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
+  delete: (id: string): string => `${URL}/${id}`,
+
   update_logo: (id: string): string => `${URL}/update_logo/${id}`,
   delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
-  delete: (id: string): string => `${URL}/${id}`,
 
   // Cache
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
@@ -189,31 +190,6 @@ export const UserSchema = z.object({
 });
 export type UserDTO = z.infer<typeof UserSchema>;
 
-// ✅ User Update logo Schema
-export const UserLogoSchema = z.object({
-  user_image_url: stringMandatory('User Image URL', 0, 300),
-  user_image_key: stringMandatory('User Image Key', 0, 300),
-  user_image_name: stringMandatory('User Image Name', 0, 300),
-});
-export type UserLogoDTO = z.infer<typeof UserLogoSchema>;
-
-// ✅ User Update Profile Schema
-export const UserProfileSchema = z.object({
-  first_name: stringMandatory('First Name', 2, 100),
-  last_name: stringOptional('Last Name', 0, 100),
-  email: stringMandatory('Email', 3, 100),
-  username: stringOptional('Mobile', 0, 100),
-  mobile: stringOptional('Mobile', 0, 20),
-  password: stringOptional('Password', 0, 20),
-
-  user_image_url: stringOptional('User Image URL', 0, 300),
-  user_image_key: stringOptional('User Image Key', 0, 300),
-  user_image_name: stringOptional('User Image Name', 0, 300),
-
-  status: enumMandatory('Status', Status, Status.Active),
-});
-export type UserProfileDTO = z.infer<typeof UserProfileSchema>;
-
 // ✅ User Query Schema
 export const UserQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
@@ -229,6 +205,28 @@ export const UserQuerySchema = BaseQuerySchema.extend({
   all_vehicles: enumArrayOptional('All Vehicles', YesNo),
 });
 export type UserQueryDTO = z.infer<typeof UserQuerySchema>;
+
+// ✅ User Logo Schema
+export const UserLogoSchema = z.object({
+  user_image_url: stringMandatory('User Image URL', 0, 300),
+  user_image_key: stringMandatory('User Image Key', 0, 300),
+  user_image_name: stringMandatory('User Image Name', 0, 300),
+});
+export type UserLogoDTO = z.infer<typeof UserLogoSchema>;
+
+// ✅ User Update Profile Schema
+export const UserProfileSchema = z.object({
+  first_name: stringMandatory('First Name', 2, 100),
+  last_name: stringOptional('Last Name', 0, 100),
+  email: stringMandatory('Email', 3, 100),
+  username: stringOptional('Mobile', 0, 100),
+  mobile: stringOptional('Mobile', 0, 20),
+
+  user_image_url: stringOptional('User Image URL', 0, 300),
+  user_image_key: stringOptional('User Image Key', 0, 300),
+  user_image_name: stringOptional('User Image Name', 0, 300),
+});
+export type UserProfileDTO = z.infer<typeof UserProfileSchema>;
 
 // ✅ Update UserDefaultLanguageSchema
 export const UserDefaultLanguageSchema = z.object({
@@ -309,25 +307,16 @@ export const toUserPayload = (data: User): UserDTO => ({
 });
 
 // Convert existing data to a payload structure
-export const toUserLogoPayload = (data: User): UserLogoDTO => ({
-  user_image_url: data.user_image_url || '',
-  user_image_key: data.user_image_key || '',
-  user_image_name: data.user_image_name || '',
-});
-
-// Convert existing data to a payload structure
 export const toUserProfilePayload = (data: User): UserProfileDTO => ({
   first_name: data.first_name,
   last_name: data.last_name || '',
   email: data.email,
   mobile: data.mobile || '',
   username: data.username || '',
-  password: data.password || '',
 
   user_image_url: data.user_image_url || '',
   user_image_key: data.user_image_key || '',
   user_image_name: data.user_image_name || '',
-  status: data.status,
 });
 
 // API Methods
@@ -343,6 +332,10 @@ export const updateUser = async (id: string, data: UserDTO): Promise<SBR> => {
   return apiPatch<SBR, UserDTO>(ENDPOINTS.update(id), data);
 };
 
+export const deleteUser = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
 export const updateUserLogo = async (id: string, data: UserLogoDTO): Promise<SBR> => {
   return apiPatch<SBR, UserLogoDTO>(ENDPOINTS.update_logo(id), data);
 };
@@ -355,10 +348,6 @@ export const updateUserProfile = async (id: string, data: UserProfileDTO): Promi
   return apiPatch<SBR, UserProfileDTO>(ENDPOINTS.update_profile(id), data);
 };
 
-export const deleteUser = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
 // API Cache Methods
 export const getUserCache = async (organisation_id: string): Promise<FBR<User[]>> => {
   return apiGet<FBR<User[]>>(ENDPOINTS.cache(organisation_id));
@@ -369,8 +358,8 @@ export const getUserCacheSimple = async (organisation_id: string): Promise<FBR<U
 };
 
 // Generate presigned URL for file uploads
-export const get_user_presigned_url = async (fileName: string): Promise<SBR> => {
-  return apiGet<SBR>(ENDPOINTS.presigned_url(fileName));
+export const get_user_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
 };
 
 // Update Default Language

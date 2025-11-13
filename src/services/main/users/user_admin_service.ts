@@ -26,10 +26,11 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
+  delete: (id: string): string => `${URL}/${id}`,
+
   update_logo: (id: string): string => `${URL}/update_logo/${id}`,
   delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
-  delete: (id: string): string => `${URL}/${id}`,
 
   presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 
@@ -112,7 +113,7 @@ export const UserAdminSchema = z.object({
 });
 export type UserAdminDTO = z.infer<typeof UserAdminSchema>;
 
-// ✅ UserAdmin Update logo Schema
+// ✅ UserAdmin Logo Schema
 export const UserAdminLogoSchema = z.object({
   admin_image_url: stringMandatory('Admin Image URL', 0, 300),
   admin_image_key: stringMandatory('Admin Image Key', 0, 300),
@@ -192,6 +193,10 @@ export const updateUserAdmin = async (id: string, data: UserAdminDTO): Promise<S
   return apiPatch<SBR, UserAdminDTO>(ENDPOINTS.update(id), data);
 };
 
+export const deleteUserAdmin = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
 export const updateUserAdminLogo = async (id: string, data: UserAdminLogoDTO): Promise<SBR> => {
   return apiPatch<SBR, UserAdminLogoDTO>(ENDPOINTS.update_logo(id), data);
 };
@@ -202,10 +207,6 @@ export const deleteUserAdminLogo = async (id: string): Promise<SBR> => {
 
 export const updateUserAdminProfile = async (id: string, data: UserAdminProfileDTO): Promise<SBR> => {
   return apiPatch<SBR, UserAdminProfileDTO>(ENDPOINTS.update_profile(id), data);
-};
-
-export const deleteUserAdmin = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
 // Presigned URL Fetch

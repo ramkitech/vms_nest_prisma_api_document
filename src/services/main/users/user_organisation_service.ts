@@ -1,6 +1,6 @@
 // Imports
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -49,12 +49,15 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
+  delete: (id: string): string => `${URL}/${id}`,
+
   update_logo: (id: string): string => `${URL}/update_logo/${id}`,
   delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
-  delete: (id: string): string => `${URL}/${id}`,
+
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+
   cache: (): string => `${URL}/cache`,
   cache_simple: (): string => `${URL}/cache_simple`,
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 };
 
 // UserOrganisation Interface
@@ -252,16 +255,6 @@ export const UserOrganisationSchema = z.object({
 });
 export type UserOrganisationDTO = z.infer<typeof UserOrganisationSchema>;
 
-// ✅ UserOrganisation Update logo Schema
-export const UserOrganisationLogoSchema = z.object({
-  logo_url: stringMandatory('Logo URL', 0, 300),
-  logo_key: stringMandatory('Logo Key', 0, 300),
-  logo_name: stringMandatory('Logo Name', 0, 300),
-});
-export type UserOrganisationLogoDTO = z.infer<
-  typeof UserOrganisationLogoSchema
->;
-
 // ✅ UserOrganisation Query Schema
 export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
   industry_ids: multi_select_optional('MasterMainIndustry'), // ✅ Multi-Selection -> MasterMainIndustry
@@ -280,6 +273,16 @@ export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
 });
 export type UserOrganisationQueryDTO = z.infer<
   typeof UserOrganisationQuerySchema
+>;
+
+// ✅ UserOrganisation Logo Schema
+export const UserOrganisationLogoSchema = z.object({
+  logo_url: stringMandatory('Logo URL', 0, 300),
+  logo_key: stringMandatory('Logo Key', 0, 300),
+  logo_name: stringMandatory('Logo Name', 0, 300),
+});
+export type UserOrganisationLogoDTO = z.infer<
+  typeof UserOrganisationLogoSchema
 >;
 
 // Convert existing data to a payload structure
@@ -338,13 +341,6 @@ export const toUserOrganisationPayload = (organisation: UserOrganisation): UserO
   distance_unit_id: organisation.distance_unit_id || '',
   mileage_unit_id: organisation.mileage_unit_id || '',
   volume_unit_id: organisation.volume_unit_id || '',
-});
-
-// Convert existing data to a payload structure
-export const toUserOrganisationLogoPayload = (organisation: UserOrganisation): UserOrganisationLogoDTO => ({
-  logo_url: organisation.logo_url || '',
-  logo_key: organisation.logo_key || '',
-  logo_name: organisation.logo_name || '',
 });
 
 // Generate a new payload with default values
@@ -418,6 +414,10 @@ export const updateUserOrganisation = async (id: string, data: UserOrganisationD
   return apiPatch<SBR, UserOrganisationDTO>(ENDPOINTS.update(id), data);
 };
 
+export const deleteUserOrganisation = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
 export const updateUserOrganisationLogo = async (id: string, data: UserOrganisationLogoDTO): Promise<SBR> => {
   return apiPatch<SBR, UserOrganisationLogoDTO>(ENDPOINTS.update_logo(id), data);
 };
@@ -426,8 +426,9 @@ export const deleteUserOrganisationLogo = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
-export const deleteUserOrganisation = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete(id));
+// Generate presigned URL for file uploads
+export const get_user_organisation_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(file_name));
 };
 
 // API Cache Methods
@@ -437,9 +438,4 @@ export const getUserOrganisationCache = async (): Promise<FBR<UserOrganisation[]
 
 export const getUserOrganisationCacheSimple = async (): Promise<FBR<UserOrganisationSimple[]>> => {
   return apiGet<FBR<UserOrganisationSimple[]>>(ENDPOINTS.cache_simple());
-};
-
-// Generate presigned URL for file uploads
-export const get_user_organisation_presigned_url = async ( file_name: string): Promise<SBR> => {
-  return apiGet<SBR>(ENDPOINTS.presigned_url(file_name));
 };
