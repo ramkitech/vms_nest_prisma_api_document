@@ -1,6 +1,6 @@
 // Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, BR, AWSPresignedUrl } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -29,8 +29,8 @@ const ENDPOINTS = {
   update_logo: (id: string): string => `${URL}/update_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
- 
-  presigned_url: (fileName: string): string =>`${URL}/presigned_url/${fileName}`,
+
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 
   // Cache
   cache: `${URL}/cache`,
@@ -57,14 +57,14 @@ export interface UserAdmin extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Child
-    Ticket: Ticket[];
-    UserAdminLoginPush: UserAdminLoginPush[];
-  
-    // Count
-    _count?: {
-      Ticket: number;
-      UserAdminLoginPush: number;
-    };
+  Ticket: Ticket[];
+  UserAdminLoginPush: UserAdminLoginPush[];
+
+  // Count
+  _count?: {
+    Ticket: number;
+    UserAdminLoginPush: number;
+  };
 }
 
 export interface UserAdminLoginPush extends Record<string, unknown> {
@@ -216,8 +216,8 @@ export const deleteUserAdmin = async (id: string): Promise<SBR> => {
 };
 
 // Presigned URL Fetch
-export const get_presigned_url = async ( file_name: string): Promise<FBR<{ url: string }>> => {
-  return apiGet<FBR<{ url: string }>>(ENDPOINTS.presigned_url(file_name));
+export const get_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(file_name));
 };
 
 // API Cache Methods
