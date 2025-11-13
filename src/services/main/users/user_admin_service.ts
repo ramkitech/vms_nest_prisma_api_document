@@ -123,14 +123,11 @@ export type UserAdminLogoDTO = z.infer<typeof UserAdminLogoSchema>;
 export const UserAdminProfileSchema = z.object({
   admin_name: stringMandatory('Admin Name', 3, 100),
   email: stringMandatory('Email', 3, 100),
-  password: stringOptional('Password', 0, 20),
   mobile: stringOptional('Password', 0, 20),
 
   admin_image_url: stringOptional('Admin Image URL', 0, 300),
   admin_image_key: stringOptional('Admin Image Key', 0, 300),
   admin_image_name: stringOptional('Admin Image Name', 0, 300),
-
-  status: enumMandatory('Status', Status, Status.Active),
 });
 export type UserAdminProfileDTO = z.infer<typeof UserAdminProfileSchema>;
 
@@ -169,12 +166,10 @@ export const toUserAdminLogoPayload = (admin: UserAdmin): UserAdminLogoDTO => ({
 export const toUserAdminProfilePayload = (admin: UserAdmin): UserAdminProfileDTO => ({
   admin_name: admin.admin_name,
   email: admin.email,
-  password: admin.password || '',
   mobile: admin.mobile || '',
   admin_image_url: admin.admin_image_url || '',
   admin_image_key: admin.admin_image_key || '',
   admin_image_name: admin.admin_image_name || '',
-  status: admin.status,
 });
 
 // Generate a new payload with default values
