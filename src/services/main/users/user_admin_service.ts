@@ -216,7 +216,7 @@ export const deleteUserAdmin = async (id: string): Promise<SBR> => {
 };
 
 // Presigned URL Fetch
-export const get_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
+export const get_admin_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
   return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(file_name));
 };
 
