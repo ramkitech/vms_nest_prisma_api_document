@@ -27,6 +27,7 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   update_logo: (id: string): string => `${URL}/update_logo/${id}`,
+  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
@@ -156,13 +157,6 @@ export const toUserAdminPayload = (admin: UserAdmin): UserAdminDTO => ({
 });
 
 // Convert existing data to a payload structure
-export const toUserAdminLogoPayload = (admin: UserAdmin): UserAdminLogoDTO => ({
-  admin_image_url: admin.admin_image_url || '',
-  admin_image_key: admin.admin_image_key || '',
-  admin_image_name: admin.admin_image_name || '',
-});
-
-// Convert existing data to a payload structure
 export const toUserAdminProfilePayload = (admin: UserAdmin): UserAdminProfileDTO => ({
   admin_name: admin.admin_name,
   email: admin.email,
@@ -201,6 +195,11 @@ export const updateUserAdmin = async (id: string, data: UserAdminDTO): Promise<S
 export const updateUserAdminLogo = async (id: string, data: UserAdminLogoDTO): Promise<SBR> => {
   return apiPatch<SBR, UserAdminLogoDTO>(ENDPOINTS.update_logo(id), data);
 };
+
+export const deleteUserAdminLogo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
+};
+
 
 export const updateUserAdminProfile = async (id: string, data: UserAdminProfileDTO): Promise<SBR> => {
   return apiPatch<SBR, UserAdminProfileDTO>(ENDPOINTS.update_profile(id), data);
