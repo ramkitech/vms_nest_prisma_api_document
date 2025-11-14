@@ -846,3 +846,38 @@ export enum DriverType {
   Driver = 'Driver',
   Helper = 'Helper',
 }
+
+
+export enum SteeringType {
+  Manual = 'Manual',
+  Power = 'Power',
+  Electric = 'Electric',
+  Hydraulic = 'Hydraulic',
+}
+
+export enum WheelDriveType {
+  FWD = 'FWD',
+  RWD = 'RWD',
+  AWD = 'AWD',
+  FourWD = 'FourWD',
+  TwoWD = 'TwoWD',
+  SixWD = 'SixWD',
+  EightWD = 'EightWD',
+  EAWD = 'EAWD',
+  SelectableFourWD = 'SelectableFourWD',
+}
+
+export enum VehicleLifeStatus {
+  Active = 'Active',
+  Retired = 'Retired',
+  Scrapped = 'Scrapped',
+  Reassigned = 'Reassigned',
+  Sold = 'Sold',
+  Inactive = 'Inactive',
+}
+
+export enum LoanInterestType {
+  Simple = 'Simple',
+  Compound = 'Compound',
+  Reducing = 'Reducing',
+}
