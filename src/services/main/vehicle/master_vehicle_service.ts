@@ -1,6 +1,6 @@
 // Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR, BR } from '../../../core/BaseResponse';
+import { SBR, FBR, BR, AWSPresignedUrl } from '../../../core/BaseResponse';
 
 //Zod
 import { z } from 'zod';
@@ -20,7 +20,7 @@ import {
   getAllEnums,
   nestedArrayOfObjectsOptional,
 } from '../../../zod_utils/zod_utils';
-import { BaseFileSchema, BaseQueryDTO, BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
+import { BaseFileSchema, BaseQueryDTO, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 //Enums
 import {
@@ -71,10 +71,13 @@ import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicl
 const URL = 'main/master_vehicle';
 
 const ENDPOINTS = {
-  vehicle_presigned_url: `${URL}/vehicle_presigned_url/:fileName`,
-  device_presigned_url: `${URL}/device_presigned_url/:fileName`,
+
+  // AWS S3 PRESIGNED
+  vehicle_presigned_url: (file_name: string): string => `${URL}/vehicle_presigned_url/${file_name}`,
+  device_presigned_url: (file_name: string): string => `${URL}/device_presigned_url/${file_name}`,
   vehicle_file_presigned_url: `${URL}/vehicle_file_presigned_url`,
 
+  // Vehicle CRED
   find: `${URL}/search`,
   find_live_dashboard: `${URL}/live_dashboard/search`,
   find_gps_details: `${URL}/gps_details/search`,
@@ -95,7 +98,7 @@ const ENDPOINTS = {
   find_vehicle_driver_link_history_by_vehicle: `${URL}/vehicle_driver_link_history_by_vehicle/:id`,
   find_vehicle_driver_link_history_by_driver: `${URL}/vehicle_driver_link_history_by_driver/:id`,
 
-  // // API Vehicle Device Link
+  // API Vehicle Device Link
   vehicle_device_link: `${URL}/vehicle_device_link`,
   vehicle_device_unlink: `${URL}/vehicle_device_unlink`,
   vehicle_device_link_history_by_vehicle: `${URL}/vehicle_device_link_history_by_vehicle/:id`,
@@ -115,14 +118,14 @@ const ENDPOINTS = {
   create_file_vehicle_document: `${URL}/create_file_vehicle_document`,
   remove_file_vehicle_document: `${URL}/remove_file_vehicle_document/:id`,
 
-  // ✅ Cache Endpoints By organisation_id
+  // Cache Endpoints By organisation_id
   find_cache: `${URL}/cache/:organisation_id`,
   find_cache_simple: `${URL}/cache_simple/:organisation_id`,
   find_cache_parent: `${URL}/cache_parent/:organisation_id`,
   find_cache_dropdown: `${URL}/cache_dropdown/:organisation_id`,
   find_cache_dropdown_live_data: `${URL}/cache_dropdown_live_data/:organisation_id`,
 
-  // ✅ Cache Endpoints By user_id
+  // Cache Endpoints By user_id
   find_cache_by_user: `${URL}/cache_by_user/:user_id`,
   find_cache_simple_by_user: `${URL}/cache_simple_by_user/:user_id`,
   find_cache_parent_by_user: `${URL}/cache_parent_by_user/:user_id`,
@@ -286,49 +289,6 @@ export interface MasterVehicle extends Record<string, unknown> {
   // Child - Master
   VehicleOrganisationGroupLink?: VehicleOrganisationGroupLink[];
 
-  // Child - Fleet
-  // InspectionScheduleTracking?: FleetInspectionScheduleTracking[];
-  // Inspection?: FleetInspection[];
-  // InspectionScheduleVehicle?: FleetInspectionScheduleVehicle[];
-
-  // VehicleIncident?: FleetIncidentManagement[];
-
-  // VehicleIssues?: FleetIssueManagement[];
-
-  // FleetServiceSchedule?: FleetServiceSchedule[];
-  // FleetServiceJobCard?: FleetServiceJobCard[];
-
-  // FleetReminders?: FleetReminders[];
-
-  // FleetFuelRefills?: FleetFuelRefills[];
-  // FleetFuelRemovals?: FleetFuelRemovals[];
-
-  // FleetTyreUsageHistory?: FleetTyreUsageHistory[];
-  // FleetTyreInspectionScheduleVehicle?: FleetTyreInspectionScheduleVehicle[];
-  // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[];
-  // FleetTyreInspection?: FleetTyreInspection[];
-  // FleetTyreDamageRepair?: FleetTyreDamageRepair[];
-  // FleetTyreRotation?: FleetTyreRotation[];
-  // FleetTyreRotationDetails?: FleetTyreRotationDetails[];
-
-  // Child - GPS
-  // GpsLockRelayLog?: GPSLockRelayLog[];
-  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[];
-  // TripGeofenceToGeofence?: TripGeofenceToGeofence[];
-  // GPSGeofenceTransaction?: GPSGeofenceTransaction[];
-  // GPSFuelVehicleDailySummary?: GPSFuelVehicleDailySummary[];
-  // GPSFuelVehicleRefill?: GPSFuelVehicleRefill[];
-  // GPSFuelVehicleRemoval?: GPSFuelVehicleRemoval[];
-  // GPSLiveTrackShareLink?: GPSLiveTrackShareLink[];
-  // GPSTrackHistoryShareLink?: GPSTrackHistoryShareLink[];
-  // GPSGeofenceTransactionSummary?: GPSGeofenceTransactionSummary[];
-
-  // Child - Trip
-  //Trip?: Trip[];
-
-  // Child - Account
-  //AlertVehicleLink?: AlertVehicleLink[];
-
   // ✅ Count of child relations
   _count?: {
     VehicleOrganisationGroupLink?: number;
@@ -398,110 +358,6 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
   latitude: number;
   longitude: number;
 
-}
-
-// 🚀 Vehicle Detail Body Interface
-export interface VehicleDetailBody extends Record<string, unknown> {
-  // ✅ Primary Fields
-  vehicle_details_body_id: string;
-  vehicle_body_details?: string;
-  vehicle_height?: number;
-  vehicle_width?: number;
-  vehicle_length?: number;
-  vehicle_passenger_capacity?: number;
-  vehicle_cargo_volume?: number;
-  vehicle_maximum_weight_capacity?: number;
-
-  // ✅ Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // ✅ Relations - One To One
-  vehicle_id?: string;
-  Vehicle?: MasterVehicle;
-
-  // ✅ Child Count
-  _count?: object;
-}
-
-// 🚀 Vehicle Detail Life Cycle Interface
-export interface VehicleDetailLifeCycle extends Record<string, unknown> {
-  // ✅ Primary Fields
-  vehicle_details_life_cycle_id: string;
-  service_start_date?: string;
-  service_start_odometer_reading?: number;
-  service_end_date?: string;
-  service_end_odometer_reading?: number;
-  life_estimate_max_month_year?: string;
-  life_estimate_max_odometer_reading?: number;
-  life_expiry?: LifeExpiry;
-  life_expiry_message?: string;
-  life_expiry_note?: string;
-
-  // ✅ Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // ✅ Relations - One To One
-  vehicle_id?: string;
-  Vehicle?: MasterVehicle;
-
-  // ✅ Child Count
-  _count?: object;
-}
-
-// 🚀 Vehicle Detail Purchase Interface
-export interface VehicleDetailPurchase extends Record<string, unknown> {
-  // ✅ Primary Fields
-  vehicle_details_purchase_id: string;
-
-  purchase_date?: string;
-  purchase_notes?: string;
-  purchase_vehicle_type?: PurchaseVehicleType;
-  purchase_type?: PurchaseType;
-  purchase_total_amount?: number;
-
-  loan_amount?: number;
-  loan_down_payment?: number;
-  loan_interest_rate?: number;
-  loan_no_of_installments?: number;
-  loan_first_payment_date?: string;
-  loan_last_payment_date?: string;
-  loan_monthly_emi?: number;
-  loan_emi_date?: number;
-
-  lease_start_date?: string;
-  lease_end_date?: string;
-  lease_security_deposit_amount?: number;
-  lease_monthly_emi_amount?: number;
-  lease_emi_date?: number;
-
-  warranty_expiration_date?: string;
-  warranty_max_odometer_reading?: number;
-  warranty_exchange_date?: string;
-
-  // ✅ Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // ✅ Relations
-  vehicle_id?: string;
-  Vehicle?: MasterVehicle;
-
-  purchase_vendor_id?: string;
-  //PurchaseVendor?: FleetVendor;
-
-  loan_lender_id?: string;
-  //LoanLender?: FleetVendor;
-
-  lease_vendor_id?: string;
-  //LeaseVendor?: FleetVendor;
-
-  // ✅ Child Count
-  _count?: object;
 }
 
 // 🚀 Vehicle Detail GPS Interface
@@ -723,6 +579,110 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
   // ✅ Relations - One To One
   vehicle_id?: string;
   Vehicle?: MasterVehicle;
+
+  // ✅ Child Count
+  _count?: object;
+}
+
+// 🚀 Vehicle Detail Body Interface
+export interface VehicleDetailBody extends Record<string, unknown> {
+  // ✅ Primary Fields
+  vehicle_details_body_id: string;
+  vehicle_body_details?: string;
+  vehicle_height?: number;
+  vehicle_width?: number;
+  vehicle_length?: number;
+  vehicle_passenger_capacity?: number;
+  vehicle_cargo_volume?: number;
+  vehicle_maximum_weight_capacity?: number;
+
+  // ✅ Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // ✅ Relations - One To One
+  vehicle_id?: string;
+  Vehicle?: MasterVehicle;
+
+  // ✅ Child Count
+  _count?: object;
+}
+
+// 🚀 Vehicle Detail Life Cycle Interface
+export interface VehicleDetailLifeCycle extends Record<string, unknown> {
+  // ✅ Primary Fields
+  vehicle_details_life_cycle_id: string;
+  service_start_date?: string;
+  service_start_odometer_reading?: number;
+  service_end_date?: string;
+  service_end_odometer_reading?: number;
+  life_estimate_max_month_year?: string;
+  life_estimate_max_odometer_reading?: number;
+  life_expiry?: LifeExpiry;
+  life_expiry_message?: string;
+  life_expiry_note?: string;
+
+  // ✅ Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // ✅ Relations - One To One
+  vehicle_id?: string;
+  Vehicle?: MasterVehicle;
+
+  // ✅ Child Count
+  _count?: object;
+}
+
+// 🚀 Vehicle Detail Purchase Interface
+export interface VehicleDetailPurchase extends Record<string, unknown> {
+  // ✅ Primary Fields
+  vehicle_details_purchase_id: string;
+
+  purchase_date?: string;
+  purchase_notes?: string;
+  purchase_vehicle_type?: PurchaseVehicleType;
+  purchase_type?: PurchaseType;
+  purchase_total_amount?: number;
+
+  loan_amount?: number;
+  loan_down_payment?: number;
+  loan_interest_rate?: number;
+  loan_no_of_installments?: number;
+  loan_first_payment_date?: string;
+  loan_last_payment_date?: string;
+  loan_monthly_emi?: number;
+  loan_emi_date?: number;
+
+  lease_start_date?: string;
+  lease_end_date?: string;
+  lease_security_deposit_amount?: number;
+  lease_monthly_emi_amount?: number;
+  lease_emi_date?: number;
+
+  warranty_expiration_date?: string;
+  warranty_max_odometer_reading?: number;
+  warranty_exchange_date?: string;
+
+  // ✅ Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // ✅ Relations
+  vehicle_id?: string;
+  Vehicle?: MasterVehicle;
+
+  purchase_vendor_id?: string;
+  //PurchaseVendor?: FleetVendor;
+
+  loan_lender_id?: string;
+  //LoanLender?: FleetVendor;
+
+  lease_vendor_id?: string;
+  //LeaseVendor?: FleetVendor;
 
   // ✅ Child Count
   _count?: object;
@@ -1343,9 +1303,7 @@ export const newVehiclePayload = (): VehicleDTO => ({
 });
 
 // ✅ Convert Vehicle Detail GPS Main to API Payload
-export const toVehicleDetailsGPSPayload = (
-  vehicleGPS?: VehicleDetailGPS
-): VehicleDetailGPS => ({
+export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): VehicleDetailGPS => ({
   temperature: vehicleGPS?.temperature ?? YesNo.No,
   duel_temperature: vehicleGPS?.duel_temperature ?? YesNo.No,
   fuel: vehicleGPS?.fuel ?? YesNo.No,
@@ -1366,10 +1324,23 @@ export const toVehicleDetailsGPSPayload = (
   modified_date_time: ''
 });
 
+// ✅ Convert Vehicle Detail Trip Data to API Payload
+export const toVehicleDetailsTripPayload = (trip?: VehicleDetailTrip): VehicleDetailTripDTO => ({
+  trip_name: trip?.trip_name || '',
+  trip_no: trip?.trip_no || '',
+  eway_bill_number: trip?.eway_bill_number || '',
+  route_name: trip?.route_name || '',
+  trip_start_date: trip?.trip_start_date || '',
+  trip_end_date: trip?.trip_end_date || '',
+  trip_notes_1: trip?.trip_notes_1 || '',
+  trip_notes_2: trip?.trip_notes_2 || '',
+  trip_notes_3: trip?.trip_notes_3 || '',
+  status: trip ? trip.status : Status.Active,
+});
+
+
 // ✅ Convert Vehicle Detail Body Data to API Payload
-export const toVehicleDetailsBodyPayload = (
-  vehicleBody?: VehicleDetailBody
-): VehicleDetailBodyDTO => ({
+export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): VehicleDetailBodyDTO => ({
   vehicle_body_details: vehicleBody?.vehicle_body_details || '',
   vehicle_height: vehicleBody?.vehicle_height || 0,
   vehicle_width: vehicleBody?.vehicle_width || 0,
@@ -1428,10 +1399,28 @@ export const toVehicleDetailsBodyPayload = (
   has_emergency_exit: YesNo.Yes
 });
 
+// ✅ Convert Vehicle Detail Life Cycle Data to API Payload
+export const toVehicleDetailLifeCyclePayload = (vehicleLifeCycle?: VehicleDetailLifeCycle): VehicleDetailLifeCycleDto => ({
+  service_start_date: vehicleLifeCycle?.service_start_date || '',
+  service_start_odometer_reading: vehicleLifeCycle?.service_start_odometer_reading || 0,
+
+  service_end_date: vehicleLifeCycle?.service_end_date || '',
+  service_end_odometer_reading: vehicleLifeCycle?.service_end_odometer_reading || 0,
+
+  life_estimate_max_month_year: vehicleLifeCycle?.life_estimate_max_month_year || '',
+  life_estimate_max_odometer_reading: vehicleLifeCycle?.life_estimate_max_odometer_reading || 0,
+
+  life_expiry: vehicleLifeCycle?.life_expiry || LifeExpiry.No,
+  life_expiry_message: vehicleLifeCycle?.life_expiry_message || '',
+  life_expiry_note: vehicleLifeCycle?.life_expiry_note || '',
+
+  status: vehicleLifeCycle ? vehicleLifeCycle.status : Status.Active,
+  is_extended_life_approved: YesNo.Yes,
+  life_status: VehicleLifeStatus.Active
+});
+
 // ✅ Convert Vehicle Detail Purchase Data to API Payload
-export const toVehicleDetailPurchasePayload = (
-  vehiclePurchase?: VehicleDetailPurchase
-): VehicleDetailPurchaseDTO => ({
+export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPurchase): VehicleDetailPurchaseDTO => ({
   purchase_date: vehiclePurchase?.purchase_date || '',
   purchase_vendor_id: vehiclePurchase?.purchase_vendor_id || '',
   purchase_notes: vehiclePurchase?.purchase_notes || '',
@@ -1465,243 +1454,120 @@ export const toVehicleDetailPurchasePayload = (
   loan_interest_type: LoanInterestType.Simple
 });
 
-// ✅ Convert Vehicle Detail Life Cycle Data to API Payload
-export const toVehicleDetailLifeCyclePayload = (
-  vehicleLifeCycle?: VehicleDetailLifeCycle
-): VehicleDetailLifeCycleDto => ({
-  service_start_date: vehicleLifeCycle?.service_start_date || '',
-  service_start_odometer_reading: vehicleLifeCycle?.service_start_odometer_reading || 0,
-
-  service_end_date: vehicleLifeCycle?.service_end_date || '',
-  service_end_odometer_reading: vehicleLifeCycle?.service_end_odometer_reading || 0,
-
-  life_estimate_max_month_year: vehicleLifeCycle?.life_estimate_max_month_year || '',
-  life_estimate_max_odometer_reading: vehicleLifeCycle?.life_estimate_max_odometer_reading || 0,
-
-  life_expiry: vehicleLifeCycle?.life_expiry || LifeExpiry.No,
-  life_expiry_message: vehicleLifeCycle?.life_expiry_message || '',
-  life_expiry_note: vehicleLifeCycle?.life_expiry_note || '',
-
-  status: vehicleLifeCycle ? vehicleLifeCycle.status : Status.Active,
-  is_extended_life_approved: YesNo.Yes,
-  life_status: VehicleLifeStatus.Active
-});
-
 // ✅ API Methods
 
-// // ✅ Presigned URL for file uploads
-// export const getPresignedUrl = async (fileName: string): Promise<SBR> => {
-//   return apiGet<SBR>(ENDPOINTS.vehicle_presigned_url(fileName));
-// };
-
-// 🔍 Find Vehicles
-export const findVehicles = async (
-  payload: VehicleQueryDTO
-): Promise<FBR<MasterVehicle[]>> => {
-  return apiPost<FBR<MasterVehicle[]>, VehicleQueryDTO>(
-    ENDPOINTS.find,
-    payload
-  );
+// AWS S3 PRESIGNED
+export const get_vehicle_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.vehicle_presigned_url(fileName));
 };
 
-export const findVehiclesLiveDashboard = async (
-  payload: VehicleQueryDTO
-): Promise<FBR<MasterVehicle[]>> => {
-  return apiPost<FBR<MasterVehicle[]>, VehicleQueryDTO>(
-    ENDPOINTS.find_live_dashboard,
-    payload
-  );
+export const get_device_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.device_presigned_url(fileName));
 };
 
-export const findVehicleGPSDetails = async (
-  payload: VehicleGPSQueryDTO
-): Promise<BR<VehicleDetailGPS>> => {
-  return apiPost<BR<VehicleDetailGPS>, VehicleGPSQueryDTO>(
-    ENDPOINTS.find_gps_details,
-    payload
-  );
+export const get_master_driver_presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_file_presigned_url, data);
 };
 
-// ➕ Create Vehicle
+// Vehicle CRED
+export const findVehicles = async (payload: VehicleQueryDTO): Promise<FBR<MasterVehicle[]>> => {
+  return apiPost<FBR<MasterVehicle[]>, VehicleQueryDTO>(ENDPOINTS.find, payload);
+};
+
+export const findVehiclesLiveDashboard = async (payload: VehicleQueryDTO): Promise<FBR<MasterVehicle[]>> => {
+  return apiPost<FBR<MasterVehicle[]>, VehicleQueryDTO>(ENDPOINTS.find_live_dashboard, payload);
+};
+
+export const findVehicleGPSDetails = async (payload: VehicleGPSQueryDTO): Promise<BR<VehicleDetailGPS>> => {
+  return apiPost<BR<VehicleDetailGPS>, VehicleGPSQueryDTO>(ENDPOINTS.find_gps_details, payload);
+};
+
 export const createVehicle = async (payload: VehicleDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDTO>(ENDPOINTS.create, payload);
 };
 
-// ✏️ Update Vehicle
-export const updateVehicle = async (
-  id: string,
-  payload: VehicleDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDTO>(
-    ENDPOINTS.update.replace(':id', id),
-    payload
-  );
+export const updateVehicle = async (id: string, payload: VehicleDTO): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDTO>(ENDPOINTS.update.replace(':id', id), payload);
 };
 
-// ❌ Delete Vehicle
 export const deleteVehicle = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete.replace(':id', id));
 };
 
-export const updateDetailsGpsSensor = async (
-  id: string,
-  payload: VehicleDetailGPSSensorDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailGPSSensorDTO>(
-    ENDPOINTS.update_details_gps_sensor.replace(':id', id),
-    payload
-  );
+// API Updates
+export const updateDetailsGpsSensor = async (id: string, payload: VehicleDetailGPSSensorDTO): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDetailGPSSensorDTO>(ENDPOINTS.update_details_gps_sensor.replace(':id', id), payload);
 };
 
-export const updateDetailsTrip = async (
-  id: string,
-  payload: VehicleDetailTripDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailTripDTO>(
-    ENDPOINTS.update_details_trip.replace(':id', id),
-    payload
-  );
+export const updateDetailsTrip = async (id: string, payload: VehicleDetailTripDTO): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDetailTripDTO>(ENDPOINTS.update_details_trip.replace(':id', id), payload);
 };
 
-// ✅ Vehicle Details Updates
-// 🔹 Update Body Details
-export const updateVehicleBodyDetails = async (
-  id: string,
-  payload: VehicleDetailBodyDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailBodyDTO>(
-    ENDPOINTS.update_details_body.replace(':id', id),
-    payload
-  );
+export const updateVehicleBodyDetails = async (id: string, payload: VehicleDetailBodyDTO): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDetailBodyDTO>(ENDPOINTS.update_details_body.replace(':id', id), payload);
 };
 
-// 🔹 Update Life Cycle Details
-export const updateVehicleLifeCycleDetails = async (
-  id: string,
-  payload: VehicleDetailLifeCycleDto
-): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailLifeCycleDto>(
-    ENDPOINTS.update_details_life_cycle.replace(':id', id),
-    payload
-  );
+export const updateVehicleLifeCycleDetails = async (id: string, payload: VehicleDetailLifeCycleDto): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDetailLifeCycleDto>(ENDPOINTS.update_details_life_cycle.replace(':id', id), payload);
 };
 
-// 🔹 Update Purchase Details
-export const updateVehiclePurchaseDetails = async (
-  id: string,
-  payload: VehicleDetailPurchaseDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailPurchaseDTO>(
-    ENDPOINTS.update_details_purchase.replace(':id', id),
-    payload
-  );
+export const updateVehiclePurchaseDetails = async (id: string, payload: VehicleDetailPurchaseDTO): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDetailPurchaseDTO>(ENDPOINTS.update_details_purchase.replace(':id', id), payload);
 };
 
-// ✅ Vehicle Driver Link Management
-// 🔗 Link Driver to Vehicle
-export const linkDriverToVehicle = async (
-  payload: VehicleDriverLinkDTO
-): Promise<SBR> => {
+// API Vehicle Driver Link
+export const linkDriverToVehicle = async (payload: VehicleDriverLinkDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDriverLinkDTO>(ENDPOINTS.vehicle_driver_link, payload);
 };
 
-// 🔗 Unlink Driver from Vehicle
-export const unlinkDriverFromVehicle = async (
-  payload: VehicleDriverLinkDTO
-): Promise<SBR> => {
+export const unlinkDriverFromVehicle = async (payload: VehicleDriverLinkDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDriverLinkDTO>(ENDPOINTS.vehicle_driver_unlink, payload);
 };
 
-// 📜 Get Driver Link History by Vehicle
-export const getDriverLinkHistoryByVehicle = async (
-  id: string,
-  params: BaseQueryDTO
-): Promise<FBR<AssignRemoveDriverHistory[]>> => {
-  return apiGet<FBR<AssignRemoveDriverHistory[]>>(
-    ENDPOINTS.find_vehicle_driver_link_history_by_vehicle.replace(':id', id), params
-  );
+export const getDriverLinkHistoryByVehicle = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDriverHistory[]>> => {
+  return apiGet<FBR<AssignRemoveDriverHistory[]>>(ENDPOINTS.find_vehicle_driver_link_history_by_vehicle.replace(':id', id), params);
 };
 
-// 📜 Get Driver Link History by Driver
-export const getDriverLinkHistoryByDriver = async (
-  id: string,
-  params: BaseQueryDTO
-): Promise<FBR<AssignRemoveDriverHistory[]>> => {
-  return apiGet<FBR<AssignRemoveDriverHistory[]>>(
-    ENDPOINTS.find_vehicle_driver_link_history_by_driver.replace(':id', id), params
-  );
+export const getDriverLinkHistoryByDriver = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDriverHistory[]>> => {
+  return apiGet<FBR<AssignRemoveDriverHistory[]>>(ENDPOINTS.find_vehicle_driver_link_history_by_driver.replace(':id', id), params);
 };
 
-// ✅ Vehicle Device Link Management
-
-// 🔗 Link Device to Vehicle
-export const linkDeviceToVehicle = async (
-  payload: VehicleDeviceLinkDTO
-): Promise<SBR> => {
+// API Vehicle Device Link
+export const linkDeviceToVehicle = async (payload: VehicleDeviceLinkDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDeviceLinkDTO>(ENDPOINTS.vehicle_device_link, payload);
 };
 
-// 🔗 Unlink Device from Vehicle
-export const unlinkDeviceFromVehicle = async (
-  payload: VehicleDeviceUnlinkDTO
-): Promise<SBR> => {
+export const unlinkDeviceFromVehicle = async (payload: VehicleDeviceUnlinkDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDeviceUnlinkDTO>(ENDPOINTS.vehicle_device_unlink, payload);
 };
 
-// 📜 Get Device Link History by Vehicle
-export const getDeviceLinkHistoryByVehicle = async (
-  id: string,
-  params: BaseQueryDTO
-): Promise<FBR<AssignRemoveDeviceHistory[]>> => {
-  return apiGet<FBR<AssignRemoveDeviceHistory[]>>(
-    ENDPOINTS.vehicle_device_link_history_by_vehicle.replace(':id', id), params
-  );
+export const getDeviceLinkHistoryByVehicle = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDeviceHistory[]>> => {
+  return apiGet<FBR<AssignRemoveDeviceHistory[]>>(ENDPOINTS.vehicle_device_link_history_by_vehicle.replace(':id', id), params);
 };
 
-// 📜 Get Device Link History by Device
-export const getDeviceLinkHistoryByDevice = async (
-  id: string,
-  params: BaseQueryDTO
-): Promise<FBR<AssignRemoveDeviceHistory[]>> => {
-  return apiGet<FBR<AssignRemoveDeviceHistory[]>>(
-    ENDPOINTS.vehicle_device_link_history_by_device.replace(':id', id), params
-  );
+export const getDeviceLinkHistoryByDevice = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDeviceHistory[]>> => {
+  return apiGet<FBR<AssignRemoveDeviceHistory[]>>(ENDPOINTS.vehicle_device_link_history_by_device.replace(':id', id), params);
 };
-
 
 // Vehicle Document
-export const createDocument = async (
-  payload: VehicleDocumentDTO
-): Promise<SBR> => {
+export const createDocument = async (payload: VehicleDocumentDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDocumentDTO>(ENDPOINTS.create_document, payload);
 };
 
-
-export const findDocument = async (
-  payload: VehicleDocumentQueryDTO
-): Promise<SBR> => {
+export const findDocument = async (payload: VehicleDocumentQueryDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDocumentQueryDTO>(ENDPOINTS.find_document, payload);
 };
 
-export const updateDocument = async (
-  id: string,
-  payload: VehicleDocumentDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDocumentDTO>(
-    ENDPOINTS.update_document.replace(':id', id),
-    payload
-  );
+export const updateDocument = async (id: string, payload: VehicleDocumentDTO): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDocumentDTO>(ENDPOINTS.update_document.replace(':id', id), payload);
 };
 
 export const removeDocument = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_document.replace(':id', id));
 };
 
-
 // File
-export const createFileVehicle = async (
-  payload: MasterVehicleFileDTO
-): Promise<SBR> => {
+export const createFileVehicle = async (payload: MasterVehicleFileDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleFileDTO>(ENDPOINTS.create_file_vehicle, payload);
 };
 
@@ -1709,9 +1575,7 @@ export const removeFileVehicle = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle.replace(':id', id));
 };
 
-export const createFileDevice = async (
-  payload: MasterDeviceFileDTO
-): Promise<SBR> => {
+export const createFileDevice = async (payload: MasterDeviceFileDTO): Promise<SBR> => {
   return apiPost<SBR, MasterDeviceFileDTO>(ENDPOINTS.create_file_device, payload);
 };
 
@@ -1719,9 +1583,7 @@ export const removeFileDevice = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_device.replace(':id', id));
 };
 
-export const createFileVehicleDocument = async (
-  payload: MasterVehicleDocumentFileDTO
-): Promise<SBR> => {
+export const createFileVehicleDocument = async (payload: MasterVehicleDocumentFileDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleDocumentFileDTO>(ENDPOINTS.create_file_vehicle_document, payload);
 };
 
@@ -1729,82 +1591,41 @@ export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document.replace(':id', id));
 };
 
-
-// ✅ Cache Management
-
-// 🔄 Get Cache
-export const getVehicleCache = async (
-  organisationId: string
-): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.find_cache.replace(':organisation_id', organisationId)
-  );
+// Cache Endpoints By organisation_id
+export const getVehicleCache = async (organisationId: string): Promise<FBR<MasterVehicle[]>> => {
+  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache.replace(':organisation_id', organisationId));
 };
 
-// 🔄 Get Simple Cache
-export const getVehicleSimpleCache = async (
-  organisationId: string
-): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.find_cache_simple.replace(':organisation_id', organisationId)
-  );
+export const getVehicleSimpleCache = async (organisationId: string): Promise<FBR<MasterVehicle[]>> => {
+  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache_simple.replace(':organisation_id', organisationId));
 };
 
-export const getVehicleParentCache = async (
-  organisationId: string
-): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.find_cache_parent.replace(':organisation_id', organisationId)
-  );
+export const getVehicleParentCache = async (organisationId: string): Promise<FBR<MasterVehicle[]>> => {
+  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache_parent.replace(':organisation_id', organisationId));
 };
 
-export const getVehicleSimpleDropdownCustom = async (
-  organisationId: string
-): Promise<FBR<MasterVehicleDropdown[]>> => {
-  return apiGet<FBR<MasterVehicleDropdown[]>>(
-    ENDPOINTS.find_cache_dropdown.replace(':organisation_id', organisationId)
-  );
+export const getVehicleSimpleDropdownCustom = async (organisationId: string): Promise<FBR<MasterVehicleDropdown[]>> => {
+  return apiGet<FBR<MasterVehicleDropdown[]>>(ENDPOINTS.find_cache_dropdown.replace(':organisation_id', organisationId));
 };
 
-export const getVehicleSimpleDropdownCacheLiveData = async (
-  organisationId: string
-): Promise<FBR<MasterVehicleDropdown[]>> => {
-  return apiGet<FBR<MasterVehicleDropdown[]>>(
-    ENDPOINTS.find_cache_dropdown_live_data.replace(':organisation_id', organisationId)
-  );
+export const getVehicleSimpleDropdownCacheLiveData = async (organisationId: string): Promise<FBR<MasterVehicleDropdown[]>> => {
+  return apiGet<FBR<MasterVehicleDropdown[]>>(ENDPOINTS.find_cache_dropdown_live_data.replace(':organisation_id', organisationId));
 };
 
-
-
-// ✅ Cache Endpoints By user_id
-export const getVehicleByUserCache = async (
-  userId: string
-): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.find_cache_by_user.replace(':user_id', userId)
-  );
+// Cache Endpoints By user_id
+export const getVehicleByUserCache = async (userId: string): Promise<FBR<MasterVehicle[]>> => {
+  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache_by_user.replace(':user_id', userId));
 };
 
-export const getVehicleSimpleByUserCache = async (
-  userId: string
-): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.find_cache_simple_by_user.replace(':user_id', userId)
-  );
+export const getVehicleSimpleByUserCache = async (userId: string): Promise<FBR<MasterVehicle[]>> => {
+  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache_simple_by_user.replace(':user_id', userId));
 };
 
-export const getVehicleParentByUserCache = async (
-  userId: string
-): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(
-    ENDPOINTS.find_cache_parent_by_user.replace(':user_id', userId)
-  );
+export const getVehicleParentByUserCache = async (userId: string): Promise<FBR<MasterVehicle[]>> => {
+  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache_parent_by_user.replace(':user_id', userId));
 };
 
-export const getVehicleSimpleDropdownByUserCustom = async (
-  userId: string
-): Promise<FBR<MasterVehicleDropdown[]>> => {
-  return apiGet<FBR<MasterVehicleDropdown[]>>(
-    ENDPOINTS.find_cache_dropdown_by_user.replace(':user_id', userId)
-  );
+export const getVehicleSimpleDropdownByUserCustom = async (userId: string): Promise<FBR<MasterVehicleDropdown[]>> => {
+  return apiGet<FBR<MasterVehicleDropdown[]>>(ENDPOINTS.find_cache_dropdown_by_user.replace(':user_id', userId));
 };
+
