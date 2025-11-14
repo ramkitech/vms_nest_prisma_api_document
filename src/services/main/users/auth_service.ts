@@ -45,6 +45,7 @@ export const UserChangePasswordSchema = z.object({
   user_id: stringUUIDMandatory('user_id'),
   old_password: stringMandatory('Old Password', 3, 20),
   new_password: stringMandatory('New Password Size', 3, 20),
+  confirm_new_password: stringMandatory('New Password Size', 3, 20),
 });
 export type UserChangePasswordDTO = z.infer<typeof UserChangePasswordSchema>;
 
@@ -80,6 +81,7 @@ export const DriverChangePasswordSchema = z.object({
   driver_id: stringUUIDMandatory('driver_id'),
   old_password: stringMandatory('Old Password', 3, 20),
   new_password: stringMandatory('New Password Size', 3, 20),
+  confirm_new_password: stringMandatory('New Password Size', 3, 20),
 });
 export type DriverChangePasswordDTO = z.infer<
   typeof DriverChangePasswordSchema
@@ -119,6 +121,7 @@ export const AdminChangePasswordSchema = z.object({
   admin_id: stringUUIDMandatory('admin_id'),
   old_password: stringMandatory('Old Password', 3, 20),
   new_password: stringMandatory('New Password Size', 3, 20),
+  confirm_new_password: stringMandatory('New Password Size', 3, 20),
 });
 export type AdminChangePasswordDTO = z.infer<typeof AdminChangePasswordSchema>;
 
