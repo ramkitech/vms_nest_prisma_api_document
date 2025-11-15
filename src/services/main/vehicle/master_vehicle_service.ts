@@ -1495,7 +1495,7 @@ export const newVehiclePayload = (): VehicleDTO => ({
 });
 
 // ✅ Convert Vehicle Detail GPS Main to API Payload
-export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): VehicleDetailGPS => ({
+export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): VehicleDetailGPSSensorDTO => ({
   temperature: vehicleGPS?.temperature ?? YesNo.No,
   duel_temperature: vehicleGPS?.duel_temperature ?? YesNo.No,
   fuel: vehicleGPS?.fuel ?? YesNo.No,
@@ -1510,10 +1510,6 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   is_rear_cam: vehicleGPS?.is_rear_cam ?? YesNo.No,
   is_front_cam: vehicleGPS?.is_front_cam ?? YesNo.No,
   camera_extra_count: vehicleGPS?.camera_extra_count ?? 0,
-  status: vehicleGPS ? vehicleGPS?.status : Status.Active,
-  vehicle_details_gps_id: '',
-  added_date_time: '',
-  modified_date_time: ''
 });
 
 // ✅ Convert VehicleDetailTrip Data to API Payload
