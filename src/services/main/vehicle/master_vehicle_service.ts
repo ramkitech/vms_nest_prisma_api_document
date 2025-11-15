@@ -127,12 +127,6 @@ const ENDPOINTS = {
   find_cache_parent: `${URL}/cache_parent/:organisation_id`,
   find_cache_dropdown: `${URL}/cache_dropdown/:organisation_id`,
   find_cache_dropdown_live_data: `${URL}/cache_dropdown_live_data/:organisation_id`,
-
-  // Cache Endpoints By user_id
-  find_cache_by_user: `${URL}/cache_by_user/:user_id`,
-  find_cache_simple_by_user: `${URL}/cache_simple_by_user/:user_id`,
-  find_cache_parent_by_user: `${URL}/cache_parent_by_user/:user_id`,
-  find_cache_dropdown_by_user: `${URL}/cache_dropdown_by_user/:user_id`,
 };
 
 // 🚀 Vehicle Interface
@@ -141,11 +135,14 @@ export interface MasterVehicle extends Record<string, unknown> {
   vehicle_id: string;
   vehicle_number: string;
   vehicle_name?: string;
-  odometer_reading?: number;
 
-  engine_number?: string; // ✅ Max: 20
-  chassis_number?: string; // ✅ Max: 20
+  engine_number?: string;
+  chassis_number?: string;
   vehicle_make_year?: number;
+
+  // Database Details
+  db_instance: String;
+  db_group: String;
 
   // Admin Account Details
   is_fleet_active: YesNo;
@@ -158,26 +155,72 @@ export interface MasterVehicle extends Record<string, unknown> {
   modified_date_time: string;
 
   // ✅ Relations
+
+  // Relations - Driver
+  is_driver_assigned: YesNo;
+  driver_id?: string;
+  MasterDriver?: MasterDriver;
+  driver_details?: string;
+  assign_driver_date?: string;
+  AssignRemoveDriverHistory?: AssignRemoveDriverHistory[];
+
+  // ✅ Relations - Device
+  is_device_installed: YesNo;
+  device_gps_source?: GPSSource;
+  device_id?: string;
+  MasterDevice?: MasterDevice;
+  device_identifier?: string;
+  assign_device_date?: string;
+  AssignRemoveDeviceHistory?: AssignRemoveDeviceHistory[];
+  country_id?: string;
+  MasterMainCountry?: MasterMainCountry;
+  time_zone_id?: string;
+  MasterMainTimeZone?: MasterMainTimeZone;
+
+  // ✅ Relations - Odometer
+  odometer_reading?: number;
+  odometer_last_change_date?: string;
+  VehicleOdometerHistory?: VehicleOdometerHistory[];
+
+  // ✅ Relations - One to One
+  vehicle_details_gps_id?: string;
+  VehicleDetailGPS?: VehicleDetailGPS;
+
+  vehicle_details_trip_id?: string;
+  VehicleDetailTrip?: VehicleDetailTrip;
+
+  vehicle_details_body_id?: string;
+  VehicleDetailBody?: VehicleDetailBody;
+
+  vehicle_details_life_cycle_id?: string;
+  VehicleDetailLifeCycle?: VehicleDetailLifeCycle;
+
+  vehicle_details_purchase_id?: string;
+  VehicleDetailPurchase?: VehicleDetailPurchase;
+
+  // Relations - Organisation
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
   organisation_sub_company_id?: string;
   OrganisationSubCompany?: OrganisationSubCompany;
   sub_company_name?: string;
 
-  organisation_tag_id?: string;
-  OrganisationTag?: OrganisationTag;
-  tag_name?: string;
+  organisation_branch_id?: string;
+  OrganisationBranch?: OrganisationBranch;
+  branch_name?: string;
+  branch_city?: string;
 
   organisation_color_id?: string;
   OrganisationColor?: OrganisationColor;
   color_name?: string;
   color_code?: string;
 
-  organisation_group_id?: string;
-  OrganisationGroup?: OrganisationGroup;
-  group_name?: string;
-  group_code?: string;
+  organisation_tag_id?: string;
+  OrganisationTag?: OrganisationTag;
+  tag_name?: string;
 
-
-
+  // Relations - MasterVehicle
   vehicle_type_id: string;
   MasterVehicleType?: MasterVehicleType;
   vehicle_type?: string;
@@ -202,11 +245,11 @@ export interface MasterVehicle extends Record<string, unknown> {
   MasterVehicleOwnershipType?: MasterVehicleOwnershipType;
   ownership_type?: string;
 
-
   vehicle_associated_to_id?: string;
   MasterVehicleAssociatedTo?: MasterVehicleAssociatedTo;
   associated_to?: string;
 
+  // Relations - Fuel Details
   vehicle_fuel_type_id?: string;
   PrimaryFuelType?: MasterVehicleFuelType;
   fuel_type?: string;
@@ -223,110 +266,33 @@ export interface MasterVehicle extends Record<string, unknown> {
   SecondaryMasterVehicleFuelUnit?: MasterVehicleFuelUnit;
   secondary_fuel_unit?: string;
 
-  vehicle_total_fuel_quantity?: number;
-  vehicle_tank_1_fuel_quantity?: number;
-  vehicle_tank_2_fuel_quantity?: number;
+  fuel_tank_size?: number;
+  fuel_tank_1_size?: number;
+  fuel_tank_2_size?: number;
+  fuel_tank_total_size?: number;
 
-  // ✅ Relations - Driver
-  is_driver_assigned: YesNo;
-  driver_id?: string;
-  MasterDriver?: MasterDriver;
-  assign_driver_date?: string;
-  AssignRemoveDriverHistory?: AssignRemoveDriverHistory[];
-
-  // ✅ Relations - Device
-  is_device_installed: YesNo;
-  device_gps_source?: GPSSource;
-  device_id?: string;
-  MasterDevice?: MasterDevice;
-  assign_device_date?: string;
-  AssignRemoveDeviceHistory?: AssignRemoveDeviceHistory[];
-  country_id?: string;
-  MasterMainCountry?: MasterMainCountry;
-  time_zone_id?: string;
-  MasterMainTimeZone?: MasterMainTimeZone;
-
-  // ✅ Relations - Odometer
-  odometer_last_change_date?: string;
-  //VehicleOdometerHistory?:    VehicleOdometerHistory[];
-
-  // ✅ Relations - One to One
-  vehicle_details_body_id?: string;
-  VehicleDetailBody?: VehicleDetailBody;
-
-  vehicle_details_life_cycle_id?: string;
-  VehicleDetailLifeCycle?: VehicleDetailLifeCycle;
-
-  vehicle_details_purchase_id?: string;
-  VehicleDetailPurchase?: VehicleDetailPurchase;
-
-  vehicle_details_gps_id?: string;
-  VehicleDetailGPS?: VehicleDetailGPS;
-
-  vehicle_details_trip_id?: string;
-  VehicleDetailTrip?: VehicleDetailTrip;
-
-  // ✅ Relations - Master Data
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-
-  organisation_branch_id?: string;
-  OrganisationBranch?: OrganisationBranch;
-  branch_name?: string;
-  branch_city?: string;
+  // Bus management
+  vehicle_passenger_capacity?: number;
+  standing_passenger_capacity?: number;
 
   // ✅ Relations - Child
-  // Relations - Dummy
-  Dummy_Driver?: MasterDriver[];
-  Dummy_Device?: MasterDevice[];
-  Dummy_VehicleDetailBody?: VehicleDetailBody[];
-  Dummy_VehicleDetailLifeCycle?: VehicleDetailLifeCycle[];
-  Dummy_VehicleDetailPurchase?: VehicleDetailPurchase[];
-  Dummy_VehicleDetailGPS?: VehicleDetailGPS[];
-  Dummy_VehicleDetailTrip?: VehicleDetailTrip[];
-
-  // Child Relations
-  // Child - Main
-  // VehicleDocument?: VehicleDocument[];
-
-  // Child - Master
+  VehicleDocument?: VehicleDocument[]
+  VehicleDocumentFile?: VehicleDocumentFile[]
+  VehicleDocumentExpiry?: VehicleDocumentExpiry[]
+  MasterVehicleFile?: MasterVehicleFile[]
   VehicleOrganisationGroupLink?: VehicleOrganisationGroupLink[];
 
   // ✅ Count of child relations
   _count?: {
+    VehicleDocument?: number;
+    VehicleDocumentFile?: number;
+    VehicleDocumentExpiry?: number;
+    MasterVehicleFile?: number;
     VehicleOrganisationGroupLink?: number;
 
     AssignRemoveDriverHistory?: number;
     AssignRemoveDeviceHistory?: number;
     VehicleOdometerHistory?: number;
-
-    FleetServiceSchedule?: number;
-    FleetServiceJobCard?: number;
-    FleetReminders?: number;
-    FleetFuelRefills?: number;
-    FleetFuelRemovals?: number;
-
-    FleetTyreUsageHistory?: number;
-    FleetTyreInspectionScheduleVehicle?: number;
-    FleetTyreInspectionScheduleTracking?: number;
-    FleetTyreInspection?: number;
-    FleetTyreDamageRepair?: number;
-    FleetTyreRotation?: number;
-    FleetTyreRotationDetails?: number;
-
-    GpsLockRelayLog?: number;
-    GPSLockDigitalDoorLog?: number;
-    TripGeofenceToGeofence?: number;
-    GPSGeofenceTransaction?: number;
-    GPSFuelVehicleDailySummary?: number;
-    GPSFuelVehicleRefill?: number;
-    GPSFuelVehicleRemoval?: number;
-    GPSLiveTrackShareLink?: number;
-    GPSTrackHistoryShareLink?: number;
-    GPSGeofenceTransactionSummary?: number;
-
-    Trip?: number;
-    AlertVehicleLink?: number;
   };
 }
 
@@ -336,8 +302,10 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
   v_id: string;
   vn: string;
   vt: string;
+
   dr_f: string;
   dr_id: string;
+
   dv_id: string;
   imei: string;
 
@@ -346,6 +314,10 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
   fuel: YesNo;
   fuel_bluetooth: YesNo;
   fuel_tank_size: number;
+  fuel_tank_1_size: number;
+  fuel_tank_2_size: number;
+  fuel_tank_total_size: number;
+  over_speed_kmph: number;
   gps_lock_relay: YesNo;
   gps_door_locker: YesNo;
   door_sensor: YesNo;
@@ -354,6 +326,9 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
   is_rear_cam: YesNo;
   is_front_cam: YesNo;
   camera_extra_count: number;
+
+  vehicle_passenger_capacity: number;
+  standing_passenger_capacity: number;
 
   vehicle_fuel_type_id: string;
   vehicle_fuel_unit_id: string;
@@ -380,6 +355,8 @@ export interface MasterVehicleFile extends BaseCommonFile {
 export interface VehicleDetailGPS extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_details_gps_id: string;
+
+  // GPS Input Source
   serial_no?: number;
   device_identifier?: string;
   device_gps_source?: GPSSource;
@@ -387,12 +364,15 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   custom_protocol?: string;
   api_details?: string;
 
-  // Sensor Configuration
+  // sensor configuration
   temperature?: YesNo;
   duel_temperature?: YesNo;
   fuel?: YesNo;
   fuel_bluetooth?: YesNo;
   fuel_tank_size?: number;
+  fuel_tank_1_size?: number;
+  fuel_tank_2_size?: number;
+  fuel_tank_total_size?: number;
   over_speed_kmph?: number;
   gps_lock_relay?: YesNo;
   gps_door_locker?: YesNo;
@@ -405,10 +385,10 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
 
   // GPS Data
   gps_source?: string;
-  attributes?: object;
-  raw?: string;
   protocol?: string;
   api_code?: string;
+  attributes?: object;
+  raw?: string;
   fuel_mapping?: object;
   fuel_values?: object;
 
@@ -889,6 +869,7 @@ export type MasterVehicleFileDTO = z.infer<typeof MasterVehicleFileSchema>;
 // ✅ Vehicle Create/Update Schema
 export const VehicleSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+
   vehicle_number: stringMandatory('Vehicle Number', 2, 50),
   vehicle_name: stringOptional('Vehicle Name', 0, 50),
   odometer_reading: numberOptional('Odometer Reading'),
@@ -921,6 +902,7 @@ export const VehicleSchema = z.object({
   ), // ✅ Single-Selection -> MasterVehicleOwnershipType
   vehicle_associated_to_id: single_select_optional('MasterVehicleAssociatedTo'), // ✅ Single-Selection -> MasterVehicleAssociatedTo
 
+  // Fuel
   vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'), // ✅ Single-Selection -> MasterVehicleFuelType
   vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
   secondary_vehicle_fuel_type_id: single_select_optional(
@@ -929,9 +911,14 @@ export const VehicleSchema = z.object({
   secondary_vehicle_fuel_unit_id: single_select_optional(
     'Vehicle Secondary Fuel Unit ID',
   ), // ✅ Single-Selection -> MasterVehicleFuelUnit
-  vehicle_total_fuel_quantity: numberOptional('Vehicle Total Fuel Quantity'),
-  vehicle_tank_1_fuel_quantity: numberOptional('Vehicle Tank 1 Fuel Quantity'),
-  vehicle_tank_2_fuel_quantity: numberOptional('Vehicle Tank 2 Fuel Quantity'),
+  fuel_tank_size: numberOptional('Fuel Tank Quantity'),
+  fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
+  fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
+  fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
+
+  // Bus Seats
+  vehicle_passenger_capacity: numberOptional('Vehicle Passenger Capacity'),
+  standing_passenger_capacity: numberOptional('Standing Passenger Capacity'),
 
   MasterVehicleFileSchema: nestedArrayOfObjectsOptional(
     'MasterVehicleFileSchema',
@@ -944,8 +931,14 @@ export type VehicleDTO = z.infer<typeof VehicleSchema>;
 // ✅ Vehicle Create/Update Schema
 export const VehicleBulkSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+
   vehicle_number: stringMandatory('Vehicle Number', 2, 50),
   vehicle_name: stringOptional('Vehicle Name', 0, 50),
+  odometer_reading: numberOptional('Odometer Reading'),
+
+  engine_number: stringOptional('Engine Number', 0, 20),
+  chassis_number: stringOptional('Chassis Number', 0, 20),
+  vehicle_make_year: numberOptional('Vehicle Make Year'),
 
   is_fleet_active: enumMandatory('Is Fleet Active', YesNo, YesNo.Yes),
   is_gps_active: enumMandatory('Is GPS Active', YesNo, YesNo.No),
@@ -961,6 +954,15 @@ export const VehicleBulkSchema = z.object({
 
   country_id: single_select_optional('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
   time_zone_id: single_select_optional('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
+
+  fuel_tank_size: numberOptional('Fuel Tank Quantity'),
+  fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
+  fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
+  fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
+
+  // Bus Seats
+  vehicle_passenger_capacity: numberOptional('Vehicle Passenger Capacity'),
+  standing_passenger_capacity: numberOptional('Standing Passenger Capacity'),
 });
 export type VehicleBulkDTO = z.infer<typeof VehicleBulkSchema>;
 
@@ -987,7 +989,10 @@ export const VehicleDeviceLinkSchema = z.object({
   duel_temperature: enumOptional('Dual Temperature', YesNo, YesNo.No),
   fuel: enumOptional('Fuel', YesNo, YesNo.No),
   fuel_bluetooth: enumOptional('Fuel Bluetooth', YesNo, YesNo.No),
-  fuel_tank_size: numberOptional('Fuel Tank Size'),
+  fuel_tank_size: numberOptional('Fuel Tank Quantity'),
+  fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
+  fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
+  fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
   over_speed_kmph: numberOptional('Over Speed KMPH'),
   gps_lock_relay: enumOptional('GPS Lock Relay', YesNo, YesNo.No),
   gps_door_locker: enumOptional('GPS Door Locker', YesNo, YesNo.No),
@@ -1029,7 +1034,10 @@ export const VehicleDetailGPSSensorSchema = z.object({
   duel_temperature: enumOptional('Dual Temperature', YesNo, YesNo.No),
   fuel: enumOptional('Fuel', YesNo, YesNo.No),
   fuel_bluetooth: enumOptional('Fuel Bluetooth', YesNo, YesNo.No),
-  fuel_tank_size: numberOptional('Fuel Tank Size'),
+  fuel_tank_size: numberOptional('Fuel Tank Quantity'),
+  fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
+  fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
+  fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
   over_speed_kmph: numberOptional('Over Speed KMPH'),
   gps_lock_relay: enumOptional('GPS Lock Relay', YesNo, YesNo.No),
   gps_door_locker: enumOptional('GPS Door Locker', YesNo, YesNo.No),
@@ -1413,19 +1421,17 @@ export type VehicleGPSQueryDTO = z.infer<typeof VehicleGPSQuerySchema>;
 // ✅ Convert Form Data to API Payload
 export const toVehiclePayload = (vehicle: MasterVehicle): VehicleDTO => ({
   organisation_id: vehicle.organisation_id,
+
   vehicle_number: vehicle.vehicle_number,
   vehicle_name: vehicle.vehicle_name || '',
-  odometer_reading: vehicle.odometer_reading || 0,
 
   engine_number: vehicle.engine_number || '',
   chassis_number: vehicle.chassis_number || '',
   vehicle_make_year: vehicle.vehicle_make_year || 0,
 
-  // Admin Account Details
   is_fleet_active: vehicle.is_fleet_active,
   is_gps_active: vehicle.is_gps_active,
   is_trip_active: vehicle.is_trip_active,
-
 
   status: vehicle.status,
 
@@ -1433,8 +1439,7 @@ export const toVehiclePayload = (vehicle: MasterVehicle): VehicleDTO => ({
   organisation_branch_id: vehicle.organisation_branch_id || '',
   organisation_tag_id: vehicle.organisation_tag_id || '',
   organisation_color_id: vehicle.organisation_color_id || '',
-  organisation_group_ids: vehicle.VehicleOrganisationGroupLink?.map((v) => v.organisation_group_id) ||
-    [],
+  organisation_group_ids: vehicle.VehicleOrganisationGroupLink?.map((v) => v.organisation_group_id) || [],
 
   vehicle_type_id: vehicle.vehicle_type_id || '',
   vehicle_make_id: vehicle.vehicle_make_id || '',
@@ -1450,23 +1455,49 @@ export const toVehiclePayload = (vehicle: MasterVehicle): VehicleDTO => ({
   secondary_vehicle_fuel_type_id: vehicle.secondary_vehicle_fuel_type_id || '',
   secondary_vehicle_fuel_unit_id: vehicle.secondary_vehicle_fuel_unit_id || '',
 
-  vehicle_total_fuel_quantity: vehicle.vehicle_total_fuel_quantity || 0,
-  vehicle_tank_1_fuel_quantity: vehicle.vehicle_tank_1_fuel_quantity || 0,
-  vehicle_tank_2_fuel_quantity: vehicle.vehicle_tank_2_fuel_quantity || 0,
-  MasterVehicleFileSchema: []
+  odometer_reading: vehicle.odometer_reading || 0,
+
+  fuel_tank_size: vehicle.fuel_tank_size || 0,
+  fuel_tank_1_size: vehicle.fuel_tank_1_size || 0,
+  fuel_tank_2_size: vehicle.fuel_tank_2_size || 0,
+  fuel_tank_total_size: vehicle.fuel_tank_total_size || 0,
+
+  vehicle_passenger_capacity: vehicle.vehicle_passenger_capacity || 0,
+  standing_passenger_capacity: vehicle.standing_passenger_capacity || 0,
+
+
+  MasterVehicleFileSchema: vehicle.MasterVehicleFile?.map((file) => ({
+    vehicle_file_id: file.vehicle_file_id ?? '',
+
+    usage_type: file.usage_type,
+
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+
+    status: file.status,
+    added_date_time: file.added_date_time,
+    modified_date_time: file.modified_date_time,
+
+    organisation_id: file.organisation_id ?? '',
+    vehicle_id: file.vehicle_id ?? '',
+  })) ?? [],
 });
 
 // ✅ Convert API Response to Frontend Data
 export const newVehiclePayload = (): VehicleDTO => ({
   organisation_id: '',
+
   vehicle_number: '',
   vehicle_name: '',
-  odometer_reading: 0,
 
   engine_number: '',
   chassis_number: '',
   vehicle_make_year: 0,
-
 
   status: Status.Active,
 
@@ -1491,10 +1522,18 @@ export const newVehiclePayload = (): VehicleDTO => ({
   vehicle_fuel_unit_id: '',
   secondary_vehicle_fuel_type_id: '',
   secondary_vehicle_fuel_unit_id: '',
-  vehicle_total_fuel_quantity: 0,
-  vehicle_tank_1_fuel_quantity: 0,
-  vehicle_tank_2_fuel_quantity: 0,
-  MasterVehicleFileSchema: []
+
+  odometer_reading: 0,
+
+  fuel_tank_size: 0,
+  fuel_tank_1_size: 0,
+  fuel_tank_2_size: 0,
+  fuel_tank_total_size: 0,
+
+  vehicle_passenger_capacity: 0,
+  standing_passenger_capacity: 0,
+
+  MasterVehicleFileSchema: [],
 });
 
 // ✅ Convert Vehicle Detail GPS Main to API Payload
@@ -1504,6 +1543,9 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   fuel: vehicleGPS?.fuel || YesNo.No,
   fuel_bluetooth: vehicleGPS?.fuel_bluetooth || YesNo.No,
   fuel_tank_size: vehicleGPS?.fuel_tank_size || 0,
+  fuel_tank_1_size: vehicleGPS?.fuel_tank_1_size || 0,
+  fuel_tank_2_size: vehicleGPS?.fuel_tank_2_size || 0,
+  fuel_tank_total_size: vehicleGPS?.fuel_tank_total_size || 0,
   over_speed_kmph: vehicleGPS?.over_speed_kmph || 0,
   gps_lock_relay: vehicleGPS?.gps_lock_relay || YesNo.No,
   gps_door_locker: vehicleGPS?.gps_door_locker || YesNo.No,
@@ -1513,7 +1555,7 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   is_rear_cam: vehicleGPS?.is_rear_cam || YesNo.No,
   is_front_cam: vehicleGPS?.is_front_cam || YesNo.No,
   camera_extra_count: vehicleGPS?.camera_extra_count || 0,
-  fuel_mapping: vehicleGPS?.fuel_mapping || {}
+  fuel_mapping: vehicleGPS?.fuel_mapping || {},
 });
 
 // ✅ Convert VehicleDetailTrip Data to API Payload
@@ -1529,7 +1571,7 @@ export const toVehicleDetailsTripPayload = (trip?: VehicleDetailTrip): VehicleDe
   trip_notes_1: trip?.trip_notes_1 || '',
   trip_notes_2: trip?.trip_notes_2 || '',
   trip_notes_3: trip?.trip_notes_3 || '',
-  
+
   status: trip ? trip.status : Status.Active,
 });
 
@@ -1831,22 +1873,5 @@ export const getVehicleSimpleDropdownCustom = async (organisationId: string): Pr
 
 export const getVehicleSimpleDropdownCacheLiveData = async (organisationId: string): Promise<FBR<MasterVehicleDropdown[]>> => {
   return apiGet<FBR<MasterVehicleDropdown[]>>(ENDPOINTS.find_cache_dropdown_live_data.replace(':organisation_id', organisationId));
-};
-
-// Cache Endpoints By user_id
-export const getVehicleByUserCache = async (userId: string): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache_by_user.replace(':user_id', userId));
-};
-
-export const getVehicleSimpleByUserCache = async (userId: string): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache_simple_by_user.replace(':user_id', userId));
-};
-
-export const getVehicleParentByUserCache = async (userId: string): Promise<FBR<MasterVehicle[]>> => {
-  return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache_parent_by_user.replace(':user_id', userId));
-};
-
-export const getVehicleSimpleDropdownByUserCustom = async (userId: string): Promise<FBR<MasterVehicleDropdown[]>> => {
-  return apiGet<FBR<MasterVehicleDropdown[]>>(ENDPOINTS.find_cache_dropdown_by_user.replace(':user_id', userId));
 };
 
