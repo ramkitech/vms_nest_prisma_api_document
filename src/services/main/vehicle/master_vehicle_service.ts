@@ -561,7 +561,6 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
   trip_name?: string;
   trip_no?: string;
   eway_bill_number?: string;
-
   route_name?: string;
 
   trip_start_date?: string;
@@ -579,6 +578,8 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
   // ✅ Relations - One To One
   vehicle_id?: string;
   Vehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   // ✅ Child Count
   _count?: object;
@@ -592,9 +593,30 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   vehicle_height?: number;
   vehicle_width?: number;
   vehicle_length?: number;
+  wheel_base?: number;     
+  number_of_doors?: number;   
+
   vehicle_passenger_capacity?: number;
+  standing_passenger_capacity?: number;
+  seat_configuration?: string;
+  has_air_conditioning: YesNo;
+  has_heating_system: YesNo;
+  has_reclining_seats: YesNo;
+  has_safety_belts: YesNo;
+  has_headrests: YesNo;
+  has_armrests: YesNo;
+  has_infotainment_system: YesNo;
+  infotainment_type?: string;
+  has_individual_lighting: YesNo;
+  has_overhead_luggage_storage: YesNo;
+  wheelchair_accessible: YesNo;
+
   vehicle_cargo_volume?: number;
   vehicle_maximum_weight_capacity?: number;
+  cargo_area_type?: string;
+  has_lift_gate: YesNo;
+  has_refrigeration_unit: YesNo;
+  refrigeration_temperature_range?: string;
 
   // ✅ Metadata
   status: Status;
@@ -673,7 +695,9 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
 
   // ✅ Relations
   vehicle_id?: string;
-  Vehicle?: MasterVehicle;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   purchase_vendor_id?: string;
   //PurchaseVendor?: FleetVendor;
