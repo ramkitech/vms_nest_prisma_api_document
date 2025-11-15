@@ -329,7 +329,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   };
 }
 
-// 🚀 Vehicle Interface
+// MasterVehicleDropdown Interface
 export interface MasterVehicleDropdown extends Record<string, unknown> {
 
   v_id: string;
@@ -375,7 +375,7 @@ export interface MasterVehicleFile extends BaseCommonFile {
   MasterVehicle?: MasterVehicle;
 }
 
-// 🚀 Vehicle Detail GPS Interface
+// VehicleDetailGPS Interface
 export interface VehicleDetailGPS extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_details_gps_id: string;
@@ -569,7 +569,7 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   _count?: object;
 }
 
-// 🚀 Vehicle Detail Trip Interface
+// VehicleDetailTrip Interface
 export interface VehicleDetailTrip extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_details_trip_id: string;
@@ -600,7 +600,7 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
   _count?: object;
 }
 
-// 🚀 Vehicle Detail Body Interface
+// VehicleDetailBody Interface
 export interface VehicleDetailBody extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_details_body_id: string;
@@ -683,12 +683,9 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   Vehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
-
-  // ✅ Child Count
-  _count?: object;
 }
 
-// 🚀 Vehicle Detail Life Cycle Interface
+// VehicleDetailLifeCycle Interface
 export interface VehicleDetailLifeCycle extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_details_life_cycle_id: string;
@@ -722,12 +719,9 @@ export interface VehicleDetailLifeCycle extends Record<string, unknown> {
   Vehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
-
-  // ✅ Child Count
-  _count?: object;
 }
 
-// 🚀 Vehicle Detail Purchase Interface
+// VehicleDetailPurchase Interface
 export interface VehicleDetailPurchase extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_details_purchase_id: string;
@@ -779,12 +773,9 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
 
   lease_vendor_id?: string;
   // LeaseVendor?: FleetVendor;
-
-  // ✅ Child Count
-  _count?: object;
 }
 
-// VehicleDocument
+// VehicleDocument Interface
 export interface VehicleDocument extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_document_id: string;
@@ -832,7 +823,7 @@ export interface VehicleDocument extends Record<string, unknown> {
   _count?: object;
 }
 
-// VehicleDocumentFile
+// VehicleDocumentFile Interface
 export interface VehicleDocumentFile extends BaseCommonFile {
   // Primary Fields
   vehicle_document_file_id: string;
@@ -845,7 +836,7 @@ export interface VehicleDocumentFile extends BaseCommonFile {
   VehicleDocument?: VehicleDocument;
 }
 
-// VehicleDocumentExpiry
+// VehicleDocumentExpiry Interface
 export interface VehicleDocumentExpiry extends Record<string, unknown> {
   // ✅ Primary Fields
   document_expiry_id: string;
@@ -861,12 +852,9 @@ export interface VehicleDocumentExpiry extends Record<string, unknown> {
 
   vehicle_document_id: String
   VehicleDocument?: VehicleDocument;
-
-  // ✅ Child Count
-  _count?: object;
 }
 
-// VehicleOdometerHistory
+// VehicleOdometerHistory Interface
 export interface VehicleOdometerHistory extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_odometer_history_id: string;
@@ -887,11 +875,7 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
-
-  // ✅ Child Count
-  _count?: object;
 }
-
 
 // ✅ MasterVehicleFile Schema
 export const MasterVehicleFileSchema = BaseFileSchema.extend({
@@ -1545,7 +1529,6 @@ export const toVehicleDetailsTripPayload = (trip?: VehicleDetailTrip): VehicleDe
   status: trip ? trip.status : Status.Active,
 });
 
-
 // ✅ Convert Vehicle Detail Body Data to API Payload
 export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): VehicleDetailBodyDTO => ({
   vehicle_body_details: vehicleBody?.vehicle_body_details || '',
@@ -1559,7 +1542,7 @@ export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): Ve
   number_of_doors: 0,
   standing_passenger_capacity: 0,
   seat_configuration: '',
-  has_air_conditioning: YesNo.Yes,
+  has_air_conditioning: vehicleBody?.has_air_conditioning || YesNo.No,
   has_heating_system: YesNo.Yes,
   has_reclining_seats: YesNo.Yes,
   has_safety_belts: YesNo.Yes,
