@@ -19,6 +19,7 @@ import {
   enumArrayOptional,
   getAllEnums,
   nestedArrayOfObjectsOptional,
+  dynamicJsonSchema,
 } from '../../../zod_utils/zod_utils';
 import { BaseFileSchema, BaseQueryDTO, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
@@ -996,6 +997,7 @@ export const VehicleDeviceLinkSchema = z.object({
   is_rear_cam: enumOptional('Is Rear Cam', YesNo, YesNo.No),
   is_front_cam: enumOptional('Is Front Cam', YesNo, YesNo.No),
   camera_extra_count: numberOptional('Camera Extra Count'),
+  fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
 
   MasterDeviceFileSchema: nestedArrayOfObjectsOptional(
     'MasterDeviceFileSchema',
@@ -1037,6 +1039,7 @@ export const VehicleDetailGPSSensorSchema = z.object({
   is_rear_cam: enumOptional('Is Rear Cam', YesNo, YesNo.No),
   is_front_cam: enumOptional('Is Front Cam', YesNo, YesNo.No),
   camera_extra_count: numberOptional('Camera Extra Count'),
+  fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
 });
 export type VehicleDetailGPSSensorDTO = z.infer<
   typeof VehicleDetailGPSSensorSchema
@@ -1430,7 +1433,7 @@ export const toVehiclePayload = (vehicle: MasterVehicle): VehicleDTO => ({
   organisation_branch_id: vehicle.organisation_branch_id || '',
   organisation_tag_id: vehicle.organisation_tag_id || '',
   organisation_color_id: vehicle.organisation_color_id || '',
-  organisation_group_ids: vehicle.VehicleOrganisationGroupLink?.map((v) => v.organisation_group_id) ??
+  organisation_group_ids: vehicle.VehicleOrganisationGroupLink?.map((v) => v.organisation_group_id) ||
     [],
 
   vehicle_type_id: vehicle.vehicle_type_id || '',
@@ -1496,20 +1499,21 @@ export const newVehiclePayload = (): VehicleDTO => ({
 
 // ✅ Convert Vehicle Detail GPS Main to API Payload
 export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): VehicleDetailGPSSensorDTO => ({
-  temperature: vehicleGPS?.temperature ?? YesNo.No,
-  duel_temperature: vehicleGPS?.duel_temperature ?? YesNo.No,
-  fuel: vehicleGPS?.fuel ?? YesNo.No,
-  fuel_bluetooth: vehicleGPS?.fuel_bluetooth ?? YesNo.No,
-  fuel_tank_size: vehicleGPS?.fuel_tank_size ?? 0,
-  over_speed_kmph: vehicleGPS?.over_speed_kmph ?? 0,
-  gps_lock_relay: vehicleGPS?.gps_lock_relay ?? YesNo.No,
-  gps_door_locker: vehicleGPS?.gps_door_locker ?? YesNo.No,
-  door_sensor: vehicleGPS?.door_sensor ?? YesNo.No,
-  genset_sensor: vehicleGPS?.genset_sensor ?? YesNo.No,
-  dashcam_sensor: vehicleGPS?.dashcam_sensor ?? YesNo.No,
-  is_rear_cam: vehicleGPS?.is_rear_cam ?? YesNo.No,
-  is_front_cam: vehicleGPS?.is_front_cam ?? YesNo.No,
-  camera_extra_count: vehicleGPS?.camera_extra_count ?? 0,
+  temperature: vehicleGPS?.temperature || YesNo.No,
+  duel_temperature: vehicleGPS?.duel_temperature || YesNo.No,
+  fuel: vehicleGPS?.fuel || YesNo.No,
+  fuel_bluetooth: vehicleGPS?.fuel_bluetooth || YesNo.No,
+  fuel_tank_size: vehicleGPS?.fuel_tank_size || 0,
+  over_speed_kmph: vehicleGPS?.over_speed_kmph || 0,
+  gps_lock_relay: vehicleGPS?.gps_lock_relay || YesNo.No,
+  gps_door_locker: vehicleGPS?.gps_door_locker || YesNo.No,
+  door_sensor: vehicleGPS?.door_sensor || YesNo.No,
+  genset_sensor: vehicleGPS?.genset_sensor || YesNo.No,
+  dashcam_sensor: vehicleGPS?.dashcam_sensor || YesNo.No,
+  is_rear_cam: vehicleGPS?.is_rear_cam || YesNo.No,
+  is_front_cam: vehicleGPS?.is_front_cam || YesNo.No,
+  camera_extra_count: vehicleGPS?.camera_extra_count || 0,
+  fuel_mapping: vehicleGPS?.fuel_mapping || {}
 });
 
 // ✅ Convert VehicleDetailTrip Data to API Payload
