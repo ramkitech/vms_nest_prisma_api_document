@@ -1,6 +1,6 @@
 // Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR, BR, AWSPresignedUrl } from '../../../core/BaseResponse';
+import { SBR, FBR, BR, AWSPresignedUrl, BaseCommonFile } from '../../../core/BaseResponse';
 
 //Zod
 import { z } from 'zod';
@@ -360,6 +360,19 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
 
 }
 
+// ✅ MasterVehicleFile Interface
+export interface MasterVehicleFile extends BaseCommonFile {
+  // Primary Fields
+  vehicle_file_id: string;
+
+  // ✅ Relations - Parent
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  vehicle_id: string;
+  MasterVehicle?: MasterVehicle;
+}
+
 // 🚀 Vehicle Detail GPS Interface
 export interface VehicleDetailGPS extends Record<string, unknown> {
   // ✅ Primary Fields
@@ -593,8 +606,8 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   vehicle_height?: number;
   vehicle_width?: number;
   vehicle_length?: number;
-  wheel_base?: number;     
-  number_of_doors?: number;   
+  wheel_base?: number;
+  number_of_doors?: number;
 
   vehicle_passenger_capacity?: number;
   standing_passenger_capacity?: number;
@@ -711,6 +724,11 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   // ✅ Child Count
   _count?: object;
 }
+
+// VehicleDocument
+// VehicleDocumentFile
+// VehicleDocumentExpiry
+// VehicleOdometerHistory
 
 // ✅ MasterVehicleFile Schema
 export const MasterVehicleFileSchema = BaseFileSchema.extend({
