@@ -36,6 +36,7 @@ import {
   LoanInterestType,
   DocumentValidityStatus,
   DocumentStatus,
+  OdometerSource,
 } from '../../../core/Enums';
 
 import {
@@ -66,6 +67,7 @@ import { MasterVehicleType } from '../../../services/master/vehicle/master_vehic
 import { MasterVehicleFuelType } from '../../../services/master/vehicle/master_vehicle_fuel_type_service';
 import { MasterVehicleAssociatedTo } from 'src/services/master/vehicle/master_vehicle_associated_to_service';
 import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicle_fuel_unit_service';
+import { MasterVehicleDocumentType } from 'src/services/master/vehicle/master_vehicle_document_type_service';
 
 // ✅ URL and Endpoints
 const URL = 'main/master_vehicle';
@@ -609,6 +611,7 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   wheel_base?: number;
   number_of_doors?: number;
 
+  // Passenger Configuration (Cars/Buses)
   vehicle_passenger_capacity?: number;
   standing_passenger_capacity?: number;
   seat_configuration?: string;
@@ -624,12 +627,51 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   has_overhead_luggage_storage: YesNo;
   wheelchair_accessible: YesNo;
 
+  // Cargo Configuration (Trucks/Vans)
   vehicle_cargo_volume?: number;
   vehicle_maximum_weight_capacity?: number;
   cargo_area_type?: string;
   has_lift_gate: YesNo;
   has_refrigeration_unit: YesNo;
   refrigeration_temperature_range?: string;
+  cargo_bed_length?: number;
+  cargo_bed_width?: number;
+  cargo_bed_height?: number;
+  cargo_floor_material?: string;
+  has_side_doors: YesNo;
+  has_roof_hatch: YesNo;
+  cargo_tie_down_hooks_count?: number;
+  is_custom_body_built: YesNo;
+
+  // 🛞 Wheel & Suspension
+  number_of_axles?: number;
+  axle_configuration?: string;
+  has_dual_rear_wheels: YesNo;
+  suspension_type?: string;
+  suspension_adjustability: YesNo;
+  ground_clearance_mm?: number;
+  tire_size?: string;
+  has_spare_tire: YesNo;
+  has_all_terrain_tires: YesNo;
+  has_run_flat_tires: YesNo;
+  steering_type: SteeringType
+  wheel_drive_type: WheelDriveType;
+
+  // 🛡️ Safety Features
+  has_abs: YesNo;
+  has_airbags: YesNo;
+  has_speed_limiter: YesNo;
+  has_gps_tracker: YesNo;
+  has_parking_sensors: YesNo;
+  has_rear_camera: YesNo;
+  has_lane_assist: YesNo;
+  has_automatic_emergency_brake: YesNo;
+  has_tire_pressure_monitoring: YesNo;
+  has_blind_spot_monitoring: YesNo;
+  has_collision_warning_system: YesNo;
+  has_immobilizer: YesNo;
+  has_dashcam: YesNo;
+  has_emergency_exi: YesNo;
 
   // ✅ Metadata
   status: Status;
@@ -639,6 +681,8 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   // ✅ Relations - One To One
   vehicle_id?: string;
   Vehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   // ✅ Child Count
   _count?: object;
@@ -648,13 +692,23 @@ export interface VehicleDetailBody extends Record<string, unknown> {
 export interface VehicleDetailLifeCycle extends Record<string, unknown> {
   // ✅ Primary Fields
   vehicle_details_life_cycle_id: string;
+
+  // Lifecycle Start
   service_start_date?: string;
   service_start_odometer_reading?: number;
+
+  // Lifecycle End
   service_end_date?: string;
   service_end_odometer_reading?: number;
+
+  // Estimated Life
   life_estimate_max_month_year?: string;
   life_estimate_max_odometer_reading?: number;
-  life_expiry?: LifeExpiry;
+
+  // Lifecycle Status
+  life_expiry: LifeExpiry;
+  is_extended_life_approved: YesNo;
+  life_status: VehicleLifeStatus;
   life_expiry_message?: string;
   life_expiry_note?: string;
 
@@ -666,6 +720,8 @@ export interface VehicleDetailLifeCycle extends Record<string, unknown> {
   // ✅ Relations - One To One
   vehicle_id?: string;
   Vehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   // ✅ Child Count
   _count?: object;
@@ -678,10 +734,11 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
 
   purchase_date?: string;
   purchase_notes?: string;
-  purchase_vehicle_type?: PurchaseVehicleType;
-  purchase_type?: PurchaseType;
+  purchase_vehicle_type: PurchaseVehicleType;
+  purchase_type: PurchaseType;
   purchase_total_amount?: number;
 
+  // Loan Details
   loan_amount?: number;
   loan_down_payment?: number;
   loan_interest_rate?: number;
@@ -691,12 +748,14 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   loan_monthly_emi?: number;
   loan_emi_date?: number;
 
+  // Lease Details
   lease_start_date?: string;
   lease_end_date?: string;
   lease_security_deposit_amount?: number;
   lease_monthly_emi_amount?: number;
   lease_emi_date?: number;
 
+  // Warranty Info
   warranty_expiration_date?: string;
   warranty_max_odometer_reading?: number;
   warranty_exchange_date?: string;
@@ -713,22 +772,126 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   vehicle_type?: string;
 
   purchase_vendor_id?: string;
-  //PurchaseVendor?: FleetVendor;
+  // PurchaseVendor?: FleetVendor;
 
   loan_lender_id?: string;
-  //LoanLender?: FleetVendor;
+  // LoanLender?: FleetVendor;
 
   lease_vendor_id?: string;
-  //LeaseVendor?: FleetVendor;
+  // LeaseVendor?: FleetVendor;
 
   // ✅ Child Count
   _count?: object;
 }
 
 // VehicleDocument
+export interface VehicleDocument extends Record<string, unknown> {
+  // ✅ Primary Fields
+  vehicle_document_id: string;
+  sub_vehicle_document_id: number;
+  vehicle_document_code?: string;
+
+  // Document Details
+  document_number?: String;
+  document_authorized_name?: String;
+  document_cost?: number;
+  document_issue_date?: String;
+  document_valid_till_date?: String;
+  document_renewal_date?: String;
+  document_validity_status: DocumentValidityStatus;
+  document_status: DocumentStatus;
+  document_details_1?: String;
+  document_details_2?: String;
+  document_details_3?: String;
+  document_details_4?: String;
+  document_notes?: String;
+
+  // ✅ Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // ✅ Relations
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  vehicle_id?: string;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
+
+  document_type_id: String
+  MasterVehicleDocumentType?: MasterVehicleDocumentType;
+  document_type?: String;
+
+  vendor_id?: String;
+  // FleetVendor?: FleetVendor;
+  vendor_name?: String;
+
+  // ✅ Child Count
+  _count?: object;
+}
+
 // VehicleDocumentFile
+export interface VehicleDocumentFile extends BaseCommonFile {
+  // Primary Fields
+  vehicle_document_file_id: string;
+
+  // ✅ Relations - Parent
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  vehicle_document_id: string;
+  VehicleDocument?: VehicleDocument;
+}
+
 // VehicleDocumentExpiry
+export interface VehicleDocumentExpiry extends Record<string, unknown> {
+  // ✅ Primary Fields
+  document_expiry_id: string;
+
+  // ✅ Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // ✅ Relations
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  vehicle_document_id: String
+  VehicleDocument?: VehicleDocument;
+
+  // ✅ Child Count
+  _count?: object;
+}
+
 // VehicleOdometerHistory
+export interface VehicleOdometerHistory extends Record<string, unknown> {
+  // ✅ Primary Fields
+  vehicle_odometer_history_id: string;
+  odometer_reading: number;
+  odometer_date: string;
+  odometer_source: OdometerSource;
+
+  // ✅ Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // ✅ Relations
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  vehicle_id: string;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
+
+  // ✅ Child Count
+  _count?: object;
+}
+
 
 // ✅ MasterVehicleFile Schema
 export const MasterVehicleFileSchema = BaseFileSchema.extend({
