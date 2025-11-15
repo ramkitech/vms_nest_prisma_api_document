@@ -817,6 +817,7 @@ export type VehicleDeviceLinkDTO = z.infer<typeof VehicleDeviceLinkSchema>;
 
 // ✅ Vehicle Device Unlink Schema
 export const VehicleDeviceUnlinkSchema = z.object({
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
   device_id: single_select_mandatory('MasterDevice'), // ✅ Single-Selection -> MasterDevice
 });
@@ -824,6 +825,7 @@ export type VehicleDeviceUnlinkDTO = z.infer<typeof VehicleDeviceUnlinkSchema>;
 
 // ✅ Vehicle Driver Link Schema
 export const VehicleDriverLinkSchema = z.object({
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
   driver_id: single_select_mandatory('MasterDriver'), // ✅ Single-Selection -> MasterDriver
 });
