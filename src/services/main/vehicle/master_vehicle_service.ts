@@ -1518,11 +1518,14 @@ export const toVehicleDetailsTripPayload = (trip?: VehicleDetailTrip): VehicleDe
   trip_no: trip?.trip_no || '',
   eway_bill_number: trip?.eway_bill_number || '',
   route_name: trip?.route_name || '',
+
   trip_start_date: trip?.trip_start_date || '',
   trip_end_date: trip?.trip_end_date || '',
+
   trip_notes_1: trip?.trip_notes_1 || '',
   trip_notes_2: trip?.trip_notes_2 || '',
   trip_notes_3: trip?.trip_notes_3 || '',
+  
   status: trip ? trip.status : Status.Active,
 });
 
