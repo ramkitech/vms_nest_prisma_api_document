@@ -1531,16 +1531,18 @@ export const toVehicleDetailsTripPayload = (trip?: VehicleDetailTrip): VehicleDe
 
 // ✅ Convert VehicleDetailBody Data to API Payload
 export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): VehicleDetailBodyDTO => ({
+  // 📦 Body & Dimension (Common)
   vehicle_body_details: vehicleBody?.vehicle_body_details || '',
+
   vehicle_height: vehicleBody?.vehicle_height || 0,
   vehicle_width: vehicleBody?.vehicle_width || 0,
   vehicle_length: vehicleBody?.vehicle_length || 0,
-  vehicle_passenger_capacity: vehicleBody?.vehicle_passenger_capacity || 0,
-  vehicle_cargo_volume: vehicleBody?.vehicle_cargo_volume || 0,
-  vehicle_maximum_weight_capacity: vehicleBody?.vehicle_maximum_weight_capacity || 0,
-  status: vehicleBody ? vehicleBody?.status : Status.Active,
+  wheel_base: vehicleBody?.wheel_base || 0,
   number_of_doors: 0,
-  standing_passenger_capacity: 0,
+
+  // Passenger Configuration (Cars/Buses)
+  vehicle_passenger_capacity: vehicleBody?.vehicle_passenger_capacity || 0,
+  standing_passenger_capacity: vehicleBody?.standing_passenger_capacity || 0,
   seat_configuration: '',
   has_air_conditioning: vehicleBody?.has_air_conditioning || YesNo.No,
   has_heating_system: vehicleBody?.has_heating_system || YesNo.No,
@@ -1553,26 +1555,38 @@ export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): Ve
   has_individual_lighting: vehicleBody?.has_individual_lighting || YesNo.No,
   has_overhead_luggage_storage: vehicleBody?.has_overhead_luggage_storage || YesNo.No,
   wheelchair_accessible: vehicleBody?.wheelchair_accessible || YesNo.No,
+
+  // Cargo Configuration (Trucks/Vans)
+  vehicle_cargo_volume: vehicleBody?.vehicle_cargo_volume || 0,
+  vehicle_maximum_weight_capacity: vehicleBody?.vehicle_maximum_weight_capacity || 0,
   cargo_area_type: '',
   has_lift_gate: vehicleBody?.has_lift_gate || YesNo.No,
   has_refrigeration_unit: vehicleBody?.has_refrigeration_unit || YesNo.No,
   refrigeration_temperature_range: '',
+  cargo_bed_length: vehicleBody?.cargo_bed_length || 0,
+  cargo_bed_width: vehicleBody?.cargo_bed_width || 0,
+  cargo_bed_height: vehicleBody?.cargo_bed_height || 0,
   cargo_floor_material: '',
   has_side_doors: vehicleBody?.has_side_doors || YesNo.No,
   has_roof_hatch: vehicleBody?.has_roof_hatch || YesNo.No,
   cargo_tie_down_hooks_count: 0,
   is_custom_body_built: vehicleBody?.is_custom_body_built || YesNo.No,
+
+  // 🛞 Wheel & Suspension
   number_of_axles: 0,
   axle_configuration: '',
   has_dual_rear_wheels: vehicleBody?.has_dual_rear_wheels || YesNo.No,
   suspension_type: '',
   suspension_adjustability: vehicleBody?.suspension_adjustability || YesNo.No,
+  ground_clearance_mm: vehicleBody?.ground_clearance_mm || 0,
   tire_size: '',
   has_spare_tire: vehicleBody?.has_spare_tire || YesNo.No,
   has_all_terrain_tires: vehicleBody?.has_all_terrain_tires || YesNo.No,
   has_run_flat_tires: vehicleBody?.has_run_flat_tires || YesNo.No,
   steering_type: vehicleBody?.steering_type || SteeringType.Manual,
   wheel_drive_type: vehicleBody?.wheel_drive_type || WheelDriveType.FWD,
+
+  // 🛡️ Safety Features
   has_abs: vehicleBody?.has_abs || YesNo.No,
   has_airbags: vehicleBody?.has_airbags || YesNo.No,
   has_speed_limiter: vehicleBody?.has_speed_limiter || YesNo.No,
@@ -1587,61 +1601,74 @@ export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): Ve
   has_immobilizer: vehicleBody?.has_immobilizer || YesNo.No,
   has_dashcam: vehicleBody?.has_dashcam || YesNo.No,
   has_emergency_exit: vehicleBody?.has_emergency_exit || YesNo.No,
+
+  status: vehicleBody ? vehicleBody?.status : Status.Active,
 });
 
 // ✅ Convert VehicleDetailLifeCycle Data to API Payload
 export const toVehicleDetailLifeCyclePayload = (vehicleLifeCycle?: VehicleDetailLifeCycle): VehicleDetailLifeCycleDto => ({
+  // Lifecycle Start
   service_start_date: vehicleLifeCycle?.service_start_date || '',
   service_start_odometer_reading: vehicleLifeCycle?.service_start_odometer_reading || 0,
 
+  // Lifecycle End
   service_end_date: vehicleLifeCycle?.service_end_date || '',
   service_end_odometer_reading: vehicleLifeCycle?.service_end_odometer_reading || 0,
 
+  // Estimated Life
   life_estimate_max_month_year: vehicleLifeCycle?.life_estimate_max_month_year || '',
   life_estimate_max_odometer_reading: vehicleLifeCycle?.life_estimate_max_odometer_reading || 0,
 
+  // Lifecycle Status
   life_expiry: vehicleLifeCycle?.life_expiry || LifeExpiry.No,
+  is_extended_life_approved: vehicleLifeCycle?.is_extended_life_approved || YesNo.No,
+  life_status: VehicleLifeStatus.Active,
   life_expiry_message: vehicleLifeCycle?.life_expiry_message || '',
   life_expiry_note: vehicleLifeCycle?.life_expiry_note || '',
 
   status: vehicleLifeCycle ? vehicleLifeCycle.status : Status.Active,
-  is_extended_life_approved: vehicleLifeCycle?.is_extended_life_approved || YesNo.No,
-  life_status: VehicleLifeStatus.Active
 });
 
 // ✅ Convert Vehicle Detail Purchase Data to API Payload
 export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPurchase): VehicleDetailPurchaseDTO => ({
+  // Basic Purchase Info
   purchase_date: vehiclePurchase?.purchase_date || '',
-  purchase_vendor_id: vehiclePurchase?.purchase_vendor_id || '',
   purchase_notes: vehiclePurchase?.purchase_notes || '',
   purchase_vehicle_type: vehiclePurchase?.purchase_vehicle_type || PurchaseVehicleType.New,
   purchase_type: vehiclePurchase?.purchase_type || PurchaseType.NoFinance,
-
   purchase_total_amount: vehiclePurchase?.purchase_total_amount || 0,
 
-  loan_lender_id: vehiclePurchase?.loan_lender_id || '',
+  // Loan Details
   loan_amount: vehiclePurchase?.loan_amount || 0,
   loan_down_payment: vehiclePurchase?.loan_down_payment || 0,
   loan_interest_rate: vehiclePurchase?.loan_interest_rate || 0,
+  loan_interest_type: vehiclePurchase?.loan_interest_type || LoanInterestType.Simple,
   loan_no_of_installments: vehiclePurchase?.loan_no_of_installments || 0,
   loan_first_payment_date: vehiclePurchase?.loan_first_payment_date || '',
   loan_last_payment_date: vehiclePurchase?.loan_last_payment_date || '',
   loan_monthly_emi: vehiclePurchase?.loan_monthly_emi || 0,
   loan_emi_date: vehiclePurchase?.loan_emi_date || 0,
 
-  lease_vendor_id: vehiclePurchase?.lease_vendor_id || '',
+  // Lease Details
   lease_start_date: vehiclePurchase?.lease_start_date || '',
   lease_end_date: vehiclePurchase?.lease_end_date || '',
   lease_security_deposit_amount: vehiclePurchase?.lease_security_deposit_amount || 0,
   lease_monthly_emi_amount: vehiclePurchase?.lease_monthly_emi_amount || 0,
   lease_emi_date: vehiclePurchase?.lease_emi_date || 0,
 
+  // Warranty Info
   warranty_expiration_date: vehiclePurchase?.warranty_expiration_date || '',
   warranty_max_odometer_reading: vehiclePurchase?.warranty_max_odometer_reading || 0,
   warranty_exchange_date: vehiclePurchase?.warranty_exchange_date || '',
 
   status: vehiclePurchase ? vehiclePurchase.status : Status.Active,
-  loan_interest_type: vehiclePurchase?.loan_interest_type || LoanInterestType.Simple
+
+  // Relations
+  purchase_vendor_id: vehiclePurchase?.purchase_vendor_id || '',
+
+  loan_lender_id: vehiclePurchase?.loan_lender_id || '',
+
+  lease_vendor_id: vehiclePurchase?.lease_vendor_id || '',
 });
 
 // ✅ API Methods
