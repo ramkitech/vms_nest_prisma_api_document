@@ -38,6 +38,7 @@ import {
   DocumentValidityStatus,
   DocumentStatus,
   OdometerSource,
+  ExpiryType,
 } from '../../../core/Enums';
 
 import {
@@ -120,6 +121,12 @@ const ENDPOINTS = {
   remove_file_device: `${URL}/remove_file_device/:id`,
   create_file_vehicle_document: `${URL}/create_file_vehicle_document`,
   remove_file_vehicle_document: `${URL}/remove_file_vehicle_document/:id`,
+
+  // Vehicle Document Expiry
+  create_document_expiry: `${URL}/vehicle_document_expiry`,
+  find_document_expiry: `${URL}/vehicle_document_expiry/search`,
+  update_document_expiry: `${URL}/vehicle_document_expiry/:id`,
+  remove_document_expiry: `${URL}/vehicle_document_expiry/:id`,
 
   // Cache Endpoints By organisation_id
   find_cache: `${URL}/cache/:organisation_id`,
@@ -823,6 +830,8 @@ export interface VehicleDocumentExpiry extends Record<string, unknown> {
   // ✅ Primary Fields
   document_expiry_id: string;
 
+  expiry_type: ExpiryType;
+
   // ✅ Metadata
   status: Status;
   added_date_time: string;
@@ -832,7 +841,12 @@ export interface VehicleDocumentExpiry extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  vehicle_document_id: String
+  vehicle_id: string;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
+
+  vehicle_document_id: string
   VehicleDocument?: VehicleDocument;
 }
 
@@ -1365,6 +1379,36 @@ export type VehicleDocumentQueryDTO = z.infer<
   typeof VehicleDocumentQuerySchema
 >;
 
+// ✅ VehicleDocumentExpiry Schema
+export const VehicleDocumentExpirySchema = z.object({
+  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  vehicle_id: single_select_optional('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  vehicle_document_id: single_select_optional('VehicleDocument'), // ✅ Single-Selection -> VehicleDocument
+  expiry_type: enumMandatory('Expiry Type', ExpiryType, ExpiryType.Expiring),
+
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type VehicleDocumentExpiryDTO = z.infer<
+  typeof VehicleDocumentExpirySchema
+>;
+
+// ✅ VehicleDocumentExpiry Query Schema
+export const VehicleDocumentExpiryQuerySchema = BaseQuerySchema.extend({
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  vehicle_document_ids: multi_select_optional('VehicleDocument'), // ✅ Multi-selection -> VehicleDocument
+  document_expiry_ids: multi_select_optional('VehicleDocumentExpiry'), // ✅ Multi-selection -> VehicleDocumentExpiry
+
+  expiry_type: enumArrayOptional(
+    'Expiry Type',
+    ExpiryType,
+    getAllEnums(ExpiryType),
+  ),
+});
+export type VehicleDocumentExpiryQueryDTO = z.infer<
+  typeof VehicleDocumentExpiryQuerySchema
+>;
+
 // ✅ Vehicle Query Schema
 export const VehicleQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
@@ -1717,6 +1761,30 @@ export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPu
   lease_vendor_id: vehiclePurchase?.lease_vendor_id || '',
 });
 
+// ✅ Convert Form Data to API Payload
+export const toVehicleDocumentExpiryPayload = (vehicleDocumentExpiry: VehicleDocumentExpiry): VehicleDocumentExpiryDTO => ({
+  organisation_id: vehicleDocumentExpiry.organisation_id,
+
+  vehicle_id: vehicleDocumentExpiry.vehicle_id,
+  vehicle_document_id: vehicleDocumentExpiry.vehicle_document_id,
+
+  expiry_type: vehicleDocumentExpiry.expiry_type || ExpiryType.Expiring,
+
+  status: vehicleDocumentExpiry.status,
+});
+
+// ✅ Convert API Response to Frontend Data
+export const newVehicleDocumentExpiryPayload = (): VehicleDocumentExpiryDTO => ({
+  organisation_id: '',
+
+  vehicle_id: '',
+  vehicle_document_id: '',
+
+  expiry_type: ExpiryType.Expiring,
+
+  status: Status.Active,
+});
+
 // ✅ API Methods
 
 // AWS S3 PRESIGNED
@@ -1852,6 +1920,23 @@ export const createFileVehicleDocument = async (payload: MasterVehicleDocumentFi
 
 export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document.replace(':id', id));
+};
+
+// Vehicle Document Expiry
+export const createDocumentExpiry = async (payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
+  return apiPost<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.create_document_expiry, payload);
+};
+
+export const findDocumentExpiry = async (payload: VehicleDocumentExpiryQueryDTO): Promise<SBR> => {
+  return apiPost<SBR, VehicleDocumentExpiryQueryDTO>(ENDPOINTS.find_document_expiry, payload);
+};
+
+export const updateDocumentExpiry = async (id: string, payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.update_document_expiry.replace(':id', id), payload);
+};
+
+export const removeDocumentExpiry = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_document_expiry.replace(':id', id));
 };
 
 // Cache Endpoints By organisation_id

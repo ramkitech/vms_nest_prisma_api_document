@@ -881,3 +881,8 @@ export enum LoanInterestType {
   Compound = 'Compound',
   Reducing = 'Reducing',
 }
+
+export enum ExpiryType {
+  Expiring = 'Expiring',
+  Expired = 'Expired',
+}
