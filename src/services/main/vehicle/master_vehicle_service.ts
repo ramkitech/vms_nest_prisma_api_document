@@ -567,7 +567,9 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
   route_name?: string;
 
   trip_start_date?: string;
+  trip_start_date_f?: string;
   trip_end_date?: string;
+  trip_end_date_f?: string;
 
   trip_notes_1?: string;
   trip_notes_2?: string;
@@ -856,6 +858,7 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
   vehicle_odometer_history_id: string;
   odometer_reading: number;
   odometer_date: string;
+  odometer_date_f?: string;
   odometer_source: OdometerSource;
 
   // ✅ Metadata
@@ -1562,6 +1565,7 @@ export const newVehiclePayload = (): VehicleDTO => ({
   vehicle_status_type_id: '',
   vehicle_ownership_type_id: '',
   vehicle_associated_to_id: '',
+
   vehicle_fuel_type_id: '',
   vehicle_fuel_unit_id: '',
   secondary_vehicle_fuel_type_id: '',
