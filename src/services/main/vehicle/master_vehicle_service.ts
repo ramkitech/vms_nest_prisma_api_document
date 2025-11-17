@@ -58,7 +58,7 @@ import { OrganisationSubCompany } from '../../../services/master/organisation/or
 import { OrganisationBranch } from '../../../services/master/organisation/organisation_branch_service';
 import { OrganisationColor } from '../../../services/master/organisation/organisation_color_service';
 import { OrganisationTag } from '../../../services/master/organisation/organisation_tag_service';
-import { OrganisationGroup, VehicleOrganisationGroupLink } from '../../../services/master/organisation/organisation_group_service';
+import { VehicleOrganisationGroupLink } from '../../../services/master/organisation/organisation_group_service';
 
 import { MasterVehicleMake } from '../../../services/master/vehicle/master_vehicle_make_service';
 import { MasterVehicleModel } from '../../../services/master/vehicle/master_vehicle_model_service';
@@ -77,9 +77,9 @@ const URL = 'main/master_vehicle';
 const ENDPOINTS = {
 
   // AWS S3 PRESIGNED
-  vehicle_presigned_url: (file_name: string): string => `${URL}/vehicle_presigned_url/${file_name}`,
-  device_presigned_url: (file_name: string): string => `${URL}/device_presigned_url/${file_name}`,
   vehicle_file_presigned_url: `${URL}/vehicle_file_presigned_url`,
+  device_file_presigned_url: `${URL}/device_file_presigned_url`,
+  vehicle_document_file_presigned_url: `${URL}/vehicle_document_file_presigned_url`,
 
   // Vehicle CRED
   find: `${URL}/search`,
@@ -1808,16 +1808,16 @@ export const newVehicleDocumentExpiryPayload = (): VehicleDocumentExpiryDTO => (
 // ✅ API Methods
 
 // AWS S3 PRESIGNED
-export const get_vehicle_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.vehicle_presigned_url(fileName));
+export const get_vehicle_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_file_presigned_url, data);
 };
 
-export const get_device_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.device_presigned_url(fileName));
+export const get_device_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.device_file_presigned_url, data);
 };
 
 export const get_master_driver_presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_file_presigned_url, data);
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_document_file_presigned_url, data);
 };
 
 // Vehicle CRED
