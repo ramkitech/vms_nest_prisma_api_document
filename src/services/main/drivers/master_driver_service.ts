@@ -86,6 +86,7 @@ export interface MasterDriver extends Record<string, unknown> {
   vehicle_id?: string;
   MasterVehicle?: MasterVehicle;
   assign_vehicle_date?: string;
+  assign_vehicle_date_f?: string;
   is_vehicle_assigned: YesNo;
   AssignRemoveDriverHistory?: AssignRemoveDriverHistory[];
 
@@ -133,7 +134,9 @@ export interface AssignRemoveDriverHistory extends Record<string, unknown> {
   // ✅ Primary Fields
   history_id: string;
   assign_date?: string; // Nullable DateTime
+  assign_date_f?: string;
   remove_date?: string; // Nullable DateTime
+  remove_date_f?: string;
 
   // ✅ Metadata
   status: Status;

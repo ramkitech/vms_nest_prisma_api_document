@@ -70,7 +70,9 @@ export interface AssignRemoveSimHistory extends Record<string, unknown> {
   // Primary Fields
   history_id: string;
   device_sim_link_date?: string;
+  device_sim_link_date_f?: string;
   device_sim_unlink_date?: string;
+  device_sim_unlink_date_f?: string;
 
   // Metadata
   status: Status;

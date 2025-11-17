@@ -72,6 +72,7 @@ export interface MasterDevice extends Record<string, unknown> {
   sim_id?: string;
   MasterSim?: MasterSim;
   device_sim_link_date?: string;
+  device_sim_link_date_f?: string;
   AssignRemoveSimHistory: AssignRemoveSimHistory[];
 
   // Relations - Vehicle
@@ -79,6 +80,7 @@ export interface MasterDevice extends Record<string, unknown> {
   vehicle_id?: string;
   MasterVehicle?: MasterVehicle;
   assign_device_date?: string;
+  assign_device_date_f?: string;
   AssignRemoveDeviceHistory: AssignRemoveDeviceHistory[];
 
   device_gps_source: GPSSource;
@@ -144,7 +146,9 @@ export interface AssignRemoveDeviceHistory extends Record<string, unknown> {
   // Primary Fields
   history_id: string;
   assign_date?: string;
+  assign_date_f?: string;
   remove_date?: string;
+  remove_date_f?: string;
 
   // Metadata
   status: Status;

@@ -169,6 +169,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   MasterDriver?: MasterDriver;
   driver_details?: string;
   assign_driver_date?: string;
+  assign_driver_date_f?: string;
   AssignRemoveDriverHistory?: AssignRemoveDriverHistory[];
 
   // ✅ Relations - Device
@@ -178,6 +179,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   MasterDevice?: MasterDevice;
   device_identifier?: string;
   assign_device_date?: string;
+  assign_device_date_f?: string;
   AssignRemoveDeviceHistory?: AssignRemoveDeviceHistory[];
   country_id?: string;
   MasterMainCountry?: MasterMainCountry;
@@ -187,6 +189,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   // ✅ Relations - Odometer
   odometer_reading?: number;
   odometer_last_change_date?: string;
+  odometer_last_change_date_f?: string;
   VehicleOdometerHistory?: VehicleOdometerHistory[];
 
   // ✅ Relations - One to One
@@ -682,14 +685,17 @@ export interface VehicleDetailLifeCycle extends Record<string, unknown> {
 
   // Lifecycle Start
   service_start_date?: string;
+  service_start_date_f?: string;
   service_start_odometer_reading?: number;
 
   // Lifecycle End
   service_end_date?: string;
+  service_end_date_f?: string;
   service_end_odometer_reading?: number;
 
   // Estimated Life
   life_estimate_max_month_year?: string;
+  life_estimate_max_month_year_f?: string;
   life_estimate_max_odometer_reading?: number;
 
   // Lifecycle Status
@@ -717,6 +723,7 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   vehicle_details_purchase_id: string;
 
   purchase_date?: string;
+  purchase_date_f?: string;
   purchase_notes?: string;
   purchase_vehicle_type: PurchaseVehicleType;
   purchase_type: PurchaseType;
@@ -729,21 +736,27 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   loan_interest_type?: LoanInterestType;
   loan_no_of_installments?: number;
   loan_first_payment_date?: string;
+  loan_first_payment_date_f?: string;
   loan_last_payment_date?: string;
+  loan_last_payment_date_f?: string;
   loan_monthly_emi?: number;
   loan_emi_date?: number;
 
   // Lease Details
   lease_start_date?: string;
+  lease_start_date_f?: string;
   lease_end_date?: string;
+  lease_end_date_f?: string;
   lease_security_deposit_amount?: number;
   lease_monthly_emi_amount?: number;
   lease_emi_date?: number;
 
   // Warranty Info
   warranty_expiration_date?: string;
+  warranty_expiration_date_f?: string;
   warranty_max_odometer_reading?: number;
   warranty_exchange_date?: string;
+  warranty_exchange_date_f?: string;
 
   // ✅ Metadata
   status: Status;
@@ -778,8 +791,11 @@ export interface VehicleDocument extends Record<string, unknown> {
   document_authorized_name?: String;
   document_cost?: number;
   document_issue_date?: String;
+  document_issue_date_f?: String;
   document_valid_till_date?: String;
+  document_valid_till_date_f?: String;
   document_renewal_date?: String;
+  document_renewal_date_f?: String;
   document_validity_status: DocumentValidityStatus;
   document_status: DocumentStatus;
   document_details_1?: String;
