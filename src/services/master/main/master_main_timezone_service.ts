@@ -6,7 +6,6 @@ import { SBR, FBR } from '../../../core/BaseResponse';
 import { z } from 'zod';
 import {
   stringMandatory,
-  stringOptional,
   enumMandatory,
   single_select_mandatory,
   multi_select_optional,
@@ -28,6 +27,7 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+  cache_all: `${URL}/cache_all`,
   cache: (country_id: string): string => `${URL}/cache?country_id=${country_id}`,
 };
 
@@ -125,6 +125,10 @@ export const deleteMasterMainTimeZone = async (id: string): Promise<SBR> => {
 };
 
 // API Cache Methods
+export const getMasterMainTimeZoneCacheAll = async (): Promise<FBR<MasterMainTimeZone[]>> => {
+  return apiGet<FBR<MasterMainTimeZone[]>>(ENDPOINTS.cache_all);
+};
+
 export const getMasterMainTimeZoneCache = async (country_id: string): Promise<FBR<MasterMainTimeZone[]>> => {
   return apiGet<FBR<MasterMainTimeZone[]>>(ENDPOINTS.cache(country_id));
 };
