@@ -1816,7 +1816,7 @@ export const get_device_file_presigned_url = async (data: FilePresignedUrlDTO): 
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.device_file_presigned_url, data);
 };
 
-export const get_master_driver_presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+export const get_vehicle_document_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_document_file_presigned_url, data);
 };
 
