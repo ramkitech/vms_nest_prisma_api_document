@@ -184,6 +184,10 @@ export interface UserOrganisationSimple extends Record<string, unknown> {
   db_g: string;
 
   o_logo?: string;
+
+  l_id: string;
+  df_id: string;
+  tz_id: string;
 }
 
 // ✅ UserOrganisation Create/Update Schema
