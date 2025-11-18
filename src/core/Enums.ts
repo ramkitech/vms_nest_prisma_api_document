@@ -100,6 +100,11 @@ export enum YesNo {
   No = 'No',
 }
 
+export enum FuelTankType {
+  SingleTank = 'SingleTank',
+  DualTank = 'DualTank'
+};
+
 export enum OnOff {
   On = 'On',
   Off = 'Off',

@@ -39,6 +39,7 @@ import {
   DocumentStatus,
   OdometerSource,
   ExpiryType,
+  FuelTankType,
 } from '../../../core/Enums';
 
 import {
@@ -276,6 +277,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   SecondaryMasterVehicleFuelUnit?: MasterVehicleFuelUnit;
   secondary_fuel_unit?: string;
 
+  fuel_tank_type?: FuelTankType;
   fuel_tank_size?: number;
   fuel_tank_1_size?: number;
   fuel_tank_2_size?: number;
@@ -379,6 +381,7 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   duel_temperature?: YesNo;
   fuel?: YesNo;
   fuel_bluetooth?: YesNo;
+  fuel_tank_type?: FuelTankType;
   fuel_tank_size?: number;
   fuel_tank_1_size?: number;
   fuel_tank_2_size?: number;
@@ -944,6 +947,11 @@ export const VehicleSchema = z.object({
   secondary_vehicle_fuel_unit_id: single_select_optional(
     'Vehicle Secondary Fuel Unit ID',
   ), // ✅ Single-Selection -> MasterVehicleFuelUnit
+  fuel_tank_type: enumOptional(
+    'Fuel Tank Type',
+    FuelTankType,
+    FuelTankType.SingleTank,
+  ),
   fuel_tank_size: numberOptional('Fuel Tank Quantity'),
   fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
   fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
@@ -988,6 +996,11 @@ export const VehicleBulkSchema = z.object({
   country_id: single_select_optional('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
   time_zone_id: single_select_optional('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
 
+  fuel_tank_type: enumOptional(
+    'Fuel Tank Type',
+    FuelTankType,
+    FuelTankType.SingleTank,
+  ),
   fuel_tank_size: numberOptional('Fuel Tank Quantity'),
   fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
   fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
@@ -1022,6 +1035,11 @@ export const VehicleDeviceLinkSchema = z.object({
   duel_temperature: enumOptional('Dual Temperature', YesNo, YesNo.No),
   fuel: enumOptional('Fuel', YesNo, YesNo.No),
   fuel_bluetooth: enumOptional('Fuel Bluetooth', YesNo, YesNo.No),
+  fuel_tank_type: enumOptional(
+    'Fuel Tank Type',
+    FuelTankType,
+    FuelTankType.SingleTank,
+  ),
   fuel_tank_size: numberOptional('Fuel Tank Quantity'),
   fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
   fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
@@ -1067,6 +1085,11 @@ export const VehicleDetailGPSSensorSchema = z.object({
   duel_temperature: enumOptional('Dual Temperature', YesNo, YesNo.No),
   fuel: enumOptional('Fuel', YesNo, YesNo.No),
   fuel_bluetooth: enumOptional('Fuel Bluetooth', YesNo, YesNo.No),
+  fuel_tank_type: enumOptional(
+    'Fuel Tank Type',
+    FuelTankType,
+    FuelTankType.SingleTank,
+  ),
   fuel_tank_size: numberOptional('Fuel Tank Quantity'),
   fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
   fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
@@ -1520,6 +1543,7 @@ export const toVehiclePayload = (vehicle: MasterVehicle): VehicleDTO => ({
 
   odometer_reading: vehicle.odometer_reading || 0,
 
+  fuel_tank_type: vehicle.fuel_tank_type || FuelTankType.SingleTank,
   fuel_tank_size: vehicle.fuel_tank_size || 0,
   fuel_tank_1_size: vehicle.fuel_tank_1_size || 0,
   fuel_tank_2_size: vehicle.fuel_tank_2_size || 0,
@@ -1589,6 +1613,7 @@ export const newVehiclePayload = (): VehicleDTO => ({
 
   odometer_reading: 0,
 
+  fuel_tank_type: FuelTankType.SingleTank,
   fuel_tank_size: 0,
   fuel_tank_1_size: 0,
   fuel_tank_2_size: 0,
@@ -1606,6 +1631,7 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   duel_temperature: vehicleGPS?.duel_temperature || YesNo.No,
   fuel: vehicleGPS?.fuel || YesNo.No,
   fuel_bluetooth: vehicleGPS?.fuel_bluetooth || YesNo.No,
+  fuel_tank_type: vehicleGPS?.fuel_tank_type || FuelTankType.SingleTank,
   fuel_tank_size: vehicleGPS?.fuel_tank_size || 0,
   fuel_tank_1_size: vehicleGPS?.fuel_tank_1_size || 0,
   fuel_tank_2_size: vehicleGPS?.fuel_tank_2_size || 0,
@@ -1686,7 +1712,7 @@ export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): Ve
   number_of_axles: vehicleBody?.number_of_axles || 0,
   axle_configuration: vehicleBody?.axle_configuration || '',
   has_dual_rear_wheels: vehicleBody?.has_dual_rear_wheels || YesNo.No,
-  suspension_type:  vehicleBody?.suspension_type || '',
+  suspension_type: vehicleBody?.suspension_type || '',
   suspension_adjustability: vehicleBody?.suspension_adjustability || YesNo.No,
   ground_clearance_mm: vehicleBody?.ground_clearance_mm || 0,
   tire_size: vehicleBody?.tire_size || '',
