@@ -1,0 +1,418 @@
+// Imports
+import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR, BaseCommonFile, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
+
+// Zod
+import { z } from 'zod';
+import {
+    stringMandatory,
+    stringOptional,
+    enumMandatory,
+    single_select_mandatory,
+    multi_select_optional,
+    enumArrayOptional,
+    numberOptional,
+    getAllEnums,
+    nestedArrayOfObjectsOptional,
+    dateMandatory,
+    single_select_optional,
+    dateOptional,
+} from '../../../zod_utils/zod_utils';
+import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
+
+// Enums
+import { IssueSeverity, IssueSource, IssueStatus, Priority, Status, YesNo } from '../../../core/Enums';
+
+// Other Models
+import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
+import { User } from 'src/services/main/users/user_service';
+import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
+
+const URL = 'fleet/vendor_management/issues';
+
+const ENDPOINTS = {
+
+    // AWS S3 PRESIGNED
+    presigned_url_file: `${URL}/presigned_url`,
+
+    find: `${URL}/search`,
+    create: `${URL}`,
+    update: (id: string): string => `${URL}/${id}`,
+    delete: (id: string): string => `${URL}/${id}`,
+
+    // File
+    create_file: `${URL}/create_file`,
+    remove_file: (id: string): string => `${URL}/remove_file/${id}`,
+
+    create_comment: `${URL}/create_comment`,
+    find_comment: `${URL}/comment/search`,
+    delete_comment: (id: string): string => `${URL}/${id}`,
+};
+
+// ✅ FleetIssueManagement Interface
+export interface FleetIssueManagement extends Record<string, unknown> {
+    // ✅ Primary Fields
+    vehicle_issue_id: string;
+    vehicle_sub_issue_id: number;
+
+    issue_code?: string;
+
+    // Issue Details
+    issue_title: string;
+    issue_description?: string;
+    issue_status: IssueStatus
+    issue_priority: Priority;
+    issue_severity: IssueSeverity;
+    report_date: string;
+    report_date_f: string;
+    resolved_date?: string;
+    resolved_date_f?: string;
+    odometer_reading?: number;
+    due_date?: string;
+    due_date_f?: string;
+    due_odometer_reading?: number;
+    issue_source: IssueSource;
+
+    // ✅ Metadata
+    status: Status;
+    added_date_time: string;
+    modified_date_time: string;
+
+    // ✅ Relations
+    organisation_id: string;
+    UserOrganisation?: UserOrganisation;
+
+    user_id: string;
+    User?: User;
+
+    vehicle_id: string;
+    MasterVehicle?: MasterVehicle;
+    vehicle_number?: string;
+    vehicle_type?: string;
+
+    driver_id?: string;
+    MasterDriver?: MasterDriver;
+    driver_details?: string;
+
+    vehicle_incident_id?: string;
+    // FleetIncidentManagement?: FleetIncidentManagement;
+
+    inspection_id?: string;
+    // FleetInspection?: FleetInspection;
+
+    job_card_id?: string;
+    // FleetServiceJobCard?: FleetServiceJobCard;
+
+    FleetIssueManagementFile: FleetIssueManagementFile[]
+
+    // ✅ Count (Child Relations)
+    _count?: {
+        FleetIssueManagementComment: number;
+        FleetIssueManagementFile: number;
+        FleetIssueManagementHistory: number;
+    };
+}
+
+// FleetIssueManagementHistory
+export interface FleetIssueManagementHistory extends Record<string, unknown> {
+    vehicle_issue_history_id: string;
+    old_issue_status: IssueStatus;
+    new_issue_status: IssueStatus;
+    change_reason?: string;
+    change_notes?: string;
+    change_date: string;
+    change_date_f: string;
+
+    // ✅ Metadata
+    status: Status;
+    added_date_time: string;
+    modified_date_time: string;
+
+    // ✅ Relations
+    vehicle_issue_id: string;
+    FleetIssueManagement?: FleetIssueManagement;
+
+    // ✅ Count (Child Relations)
+    _count?: {
+    };
+}
+
+// FleetIssueManagementComment
+export interface FleetIssueManagementComment extends Record<string, unknown> {
+    vehicle_issue_comment_id: string;
+
+    comment_text: string;
+    is_internal: YesNo;
+    pinned: YesNo;
+
+    // ✅ Metadata
+    status: Status;
+    added_date_time: string;
+    modified_date_time: string;
+
+    // ✅ Relations
+    organisation_id: string;
+    UserOrganisation?: UserOrganisation;
+
+    vehicle_issue_id: string;
+    FleetIssueManagement?: FleetIssueManagement;
+
+    // ✅ Count (Child Relations)
+    _count?: {
+    };
+}
+
+// ✅ FleetIssueManagementFile Interface
+export interface FleetIssueManagementFile extends BaseCommonFile {
+    // Primary Fields
+    vehicle_issue_file_id: string;
+
+    // ✅ Relations - Parent
+    organisation_id: string;
+    UserOrganisation?: UserOrganisation;
+
+    vehicle_issue_id: string;
+    FleetIssueManagement?: FleetIssueManagement;
+}
+
+
+// ✅ VehicleIssueFile Schema
+export const VehicleIssueFileSchema = BaseFileSchema.extend({
+    organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    vehicle_issue_id: single_select_optional('FleetIssueManagement'), // ✅ Single-Selection -> FleetIssueManagement
+});
+export type VehicleIssueFileDTO = z.infer<typeof VehicleIssueFileSchema>;
+
+// ✅ IssueManagement Create/Update Schema
+export const IssueManagementSchema = z.object({
+    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
+    vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+    driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+    vehicle_incident_id: single_select_optional('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
+    inspection_id: single_select_optional('FleetInspection'), // ✅ Single-Selection -> FleetInspection
+    job_card_id: single_select_optional('FleetServiceJobCard'), // ✅ Single-Selection -> FleetServiceJobCard
+
+    issue_title: stringMandatory('Issue Title', 1, 100),
+    issue_description: stringOptional('Issue Description', 0, 2000),
+    issue_status: enumMandatory('Issue Status', IssueStatus, IssueStatus.Open),
+    issue_priority: enumMandatory(
+        'Issue Priority',
+        Priority,
+        Priority.NoPriority,
+    ),
+    issue_severity: enumMandatory(
+        'Issue Severity',
+        IssueSeverity,
+        IssueSeverity.Minor,
+    ),
+
+    report_date: dateMandatory('Report Date'),
+    resolved_date: dateOptional('Resolved Date'),
+    odometer_reading: numberOptional('Odometer Reading'),
+    due_date: dateOptional('Due Date'),
+    due_odometer_reading: numberOptional('Due Odometer Reading'),
+    issue_source: enumMandatory('Issue Source', IssueSource, IssueSource.Direct),
+
+    status: enumMandatory('Status', Status, Status.Active),
+
+    VehicleIssueFileSchema: nestedArrayOfObjectsOptional(
+        'VehicleIssueFileSchema',
+        VehicleIssueFileSchema,
+        [],
+    ),
+});
+export type IssueManagementDTO = z.infer<typeof IssueManagementSchema>;
+
+// ✅ Issue Management Query Schema
+export const IssueManagementQuerySchema = BaseQuerySchema.extend({
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+    user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
+    vehicle_issue_ids: multi_select_optional('FleetIssueManagement'), // ✅ Multi-Selection -> FleetIssueManagement
+    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+    driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
+    issue_priority: enumArrayOptional('Issue Priority', Priority),
+    issue_status: enumArrayOptional('Issue Status', IssueStatus),
+    issue_severity: enumArrayOptional('Issue Severity', IssueSeverity),
+    issue_source: enumArrayOptional('Issue Source', IssueSource),
+    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
+    inspection_ids: multi_select_optional('FleetInspection'), // ✅ Multi-Selection -> FleetInspection
+    job_card_ids: multi_select_optional('FleetServiceJobCard'), // ✅ Multi-Selection -> FleetServiceJobCard
+});
+export type IssueManagementQueryDTO = z.infer<
+    typeof IssueManagementQuerySchema
+>;
+
+// ✅ FleetIssueManagementComment Create/Update Schema
+export const FleetIssueManagementCommentSchema = z.object({
+    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    vehicle_issue_id: single_select_mandatory('FleetIssueManagement'), // ✅ Single-Selection -> FleetIssueManagement
+
+    comment_text: stringMandatory('Comment Text', 0, 2000),
+    is_internal: enumMandatory('Is Internal', YesNo, YesNo.Yes),
+    pinned: enumMandatory('Pinned', YesNo, YesNo.No),
+    status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetIssueManagementCommentDTO = z.infer<
+    typeof FleetIssueManagementCommentSchema
+>;
+
+// ✅ FleetIssueManagementComment Query Schema
+export const FleetIssueManagementCommentQuerySchema = BaseQuerySchema.extend({
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+    vehicle_issue_ids: multi_select_optional('FleetIssueManagement'), // ✅ Multi-Selection -> FleetIssueManagement
+    vehicle_issue_comment_ids: multi_select_optional(
+        'FleetIssueManagementComment',
+    ), // ✅ Multi-Selection -> FleetIssueManagementComment
+
+    is_internal: enumArrayOptional('Is Internal', YesNo, getAllEnums(YesNo)),
+    pinned: enumArrayOptional('Pinned', YesNo, getAllEnums(YesNo)),
+});
+export type FleetIssueManagementCommentQueryDTO = z.infer<
+    typeof FleetIssueManagementCommentQuerySchema
+>;
+
+
+// ✅ Convert FleetIssueManagement Data to API Payload
+export const toFleetIssueManagementPayload = (issueManagement: FleetIssueManagement): IssueManagementDTO => ({
+    // Issue Details
+    issue_title: issueManagement.issue_title || '',
+    issue_description: issueManagement.issue_description || '',
+    issue_status: issueManagement.issue_status || IssueStatus.Open,
+    issue_priority: issueManagement.issue_priority || Priority.Critical,
+    issue_severity: issueManagement.issue_severity || IssueSeverity.Minor,
+    report_date: issueManagement.report_date || '',
+    resolved_date: issueManagement.resolved_date || '',
+    odometer_reading: issueManagement.odometer_reading || 0,
+    due_date: issueManagement.due_date || '',
+    due_odometer_reading: issueManagement.due_odometer_reading || 0,
+    issue_source: issueManagement.issue_source || IssueSource.Direct,
+
+    // Relations
+    organisation_id: issueManagement.organisation_id || '',
+    user_id: issueManagement.user_id || '',
+    vehicle_id: issueManagement.vehicle_id || '',
+    driver_id: issueManagement.driver_id || '',
+    vehicle_incident_id: issueManagement.vehicle_incident_id || '',
+    inspection_id: issueManagement.inspection_id || '',
+    job_card_id: issueManagement.job_card_id || '',
+
+    status: Status.Active,
+
+    VehicleIssueFileSchema: issueManagement.FleetIssueManagementFile?.map((file) => ({
+        vehicle_issue_file_id: file.vehicle_issue_file_id ?? '',
+
+        usage_type: file.usage_type,
+
+        file_type: file.file_type,
+        file_url: file.file_url || '',
+        file_key: file.file_key || '',
+        file_name: file.file_name || '',
+        file_description: file.file_description || '',
+        file_size: file.file_size || 0,
+        file_metadata: file.file_metadata ?? {},
+
+        status: file.status,
+        added_date_time: file.added_date_time,
+        modified_date_time: file.modified_date_time,
+
+        organisation_id: file.organisation_id ?? '',
+        vehicle_issue_id: file.vehicle_issue_id ?? '',
+    })) ?? [],
+});
+
+// ✅ Create New FleetIssueManagement Payload
+export const newFleetIssueManagementPayload = (): IssueManagementDTO => ({
+    issue_title: '',
+    issue_description: '',
+    issue_status: IssueStatus.Open,
+    issue_priority: Priority.Critical,
+    issue_severity: IssueSeverity.Minor,
+    report_date: '',
+    resolved_date: '',
+    odometer_reading: 0,
+    due_date: '',
+    due_odometer_reading: 0,
+    issue_source: IssueSource.Direct,
+
+    organisation_id: '',
+    user_id: '',
+    vehicle_id: '',
+    driver_id: '',
+    vehicle_incident_id: '',
+    inspection_id: '',
+    job_card_id: '',
+
+    status: Status.Active,
+
+    VehicleIssueFileSchema: []
+});
+
+// ✅ Convert FleetIssueManagementComment Data to API Payload
+export const toFleetIssueManagementCommentPayload = (issueManagementComment: FleetIssueManagementComment): FleetIssueManagementCommentDTO => ({
+    comment_text: issueManagementComment.comment_text || '',
+    is_internal: issueManagementComment.is_internal || YesNo.Yes,
+    pinned: issueManagementComment.pinned || YesNo.No,
+
+    organisation_id: issueManagementComment.organisation_id || '',
+    vehicle_issue_id: issueManagementComment.vehicle_issue_id || '',
+
+    status: Status.Active,
+});
+
+// ✅ Create New FleetIssueManagementComment Payload
+export const newFleetIssueManagementCommentPayload = (): FleetIssueManagementCommentDTO => ({
+    comment_text: '',
+    is_internal: YesNo.Yes,
+    pinned: YesNo.Yes,
+
+    vehicle_issue_id: '',
+    organisation_id: '',
+
+    status: Status.Active,
+});
+
+
+// Generate presigned URL for file uploads
+export const presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+    return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url_file, data);
+};
+
+// API Methods
+export const findIssueManagement = async (data: IssueManagementQueryDTO): Promise<FBR<FleetIssueManagement[]>> => {
+    return apiPost<FBR<FleetIssueManagement[]>, IssueManagementQueryDTO>(ENDPOINTS.find, data);
+};
+
+export const createIssueManagement = async (data: IssueManagementDTO): Promise<SBR> => {
+    return apiPost<SBR, IssueManagementDTO>(ENDPOINTS.create, data);
+};
+
+export const updateIssueManagement = async (id: string, data: IssueManagementDTO): Promise<SBR> => {
+    return apiPatch<SBR, IssueManagementDTO>(ENDPOINTS.update(id), data);
+};
+
+export const deleteIssueManagement = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+// File API Methods
+export const create_file = async (data: VehicleIssueFileDTO): Promise<SBR> => {
+    return apiPost<SBR, VehicleIssueFileDTO>(ENDPOINTS.create_file, data);
+};
+
+export const remove_file = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.remove_file(id));
+};
+
+export const findIssueManagementComment = async (data: FleetIssueManagementCommentQueryDTO): Promise<FBR<FleetIssueManagementComment[]>> => {
+    return apiPost<FBR<FleetIssueManagementComment[]>, FleetIssueManagementCommentQueryDTO>(ENDPOINTS.find_comment, data);
+};
+
+export const createIssueManagementComment = async (data: FleetIssueManagementCommentDTO): Promise<SBR> => {
+    return apiPost<SBR, FleetIssueManagementCommentDTO>(ENDPOINTS.create_comment, data);
+};
+
+export const deleteIssueManagementComment = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.delete_comment(id));
+};
