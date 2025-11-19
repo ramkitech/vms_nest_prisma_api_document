@@ -891,3 +891,11 @@ export enum ExpiryType {
   Expiring = 'Expiring',
   Expired = 'Expired',
 }
+
+export enum FleetVendorAddressLabel {
+  HQ = 'HQ',
+  BILLING = 'BILLING',
+  SHIPPING = 'SHIPPING',
+  WORKSHOP = 'WORKSHOP',
+  OTHER = 'OTHER',
+}
