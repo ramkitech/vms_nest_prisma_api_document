@@ -24,7 +24,7 @@ import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../z
 import { Status, YesNo, FleetVendorAddressLabel } from '../../../core/Enums';
 
 // Other Models
-import { MasterDriverDTO, MasterDriverProfileDTO, MasterDriverQueryDTO, MasterDriverLogoDTO, MasterDriverFileDTO } from 'src/services/main/drivers/master_driver_service';
+import { MasterDriverFileDTO } from 'src/services/main/drivers/master_driver_service';
 import { MasterVendorType } from 'src/services/master/expense/master_vendor_type_service';
 import { MasterVendorTag } from 'src/services/master/expense/master_vendor_tag_service';
 import { MasterMainLandmark } from 'src/services/master/main/master_main_landmark_service';
@@ -32,7 +32,7 @@ import { User } from 'src/services/main/users/user_service';
 import { MasterVendorDocumentType } from 'src/services/master/expense/master_vendor_document_type_service';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
 
-const URL = 'main/fleet_vendor';
+const URL = 'fleet/vendor_management/fleet_vendor';
 
 const ENDPOINTS = {
 
