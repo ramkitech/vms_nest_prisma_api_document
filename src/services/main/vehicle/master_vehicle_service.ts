@@ -149,8 +149,8 @@ export interface MasterVehicle extends Record<string, unknown> {
   vehicle_make_year?: number;
 
   // Database Details
-  db_instance: String;
-  db_group: String;
+  db_instance: string;
+  db_group: string;
 
   // Admin Account Details
   is_fleet_active: YesNo;
@@ -790,22 +790,22 @@ export interface VehicleDocument extends Record<string, unknown> {
   vehicle_document_code?: string;
 
   // Document Details
-  document_number?: String;
-  document_authorized_name?: String;
+  document_number?: string;
+  document_authorized_name?: string;
   document_cost?: number;
-  document_issue_date?: String;
-  document_issue_date_f?: String;
-  document_valid_till_date?: String;
-  document_valid_till_date_f?: String;
-  document_renewal_date?: String;
-  document_renewal_date_f?: String;
+  document_issue_date?: string;
+  document_issue_date_f?: string;
+  document_valid_till_date?: string;
+  document_valid_till_date_f?: string;
+  document_renewal_date?: string;
+  document_renewal_date_f?: string;
   document_validity_status: DocumentValidityStatus;
   document_status: DocumentStatus;
-  document_details_1?: String;
-  document_details_2?: String;
-  document_details_3?: String;
-  document_details_4?: String;
-  document_notes?: String;
+  document_details_1?: string;
+  document_details_2?: string;
+  document_details_3?: string;
+  document_details_4?: string;
+  document_notes?: string;
 
   // ✅ Metadata
   status: Status;
@@ -821,13 +821,13 @@ export interface VehicleDocument extends Record<string, unknown> {
   vehicle_number?: string;
   vehicle_type?: string;
 
-  document_type_id: String
+  document_type_id: string;
   MasterVehicleDocumentType?: MasterVehicleDocumentType;
-  document_type?: String;
+  document_type?: string;
 
-  vendor_id?: String;
+  vendor_id?: string;
   // FleetVendor?: FleetVendor;
-  vendor_name?: String;
+  vendor_name?: string;
 
   // ✅ Child Count
   _count?: object;
@@ -1927,19 +1927,19 @@ export const getDeviceLinkHistoryByDevice = async (id: string, params: BaseQuery
 };
 
 // Vehicle Document
-export const createDocument = async (payload: VehicleDocumentDTO): Promise<SBR> => {
+export const createVehicleDocument = async (payload: VehicleDocumentDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDocumentDTO>(ENDPOINTS.create_document, payload);
 };
 
-export const findDocument = async (payload: VehicleDocumentQueryDTO): Promise<SBR> => {
-  return apiPost<SBR, VehicleDocumentQueryDTO>(ENDPOINTS.find_document, payload);
+export const findVehicleDocument = async (payload: VehicleDocumentQueryDTO): Promise<FBR<VehicleDocument>> => {
+  return apiPost<FBR<VehicleDocument>, VehicleDocumentQueryDTO>(ENDPOINTS.find_document, payload);
 };
 
-export const updateDocument = async (id: string, payload: VehicleDocumentDTO): Promise<SBR> => {
+export const updateVehicleDocument = async (id: string, payload: VehicleDocumentDTO): Promise<SBR> => {
   return apiPatch<SBR, VehicleDocumentDTO>(ENDPOINTS.update_document.replace(':id', id), payload);
 };
 
-export const removeDocument = async (id: string): Promise<SBR> => {
+export const removeVehicleDocument = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_document.replace(':id', id));
 };
 
@@ -1969,19 +1969,19 @@ export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
 };
 
 // Vehicle Document Expiry
-export const createDocumentExpiry = async (payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
+export const createVehicleDocumentExpiry = async (payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.create_document_expiry, payload);
 };
 
-export const findDocumentExpiry = async (payload: VehicleDocumentExpiryQueryDTO): Promise<SBR> => {
-  return apiPost<SBR, VehicleDocumentExpiryQueryDTO>(ENDPOINTS.find_document_expiry, payload);
+export const findVehicleDocumentExpiry = async (payload: VehicleDocumentExpiryQueryDTO): Promise<FBR<VehicleDocumentExpiry[]>> => {
+  return apiPost<FBR<VehicleDocumentExpiry[]>, VehicleDocumentExpiryQueryDTO>(ENDPOINTS.find_document_expiry, payload);
 };
 
-export const updateDocumentExpiry = async (id: string, payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
+export const updateVehicleDocumentExpiry = async (id: string, payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
   return apiPatch<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.update_document_expiry.replace(':id', id), payload);
 };
 
-export const removeDocumentExpiry = async (id: string): Promise<SBR> => {
+export const removeVehicleDocumentExpiry = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_document_expiry.replace(':id', id));
 };
 
