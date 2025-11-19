@@ -39,8 +39,8 @@ export interface MasterFuelCompany extends Record<string, unknown> {
   description?: string; // Optional, Max: 100
 
   // Logo
-  logo_url: String;
-  logo_key: String;
+  logo_url: string;
+  logo_key: string;
 
   // Metadata
   status: Status;
