@@ -47,7 +47,8 @@ const ENDPOINTS = {
 
     create_comment: `${URL}/create_comment`,
     find_comment: `${URL}/comment/search`,
-    delete_comment: (id: string): string => `${URL}/${id}`,
+    update_comment: (id: string): string => `${URL}/update_comment/${id}`,
+    delete_comment: (id: string): string => `${URL}/delete_comment/${id}`,
 };
 
 // ✅ FleetIssueManagement Interface
@@ -408,6 +409,10 @@ export const findIssueManagementComment = async (data: FleetIssueManagementComme
 
 export const createIssueManagementComment = async (data: FleetIssueManagementCommentDTO): Promise<SBR> => {
     return apiPost<SBR, FleetIssueManagementCommentDTO>(ENDPOINTS.create_comment, data);
+};
+
+export const updateIssueManagementComment = async (id: string, data: FleetIssueManagementCommentDTO): Promise<SBR> => {
+    return apiPatch<SBR, FleetIssueManagementCommentDTO>(ENDPOINTS.update_comment(id), data);
 };
 
 export const deleteIssueManagementComment = async (id: string): Promise<SBR> => {
