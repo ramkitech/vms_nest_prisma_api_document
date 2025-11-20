@@ -899,3 +899,49 @@ export enum FleetVendorAddressLabel {
   WORKSHOP = 'WORKSHOP',
   OTHER = 'OTHER',
 }
+
+export enum IncidentTime {
+  EarlyMorning = 'EarlyMorning',
+  Morning = 'Morning',
+  Afternoon = 'Afternoon',
+  Evening = 'Evening',
+  Night = 'Night',
+  Unknown = 'Unknown',
+}
+
+export enum IncidentWeather {
+  Clear = 'Clear',
+  Cloudy = 'Cloudy',
+  Rainy = 'Rainy',
+  Stormy = 'Stormy',
+  Foggy = 'Foggy',
+  Snowy = 'Snowy',
+  Hail = 'Hail',
+  Windy = 'Windy',
+  Other = 'Other',
+  Unknown = 'Unknown',
+}
+
+export enum IncidentRoadType {
+  Highway = 'Highway',
+  CityStreet = 'CityStreet',
+  RuralRoad = 'RuralRoad',
+  MountainRoad = 'MountainRoad',
+  ConstructionZone = 'ConstructionZone',
+  Alley = 'Alley',
+  Expressway = 'Expressway',
+  DirtRoad = 'DirtRoad',
+  Tunnel = 'Tunnel',
+  Bridge = 'Bridge',
+  Other = 'Other',
+  Unknown = 'Unknown',
+}
+
+export enum IncidentVisibility {
+  Excellent = 'Excellent',
+  Good = 'Good',
+  Moderate = 'Moderate',
+  Poor = 'Poor',
+  VeryPoor = 'VeryPoor',
+  Unknown = 'Unknown',
+}
