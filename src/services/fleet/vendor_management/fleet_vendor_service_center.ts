@@ -121,6 +121,7 @@ export const FleetVendorServiceCenterSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
 
+    // Basic Info
     center_name: stringMandatory('Center Name', 3, 150),
     center_code: stringOptional('Center Code', 0, 50),
     is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
@@ -128,6 +129,7 @@ export const FleetVendorServiceCenterSchema = z.object({
     oem_brand_name: stringOptional('OEM Brand Name', 0, 150),
     service_brand_name: stringOptional('Service Brand Name', 0, 150),
 
+    // Operational Details
     operating_hours: stringOptional('Operating Hours', 0, 200),
     is_24x7: enumMandatory('Is 24x7', YesNo, YesNo.No),
     supports_credit: enumMandatory('Supports Credit', YesNo, YesNo.No),
@@ -147,11 +149,13 @@ export const FleetVendorServiceCenterSchema = z.object({
     eta_regular_service_hours: numberOptional('ETA Regular Service Hours'),
     eta_repair_hours: numberOptional('ETA Repair Hours'),
 
+    // Contact Info
     center_email: stringOptional('Center Email', 0, 100),
     center_mobile: stringOptional('Center Mobile', 0, 15),
     center_phone: stringOptional('Center Phone', 0, 15),
     website_url: stringOptional('Website URL', 0, 200),
 
+    // Address
     address_line1: stringOptional('Address Line 1', 0, 150),
     address_line2: stringOptional('Address Line 2', 0, 150),
     locality_landmark: stringOptional('Locality / Landmark', 0, 150),
@@ -168,6 +172,7 @@ export const FleetVendorServiceCenterSchema = z.object({
     longitude: doubleOptionalLatLng('Longitude'),
     google_location: stringOptional('Google Location', 0, 500),
 
+    // Notes
     center_notes: stringOptional('Center Notes', 0, 2000),
     is_preferred_center: enumMandatory('Is Preferred Center', YesNo, YesNo.No),
 
@@ -180,8 +185,8 @@ export type FleetVendorServiceCenterDTO = z.infer<
 // ✅ FleetVendorServiceCenter Query Schema
 export const FleetVendorServiceCenterQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-    landmark_ids: multi_select_optional('MasterMainLandMark'), // ✅ Single-Selection -> MasterMainLandMark
     service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // ✅ Single-Selection -> FleetVendorServiceCenter
 
     is_company_owned: enumArrayOptional('Is Company Owned', YesNo),
@@ -191,7 +196,6 @@ export const FleetVendorServiceCenterQuerySchema = BaseQuerySchema.extend({
 export type FleetVendorServiceCenterQueryDTO = z.infer<
     typeof FleetVendorServiceCenterQuerySchema
 >;
-
 
 // ✅ Convert FleetVendorServiceCenter Data to API Payload
 export const toFleetVendorServiceCenterPayload = (vendorServiceCenter: FleetVendorServiceCenter): FleetVendorServiceCenterDTO => ({
@@ -259,6 +263,7 @@ export const toFleetVendorServiceCenterPayload = (vendorServiceCenter: FleetVend
 export const newFleetVendorServiceCenterPayload = (): FleetVendorServiceCenterDTO => ({
     organisation_id: '',
     vendor_id: '',
+
     center_name: '',
     center_code: '',
     is_company_owned: YesNo.No,
@@ -307,7 +312,6 @@ export const newFleetVendorServiceCenterPayload = (): FleetVendorServiceCenterDT
     google_location: '',
 
     status: Status.Active,
-
 });
 
 // API Methods

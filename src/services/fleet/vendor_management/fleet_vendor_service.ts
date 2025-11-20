@@ -31,6 +31,8 @@ import { MasterMainLandmark } from 'src/services/master/main/master_main_landmar
 import { User } from 'src/services/main/users/user_service';
 import { MasterVendorDocumentType } from 'src/services/master/expense/master_vendor_document_type_service';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
+import { FleetVendorServiceCenter } from './fleet_vendor_service_center';
+import { FleetVendorFuelStation } from './fleet_vendor_fuel_station';
 
 const URL = 'fleet/vendor_management/fleet_vendor';
 
@@ -39,15 +41,15 @@ const ENDPOINTS = {
     // AWS S3 PRESIGNED
     vendor_logo_presigned_url: (fileName: string): string => `${URL}/vendor_logo_presigned_url/${fileName}`,
     vendor_contact_person_logo_presigned_url: (fileName: string): string => `${URL}/vendor_contact_person_logo_presigned_url/${fileName}`,
-    presigned_url_file: `${URL}/presigned_url`,
+    vendor_document_file_presigned_url: `${URL}/vendor_document_file_presigned_url`,
+
+    update_vendor_logo: (id: string): string => `${URL}/update_vendor_logo/${id}`,
+    delete_vendor_logo: (id: string): string => `${URL}/delete_vendor_logo/${id}`,
 
     find: `${URL}/search`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
-
-    update_vendor_logo: (id: string): string => `${URL}/update_vendor_logo/${id}`,
-    delete_vendor_logo: (id: string): string => `${URL}/delete_vendor_logo/${id}`,
 
     // Address
     create_address: `${URL}/address`,
@@ -75,15 +77,18 @@ const ENDPOINTS = {
     update_review: (id: string): string => `${URL}/review/${id}`,
     remove_review: (id: string): string => `${URL}/review/${id}`,
 
+    // File
+    create_file: `${URL}/create_file`,
+    remove_file: (id: string): string => `${URL}/remove_file/${id}`,
+
     // Document
     create_document: `${URL}/document`,
     find_document: `${URL}/document/search`,
     update_document: (id: string): string => `${URL}/document/${id}`,
     remove_document: (id: string): string => `${URL}/document/${id}`,
 
-    // File
-    create_file: `${URL}/create_file`,
-    remove_file: (id: string): string => `${URL}/remove_file/${id}`,
+    // Cache
+    cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
 // ✅ FleetVendor Interface
@@ -135,8 +140,8 @@ export interface FleetVendor extends Record<string, unknown> {
 
     FleetVendorReview?: FleetVendorReview[]
     FleetVendorDocument?: FleetVendorDocument[]
-    //   FleetVendorServiceCenter?: FleetVendorServiceCenter[]
-    //   FleetVendorFuelStation?: FleetVendorFuelStation[]
+    FleetVendorServiceCenter?: FleetVendorServiceCenter[]
+    FleetVendorFuelStation?: FleetVendorFuelStation[]
 
     // ✅ Count (Child Relations)
     _count?: {
@@ -202,7 +207,6 @@ export interface FleetVendorTagLink extends Record<string, unknown> {
 
 // ✅ FleetVendorAddress Interface
 export interface FleetVendorAddress extends Record<string, unknown> {
-
     vendor_address_id: string;
 
     vendor_address_label: FleetVendorAddressLabel;
@@ -252,7 +256,6 @@ export interface FleetVendorAddress extends Record<string, unknown> {
 
 // ✅ FleetVendorBankAccount Interface
 export interface FleetVendorBankAccount extends Record<string, unknown> {
-
     vendor_bank_account_id: string;
 
     bank_name?: string;
@@ -286,7 +289,6 @@ export interface FleetVendorBankAccount extends Record<string, unknown> {
 
 // ✅ FleetVendorContactPersons Interface
 export interface FleetVendorContactPersons extends Record<string, unknown> {
-
     contact_person_id: string;
 
     // Image
@@ -328,7 +330,6 @@ export interface FleetVendorContactPersons extends Record<string, unknown> {
 
 // ✅ FleetVendorReview Interface
 export interface FleetVendorReview extends Record<string, unknown> {
-
     vendor_review_id: string;
 
     rating: number
@@ -357,7 +358,6 @@ export interface FleetVendorReview extends Record<string, unknown> {
 
 // ✅ FleetVendorDocument Interface
 export interface FleetVendorDocument extends Record<string, unknown> {
-
     fleet_vendor_document_id: string;
 
     // Document Details
@@ -413,6 +413,14 @@ export interface FleetVendorDocumentFile extends BaseCommonFile {
 }
 
 
+// ✅ FleetVendor Logo Schema
+export const FleetVendorLogoSchema = z.object({
+    logo_url: stringMandatory('Logo URL', 0, 300),
+    logo_key: stringMandatory('Logo Key', 0, 300),
+    logo_name: stringMandatory('Logo Name', 0, 300),
+});
+export type FleetVendorLogoDTO = z.infer<typeof FleetVendorLogoSchema>;
+
 // ✅ FleetVendor Create/Update Schema
 export const FleetVendorSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
@@ -422,10 +430,12 @@ export const FleetVendorSchema = z.object({
     business_mobile: stringOptional('Business Mobile', 0, 15),
     business_email: stringOptional('Business Email', 0, 100),
 
+    // Logo
     logo_url: stringOptional('Logo URL', 0, 300),
     logo_key: stringOptional('Logo Key', 0, 300),
     logo_name: stringOptional('Logo Name', 0, 300),
 
+    // Business Details
     organisation_name: stringOptional('Organisation Name', 0, 150),
     gst_number: stringOptional('GST Number', 0, 15),
     pan_number: stringOptional('PAN Number', 0, 10),
@@ -437,10 +447,11 @@ export const FleetVendorSchema = z.object({
         50,
     ),
 
+    // Financial Details
     payment_terms: stringOptional('Payment Terms', 0, 2000),
     financial_notes: stringOptional('Financial Notes', 0, 2000),
 
-    // Additional
+    // Additional Information
     additional_details_1: stringOptional('Additional Details 1', 0, 2000),
     additional_details_2: stringOptional('Additional Details 2', 0, 2000),
     additional_details_3: stringOptional('Additional Details 3', 0, 2000),
@@ -452,18 +463,11 @@ export const FleetVendorSchema = z.object({
 });
 export type FleetVendorDTO = z.infer<typeof FleetVendorSchema>;
 
-// ✅ FleetVendor Logo Schema
-export const FleetVendorLogoSchema = z.object({
-    logo_url: stringMandatory('Logo URL', 0, 300),
-    logo_key: stringMandatory('Logo Key', 0, 300),
-    logo_name: stringMandatory('Logo Name', 0, 300),
-});
-export type FleetVendorLogoDTO = z.infer<typeof FleetVendorLogoSchema>;
-
 // ✅ FleetVendor Query Schema
 export const FleetVendorQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
+
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
 });
 export type FleetVendorQueryDTO = z.infer<typeof FleetVendorQuerySchema>;
 
@@ -478,6 +482,7 @@ export const FleetVendorAddressSchema = z.object({
         FleetVendorAddressLabel.OTHER,
     ),
 
+    // Address Details
     address_line1: stringOptional('Address Line 1', 0, 150),
     address_line2: stringOptional('Address Line 2', 0, 150),
     locality_landmark: stringOptional('Locality / Landmark', 0, 150),
@@ -503,10 +508,11 @@ export type FleetVendorAddressDTO = z.infer<typeof FleetVendorAddressSchema>;
 
 // ✅ FleetVendorAddress Query Schema
 export const FleetVendorAddressQuerySchema = BaseQuerySchema.extend({
+    vendor_address_ids: multi_select_optional('FleetVendorAddress'), // ✅ Multi-Selection -> FleetVendorAddress
+
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
-    landmark_ids: multi_select_optional('MasterMainLandMark'), // ✅ Multi-Selection -> MasterMainLandMark
-    vendor_address_ids: multi_select_optional('FleetVendorAddress'), // ✅ Multi-Selection -> FleetVendorAddress
+
     vendor_address_label: enumArrayOptional(
         'Vendor Address Label',
         FleetVendorAddressLabel,
@@ -542,41 +548,15 @@ export type FleetVendorBankAccountDTO = z.infer<
 
 // ✅ FleetVendorBankAccount Query Schema
 export const FleetVendorBankAccountQuerySchema = BaseQuerySchema.extend({
+    vendor_bank_account_ids: multi_select_optional('FleetVendorBankAccount'), // ✅ Multi-Selection -> FleetVendorBankAccount
+
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
-    vendor_bank_account_ids: multi_select_optional('FleetVendorBankAccount'), // ✅ Multi-Selection -> FleetVendorBankAccount
 
     is_primary: enumArrayOptional('Is Primary', YesNo, getAllEnums(YesNo)),
 });
 export type FleetVendorBankAccountQueryDTO = z.infer<
     typeof FleetVendorBankAccountQuerySchema
->;
-
-// ✅ FleetVendorContactPersons Create/Update Schema
-export const FleetVendorContactPersonsSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-
-    image_url: stringOptional('Image URL', 0, 300),
-    image_key: stringOptional('Image Key', 0, 300),
-    image_name: stringOptional('Image Name', 0, 300),
-
-    name: stringMandatory('Name', 3, 100),
-    mobile: stringOptional('Mobile', 0, 15),
-    alternative_mobile: stringOptional('Alternative Mobile', 0, 15),
-    email: stringOptional('Email', 0, 100),
-    designation: stringOptional('Designation', 0, 50),
-
-    branch_name: stringOptional('Branch Name', 0, 100),
-    preferred_language: stringOptional('Preferred Language', 0, 10),
-    is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
-    is_active_contact: enumMandatory('Is Active Contact', YesNo, YesNo.Yes),
-    notes: stringOptional('Notes', 0, 2000),
-
-    status: enumMandatory('Status', Status, Status.Active),
-});
-export type FleetVendorContactPersonsDTO = z.infer<
-    typeof FleetVendorContactPersonsSchema
 >;
 
 // ✅ FleetVendorContactPerson Logo Schema
@@ -589,11 +569,42 @@ export type FleetVendorContactPersonsLogoDTO = z.infer<
     typeof FleetVendorContactPersonsLogoSchema
 >;
 
+// ✅ FleetVendorContactPersons Create/Update Schema
+export const FleetVendorContactPersonsSchema = z.object({
+    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+
+    // Image
+    image_url: stringOptional('Image URL', 0, 300),
+    image_key: stringOptional('Image Key', 0, 300),
+    image_name: stringOptional('Image Name', 0, 300),
+
+    // Primary Details
+    name: stringMandatory('Name', 3, 100),
+    mobile: stringOptional('Mobile', 0, 15),
+    alternative_mobile: stringOptional('Alternative Mobile', 0, 15),
+    email: stringOptional('Email', 0, 100),
+    designation: stringOptional('Designation', 0, 50),
+
+    // Additional Details
+    branch_name: stringOptional('Branch Name', 0, 100),
+    preferred_language: stringOptional('Preferred Language', 0, 10),
+    is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
+    is_active_contact: enumMandatory('Is Active Contact', YesNo, YesNo.Yes),
+    notes: stringOptional('Notes', 0, 2000),
+
+    status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetVendorContactPersonsDTO = z.infer<
+    typeof FleetVendorContactPersonsSchema
+>;
+
 // ✅ FleetVendorContactPersons Query Schema
 export const FleetVendorContactPersonsQuerySchema = BaseQuerySchema.extend({
+    contact_person_ids: multi_select_optional('FleetVendorContactPersons'), // ✅ Multi-Selection -> FleetVendorContactPersons
+
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
-    contact_person_ids: multi_select_optional('FleetVendorContactPersons'), // ✅ Multi-Selection -> FleetVendorContactPersons
 
     is_primary: enumArrayOptional('Is Primary', YesNo, getAllEnums(YesNo)),
     is_active_contact: enumArrayOptional(
@@ -621,10 +632,11 @@ export type FleetVendorReviewDTO = z.infer<typeof FleetVendorReviewSchema>;
 
 // ✅ FleetVendorReview Query Schema
 export const FleetVendorReviewQuerySchema = BaseQuerySchema.extend({
+    vendor_review_ids: multi_select_optional('FleetVendorReview'), // ✅ Multi-Selection -> FleetVendorReview
+
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
     user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
-    vendor_review_ids: multi_select_optional('FleetVendorReview'), // ✅ Multi-Selection -> FleetVendorReview
 });
 export type FleetVendorReviewQueryDTO = z.infer<
     typeof FleetVendorReviewQuerySchema
@@ -664,11 +676,12 @@ export type FleetVendorDocumentDTO = z.infer<typeof FleetVendorDocumentSchema>;
 
 // ✅ FleetVendorDocument Query Schema
 export const FleetVendorDocumentQuerySchema = BaseQuerySchema.extend({
+    fleet_vendor_document_ids: multi_select_optional('FleetVendorDocument'), // ✅ Multi-selection -> FleetVendorDocument
+
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
     user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-selection -> FleetVendor
     document_type_ids: multi_select_optional('MasterVendorDocumentType'), // ✅ Multi-selection -> MasterVendorDocumentType
-    fleet_vendor_document_ids: multi_select_optional('FleetVendorDocument'), // ✅ Multi-selection -> FleetVendorDocument
 });
 export type FleetVendorDocumentQueryDTO = z.infer<
     typeof FleetVendorDocumentQuerySchema
@@ -987,10 +1000,17 @@ export const vendor_contact_person_logo_presigned_url = async (fileName: string)
     return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.vendor_contact_person_logo_presigned_url(fileName));
 };
 
-export const presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-    return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url_file, data);
+export const get_vendor_document_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+    return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vendor_document_file_presigned_url, data);
 };
 
+export const updateFleetVendorLogo = async (id: string, data: FleetVendorLogoDTO): Promise<SBR> => {
+    return apiPatch<SBR, FleetVendorLogoDTO>(ENDPOINTS.update_vendor_logo(id), data);
+};
+
+export const deleteFleetVendorLogo = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.delete_vendor_logo(id));
+};
 
 // API Methods
 export const findFleetVendor = async (data: FleetVendorQueryDTO): Promise<FBR<FleetVendor[]>> => {
@@ -1008,15 +1028,6 @@ export const updateFleetVendor = async (id: string, data: FleetVendorDTO): Promi
 export const deleteFleetVendor = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
-
-export const updateFleetVendorLogo = async (id: string, data: FleetVendorLogoDTO): Promise<SBR> => {
-    return apiPatch<SBR, FleetVendorLogoDTO>(ENDPOINTS.update_vendor_logo(id), data);
-};
-
-export const deleteFleetVendorLogo = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.delete_vendor_logo(id));
-};
-
 
 // Address
 export const createFleetVendorAddress = async (data: FleetVendorAddressDTO): Promise<SBR> => {
@@ -1095,6 +1106,14 @@ export const deleteFleetVendorReview = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_review(id));
 };
 
+// File API Methods
+export const create_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
+    return apiPost<SBR, MasterDriverFileDTO>(ENDPOINTS.create_file, data);
+};
+
+export const remove_file = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.remove_file(id));
+};
 
 // Document
 export const createFleetVendorDocument = async (data: FleetVendorDocumentDTO): Promise<SBR> => {
@@ -1114,11 +1133,7 @@ export const deleteFleetVendorDocument = async (id: string): Promise<SBR> => {
 };
 
 
-// File API Methods
-export const create_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterDriverFileDTO>(ENDPOINTS.create_file, data);
-};
-
-export const remove_file = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_file(id));
+// API Cache Methods
+export const getFleetVendorCacheSimple = async (organisation_id: string): Promise<FBR<FleetVendor[]>> => {
+  return apiGet<FBR<FleetVendor[]>>(ENDPOINTS.cache_simple(organisation_id));
 };
