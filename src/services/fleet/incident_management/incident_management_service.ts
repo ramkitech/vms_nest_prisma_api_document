@@ -356,63 +356,63 @@ export type IncidentManagementCostQueryDTO = z.infer<
     typeof IncidentManagementCostQuerySchema
 >;
 
-
 // ✅ Convert FleetIncidentManagement Data to API Payload
-export const toFleetIncidentManagementPayload = (incidentManagement: FleetIncidentManagement): IncidentManagementDTO => ({
+export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): IncidentManagementDTO => ({
     // Incident Details
-    incident_date: incidentManagement.incident_date || '',
-    was_towed: incidentManagement.was_towed || YesNo.No,
-    is_vehicle_operational: incidentManagement.is_vehicle_operational || YesNo.Yes,
-    incident_time: incidentManagement.incident_time || IncidentTime.EarlyMorning,
-    incident_weather: incidentManagement.incident_weather || IncidentWeather.Clear,
-    incident_road_type: incidentManagement.incident_road_type || IncidentRoadType.Highway,
-    incident_visibility: incidentManagement.incident_visibility || IncidentVisibility.Excellent,
-    odometer_reading: incidentManagement.odometer_reading || 0,
-    incident_cost: incidentManagement.incident_cost || 0,
-    incident_description: incidentManagement.incident_description || '',
+    incident_date: row.incident_date || '',
+    was_towed: row.was_towed || YesNo.No,
+    is_vehicle_operational: row.is_vehicle_operational || YesNo.Yes,
+    incident_time: row.incident_time || IncidentTime.EarlyMorning,
+    incident_weather: row.incident_weather || IncidentWeather.Clear,
+    incident_road_type: row.incident_road_type || IncidentRoadType.Highway,
+    incident_visibility: row.incident_visibility || IncidentVisibility.Excellent,
+    odometer_reading: row.odometer_reading || 0,
+    incident_cost: row.incident_cost || 0,
+    incident_description: row.incident_description || '',
 
     // Location Details
-    latitude: incidentManagement.latitude || 0,
-    longitude: incidentManagement.longitude || 0,
-    google_location: incidentManagement.google_location || '',
+    latitude: row.latitude || 0,
+    longitude: row.longitude || 0,
+    google_location: row.google_location || '',
 
     // Insurance Details
-    insurance_cover: incidentManagement.insurance_cover || YesNo.No,
-    insurance_claimed: incidentManagement.insurance_claimed || YesNo.No,
-    insurance_claimed_amount: incidentManagement.insurance_claimed_amount || 0,
-    insurance_settled_amount: incidentManagement.insurance_settled_amount || 0,
-    insurance_policy_number: incidentManagement.insurance_policy_number || '',
-    insurance_company_name: incidentManagement.insurance_company_name || '',
-    insurance_contact_number: incidentManagement.insurance_contact_number || '',
-    insurance_description: incidentManagement.insurance_description || '',
+    insurance_cover: row.insurance_cover || YesNo.No,
+    insurance_claimed: row.insurance_claimed || YesNo.No,
+    insurance_claimed_amount: row.insurance_claimed_amount || 0,
+    insurance_settled_amount: row.insurance_settled_amount || 0,
+    insurance_policy_number: row.insurance_policy_number || '',
+    insurance_company_name: row.insurance_company_name || '',
+    insurance_contact_number: row.insurance_contact_number || '',
+    insurance_description: row.insurance_description || '',
 
     // Complaint Details
-    police_report_filed: incidentManagement.police_report_filed || YesNo.No,
-    police_report_number: incidentManagement.police_report_number || '',
-    police_station_name: incidentManagement.police_station_name || '',
+    police_report_filed: row.police_report_filed || YesNo.No,
+    police_report_number: row.police_report_number || '',
+    police_station_name: row.police_station_name || '',
 
     // Injury Details
-    any_injuries: incidentManagement.any_injuries || YesNo.No,
-    injury_description: incidentManagement.injury_description || '',
-    injured_persons_count: incidentManagement.injured_persons_count || 0,
+    any_injuries: row.any_injuries || YesNo.No,
+    injury_description: row.injury_description || '',
+    injured_persons_count: row.injured_persons_count || 0,
 
     // Other Details
-    legal_description: incidentManagement.legal_description || '',
-    involved_parties_description: incidentManagement.involved_parties_description || '',
+    legal_description: row.legal_description || '',
+    involved_parties_description: row.involved_parties_description || '',
 
     // Relations
-    organisation_id: incidentManagement.organisation_id || '',
-    user_id: incidentManagement.user_id || '',
-    vehicle_id: incidentManagement.vehicle_id || '',
-    driver_id: incidentManagement.driver_id || '',
-    fleet_incident_type_id: incidentManagement.fleet_incident_type_id || '',
-    fleet_incident_status_id: incidentManagement.fleet_incident_status_id || '',
-    fleet_incident_severity_id: incidentManagement.fleet_incident_severity_id || '',
-    fleet_insurance_claim_status_id: incidentManagement.fleet_insurance_claim_status_id || '',
+    organisation_id: row.organisation_id || '',
+    user_id: row.user_id || '',
+    vehicle_id: row.vehicle_id || '',
+    driver_id: row.driver_id || '',
+    
+    fleet_incident_type_id: row.fleet_incident_type_id || '',
+    fleet_incident_status_id: row.fleet_incident_status_id || '',
+    fleet_incident_severity_id: row.fleet_incident_severity_id || '',
+    fleet_insurance_claim_status_id: row.fleet_insurance_claim_status_id || '',
 
     status: Status.Active,
 
-    VehicleIncidentFileSchema: incidentManagement.FleetIncidentManagementFile?.map((file) => ({
+    VehicleIncidentFileSchema: row.FleetIncidentManagementFile?.map((file) => ({
         fleet_incident_management_file_id: file.fleet_incident_management_file_id ?? '',
 
         usage_type: file.usage_type,
@@ -486,14 +486,14 @@ export const newFleetIncidentManagementPayload = (): IncidentManagementDTO => ({
 });
 
 // ✅ Convert FleetIncidentManagementCost Data to API Payload
-export const toFleetIncidentManagementCostPayload = (incidentManagementCost: FleetIncidentManagementCost): IncidentManagementCostDTO => ({
-    incident_cost_description: incidentManagementCost.incident_cost_description || '',
-    incident_cost_amount: incidentManagementCost.incident_cost_amount || 0,
-    incident_cost_date: incidentManagementCost.incident_cost_date || '',
+export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagementCost): IncidentManagementCostDTO => ({
+    incident_cost_description: row.incident_cost_description || '',
+    incident_cost_amount: row.incident_cost_amount || 0,
+    incident_cost_date: row.incident_cost_date || '',
 
-    organisation_id: incidentManagementCost.organisation_id || '',
-    vehicle_incident_id: incidentManagementCost.vehicle_incident_id || '',
-    expense_name_id: incidentManagementCost.expense_name_id || '',
+    organisation_id: row.organisation_id || '',
+    vehicle_incident_id: row.vehicle_incident_id || '',
+    expense_name_id: row.expense_name_id || '',
 
     status: Status.Active,
 });
