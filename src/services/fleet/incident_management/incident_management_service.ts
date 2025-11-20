@@ -21,7 +21,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { IncidentRoadType, IncidentTime, IncidentVisibility, IncidentWeather, IssueSeverity, IssueSource, IssueStatus, Priority, Status, YesNo } from '../../../core/Enums';
+import { IncidentRoadType, IncidentTime, IncidentVisibility, IncidentWeather, Status, YesNo } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -39,19 +39,19 @@ const URL = 'fleet/incident_management/incidents';
 const ENDPOINTS = {
 
     // AWS S3 PRESIGNED
-    presigned_url_file: `${URL}/presigned_url`,
+    incident_file_presigned_url: `${URL}/incident_file_presigned_url`,
+
+    // File
+    create_incident_file: `${URL}/create_incident_file`,
+    remove_incident_file: (id: string): string => `${URL}/remove_incident_file/${id}`,
 
     find: `${URL}/search`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
 
-    // File
-    create_file: `${URL}/create_file`,
-    remove_file: (id: string): string => `${URL}/remove_file/${id}`,
-
-    create_cost: `${URL}/create_cost`,
     find_cost: `${URL}/cost/search`,
+    create_cost: `${URL}/create_cost`,
     update_cost: (id: string): string => `${URL}/update_cost/${id}`,
     remove_cost: (id: string): string => `${URL}/remove_cost/${id}`,
 };
@@ -183,7 +183,7 @@ export interface FleetIncidentManagementCost extends Record<string, unknown> {
 // ✅ FleetIncidentManagementFile Interface
 export interface FleetIncidentManagementFile extends BaseCommonFile {
     // Primary Fields
-    vehicle_incident_file_id: string;
+    fleet_incident_management_file_id: string;
 
     // ✅ Relations - Parent
     organisation_id: string;
@@ -192,7 +192,6 @@ export interface FleetIncidentManagementFile extends BaseCommonFile {
     vehicle_incident_id: string;
     FleetIncidentManagement?: FleetIncidentManagement;
 }
-
 
 // ✅ VehicleIncidentFile Schema
 export const VehicleIncidentFileSchema = BaseFileSchema.extend({
@@ -414,7 +413,7 @@ export const toFleetIncidentManagementPayload = (incidentManagement: FleetIncide
     status: Status.Active,
 
     VehicleIncidentFileSchema: incidentManagement.FleetIncidentManagementFile?.map((file) => ({
-        vehicle_incident_file_id: file.vehicle_incident_file_id ?? '',
+        fleet_incident_management_file_id: file.fleet_incident_management_file_id ?? '',
 
         usage_type: file.usage_type,
 
@@ -501,20 +500,29 @@ export const toFleetIncidentManagementCostPayload = (incidentManagementCost: Fle
 
 // ✅ Create New FleetIncidentManagementCost Payload
 export const newFleetIncidentManagementCostPayload = (): IncidentManagementCostDTO => ({
-    incident_cost_description: '',
-    incident_cost_amount: 0,
-    incident_cost_date: '',
-
     organisation_id: '',
     vehicle_incident_id: '',
     expense_name_id: '',
 
+    incident_cost_date: '',
+    incident_cost_amount: 0,
+    incident_cost_description: '',
+
     status: Status.Active,
 });
 
-// Generate presigned URL for file uploads
-export const presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-    return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url_file, data);
+// Generate presigned URL
+export const get_incident_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+    return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.incident_file_presigned_url, data);
+};
+
+// File API Methods
+export const create_incident_file = async (data: VehicleIncidentFileDTO): Promise<SBR> => {
+    return apiPost<SBR, VehicleIncidentFileDTO>(ENDPOINTS.create_incident_file, data);
+};
+
+export const remove_incident_file = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.remove_incident_file(id));
 };
 
 // API Methods
@@ -532,15 +540,6 @@ export const updateIncidentManagement = async (id: string, data: IncidentManagem
 
 export const deleteIncidentManagement = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-// File API Methods
-export const create_file = async (data: VehicleIncidentFileDTO): Promise<SBR> => {
-    return apiPost<SBR, VehicleIncidentFileDTO>(ENDPOINTS.create_file, data);
-};
-
-export const remove_file = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_file(id));
 };
 
 // IncidentManagementCost
