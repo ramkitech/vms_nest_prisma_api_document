@@ -25,9 +25,10 @@ import { IncidentRoadType, IncidentTime, IncidentVisibility, IncidentWeather, St
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
-import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 import { User } from 'src/services/main/users/user_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
+
 import { MasterFleetInsuranceClaimStatus } from 'src/services/master/fleet/master_fleet_insurance_claim_status_service';
 import { MasterFleetIncidentSeverity } from 'src/services/master/fleet/master_fleet_incident_severity_service';
 import { MasterFleetIncidentStatus } from 'src/services/master/fleet/master_fleet_incident_status_service';
@@ -193,19 +194,22 @@ export interface FleetIncidentManagementFile extends BaseCommonFile {
     FleetIncidentManagement?: FleetIncidentManagement;
 }
 
-// ✅ VehicleIncidentFile Schema
-export const VehicleIncidentFileSchema = BaseFileSchema.extend({
+// ✅ FleetIncidentManagementFile Schema
+export const FleetIncidentManagementFileSchema = BaseFileSchema.extend({
     organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     vehicle_incident_id: single_select_optional('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
 });
-export type VehicleIncidentFileDTO = z.infer<typeof VehicleIncidentFileSchema>;
+export type FleetIncidentManagementFileDTO = z.infer<
+    typeof FleetIncidentManagementFileSchema
+>;
 
 // ✅ FleetIncidentManagement Create/update Schema
-export const IncidentManagementSchema = z.object({
+export const FleetIncidentManagementSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
     vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
     driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+
     fleet_incident_type_id: single_select_mandatory('MasterFleetIncidentType'), // MasterFleetIncidentType
     fleet_incident_status_id: single_select_mandatory(
         'MasterFleetIncidentStatus',
@@ -217,6 +221,7 @@ export const IncidentManagementSchema = z.object({
         'MasterFleetInsuranceClaimStatus',
     ), // MasterFleetInsuranceClaimStatus
 
+    // Incident Details
     incident_date: dateMandatory('Incident Date'),
     was_towed: enumMandatory('Was Towed', YesNo, YesNo.No),
     is_vehicle_operational: enumMandatory(
@@ -253,6 +258,7 @@ export const IncidentManagementSchema = z.object({
     longitude: doubleOptionalLatLng('Longitude'),
     google_location: stringOptional('Google Location', 0, 500),
 
+    // Insurance Details
     insurance_cover: enumMandatory('Insurance Cover', YesNo, YesNo.No),
     insurance_claimed: enumMandatory('Insurance Claimed', YesNo, YesNo.No),
     insurance_claimed_amount: doubleOptional('Insurance Claimed Amount'),
@@ -262,38 +268,60 @@ export const IncidentManagementSchema = z.object({
     insurance_contact_number: stringOptional('Insurance Contact Number', 0, 50),
     insurance_description: stringOptional('Insurance Description', 0, 2000),
 
+    // Complaint Details
     police_report_filed: enumMandatory('Police Report Filed', YesNo, YesNo.No),
     police_report_number: stringOptional('Police Report  Number', 0, 100),
     police_station_name: stringOptional('Police Station Name', 0, 100),
 
+    // Injury Details
     any_injuries: enumMandatory('Any Injuries', YesNo, YesNo.No),
     injury_description: stringOptional('Injury Description', 0, 1000),
     injured_persons_count: numberOptional('Injury Persons Count'),
 
+    // Other Details
     legal_description: stringOptional('Legal Description', 0, 2000),
     involved_parties_description: stringOptional(
         'Involved Parties Description',
         0,
         2000,
     ),
+
     status: enumMandatory('Status', Status, Status.Active),
 
-    VehicleIncidentFileSchema: nestedArrayOfObjectsOptional(
-        'VehicleIncidentFileSchema',
-        VehicleIncidentFileSchema,
+    FleetIncidentManagementFileSchema: nestedArrayOfObjectsOptional(
+        'FleetIncidentManagementFileSchema',
+        FleetIncidentManagementFileSchema,
         [],
     ),
 });
-export type IncidentManagementDTO = z.infer<typeof IncidentManagementSchema>;
+export type FleetIncidentManagementDTO = z.infer<
+    typeof FleetIncidentManagementSchema
+>;
 
-// ✅ FleetIncidentManagementCost Query Schema
-export const IncidentManagementQuerySchema = BaseQuerySchema.extend({
+// ✅ FleetIncidentManagementComment Query Schema
+export const FleetIncidentManagementQuerySchema = BaseQuerySchema.extend({
+    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
+
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
-    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
     vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
     driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
-    landmark_ids: multi_select_optional('MasterMainLandMark'), // ✅ Multi-Selection -> MasterMainLandMark
+
+    fleet_incident_type_ids: multi_select_optional('MasterFleetIncidentType'), // ✅ Multi-Selection -> MasterFleetIncidentType
+    fleet_incident_status_ids: multi_select_optional('MasterFleetIncidentStatus'), // ✅ Multi-Selection -> MasterFleetIncidentStatus
+    fleet_incident_severity_ids: multi_select_optional(
+        'MasterFleetIncidentSeverity',
+    ), // ✅ Multi-Selection -> MasterFleetIncidentSeverity
+    fleet_insurance_claim_status_ids: multi_select_optional(
+        'MasterFleetInsuranceClaimStatus',
+    ), // ✅ Multi-Selection -> MasterFleetInsuranceClaimStatus
+
+    was_towed: enumArrayOptional('Was Towed', YesNo, getAllEnums(YesNo)),
+    is_vehicle_operational: enumArrayOptional(
+        'Is Vehicle Operational',
+        YesNo,
+        getAllEnums(YesNo),
+    ),
     incident_time: enumArrayOptional(
         'Incident Time',
         IncidentTime,
@@ -314,58 +342,72 @@ export const IncidentManagementQuerySchema = BaseQuerySchema.extend({
         IncidentVisibility,
         getAllEnums(IncidentVisibility),
     ),
-    fleet_incident_type_ids: multi_select_optional('MasterFleetIncidentType'), // ✅ Multi-Selection -> MasterFleetIncidentType
-    fleet_incident_status_ids: multi_select_optional('MasterFleetIncidentStatus'), // ✅ Multi-Selection -> MasterFleetIncidentStatus
-    fleet_incident_severity_ids: multi_select_optional(
-        'MasterFleetIncidentSeverity',
-    ), // ✅ Multi-Selection -> MasterFleetIncidentSeverity
-    fleet_insurance_claim_status_ids: multi_select_optional(
-        'MasterFleetInsuranceClaimStatus',
-    ), // ✅ Multi-Selection -> MasterFleetInsuranceClaimStatus
+    insurance_cover: enumArrayOptional(
+        'Insurance Cover',
+        YesNo,
+        getAllEnums(YesNo),
+    ),
+    insurance_claimed: enumArrayOptional(
+        'Insurance Claimed',
+        YesNo,
+        getAllEnums(YesNo),
+    ),
+    police_report_filed: enumArrayOptional(
+        'Police Report Filed',
+        YesNo,
+        getAllEnums(YesNo),
+    ),
+    any_injuries: enumArrayOptional('Any Injuries', YesNo, getAllEnums(YesNo)),
+
+    from_date: dateMandatory('From Date'),
+    to_date: dateMandatory('To Date'),
 });
-export type IncidentManagementQueryDTO = z.infer<
-    typeof IncidentManagementQuerySchema
+export type FleetIncidentManagementQueryDTO = z.infer<
+    typeof FleetIncidentManagementQuerySchema
 >;
 
 // ✅ FleetIncidentManagementCost Create/update Schema
-export const IncidentManagementCostSchema = z.object({
+export const FleetIncidentManagementCostSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     vehicle_incident_id: single_select_mandatory('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
     expense_name_id: single_select_mandatory('MasterExpenseName'), // ✅ Single-Selection -> MasterExpenseName
+
+    incident_cost_date: dateMandatory('Incident Cost Date'),
+    incident_cost_amount: doubleOptional('Incident Cost Amount'),
     incident_cost_description: stringOptional(
         'Incident Cost Description',
         0,
         2000,
     ),
-    incident_cost_amount: doubleOptional('Incident Cost Amount'),
-    incident_cost_date: dateMandatory('Incident Cost Date'),
+
     status: enumMandatory('Status', Status, Status.Active),
 });
-export type IncidentManagementCostDTO = z.infer<
-    typeof IncidentManagementCostSchema
+export type FleetIncidentManagementCostDTO = z.infer<
+    typeof FleetIncidentManagementCostSchema
 >;
 
 // ✅ FleetIncidentManagementCost Query Schema
-export const IncidentManagementCostQuerySchema = BaseQuerySchema.extend({
+export const FleetIncidentManagementCostQuerySchema = BaseQuerySchema.extend({
+    incident_cost_ids: multi_select_optional('FleetIncidentManagementCost'), // ✅ Multi-Selection -> FleetIncidentManagementCost
+
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
     expense_name_ids: multi_select_optional('MasterExpenseName'), // ✅ Multi-Selection -> MasterExpenseName
-    incident_cost_ids: multi_select_optional('FleetIncidentManagementCost'), // ✅ Multi-Selection -> FleetIncidentManagementCost
 });
-export type IncidentManagementCostQueryDTO = z.infer<
-    typeof IncidentManagementCostQuerySchema
+export type FleetIncidentManagementCostQueryDTO = z.infer<
+    typeof FleetIncidentManagementCostQuerySchema
 >;
 
 // ✅ Convert FleetIncidentManagement Data to API Payload
-export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): IncidentManagementDTO => ({
+export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): FleetIncidentManagementDTO => ({
     // Incident Details
     incident_date: row.incident_date || '',
     was_towed: row.was_towed || YesNo.No,
     is_vehicle_operational: row.is_vehicle_operational || YesNo.Yes,
-    incident_time: row.incident_time || IncidentTime.EarlyMorning,
-    incident_weather: row.incident_weather || IncidentWeather.Clear,
-    incident_road_type: row.incident_road_type || IncidentRoadType.Highway,
-    incident_visibility: row.incident_visibility || IncidentVisibility.Excellent,
+    incident_time: row.incident_time || IncidentTime.Unknown,
+    incident_weather: row.incident_weather || IncidentWeather.Unknown,
+    incident_road_type: row.incident_road_type || IncidentRoadType.Unknown,
+    incident_visibility: row.incident_visibility || IncidentVisibility.Unknown,
     odometer_reading: row.odometer_reading || 0,
     incident_cost: row.incident_cost || 0,
     incident_description: row.incident_description || '',
@@ -404,7 +446,7 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
     user_id: row.user_id || '',
     vehicle_id: row.vehicle_id || '',
     driver_id: row.driver_id || '',
-    
+
     fleet_incident_type_id: row.fleet_incident_type_id || '',
     fleet_incident_status_id: row.fleet_incident_status_id || '',
     fleet_incident_severity_id: row.fleet_incident_severity_id || '',
@@ -412,7 +454,7 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
 
     status: Status.Active,
 
-    VehicleIncidentFileSchema: row.FleetIncidentManagementFile?.map((file) => ({
+    FleetIncidentManagementFileSchema: row.FleetIncidentManagementFile?.map((file) => ({
         fleet_incident_management_file_id: file.fleet_incident_management_file_id ?? '',
 
         usage_type: file.usage_type,
@@ -435,14 +477,23 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
 });
 
 // ✅ Create New FleetIncidentManagement Payload
-export const newFleetIncidentManagementPayload = (): IncidentManagementDTO => ({
+export const newFleetIncidentManagementPayload = (): FleetIncidentManagementDTO => ({
+    organisation_id: '',
+    user_id: '',
+    vehicle_id: '',
+    driver_id: '',
+    fleet_incident_type_id: '',
+    fleet_incident_status_id: '',
+    fleet_incident_severity_id: '',
+    fleet_insurance_claim_status_id: '',
+
     incident_date: '',
     was_towed: YesNo.No,
     is_vehicle_operational: YesNo.Yes,
-    incident_time: IncidentTime.EarlyMorning,
-    incident_weather: IncidentWeather.Clear,
-    incident_road_type: IncidentRoadType.Highway,
-    incident_visibility: IncidentVisibility.Excellent,
+    incident_time: IncidentTime.Unknown,
+    incident_weather: IncidentWeather.Unknown,
+    incident_road_type: IncidentRoadType.Unknown,
+    incident_visibility: IncidentVisibility.Unknown,
     odometer_reading: 0,
     incident_cost: 0,
     incident_description: '',
@@ -473,23 +524,14 @@ export const newFleetIncidentManagementPayload = (): IncidentManagementDTO => ({
 
     status: Status.Active,
 
-    organisation_id: '',
-    user_id: '',
-    vehicle_id: '',
-    driver_id: '',
-    fleet_incident_type_id: '',
-    fleet_incident_status_id: '',
-    fleet_incident_severity_id: '',
-    fleet_insurance_claim_status_id: '',
-
-    VehicleIncidentFileSchema: []
+    FleetIncidentManagementFileSchema: []
 });
 
 // ✅ Convert FleetIncidentManagementCost Data to API Payload
-export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagementCost): IncidentManagementCostDTO => ({
-    incident_cost_description: row.incident_cost_description || '',
-    incident_cost_amount: row.incident_cost_amount || 0,
+export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagementCost): FleetIncidentManagementCostDTO => ({
     incident_cost_date: row.incident_cost_date || '',
+    incident_cost_amount: row.incident_cost_amount || 0,
+    incident_cost_description: row.incident_cost_description || '',
 
     organisation_id: row.organisation_id || '',
     vehicle_incident_id: row.vehicle_incident_id || '',
@@ -499,7 +541,7 @@ export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagemen
 });
 
 // ✅ Create New FleetIncidentManagementCost Payload
-export const newFleetIncidentManagementCostPayload = (): IncidentManagementCostDTO => ({
+export const newFleetIncidentManagementCostPayload = (): FleetIncidentManagementCostDTO => ({
     organisation_id: '',
     vehicle_incident_id: '',
     expense_name_id: '',
@@ -517,8 +559,8 @@ export const get_incident_file_presigned_url = async (data: FilePresignedUrlDTO)
 };
 
 // File API Methods
-export const create_incident_file = async (data: VehicleIncidentFileDTO): Promise<SBR> => {
-    return apiPost<SBR, VehicleIncidentFileDTO>(ENDPOINTS.create_incident_file, data);
+export const create_incident_file = async (data: FleetIncidentManagementFileDTO): Promise<SBR> => {
+    return apiPost<SBR, FleetIncidentManagementFileDTO>(ENDPOINTS.create_incident_file, data);
 };
 
 export const remove_incident_file = async (id: string): Promise<SBR> => {
@@ -526,35 +568,35 @@ export const remove_incident_file = async (id: string): Promise<SBR> => {
 };
 
 // API Methods
-export const createIncidentManagement = async (data: IncidentManagementDTO): Promise<SBR> => {
-    return apiPost<SBR, IncidentManagementDTO>(ENDPOINTS.create, data);
+export const createFleetIncidentManagement = async (data: FleetIncidentManagementDTO): Promise<SBR> => {
+    return apiPost<SBR, FleetIncidentManagementDTO>(ENDPOINTS.create, data);
 };
 
-export const findIncidentManagement = async (data: IncidentManagementQueryDTO): Promise<FBR<FleetIncidentManagement[]>> => {
-    return apiPost<FBR<FleetIncidentManagement[]>, IncidentManagementQueryDTO>(ENDPOINTS.find, data);
+export const findFleetIncidentManagement = async (data: FleetIncidentManagementQueryDTO): Promise<FBR<FleetIncidentManagement[]>> => {
+    return apiPost<FBR<FleetIncidentManagement[]>, FleetIncidentManagementQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const updateIncidentManagement = async (id: string, data: IncidentManagementDTO): Promise<SBR> => {
-    return apiPatch<SBR, IncidentManagementDTO>(ENDPOINTS.update(id), data);
+export const updateFleetIncidentManagement = async (id: string, data: FleetIncidentManagementDTO): Promise<SBR> => {
+    return apiPatch<SBR, FleetIncidentManagementDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteIncidentManagement = async (id: string): Promise<SBR> => {
+export const deleteFleetIncidentManagement = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// IncidentManagementCost
-export const createIncidentManagementCost = async (data: IncidentManagementCostDTO): Promise<SBR> => {
-    return apiPost<SBR, IncidentManagementCostDTO>(ENDPOINTS.create_cost, data);
+// FleetIncidentManagementCost
+export const createFleetIncidentManagementCost = async (data: FleetIncidentManagementCostDTO): Promise<SBR> => {
+    return apiPost<SBR, FleetIncidentManagementCostDTO>(ENDPOINTS.create_cost, data);
 };
 
-export const findIncidentManagementCost = async (data: IncidentManagementQueryDTO): Promise<FBR<FleetIncidentManagementCost[]>> => {
-    return apiPost<FBR<FleetIncidentManagementCost[]>, IncidentManagementQueryDTO>(ENDPOINTS.find_cost, data);
+export const findFleetIncidentManagementCost = async (data: FleetIncidentManagementQueryDTO): Promise<FBR<FleetIncidentManagementCost[]>> => {
+    return apiPost<FBR<FleetIncidentManagementCost[]>, FleetIncidentManagementQueryDTO>(ENDPOINTS.find_cost, data);
 };
 
-export const updateIncidentManagementCost = async (id: string, data: IncidentManagementCostDTO): Promise<SBR> => {
-    return apiPatch<SBR, IncidentManagementCostDTO>(ENDPOINTS.update_cost(id), data);
+export const updateFleetIncidentManagementCost = async (id: string, data: FleetIncidentManagementCostDTO): Promise<SBR> => {
+    return apiPatch<SBR, FleetIncidentManagementCostDTO>(ENDPOINTS.update_cost(id), data);
 };
 
-export const deleteIncidentManagementCost = async (id: string): Promise<SBR> => {
+export const deleteFleetIncidentManagementCost = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_cost(id));
 };

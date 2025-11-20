@@ -72,6 +72,8 @@ import { MasterVehicleAssociatedTo } from 'src/services/master/vehicle/master_ve
 import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicle_fuel_unit_service';
 import { MasterVehicleDocumentType } from 'src/services/master/vehicle/master_vehicle_document_type_service';
 
+import { FleetVendor } from 'src/services/fleet/vendor_management/fleet_vendor_service';
+
 // ✅ URL and Endpoints
 const URL = 'main/master_vehicle';
 
@@ -773,13 +775,13 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   vehicle_type?: string;
 
   purchase_vendor_id?: string;
-  // PurchaseVendor?: FleetVendor;
+  PurchaseVendor?: FleetVendor;
 
   loan_lender_id?: string;
-  // LoanLender?: FleetVendor;
+  LoanLender?: FleetVendor;
 
   lease_vendor_id?: string;
-  // LeaseVendor?: FleetVendor;
+  LeaseVendor?: FleetVendor;
 }
 
 // VehicleDocument Interface
@@ -826,7 +828,7 @@ export interface VehicleDocument extends Record<string, unknown> {
   document_type?: string;
 
   vendor_id?: string;
-  // FleetVendor?: FleetVendor;
+  FleetVendor?: FleetVendor;
   vendor_name?: string;
 
   // ✅ Child Count
