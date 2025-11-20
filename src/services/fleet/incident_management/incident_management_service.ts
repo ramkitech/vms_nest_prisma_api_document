@@ -438,7 +438,7 @@ export const toFleetIncidentManagementPayload = (incidentManagement: FleetIncide
 // ✅ Create New FleetIncidentManagement Payload
 export const newFleetIncidentManagementPayload = (): IncidentManagementDTO => ({
     incident_date: '',
-    was_towed: YesNo.Yes,
+    was_towed: YesNo.No,
     is_vehicle_operational: YesNo.Yes,
     incident_time: IncidentTime.EarlyMorning,
     incident_weather: IncidentWeather.Clear,
@@ -452,8 +452,8 @@ export const newFleetIncidentManagementPayload = (): IncidentManagementDTO => ({
     longitude: 0,
     google_location: '',
 
-    insurance_cover: YesNo.Yes,
-    insurance_claimed: YesNo.Yes,
+    insurance_cover: YesNo.No,
+    insurance_claimed: YesNo.No,
     insurance_claimed_amount: 0,
     insurance_settled_amount: 0,
     insurance_policy_number: '',
@@ -461,11 +461,11 @@ export const newFleetIncidentManagementPayload = (): IncidentManagementDTO => ({
     insurance_contact_number: '',
     insurance_description: '',
 
-    police_report_filed: YesNo.Yes,
+    police_report_filed: YesNo.No,
     police_report_number: '',
     police_station_name: '',
 
-    any_injuries: YesNo.Yes,
+    any_injuries: YesNo.No,
     injury_description: '',
     injured_persons_count: 0,
 

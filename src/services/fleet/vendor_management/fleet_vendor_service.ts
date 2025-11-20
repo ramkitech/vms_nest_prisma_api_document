@@ -675,7 +675,6 @@ export type FleetVendorDocumentQueryDTO = z.infer<
 >;
 
 
-
 // ✅ Convert FleetVendor Data to API Payload
 export const toFleetVendorPayload = (vendor: FleetVendor): FleetVendorDTO => ({
     vendor_name: vendor.vendor_name || '',
@@ -798,7 +797,7 @@ export const newFleetVendorAddressPayload = (): FleetVendorAddressDTO => ({
     organisation_id: '',
     vendor_id: '',
 
-    is_default: YesNo.Yes,
+    is_default: YesNo.No,
     notes: '',
 
     status: Status.Active,
@@ -814,7 +813,7 @@ export const toFleetVendorBankAccountPayload = (vendorBankAccount: FleetVendorBa
     swift_code: vendorBankAccount.swift_code || '',
     iban_number: vendorBankAccount.iban_number || '',
     upi_id: vendorBankAccount.upi_id || '',
-    is_primary: vendorBankAccount.is_primary || YesNo.Yes,
+    is_primary: vendorBankAccount.is_primary || YesNo.No,
     notes: vendorBankAccount.notes || '',
 
     // Relations
@@ -834,7 +833,7 @@ export const newFleetVendorBankAccountPayload = (): FleetVendorBankAccountDTO =>
     swift_code: '',
     iban_number: '',
     upi_id: '',
-    is_primary: YesNo.Yes,
+    is_primary: YesNo.No,
     notes: '',
 
     vendor_id: '',
@@ -843,7 +842,7 @@ export const newFleetVendorBankAccountPayload = (): FleetVendorBankAccountDTO =>
     status: Status.Active,
 });
 
-// ✅ Convert FleetVendorBankAccount Data to API Payload
+// ✅ Convert FleetVendorContactPersons Data to API Payload
 export const toFleetVendorContactPersonsPayload = (vendorContactPersons: FleetVendorContactPersons): FleetVendorContactPersonsDTO => ({
     // Image
     image_url: vendorContactPersons.image_url || '',
@@ -870,7 +869,7 @@ export const toFleetVendorContactPersonsPayload = (vendorContactPersons: FleetVe
     status: Status.Active,
 });
 
-// ✅ Create New FleetVendorBankAccount Payload
+// ✅ Create New FleetVendorContactPersons Payload
 export const newFleetVendorContactPersonsPayload = (): FleetVendorContactPersonsDTO => ({
     image_url: '',
     image_key: '',
@@ -884,7 +883,7 @@ export const newFleetVendorContactPersonsPayload = (): FleetVendorContactPersons
 
     branch_name: '',
     preferred_language: '',
-    is_primary: YesNo.Yes,
+    is_primary: YesNo.No,
     is_active_contact: YesNo.Yes,
     notes: '',
 

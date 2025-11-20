@@ -29,7 +29,7 @@ import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service'
 import { User } from 'src/services/main/users/user_service';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 
-const URL = 'fleet/vendor_management/issues';
+const URL = 'fleet/issue_management/issues';
 
 const ENDPOINTS = {
 
