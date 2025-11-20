@@ -1,6 +1,6 @@
 // Imports
-import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR, BR, AWSPresignedUrl } from '../../../core/BaseResponse';
+import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -14,10 +14,10 @@ import {
     doubleOptionalLatLng,
     doubleOptional,
 } from '../../../zod_utils/zod_utils';
-import { BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo, DriverType } from '../../../core/Enums';
+import { Status, YesNo } from '../../../core/Enums';
 
 // Other Models
 import { MasterMainLandmark } from 'src/services/master/main/master_main_landmark_service';

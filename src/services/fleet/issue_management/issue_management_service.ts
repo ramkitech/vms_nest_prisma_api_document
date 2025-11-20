@@ -176,7 +176,6 @@ export interface FleetIssueManagementFile extends BaseCommonFile {
     FleetIssueManagement?: FleetIssueManagement;
 }
 
-
 // ✅ VehicleIssueFile Schema
 export const VehicleIssueFileSchema = BaseFileSchema.extend({
     organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
@@ -272,7 +271,6 @@ export const FleetIssueManagementCommentQuerySchema = BaseQuerySchema.extend({
 export type FleetIssueManagementCommentQueryDTO = z.infer<
     typeof FleetIssueManagementCommentQuerySchema
 >;
-
 
 // ✅ Convert FleetIssueManagement Data to API Payload
 export const toFleetIssueManagementPayload = (issueManagement: FleetIssueManagement): IssueManagementDTO => ({
@@ -372,7 +370,6 @@ export const newFleetIssueManagementCommentPayload = (): FleetIssueManagementCom
 
     status: Status.Active,
 });
-
 
 // Generate presigned URL for file uploads
 export const presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
