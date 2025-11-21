@@ -1366,13 +1366,13 @@ export type VehicleDetailPurchaseDTO = z.infer<
   typeof VehicleDetailPurchaseSchema
 >;
 
-// ✅ MasterVehicleDocumentFile Schema
-export const MasterVehicleDocumentFileSchema = BaseFileSchema.extend({
+// ✅ VehicleDocumentFile Schema
+export const VehicleDocumentFileSchema = BaseFileSchema.extend({
   organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_document_id: single_select_optional('VehicleDocument'), // ✅ Single-Selection -> VehicleDocument
 });
-export type MasterVehicleDocumentFileDTO = z.infer<
-  typeof MasterVehicleDocumentFileSchema
+export type VehicleDocumentFileDTO = z.infer<
+  typeof VehicleDocumentFileSchema
 >;
 
 // ✅ VehicleDocument Schema
@@ -1408,9 +1408,9 @@ export const VehicleDocumentSchema = z.object({
 
   status: enumMandatory('Status', Status, Status.Active),
 
-  MasterVehicleDocumentFileSchema: nestedArrayOfObjectsOptional(
-    'MasterVehicleDocumentFileSchema',
-    MasterVehicleDocumentFileSchema,
+  VehicleDocumentFileSchema: nestedArrayOfObjectsOptional(
+    'VehicleDocumentFileSchema',
+    VehicleDocumentFileSchema,
     [],
   ),
 });
@@ -1840,7 +1840,7 @@ export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentD
 
   status: Status.Active,
 
-  MasterVehicleDocumentFileSchema: row.VehicleDocumentFile?.map((file) => ({
+  VehicleDocumentFileSchema: row.VehicleDocumentFile?.map((file) => ({
     vehicle_document_file_id: file.vehicle_document_file_id ?? '',
 
     usage_type: file.usage_type,
@@ -1889,7 +1889,7 @@ export const newVehicleDocumentPayload = (): VehicleDocumentDTO => ({
 
   status: Status.Active,
 
-  MasterVehicleDocumentFileSchema: []
+  VehicleDocumentFileSchema: []
 });
 
 // ✅ Convert Form Data to API Payload
@@ -2044,8 +2044,8 @@ export const removeFileDevice = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_device.replace(':id', id));
 };
 
-export const createFileVehicleDocument = async (payload: MasterVehicleDocumentFileDTO): Promise<SBR> => {
-  return apiPost<SBR, MasterVehicleDocumentFileDTO>(ENDPOINTS.create_file_vehicle_document, payload);
+export const createFileVehicleDocument = async (payload: VehicleDocumentFileDTO): Promise<SBR> => {
+  return apiPost<SBR, VehicleDocumentFileDTO>(ENDPOINTS.create_file_vehicle_document, payload);
 };
 
 export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
