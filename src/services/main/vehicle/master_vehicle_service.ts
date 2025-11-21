@@ -818,7 +818,7 @@ export interface VehicleDocument extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  vehicle_id?: string;
+  vehicle_id: string;
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
@@ -831,8 +831,13 @@ export interface VehicleDocument extends Record<string, unknown> {
   FleetVendor?: FleetVendor;
   vendor_name?: string;
 
+  // Relations - Child
+  VehicleDocumentFile?: VehicleDocumentFile[];
+
   // ✅ Child Count
-  _count?: object;
+  _count?: {
+    VehicleDocumentFile: number;
+  };
 }
 
 // VehicleDocumentFile Interface
@@ -1507,55 +1512,55 @@ export const VehicleGPSQuerySchema = BaseQuerySchema.extend({
 export type VehicleGPSQueryDTO = z.infer<typeof VehicleGPSQuerySchema>;
 
 // ✅ Convert Form Data to API Payload
-export const toVehiclePayload = (vehicle: MasterVehicle): VehicleDTO => ({
-  organisation_id: vehicle.organisation_id,
+export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
+  organisation_id: row.organisation_id,
 
-  vehicle_number: vehicle.vehicle_number,
-  vehicle_name: vehicle.vehicle_name || '',
+  vehicle_number: row.vehicle_number,
+  vehicle_name: row.vehicle_name || '',
 
-  engine_number: vehicle.engine_number || '',
-  chassis_number: vehicle.chassis_number || '',
-  vehicle_make_year: vehicle.vehicle_make_year || 0,
+  engine_number: row.engine_number || '',
+  chassis_number: row.chassis_number || '',
+  vehicle_make_year: row.vehicle_make_year || 0,
 
-  is_fleet_active: vehicle.is_fleet_active,
-  is_gps_active: vehicle.is_gps_active,
-  is_trip_active: vehicle.is_trip_active,
+  is_fleet_active: row.is_fleet_active,
+  is_gps_active: row.is_gps_active,
+  is_trip_active: row.is_trip_active,
 
-  status: vehicle.status,
+  status: row.status,
 
-  organisation_sub_company_id: vehicle.organisation_sub_company_id || '',
-  organisation_branch_id: vehicle.organisation_branch_id || '',
-  organisation_tag_id: vehicle.organisation_tag_id || '',
-  organisation_color_id: vehicle.organisation_color_id || '',
-  organisation_group_ids: vehicle.VehicleOrganisationGroupLink?.map((v) => v.organisation_group_id) || [],
+  organisation_sub_company_id: row.organisation_sub_company_id || '',
+  organisation_branch_id: row.organisation_branch_id || '',
+  organisation_tag_id: row.organisation_tag_id || '',
+  organisation_color_id: row.organisation_color_id || '',
+  organisation_group_ids: row.VehicleOrganisationGroupLink?.map((v) => v.organisation_group_id) || [],
 
-  vehicle_type_id: vehicle.vehicle_type_id || '',
-  vehicle_make_id: vehicle.vehicle_make_id || '',
-  vehicle_model_id: vehicle.vehicle_model_id || '',
-  vehicle_sub_model_id: vehicle.vehicle_sub_model_id || '',
-  vehicle_status_type_id: vehicle.vehicle_status_type_id || '',
-  vehicle_ownership_type_id: vehicle.vehicle_ownership_type_id || '',
-  vehicle_associated_to_id: vehicle.vehicle_associated_to_id || '',
+  vehicle_type_id: row.vehicle_type_id || '',
+  vehicle_make_id: row.vehicle_make_id || '',
+  vehicle_model_id: row.vehicle_model_id || '',
+  vehicle_sub_model_id: row.vehicle_sub_model_id || '',
+  vehicle_status_type_id: row.vehicle_status_type_id || '',
+  vehicle_ownership_type_id: row.vehicle_ownership_type_id || '',
+  vehicle_associated_to_id: row.vehicle_associated_to_id || '',
 
-  vehicle_fuel_type_id: vehicle.vehicle_fuel_type_id || '',
-  vehicle_fuel_unit_id: vehicle.vehicle_fuel_unit_id || '',
+  vehicle_fuel_type_id: row.vehicle_fuel_type_id || '',
+  vehicle_fuel_unit_id: row.vehicle_fuel_unit_id || '',
 
-  secondary_vehicle_fuel_type_id: vehicle.secondary_vehicle_fuel_type_id || '',
-  secondary_vehicle_fuel_unit_id: vehicle.secondary_vehicle_fuel_unit_id || '',
+  secondary_vehicle_fuel_type_id: row.secondary_vehicle_fuel_type_id || '',
+  secondary_vehicle_fuel_unit_id: row.secondary_vehicle_fuel_unit_id || '',
 
-  odometer_reading: vehicle.odometer_reading || 0,
+  odometer_reading: row.odometer_reading || 0,
 
-  fuel_tank_type: vehicle.fuel_tank_type || FuelTankType.SingleTank,
-  fuel_tank_size: vehicle.fuel_tank_size || 0,
-  fuel_tank_1_size: vehicle.fuel_tank_1_size || 0,
-  fuel_tank_2_size: vehicle.fuel_tank_2_size || 0,
-  fuel_tank_total_size: vehicle.fuel_tank_total_size || 0,
+  fuel_tank_type: row.fuel_tank_type || FuelTankType.SingleTank,
+  fuel_tank_size: row.fuel_tank_size || 0,
+  fuel_tank_1_size: row.fuel_tank_1_size || 0,
+  fuel_tank_2_size: row.fuel_tank_2_size || 0,
+  fuel_tank_total_size: row.fuel_tank_total_size || 0,
 
-  vehicle_passenger_capacity: vehicle.vehicle_passenger_capacity || 0,
-  standing_passenger_capacity: vehicle.standing_passenger_capacity || 0,
+  vehicle_passenger_capacity: row.vehicle_passenger_capacity || 0,
+  standing_passenger_capacity: row.standing_passenger_capacity || 0,
 
 
-  MasterVehicleFileSchema: vehicle.MasterVehicleFile?.map((file) => ({
+  MasterVehicleFileSchema: row.MasterVehicleFile?.map((file) => ({
     vehicle_file_id: file.vehicle_file_id ?? '',
 
     usage_type: file.usage_type,
@@ -1810,15 +1815,92 @@ export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPu
 });
 
 // ✅ Convert Form Data to API Payload
-export const toVehicleDocumentExpiryPayload = (vehicleDocumentExpiry: VehicleDocumentExpiry): VehicleDocumentExpiryDTO => ({
-  organisation_id: vehicleDocumentExpiry.organisation_id,
+export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentDTO => ({
+  organisation_id: row.organisation_id,
+  vehicle_id: row.vehicle_id,
+  vendor_id: row.vendor_id || '',
+  document_type_id: row.vehicle_document_id,
 
-  vehicle_id: vehicleDocumentExpiry.vehicle_id,
-  vehicle_document_id: vehicleDocumentExpiry.vehicle_document_id,
+  vehicle_document_code: row.vehicle_document_code || '',
 
-  expiry_type: vehicleDocumentExpiry.expiry_type || ExpiryType.Expiring,
+  document_number: row.document_number || '',
+  document_authorized_name: row.document_authorized_name || '',
+  document_cost: row.document_cost || 0,
+  document_issue_date: row.document_issue_date || '',
+  document_valid_till_date: row.document_valid_till_date || '',
+  document_renewal_date: row.document_renewal_date || '',
+  document_validity_status: row.document_validity_status || DocumentValidityStatus.Valid,
+  document_status: row.document_status || DocumentStatus.Active,
 
-  status: vehicleDocumentExpiry.status,
+  document_details_1: row.document_details_1 || '',
+  document_details_2: row.document_details_2 || '',
+  document_details_3: row.document_details_3 || '',
+  document_details_4: row.document_details_4 || '',
+  document_notes: row.document_notes || '',
+
+  status: Status.Active,
+
+  MasterVehicleDocumentFileSchema: row.VehicleDocumentFile?.map((file) => ({
+    vehicle_document_file_id: file.vehicle_document_file_id ?? '',
+
+    usage_type: file.usage_type,
+
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+
+    status: file.status,
+    added_date_time: file.added_date_time,
+    modified_date_time: file.modified_date_time,
+
+    organisation_id: file.organisation_id ?? '',
+    vehicle_document_id: file.vehicle_document_id ?? '',
+  })) ?? [],
+});
+
+// ✅ Convert API Response to Frontend Data
+export const newVehicleDocumentPayload = (): VehicleDocumentDTO => ({
+
+  organisation_id: '',
+  vehicle_id: '',
+  vendor_id: '',
+  document_type_id: '',
+
+  vehicle_document_code: '',
+
+  document_number: '',
+  document_authorized_name: '',
+  document_cost: 0,
+  document_issue_date: '',
+  document_valid_till_date: '',
+  document_renewal_date: '',
+  document_validity_status: DocumentValidityStatus.Valid,
+  document_status: DocumentStatus.Active,
+
+  document_details_1: '',
+  document_details_2: '',
+  document_details_3: '',
+  document_details_4: '',
+  document_notes: '',
+
+  status: Status.Active,
+
+  MasterVehicleDocumentFileSchema: []
+});
+
+// ✅ Convert Form Data to API Payload
+export const toVehicleDocumentExpiryPayload = (row: VehicleDocumentExpiry): VehicleDocumentExpiryDTO => ({
+  organisation_id: row.organisation_id,
+  vehicle_id: row.vehicle_id,
+  vehicle_document_id: row.vehicle_document_id,
+
+  expiry_type: row.expiry_type || ExpiryType.Expiring,
+
+  status: row.status,
 });
 
 // ✅ Convert API Response to Frontend Data
