@@ -2015,8 +2015,8 @@ export const createVehicleDocument = async (payload: VehicleDocumentDTO): Promis
   return apiPost<SBR, VehicleDocumentDTO>(ENDPOINTS.create_document, payload);
 };
 
-export const findVehicleDocument = async (payload: VehicleDocumentQueryDTO): Promise<FBR<VehicleDocument>> => {
-  return apiPost<FBR<VehicleDocument>, VehicleDocumentQueryDTO>(ENDPOINTS.find_document, payload);
+export const findVehicleDocument = async (payload: VehicleDocumentQueryDTO): Promise<FBR<VehicleDocument[]>> => {
+  return apiPost<FBR<VehicleDocument[]>, VehicleDocumentQueryDTO>(ENDPOINTS.find_document, payload);
 };
 
 export const updateVehicleDocument = async (id: string, payload: VehicleDocumentDTO): Promise<SBR> => {
