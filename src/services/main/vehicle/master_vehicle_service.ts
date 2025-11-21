@@ -1410,6 +1410,8 @@ export const VehicleDocumentSchema = z.object({
 
   status: enumMandatory('Status', Status, Status.Active),
 
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+
   VehicleDocumentFileSchema: nestedArrayOfObjectsOptional(
     'VehicleDocumentFileSchema',
     VehicleDocumentFileSchema,
@@ -1842,6 +1844,8 @@ export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentD
 
   status: Status.Active,
 
+  time_zone_id: '', // Needs to be provided manually
+
   VehicleDocumentFileSchema: row.VehicleDocumentFile?.map((file) => ({
     vehicle_document_file_id: file.vehicle_document_file_id ?? '',
 
@@ -1890,6 +1894,8 @@ export const newVehicleDocumentPayload = (): VehicleDocumentDTO => ({
   document_notes: '',
 
   status: Status.Active,
+
+  time_zone_id: '', // Needs to be provided manually
 
   VehicleDocumentFileSchema: []
 });
