@@ -833,10 +833,12 @@ export interface VehicleDocument extends Record<string, unknown> {
 
   // Relations - Child
   VehicleDocumentFile?: VehicleDocumentFile[];
+  VehicleDocumentExpiry?: VehicleDocumentExpiry[];
 
   // ✅ Child Count
   _count?: {
     VehicleDocumentFile: number;
+    VehicleDocumentExpiry: number;
   };
 }
 
@@ -1930,6 +1932,31 @@ export const get_vehicle_document_file_presigned_url = async (data: FilePresigne
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_document_file_presigned_url, data);
 };
 
+// File
+export const createFileVehicle = async (payload: MasterVehicleFileDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterVehicleFileDTO>(ENDPOINTS.create_file_vehicle, payload);
+};
+
+export const removeFileVehicle = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle.replace(':id', id));
+};
+
+export const createFileDevice = async (payload: MasterDeviceFileDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterDeviceFileDTO>(ENDPOINTS.create_file_device, payload);
+};
+
+export const removeFileDevice = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_file_device.replace(':id', id));
+};
+
+export const createFileVehicleDocument = async (payload: VehicleDocumentFileDTO): Promise<SBR> => {
+  return apiPost<SBR, VehicleDocumentFileDTO>(ENDPOINTS.create_file_vehicle_document, payload);
+};
+
+export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document.replace(':id', id));
+};
+
 // Vehicle CRED
 export const findVehicles = async (payload: VehicleQueryDTO): Promise<FBR<MasterVehicle[]>> => {
   return apiPost<FBR<MasterVehicle[]>, VehicleQueryDTO>(ENDPOINTS.find, payload);
@@ -2025,31 +2052,6 @@ export const updateVehicleDocument = async (id: string, payload: VehicleDocument
 
 export const removeVehicleDocument = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_document.replace(':id', id));
-};
-
-// File
-export const createFileVehicle = async (payload: MasterVehicleFileDTO): Promise<SBR> => {
-  return apiPost<SBR, MasterVehicleFileDTO>(ENDPOINTS.create_file_vehicle, payload);
-};
-
-export const removeFileVehicle = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle.replace(':id', id));
-};
-
-export const createFileDevice = async (payload: MasterDeviceFileDTO): Promise<SBR> => {
-  return apiPost<SBR, MasterDeviceFileDTO>(ENDPOINTS.create_file_device, payload);
-};
-
-export const removeFileDevice = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file_device.replace(':id', id));
-};
-
-export const createFileVehicleDocument = async (payload: VehicleDocumentFileDTO): Promise<SBR> => {
-  return apiPost<SBR, VehicleDocumentFileDTO>(ENDPOINTS.create_file_vehicle_document, payload);
-};
-
-export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document.replace(':id', id));
 };
 
 // Vehicle Document Expiry
