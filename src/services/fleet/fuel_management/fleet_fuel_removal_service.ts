@@ -22,7 +22,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { FileType, GPSFuelApproveStatus, RefillEntrySource, Status } from '../../../core/Enums';
+import { GPSFuelApproveStatus, RefillEntrySource, Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
@@ -38,13 +38,17 @@ import { MasterVehicleFuelRemovalReason } from 'src/services/master/vehicle/mast
 const URL = 'fleet/fuel_management/fleet_fuel_removal';
 
 const ENDPOINTS = {
+  // AWS S3 PRESIGNED
+  fuel_removal_file_presigned_url: `${URL}/fuel_removal_file_presigned_url`,
+
+  // File
+  create_fuel_removal_file: `${URL}/create_fuel_removal_file`,
+  remove_fuel_removal_file: (id: string): string => `${URL}/remove_fuel_removal_file/${id}`,
+
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  presigned_url: `${URL}/presigned_url`,
-  create_file: `${URL}/create_file`,
-  remove_file: (id: string): string => `${URL}/remove_file/${id}`,
 };
 
 // ✅ FleetFuelRemoval Interface
@@ -52,7 +56,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   // Primary Fields
   fleet_fuel_removal_id: string;
 
-  // Quantities
+  // Removal Quantity
   before_removal_quantity: number;
   after_removal_quantity: number;
   removal_quantity: number;
@@ -63,8 +67,6 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
 
   // Event Time
   date_time: string;
-  date?: string;
-  date_f?: string;
   date_time_f?: string;
 
   // Verification
@@ -130,7 +132,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   fuel_unit?: string;
 
   // Child Relations
-  FleetFuelRemovalFile?: FleetFuelRemovalFile[];
+  FleetFuelRemovalFile: FleetFuelRemovalFile[];
 
   // Optional Count
   _count?: {
@@ -143,11 +145,12 @@ export interface FleetFuelRemovalFile extends BaseCommonFile {
   // Primary Fields
   fleet_fuel_removal_file_id: string;
 
-  // Parent
-  fleet_fuel_removal_id: string;
-
-  // Organisation Id
+  // Relations
   organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  fleet_fuel_removal_id: string;
+  FleetFuelRemoval?: FleetFuelRemoval;
 }
 
 // ✅ FleetFuelRemovalFile Schema
@@ -170,8 +173,7 @@ export const FleetFuelRemovalSchema = z.object({
   vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
   fuel_removal_reason_id: single_select_optional(
     'MasterVehicleFuelRemovalReason',
-  ),
-  // ✅ Single-Selection -> MasterVehicleFuelRemovalReason
+  ), // ✅ Single-Selection -> MasterVehicleFuelRemovalReason
 
   // Removal Quantity
   before_removal_quantity: doubleOptional('Before Remove Quantity'),
@@ -197,7 +199,7 @@ export const FleetFuelRemovalSchema = z.object({
     GPSFuelApproveStatus.Pending,
   ),
 
-  removal_details: stringOptional('Removal Details', 0, 300),
+  removal_details: stringOptional('Removal Details', 0, 500),
 
   // Cost Details
   cost_per_unit: doubleOptional('Cost Per Unit'),
@@ -217,11 +219,12 @@ export const FleetFuelRemovalSchema = z.object({
   longitude: doubleOptionalLatLng('Longitude'),
   google_location: stringOptional('Google Location', 0, 500),
 
+  // Other
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
-  FleetFuelRemovalFile: nestedArrayOfObjectsOptional(
-    'FleetFuelRemovalFile',
+  FleetFuelRemovalFileSchema: nestedArrayOfObjectsOptional(
+    'FleetFuelRemovalFileSchema',
     FleetFuelRemovalFileSchema,
     [],
   ),
@@ -230,6 +233,8 @@ export type FleetFuelRemovalDTO = z.infer<typeof FleetFuelRemovalSchema>;
 
 // ✅ FleetFuelRemoval Query Schema
 export const FleetFuelRemovalQuerySchema = BaseQuerySchema.extend({
+  fleet_fuel_removal_ids: multi_select_optional('FleetFuelRemoval'), // ✅ Multi-selection -> FleetFuelRemoval
+
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
   user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
   vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
@@ -266,46 +271,53 @@ export type FleetFuelRemovalQueryDTO = z.infer<
 
 // Convert existing data to a payload structure
 export const toFleetFuelRemovalPayload = (row: FleetFuelRemoval): FleetFuelRemovalDTO => ({
-  organisation_id: row.organisation_id ?? '',
+  organisation_id: row.organisation_id || '',
   user_id: row.user_id || '',
-  vehicle_id: row.vehicle_id ?? '',
+  vehicle_id: row.vehicle_id || '',
   driver_id: row.driver_id || '',
   device_id: row.device_id || '',
   vehicle_fuel_type_id: row.vehicle_fuel_type_id || '',
   vehicle_fuel_unit_id: row.vehicle_fuel_unit_id || '',
-  fuel_removal_reason_id: row.fuel_removal_reason_id || '',
 
-  before_removal_quantity: row.before_removal_quantity,
-  after_removal_quantity: row.after_removal_quantity,
-  removal_quantity: row.removal_quantity,
-  verified_removal_quantity: row.verified_removal_quantity,
-  diff_removal_quantity: row.diff_removal_quantity ?? 0,
+  // Removal Quantity
+  before_removal_quantity: row.before_removal_quantity || 0,
+  after_removal_quantity: row.after_removal_quantity || 0,
+  removal_quantity: row.removal_quantity || 0,
+  verified_removal_quantity: row.verified_removal_quantity || 0,
+  diff_removal_quantity: row.diff_removal_quantity || 0,
 
-  odometer_reading: row.odometer_reading ?? 0,
+  odometer_reading: row.odometer_reading || 0,
 
-  date_time: row.date_time,
+  // Event Time
+  date_time: row.date_time || '',
   removal_details: row.removal_details || '',
 
-  cost_per_unit: row.cost_per_unit ?? 0,
-  total_cost: row.total_cost ?? 0,
+  // Verification
+  admin_verify_status: row.admin_verify_status || GPSFuelApproveStatus.Pending,
+  transporter_verify_status: row.transporter_verify_status || GPSFuelApproveStatus.Pending,
 
-  entry_source: row.entry_source ?? RefillEntrySource.Manual,
+  // Cost Info
+  cost_per_unit: row.cost_per_unit || 0,
+  total_cost: row.total_cost || 0,
+
+  // Removal Reason
+  fuel_removal_reason_id: row.fuel_removal_reason_id || '',
+
+  // Source Details
+  entry_source: row.entry_source || RefillEntrySource.Manual,
   source_reference_id: row.source_reference_id || '',
   source_notes: row.source_notes || '',
 
-  admin_verify_status: row.admin_verify_status,
-  transporter_verify_status: row.transporter_verify_status,
-
-  latitude: row.latitude ?? 0,
-  longitude: row.longitude ?? 0,
+  // Location Details
+  latitude: row.latitude || 0,
+  longitude: row.longitude || 0,
   google_location: row.google_location || '',
 
-  status: row.status,
-
-  time_zone_id: '', // provide from context
+  status: Status.Active,
+  time_zone_id: '', // Needs to be provided manually
 
   // map child files -> DTO shape
-  FleetFuelRemovalFile:
+  FleetFuelRemovalFileSchema:
     row.FleetFuelRemovalFile?.map((file) => ({
       organisation_id: file.organisation_id ?? '',
       fleet_fuel_removal_id: file.fleet_fuel_removal_id ?? '',
@@ -334,7 +346,6 @@ export const newFleetFuelRemovalPayload = (): FleetFuelRemovalDTO => ({
   vehicle_fuel_unit_id: '',
   fuel_removal_reason_id: '',
 
-  // Quantities
   before_removal_quantity: 0,
   after_removal_quantity: 0,
   removal_quantity: 0,
@@ -343,37 +354,44 @@ export const newFleetFuelRemovalPayload = (): FleetFuelRemovalDTO => ({
 
   odometer_reading: 0,
 
-  // Event Time
-  date_time: new Date().toISOString(),
+  date_time: '',
   removal_details: '',
 
-  // Cost Info
   cost_per_unit: 0,
   total_cost: 0,
 
-  // Source Details
   entry_source: RefillEntrySource.Manual,
   source_reference_id: '',
   source_notes: '',
 
-  // Verification
   admin_verify_status: GPSFuelApproveStatus.Pending,
   transporter_verify_status: GPSFuelApproveStatus.Pending,
 
-  // Location Details
   latitude: 0,
   longitude: 0,
   google_location: '',
 
   // Metadata
   status: Status.Active,
-
-  // Required
-  time_zone_id: '',
+  time_zone_id: '', // Needs to be provided manually
 
   // Children
-  FleetFuelRemovalFile: [],
+  FleetFuelRemovalFileSchema: [],
 });
+
+// Generate presigned URL for file uploads
+export const get_fuel_removal_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.fuel_removal_file_presigned_url, data);
+};
+
+// File API Methods
+export const create_fuel_removal_file = async (data: FleetFuelRemovalFileDTO): Promise<SBR> => {
+  return apiPost<SBR, FleetFuelRemovalFileDTO>(ENDPOINTS.create_fuel_removal_file, data);
+};
+
+export const remove_fuel_removal_file = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_fuel_removal_file(id));
+};
 
 // API Methods
 export const findFleetFuelRemoval = async (data: FleetFuelRemovalQueryDTO): Promise<FBR<FleetFuelRemoval[]>> => {
@@ -390,17 +408,4 @@ export const updateFleetFuelRemoval = async (id: string, data: FleetFuelRemovalD
 
 export const deleteFleetFuelRemoval = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-// API Methods Files
-export const getFleetFuelRemovalPresignedUrl = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url, data);
-};
-
-export const createFleetFuelRemovalFile = async (data: FleetFuelRemovalFileDTO): Promise<SBR> => {
-  return apiPost<SBR, FleetFuelRemovalFileDTO>(ENDPOINTS.create_file, data);
-};
-
-export const removeFleetFuelRemovalFile = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file(id));
 };

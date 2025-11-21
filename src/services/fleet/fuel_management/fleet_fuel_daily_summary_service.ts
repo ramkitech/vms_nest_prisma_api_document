@@ -5,15 +5,15 @@ import { SBR, FBR } from '../../../core/BaseResponse';
 // Zod
 import { z } from 'zod';
 import {
-    single_select_mandatory,
-    multi_select_optional,
-    enumMandatory,
-    dateMandatory,
-    enumOptional,
-    single_select_optional,
-    doubleMandatory,
-    numberMandatory,
-    stringMandatory,
+  single_select_mandatory,
+  multi_select_optional,
+  enumMandatory,
+  dateMandatory,
+  enumOptional,
+  single_select_optional,
+  doubleMandatory,
+  numberMandatory,
+  stringMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -31,63 +31,61 @@ import { FuelConsumptionMonthly } from 'src/services/gps/reports/gps_models/Fuel
 const URL = 'fleet/fuel_management/fleet_fuel_daily_summary';
 
 const ENDPOINTS = {
-    find: `${URL}/search`,
-    find_monthly: `${URL}/monthly/search`,
-    find_vehicle_fuel_summary: `${URL}/vehicle_fuel_summary/search`,
-    create: URL,
-    update: (id: string): string => `${URL}/${id}`,
-    delete: (id: string): string => `${URL}/${id}`,
+  find: `${URL}/search`,
+  find_monthly: `${URL}/monthly/search`,
+  find_vehicle_fuel_summary: `${URL}/vehicle_fuel_summary/search`,
+  create: URL,
+  update: (id: string): string => `${URL}/${id}`,
+  delete: (id: string): string => `${URL}/${id}`,
 };
 
 // ✅ FleetFuelDailySummary Interface
 export interface FleetFuelDailySummary extends Record<string, unknown> {
-    // Primary Fields
-    fleet_fuel_daily_summary_id: string;
+  // Primary Fields
+  fleet_fuel_daily_summary_id: string;
 
-    date: string; // ISO date string
-    date_f?: string;
-    day?: string; // Optional, Max: 20
+  start_fuel_liters: number;
+  end_fuel_liters: number;
+  total_km: number;
+  consumed_fuel_liters: number;
+  refills_count: number;
+  refill_liters: number;
+  removals_count: number;
+  removal_liters: number;
+  mileage_kmpl: number;
+  liters_per_100km: number;
+  date: string;
+  date_f?: string;
+  day?: string;
 
-    start_fuel_liters: number;
-    end_fuel_liters: number;
-    total_km: number;
-    consumed_fuel_liters: number;
-    refills_count: number;
-    refill_liters: number;
-    removals_count: number;
-    removal_liters: number;
-    mileage_kmpl: number;
-    liters_per_100km: number;
+  // Metadata
+  status: Status;
+  added_date_time: string; // ISO string
+  modified_date_time: string; // ISO string
 
-    // Metadata
-    status: Status;
-    added_date_time: string; // ISO string
-    modified_date_time: string; // ISO string
+  // Relations
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
 
-    // Relations
-    organisation_id: string;
-    UserOrganisation?: UserOrganisation;
+  user_id?: string;
+  User?: User;
 
-    user_id?: string;
-    User?: User;
+  vehicle_id: string;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
-    vehicle_id: string;
-    MasterVehicle?: MasterVehicle;
-    vehicle_number?: string;
-    vehicle_type?: string;
+  driver_id?: string;
+  MasterDriver?: MasterDriver;
+  driver_details?: string;
 
-    driver_id?: string;
-    MasterDriver?: MasterDriver;
-    driver_details?: string;
+  device_id: string;
+  MasterDevice?: MasterDevice;
+  device_identifier?: string;
 
-    device_id: string;
-    MasterDevice?: MasterDevice;
-    device_identifier?: string;
-
-    // Optional count object (if used in aggregation queries)
-    _count?: {
-        MasterVehicle?: number;
-    };
+  // Optional count object (if used in aggregation queries)
+  _count?: {
+  };
 }
 
 // ✅ FleetFuelDailySummary Create/Update Schema
@@ -122,15 +120,19 @@ export type FleetFuelDailySummaryDTO = z.infer<
 
 // ✅ FleetFuelDailySummary Query Schema
 export const FleetFuelDailySummaryQuerySchema = BaseQuerySchema.extend({
+  fleet_fuel_daily_summary_ids: multi_select_optional('FleetFuelDailySummary'), // ✅ Multi-selection -> FleetFuelDailySummary
+
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
   user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
   vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
   driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
   device_ids: multi_select_optional('MasterDevice'), // ✅ Multi-selection -> MasterDevice
-  from_date: dateMandatory('From Date'),
-  to_date: dateMandatory('To Date'),
+
   vehicle_summary: enumOptional('Vehicle Summary', YesNo, YesNo.No),
   day_summary: enumOptional('Day Summary', YesNo, YesNo.No),
+
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
 });
 export type FleetFuelDailySummaryQueryDTO = z.infer<
   typeof FleetFuelDailySummaryQuerySchema
@@ -148,7 +150,8 @@ export type FleetFuelDailyMonthlySummaryQueryDTO = z.infer<
 >;
 
 // ✅ AllVehiclesFuelDailySummary Query Schema
-export const AllVehiclesFuelDailySummaryQuerySchema = BaseQuerySchema.extend({
+
+export const AllVehiclesFuelDailySummaryQuerySchema = z.object({
   date: dateMandatory('Date'),
   organisation_utrack_id: stringMandatory('Organisation Utrack ID'),
 });
@@ -158,28 +161,28 @@ export type AllVehiclesFuelDailySummaryDTO = z.infer<
 
 // Convert existing data to a payload structure
 export const toFleetFuelDailySummaryPayload = (row: FleetFuelDailySummary): FleetFuelDailySummaryDTO => ({
-    organisation_id: row.organisation_id ?? '',
-    user_id: row.user_id || '',
-    vehicle_id: row.vehicle_id ?? '',
-    driver_id: row.driver_id || '',
-    device_id: row.device_id || '',
+  organisation_id: row.organisation_id ?? '',
+  user_id: row.user_id || '',
+  vehicle_id: row.vehicle_id ?? '',
+  driver_id: row.driver_id || '',
+  device_id: row.device_id || '',
 
-    date: row.date,
+  date: row.date || '',
 
-    start_fuel_liters: row.start_fuel_liters,
-    end_fuel_liters: row.end_fuel_liters,
-    total_km: row.total_km,
-    consumed_fuel_liters: row.consumed_fuel_liters,
+  start_fuel_liters: row.start_fuel_liters || 0,
+  end_fuel_liters: row.end_fuel_liters || 0,
+  total_km: row.total_km || 0,
+  consumed_fuel_liters: row.consumed_fuel_liters || 0,
 
-    refills_count: row.refills_count,
-    refill_liters: row.refill_liters,
-    removals_count: row.removals_count,
-    removal_liters: row.removal_liters,
+  refills_count: row.refills_count || 0,
+  refill_liters: row.refill_liters || 0,
+  removals_count: row.removals_count || 0,
+  removal_liters: row.removal_liters || 0,
 
-    mileage_kmpl: row.mileage_kmpl,
-    liters_per_100km: row.liters_per_100km,
+  mileage_kmpl: row.mileage_kmpl || 0,
+  liters_per_100km: row.liters_per_100km || 0,
 
-    status: row.status,
+  status: row.status,
 });
 
 // Generate a new payload with default values
@@ -190,7 +193,7 @@ export const newFleetFuelDailySummaryPayload = (): FleetFuelDailySummaryDTO => (
   driver_id: '',
   device_id: '',
 
-  date: new Date().toISOString(),
+  date: '',
 
   start_fuel_liters: 0,
   end_fuel_liters: 0,

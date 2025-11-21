@@ -33,17 +33,23 @@ import { MasterDevice } from 'src/services/main/devices/master_device_service';
 import { MasterMainLandmark } from 'src/services/master/main/master_main_landmark_service';
 import { MasterVehicleFuelType } from 'src/services/master/vehicle/master_vehicle_fuel_type_service';
 import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicle_fuel_unit_service';
+import { FleetVendor } from '../vendor_management/fleet_vendor_service';
+import { FleetVendorFuelStation } from '../vendor_management/fleet_vendor_fuel_station';
 
 const URL = 'fleet/fuel_management/fleet_fuel_refill';
 
 const ENDPOINTS = {
+  // AWS S3 PRESIGNED
+  fuel_refill_file_presigned_url: `${URL}/fuel_refill_file_presigned_url`,
+
+  // File
+  create_fuel_refill_file: `${URL}/create_fuel_refill_file`,
+  remove_fuel_refill_file: (id: string): string => `${URL}/remove_fuel_refill_file/${id}`,
+
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  presigned_url: `${URL}/presigned_url`,
-  create_file: `${URL}/create_file`,
-  remove_file: (id: string): string => `${URL}/remove_file/${id}`,
 };
 
 // ✅ FleetFuelRefill Interface
@@ -60,8 +66,6 @@ export interface FleetFuelRefill extends Record<string, unknown> {
 
   // Event Time
   date_time: string;
-  date?: string;
-  date_f?: string;
   date_time_f?: string;
 
   // Verification
@@ -105,7 +109,9 @@ export interface FleetFuelRefill extends Record<string, unknown> {
   tank_size?: number;
   is_full_tank: YesNo;
   is_previous_entries_missed: YesNo;
-  last_refill_date?: string; // ISO string
+
+  last_refill_date?: string;
+  last_refill_date_f?: string;
   last_odometer_reading?: number;
   last_refill_quantity?: number;
   diff_distance?: number;
@@ -137,11 +143,11 @@ export interface FleetFuelRefill extends Record<string, unknown> {
   device_identifier?: string;
 
   vendor_id?: string;
-  //FleetVendor?: FleetVendor;
+  FleetVendor?: FleetVendor;
   vendor_name?: string;
 
   fuel_station_id?: string;
-  //FleetVendorFuelStation?: FleetVendorFuelStation;
+  FleetVendorFuelStation?: FleetVendorFuelStation;
   station_name: string;
   company_name: string;
 
@@ -234,7 +240,7 @@ export const FleetFuelRefillSchema = z.object({
     RefillMethod,
     RefillMethod.Dispenser,
   ),
-  refill_details: stringOptional('Refill Details', 0, 300),
+  refill_details: stringOptional('Refill Details', 0, 500),
   filled_by_person: stringOptional('Filled By Person', 0, 100),
 
   // Payment Details
@@ -246,7 +252,7 @@ export const FleetFuelRefillSchema = z.object({
     PaymentStatus.Paid,
   ),
   payment_reference_number: stringOptional('Payment Reference Number', 0, 100),
-  fuel_card_number: stringOptional('Fuel Card Number', 0, 50),
+  fuel_card_number: stringOptional('Fuel Card Number', 0, 100),
   payment_notes: stringOptional('Payment Notes', 0, 500),
 
   // Location Details
@@ -278,6 +284,8 @@ export type FleetFuelRefillDTO = z.infer<typeof FleetFuelRefillSchema>;
 
 // ✅ FleetFuelRefill Query Schema
 export const FleetFuelRefillQuerySchema = BaseQuerySchema.extend({
+  fleet_fuel_refill_ids: multi_select_optional('FleetFuelRefill'), // ✅ Multi-selection -> FleetFuelRefill
+
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
   user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
   vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
@@ -287,7 +295,6 @@ export const FleetFuelRefillQuerySchema = BaseQuerySchema.extend({
   fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // ✅ Multi-selection -> FleetVendorFuelStation
   vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // ✅ Multi-selection -> MasterVehicleFuelType
   vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // ✅ Multi-selection -> MasterVehicleFuelUnit
-  fleet_fuel_refill_ids: multi_select_optional('FleetFuelRefill'), // ✅ Multi-selection -> FleetFuelRefill
 
   entry_source: enumArrayOptional(
     'Entry Source',
@@ -305,6 +312,28 @@ export const FleetFuelRefillQuerySchema = BaseQuerySchema.extend({
     getAllEnums(GPSFuelApproveStatus),
   ),
 
+  refill_method: enumArrayOptional(
+    'Refill Method',
+    RefillMethod,
+    getAllEnums(RefillMethod),
+  ),
+  payment_mode: enumArrayOptional(
+    'Payment Mode',
+    PaymentMode,
+    getAllEnums(PaymentMode),
+  ),
+  payment_status: enumArrayOptional(
+    'Payment Status',
+    PaymentStatus,
+    getAllEnums(PaymentStatus),
+  ),
+  is_full_tank: enumArrayOptional('Is Full Tank', YesNo, getAllEnums(YesNo)),
+  is_previous_entries_missed: enumArrayOptional(
+    'Is Previous Entries Missed',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
+
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
@@ -316,7 +345,7 @@ export type FleetFuelRefillQueryDTO = z.infer<
 export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillDTO => ({
   organisation_id: row.organisation_id ?? '',
   user_id: row.user_id || '',
-  vehicle_id: row.vehicle_id ?? '',
+  vehicle_id: row.vehicle_id || '',
   driver_id: row.driver_id || '',
   device_id: row.device_id || '',
   vendor_id: row.vendor_id || '',
@@ -324,43 +353,52 @@ export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillD
   vehicle_fuel_type_id: row.vehicle_fuel_type_id || '',
   vehicle_fuel_unit_id: row.vehicle_fuel_unit_id || '',
 
-  before_refill_quantity: row.before_refill_quantity,
-  after_refill_quantity: row.after_refill_quantity,
-  refill_quantity: row.refill_quantity,
-  verified_refill_quantity: row.verified_refill_quantity,
-  diff_refill_quantity: row.diff_refill_quantity ?? 0,
+  // Refill Quantity
+  before_refill_quantity: row.before_refill_quantity || 0,
+  after_refill_quantity: row.after_refill_quantity || 0,
+  refill_quantity: row.refill_quantity || 0,
+  verified_refill_quantity: row.verified_refill_quantity || 0,
+  diff_refill_quantity: row.diff_refill_quantity || 0,
 
-  date_time: row.date_time,
+  // Event Time
+  date_time: row.date_time || '',
 
-  admin_verify_status: row.admin_verify_status,
-  transporter_verify_status: row.transporter_verify_status,
+  // Verification
+  admin_verify_status: row.admin_verify_status || GPSFuelApproveStatus.Pending,
+  transporter_verify_status: row.transporter_verify_status || GPSFuelApproveStatus.Pending,
 
-  cost_per_unit: row.cost_per_unit ?? 0,
-  total_cost: row.total_cost ?? 0,
+  // Cost Details
+  cost_per_unit: row.cost_per_unit || 0,
+  total_cost: row.total_cost || 0,
 
-  entry_source: row.entry_source ?? RefillEntrySource.Manual,
+  // Source Details
+  entry_source: row.entry_source || RefillEntrySource.Manual,
   source_reference_id: row.source_reference_id || '',
   source_notes: row.source_notes || '',
 
-  refill_method: row.refill_method ?? RefillMethod.Dispenser,
+  // Refill Details
+  refill_method: row.refill_method || RefillMethod.Dispenser,
   refill_details: row.refill_details || '',
   filled_by_person: row.filled_by_person || '',
 
+  // Payment Details
   invoice_number: row.invoice_number || '',
-  payment_mode: row.payment_mode,
-  payment_status: row.payment_status,
+  payment_mode: row.payment_mode || PaymentMode.Cash,
+  payment_status: row.payment_status || PaymentStatus.Paid,
   payment_reference_number: row.payment_reference_number || '',
   fuel_card_number: row.fuel_card_number || '',
   payment_notes: row.payment_notes || '',
 
-  latitude: row.latitude ?? 0,
-  longitude: row.longitude ?? 0,
+  // Location Details
+  latitude: row.latitude || 0,
+  longitude: row.longitude || 0,
   google_location: row.google_location || '',
 
-  odometer_reading: row.odometer_reading ?? 0,
-  tank_size: row.tank_size ?? 0,
-  is_full_tank: row.is_full_tank,
-  is_previous_entries_missed: row.is_previous_entries_missed,
+  // Analytics Fields
+  odometer_reading: row.odometer_reading || 0,
+  tank_size: row.tank_size || 0,
+  is_full_tank: row.is_full_tank || YesNo.No,
+  is_previous_entries_missed: row.is_previous_entries_missed || YesNo.No,
 
   status: row.status,
 
@@ -370,7 +408,9 @@ export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillD
     organisation_id: file.organisation_id ?? '',
     fleet_fuel_refill_id: file.fleet_fuel_refill_id ?? '',
     fleet_fuel_refill_file_id: file.fleet_fuel_refill_file_id ?? '',
+
     usage_type: file.usage_type,
+
     file_type: file.file_type,
     file_url: file.file_url || '',
     file_key: file.file_key || '',
@@ -378,6 +418,7 @@ export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillD
     file_description: file.file_description || '',
     file_size: file.file_size ?? 0,
     file_metadata: file.file_metadata ?? {},
+
     status: file.status,
   })) ?? [],
 });
@@ -400,7 +441,7 @@ export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
   verified_refill_quantity: 0,
   diff_refill_quantity: 0,
 
-  date_time: new Date().toISOString(),
+  date_time: '',
 
   admin_verify_status: GPSFuelApproveStatus.Pending,
   transporter_verify_status: GPSFuelApproveStatus.Pending,
@@ -438,6 +479,20 @@ export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
   FleetFuelRefillFile: [],
 });
 
+// Generate presigned URL for file uploads
+export const get_fuel_refill_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.fuel_refill_file_presigned_url, data);
+};
+
+// File API Methods
+export const create_fuel_refill_file = async (data: FleetFuelRefillFileDTO): Promise<SBR> => {
+  return apiPost<SBR, FleetFuelRefillFileDTO>(ENDPOINTS.create_fuel_refill_file, data);
+};
+
+export const remove_fuel_refill_file = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_fuel_refill_file(id));
+};
+
 // API Methods
 export const findFleetFuelRefill = async (data: FleetFuelRefillQueryDTO): Promise<FBR<FleetFuelRefill[]>> => {
   return apiPost<FBR<FleetFuelRefill[]>, FleetFuelRefillQueryDTO>(ENDPOINTS.find, data);
@@ -453,18 +508,5 @@ export const updateFleetFuelRefill = async (id: string, data: FleetFuelRefillDTO
 
 export const deleteFleetFuelRefill = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-// API Methods Files
-export const getFleetFuelRefillPresignedUrl = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url, data);
-};
-
-export const createFleetFuelRefillFile = async (data: FleetFuelRefillFileDTO): Promise<SBR> => {
-  return apiPost<SBR, FleetFuelRefillFileDTO>(ENDPOINTS.create_file, data);
-};
-
-export const removeFleetFuelRefillFile = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file(id));
 };
 
