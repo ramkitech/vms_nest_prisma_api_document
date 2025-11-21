@@ -1823,7 +1823,7 @@ export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentD
   organisation_id: row.organisation_id,
   vehicle_id: row.vehicle_id,
   vendor_id: row.vendor_id || '',
-  document_type_id: row.vehicle_document_id,
+  document_type_id: row.document_type_id,
 
   vehicle_document_code: row.vehicle_document_code || '',
 
