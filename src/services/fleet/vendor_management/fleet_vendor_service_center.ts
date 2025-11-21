@@ -122,28 +122,28 @@ export const FleetVendorServiceCenterSchema = z.object({
     vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
 
     // Basic Info
-    center_name: stringMandatory('Center Name', 3, 150),
-    center_code: stringOptional('Center Code', 0, 50),
+    center_name: stringMandatory('Center Name', 3, 100),
+    center_code: stringOptional('Center Code', 0, 100),
     is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
     oem_authorised: enumMandatory('OEM Authorised', YesNo, YesNo.No),
-    oem_brand_name: stringOptional('OEM Brand Name', 0, 150),
-    service_brand_name: stringOptional('Service Brand Name', 0, 150),
+    oem_brand_name: stringOptional('OEM Brand Name', 0, 100),
+    service_brand_name: stringOptional('Service Brand Name', 0, 100),
 
     // Operational Details
-    operating_hours: stringOptional('Operating Hours', 0, 200),
+    operating_hours: stringOptional('Operating Hours', 0, 100),
     is_24x7: enumMandatory('Is 24x7', YesNo, YesNo.No),
     supports_credit: enumMandatory('Supports Credit', YesNo, YesNo.No),
     pickup_and_drop: enumMandatory('Pickup And Drop', YesNo, YesNo.No),
     roadside_assistance: enumMandatory('Roadside Assistance', YesNo, YesNo.No),
     warranty_repairs: enumMandatory('Warranty Repairs', YesNo, YesNo.No),
-    supported_service_types: stringOptional('Supported Service Types', 0, 300),
-    supported_vehicle_types: stringOptional('Supported Vehicle Types', 0, 200),
+    supported_service_types: stringOptional('Supported Service Types', 0, 500),
+    supported_vehicle_types: stringOptional('Supported Vehicle Types', 0, 500),
 
     has_alignment_bay: enumMandatory('Has Alignment Bay', YesNo, YesNo.No),
     has_body_shop: enumMandatory('Has Body Shop', YesNo, YesNo.No),
-    has_paint_booth: enumMandatory('Has Paint Booth', YesNo, YesNo.Yes),
+    has_paint_booth: enumMandatory('Has Paint Booth', YesNo, YesNo.No),
     has_wash_bay: enumMandatory('Has Wash Bay', YesNo, YesNo.Yes),
-    has_tow_truck: enumMandatory('Has Tow Truck', YesNo, YesNo.Yes),
+    has_tow_truck: enumMandatory('Has Tow Truck', YesNo, YesNo.No),
 
     service_capacity_per_day: numberOptional('Service Capacity Per Day', 0),
     eta_regular_service_hours: numberOptional('ETA Regular Service Hours'),
@@ -198,63 +198,63 @@ export type FleetVendorServiceCenterQueryDTO = z.infer<
 >;
 
 // ✅ Convert FleetVendorServiceCenter Data to API Payload
-export const toFleetVendorServiceCenterPayload = (vendorServiceCenter: FleetVendorServiceCenter): FleetVendorServiceCenterDTO => ({
+export const toFleetVendorServiceCenterPayload = (row: FleetVendorServiceCenter): FleetVendorServiceCenterDTO => ({
     // Basic Info
-    center_name: vendorServiceCenter.center_name || '',
-    center_code: vendorServiceCenter.center_code || '',
-    is_company_owned: vendorServiceCenter.is_company_owned || YesNo.No,
-    oem_authorised: vendorServiceCenter.oem_authorised || YesNo.No,
-    oem_brand_name: vendorServiceCenter.oem_brand_name || '',
-    service_brand_name: vendorServiceCenter.service_brand_name || '',
+    center_name: row.center_name || '',
+    center_code: row.center_code || '',
+    is_company_owned: row.is_company_owned || YesNo.No,
+    oem_authorised: row.oem_authorised || YesNo.No,
+    oem_brand_name: row.oem_brand_name || '',
+    service_brand_name: row.service_brand_name || '',
 
     // Notes
-    center_notes: vendorServiceCenter.center_notes || '',
-    is_preferred_center: vendorServiceCenter.is_preferred_center || YesNo.No,
+    center_notes: row.center_notes || '',
+    is_preferred_center: row.is_preferred_center || YesNo.No,
 
     // Operational Details
-    operating_hours: vendorServiceCenter.operating_hours || '',
-    is_24x7: vendorServiceCenter.is_24x7 || YesNo.No,
-    supports_credit: vendorServiceCenter.supports_credit || YesNo.No,
-    pickup_and_drop: vendorServiceCenter.pickup_and_drop || YesNo.No,
-    roadside_assistance: vendorServiceCenter.roadside_assistance || YesNo.No,
-    warranty_repairs: vendorServiceCenter.warranty_repairs || YesNo.No,
-    supported_service_types: vendorServiceCenter.supported_service_types || '',
-    supported_vehicle_types: vendorServiceCenter.supported_vehicle_types || '',
-    has_alignment_bay: vendorServiceCenter.has_alignment_bay || YesNo.No,
-    has_body_shop: vendorServiceCenter.has_body_shop || YesNo.No,
-    has_paint_booth: vendorServiceCenter.has_paint_booth || YesNo.No,
-    has_wash_bay: vendorServiceCenter.has_wash_bay || YesNo.Yes,
-    has_tow_truck: vendorServiceCenter.has_tow_truck || YesNo.No,
-    service_capacity_per_day: vendorServiceCenter.service_capacity_per_day || 0,
-    eta_regular_service_hours: vendorServiceCenter.eta_regular_service_hours || 0,
-    eta_repair_hours: vendorServiceCenter.eta_repair_hours || 0,
+    operating_hours: row.operating_hours || '',
+    is_24x7: row.is_24x7 || YesNo.No,
+    supports_credit: row.supports_credit || YesNo.No,
+    pickup_and_drop: row.pickup_and_drop || YesNo.No,
+    roadside_assistance: row.roadside_assistance || YesNo.No,
+    warranty_repairs: row.warranty_repairs || YesNo.No,
+    supported_service_types: row.supported_service_types || '',
+    supported_vehicle_types: row.supported_vehicle_types || '',
+    has_alignment_bay: row.has_alignment_bay || YesNo.No,
+    has_body_shop: row.has_body_shop || YesNo.No,
+    has_paint_booth: row.has_paint_booth || YesNo.No,
+    has_wash_bay: row.has_wash_bay || YesNo.Yes,
+    has_tow_truck: row.has_tow_truck || YesNo.No,
+    service_capacity_per_day: row.service_capacity_per_day || 0,
+    eta_regular_service_hours: row.eta_regular_service_hours || 0,
+    eta_repair_hours: row.eta_repair_hours || 0,
 
 
     // Contact Info
-    center_email: vendorServiceCenter.center_email || '',
-    center_mobile: vendorServiceCenter.center_mobile || '',
-    center_phone: vendorServiceCenter.center_phone || '',
-    website_url: vendorServiceCenter.website_url || '',
+    center_email: row.center_email || '',
+    center_mobile: row.center_mobile || '',
+    center_phone: row.center_phone || '',
+    website_url: row.website_url || '',
 
     // Address Details
-    address_line1: vendorServiceCenter.address_line1 || '',
-    address_line2: vendorServiceCenter.address_line2 || '',
-    locality_landmark: vendorServiceCenter.locality_landmark || '',
-    neighborhood: vendorServiceCenter.neighborhood || '',
-    town_city: vendorServiceCenter.town_city || '',
-    district_county: vendorServiceCenter.district_county || '',
-    state_province_region: vendorServiceCenter.state_province_region || '',
-    postal_code: vendorServiceCenter.postal_code || '',
-    country: vendorServiceCenter.country || '',
-    country_code: vendorServiceCenter.country_code || '',
+    address_line1: row.address_line1 || '',
+    address_line2: row.address_line2 || '',
+    locality_landmark: row.locality_landmark || '',
+    neighborhood: row.neighborhood || '',
+    town_city: row.town_city || '',
+    district_county: row.district_county || '',
+    state_province_region: row.state_province_region || '',
+    postal_code: row.postal_code || '',
+    country: row.country || '',
+    country_code: row.country_code || '',
 
     // Location Details
-    latitude: vendorServiceCenter.latitude || 0,
-    longitude: vendorServiceCenter.longitude || 0,
-    google_location: vendorServiceCenter.google_location || '',
+    latitude: row.latitude || 0,
+    longitude: row.longitude || 0,
+    google_location: row.google_location || '',
 
-    organisation_id: vendorServiceCenter.organisation_id || '',
-    vendor_id: vendorServiceCenter.vendor_id || '',
+    organisation_id: row.organisation_id || '',
+    vendor_id: row.vendor_id || '',
 
     status: Status.Active,
 });

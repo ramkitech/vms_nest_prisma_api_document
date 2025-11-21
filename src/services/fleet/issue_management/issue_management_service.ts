@@ -29,6 +29,7 @@ import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
 import { FleetIncidentManagement } from '../incident_management/incident_management_service';
+import { FleetServiceManagement } from '../service_management/fleet_service_management_service';
 
 const URL = 'fleet/issue_management/issues';
 
@@ -102,6 +103,9 @@ export interface FleetIssueManagement extends Record<string, unknown> {
 
     inspection_id?: string;
     // FleetInspection?: FleetInspection;
+
+    service_management_id?: string;
+    FleetServiceManagement?: FleetServiceManagement;
 
     job_card_id?: string;
     // FleetServiceJobCard?: FleetServiceJobCard;
@@ -195,7 +199,7 @@ export const FleetIssueManagementSchema = z.object({
     driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
     vehicle_incident_id: single_select_optional('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
     inspection_id: single_select_optional('FleetInspection'), // ✅ Single-Selection -> FleetInspection
-    job_card_id: single_select_optional('FleetServiceJobCard'), // ✅ Single-Selection -> FleetServiceJobCard
+    service_management_id: single_select_optional('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
 
     // Issue Details
     issue_title: stringMandatory('Issue Title', 1, 100),
@@ -219,7 +223,9 @@ export const FleetIssueManagementSchema = z.object({
     due_odometer_reading: numberOptional('Due Odometer Reading'),
     issue_source: enumMandatory('Issue Source', IssueSource, IssueSource.Direct),
 
+    // Other
     status: enumMandatory('Status', Status, Status.Active),
+    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
     FleetIssueManagementFileSchema: nestedArrayOfObjectsOptional(
         'FleetIssueManagementFileSchema',
@@ -242,7 +248,7 @@ export const FleetIssueManagementQuerySchema = BaseQuerySchema.extend({
 
     vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
     inspection_ids: multi_select_optional('FleetInspection'), // ✅ Multi-Selection -> FleetInspection
-    job_card_ids: multi_select_optional('FleetServiceJobCard'), // ✅ Multi-Selection -> FleetServiceJobCard
+    service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
 
     issue_status: enumArrayOptional('Issue Status', IssueStatus),
     issue_priority: enumArrayOptional('Issue Priority', Priority),
@@ -282,6 +288,8 @@ export type FleetIssueManagementCommentQueryDTO = z.infer<
     typeof FleetIssueManagementCommentQuerySchema
 >;
 
+
+
 // ✅ Convert FleetIssueManagement Data to API Payload
 export const toFleetIssueManagementPayload = (row: FleetIssueManagement): FleetIssueManagementDTO => ({
     // Issue Details
@@ -304,9 +312,10 @@ export const toFleetIssueManagementPayload = (row: FleetIssueManagement): FleetI
     driver_id: row.driver_id || '',
     vehicle_incident_id: row.vehicle_incident_id || '',
     inspection_id: row.inspection_id || '',
-    job_card_id: row.job_card_id || '',
+    service_management_id: row.service_management_id || '',
 
     status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 
     FleetIssueManagementFileSchema: row.FleetIssueManagementFile?.map((file) => ({
         fleet_issue_management_file_id: file.fleet_issue_management_file_id ?? '',
@@ -350,9 +359,10 @@ export const newFleetIssueManagementPayload = (): FleetIssueManagementDTO => ({
     driver_id: '',
     vehicle_incident_id: '',
     inspection_id: '',
-    job_card_id: '',
+    service_management_id: '',
 
     status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 
     FleetIssueManagementFileSchema: []
 });

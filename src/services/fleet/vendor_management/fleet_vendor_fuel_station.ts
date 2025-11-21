@@ -125,16 +125,16 @@ export const FleetVendorFuelStationSchema = z.object({
 
     // Basic Info
     station_name: stringMandatory('Station Name', 3, 100),
-    station_code: stringOptional('Station Code', 0, 50),
+    station_code: stringOptional('Station Code', 0, 100),
     is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
 
     // Operational Details
-    operating_hours: stringOptional('Operating Hours', 0, 200),
+    operating_hours: stringOptional('Operating Hours', 0, 100),
     is_24x7: enumMandatory('Is 24x7', YesNo, YesNo.No),
     supports_credit: enumMandatory('Supports Credit', YesNo, YesNo.No),
     fuel_card_supported: enumMandatory('Fuel Card Supported', YesNo, YesNo.No),
-    accepted_payment_modes: stringOptional('Accepted Payment Modes', 0, 300),
-    supported_fuel_types: stringOptional('Supported Fuel Types', 0, 200),
+    accepted_payment_modes: stringOptional('Accepted Payment Modes', 0, 500),
+    supported_fuel_types: stringOptional('Supported Fuel Types', 0, 500),
 
     offers_service: enumMandatory('Offers Service', YesNo, YesNo.No),
     has_weighbridge: enumMandatory('Has Weighbridge', YesNo, YesNo.No),
@@ -219,56 +219,56 @@ export type FleetFuelStationRateQueryDTO = z.infer<
 
 
 // ✅ Convert FleetVendorFuelStation Data to API Payload
-export const toFleetVendorFuelStationPayload = (vendorFuelStation: FleetVendorFuelStation): FleetVendorFuelStationDTO => ({
+export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): FleetVendorFuelStationDTO => ({
     // Basic Info
-    station_name: vendorFuelStation.station_name || '',
-    station_code: vendorFuelStation.station_code || '',
-    is_company_owned: vendorFuelStation.is_company_owned || YesNo.No,
+    station_name: row.station_name || '',
+    station_code: row.station_code || '',
+    is_company_owned: row.is_company_owned || YesNo.No,
 
     // Notes & Feedback
-    station_notes: vendorFuelStation.station_notes || '',
-    station_feedback: vendorFuelStation.station_feedback || '',
-    station_rating: vendorFuelStation.station_rating || 0,
-    is_preferred_station: vendorFuelStation.is_preferred_station || YesNo.No,
+    station_notes: row.station_notes || '',
+    station_feedback: row.station_feedback || '',
+    station_rating: row.station_rating || 0,
+    is_preferred_station: row.is_preferred_station || YesNo.No,
 
     // Operational Details
-    operating_hours: vendorFuelStation.operating_hours || '',
-    is_24x7: vendorFuelStation.is_24x7 || YesNo.No,
-    supports_credit: vendorFuelStation.supports_credit || YesNo.No,
-    fuel_card_supported: vendorFuelStation.fuel_card_supported || YesNo.No,
-    accepted_payment_modes: vendorFuelStation.accepted_payment_modes || '',
-    supported_fuel_types: vendorFuelStation.supported_fuel_types || '',
+    operating_hours: row.operating_hours || '',
+    is_24x7: row.is_24x7 || YesNo.No,
+    supports_credit: row.supports_credit || YesNo.No,
+    fuel_card_supported: row.fuel_card_supported || YesNo.No,
+    accepted_payment_modes: row.accepted_payment_modes || '',
+    supported_fuel_types: row.supported_fuel_types || '',
 
-    offers_service: vendorFuelStation.offers_service || YesNo.No,
-    has_weighbridge: vendorFuelStation.has_weighbridge || YesNo.No,
-    air_check_available: vendorFuelStation.air_check_available || YesNo.Yes,
+    offers_service: row.offers_service || YesNo.No,
+    has_weighbridge: row.has_weighbridge || YesNo.No,
+    air_check_available: row.air_check_available || YesNo.Yes,
 
     // Contact Info
-    station_email: vendorFuelStation.station_email || '',
-    station_mobile: vendorFuelStation.station_mobile || '',
-    station_phone: vendorFuelStation.station_phone || '',
-    website_url: vendorFuelStation.website_url || '',
+    station_email: row.station_email || '',
+    station_mobile: row.station_mobile || '',
+    station_phone: row.station_phone || '',
+    website_url: row.website_url || '',
 
     // Address Details
-    address_line1: vendorFuelStation.address_line1 || '',
-    address_line2: vendorFuelStation.address_line2 || '',
-    locality_landmark: vendorFuelStation.locality_landmark || '',
-    neighborhood: vendorFuelStation.neighborhood || '',
-    town_city: vendorFuelStation.town_city || '',
-    district_county: vendorFuelStation.district_county || '',
-    state_province_region: vendorFuelStation.state_province_region || '',
-    postal_code: vendorFuelStation.postal_code || '',
-    country: vendorFuelStation.country || '',
-    country_code: vendorFuelStation.country_code || '',
+    address_line1: row.address_line1 || '',
+    address_line2: row.address_line2 || '',
+    locality_landmark: row.locality_landmark || '',
+    neighborhood: row.neighborhood || '',
+    town_city: row.town_city || '',
+    district_county: row.district_county || '',
+    state_province_region: row.state_province_region || '',
+    postal_code: row.postal_code || '',
+    country: row.country || '',
+    country_code: row.country_code || '',
 
     // Location Details
-    latitude: vendorFuelStation.latitude || 0,
-    longitude: vendorFuelStation.longitude || 0,
-    google_location: vendorFuelStation.google_location || '',
+    latitude: row.latitude || 0,
+    longitude: row.longitude || 0,
+    google_location: row.google_location || '',
 
-    organisation_id: vendorFuelStation.organisation_id || '',
-    vendor_id: vendorFuelStation.vendor_id || '',
-    fuel_company_id: vendorFuelStation.fuel_company_id || '',
+    organisation_id: row.organisation_id || '',
+    vendor_id: row.vendor_id || '',
+    fuel_company_id: row.fuel_company_id || '',
 
     status: Status.Active,
 });

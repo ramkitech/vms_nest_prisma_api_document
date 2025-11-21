@@ -313,6 +313,14 @@ export enum JobCardStatus {
   Completed = 'Completed',
 }
 
+export enum ServiceStatus {
+  Pending = 'Pending',
+  InProgress = 'InProgress',
+  OnHold = 'OnHold',
+  Cancelled = 'Cancelled',
+  Completed = 'Completed',
+}
+
 export enum ServiceType {
   Preventive = 'Preventive',
   Corrective = 'Corrective',

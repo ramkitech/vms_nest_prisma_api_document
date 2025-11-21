@@ -433,7 +433,7 @@ export const newFleetFuelRefillPayload = (): FleetFuelRefillDTO => ({
 
   status: Status.Active,
 
-  time_zone_id: '',
+  time_zone_id: '', // Needs to be provided manually
 
   FleetFuelRefillFile: [],
 });

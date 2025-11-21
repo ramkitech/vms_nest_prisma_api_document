@@ -436,11 +436,11 @@ export const FleetVendorSchema = z.object({
     logo_name: stringOptional('Logo Name', 0, 300),
 
     // Business Details
-    organisation_name: stringOptional('Organisation Name', 0, 150),
+    organisation_name: stringOptional('Organisation Name', 0, 100),
     gst_number: stringOptional('GST Number', 0, 15),
     pan_number: stringOptional('PAN Number', 0, 10),
-    tax_id_number: stringOptional('Tax ID Number', 0, 30),
-    vat_number: stringOptional('VAT Number', 0, 30),
+    tax_id_number: stringOptional('Tax ID Number', 0, 50),
+    vat_number: stringOptional('VAT Number', 0, 50),
     business_registration_number: stringOptional(
         'Business Registration Number',
         0,
@@ -665,12 +665,15 @@ export const FleetVendorDocumentSchema = z.object({
     expiry_date: dateOptional('Expiry Date'),
     remarks: stringOptional('Remarks', 0, 150),
 
+    // Other
+    status: enumMandatory('Status', Status, Status.Active),
+    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+
     FleetVendorDocumentFileSchema: nestedArrayOfObjectsOptional(
         'FleetVendorDocumentFileSchema',
         FleetVendorDocumentFileSchema,
         [],
     ),
-    status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetVendorDocumentDTO = z.infer<typeof FleetVendorDocumentSchema>;
 
@@ -689,38 +692,38 @@ export type FleetVendorDocumentQueryDTO = z.infer<
 
 
 // ✅ Convert FleetVendor Data to API Payload
-export const toFleetVendorPayload = (vendor: FleetVendor): FleetVendorDTO => ({
-    vendor_name: vendor.vendor_name || '',
-    vendor_code: vendor.vendor_code || '',
-    business_mobile: vendor.business_mobile || '',
-    business_email: vendor.business_email || '',
+export const toFleetVendorPayload = (row: FleetVendor): FleetVendorDTO => ({
+    vendor_name: row.vendor_name || '',
+    vendor_code: row.vendor_code || '',
+    business_mobile: row.business_mobile || '',
+    business_email: row.business_email || '',
 
-    logo_url: vendor.logo_url || '',
-    logo_key: vendor.logo_key || '',
-    logo_name: vendor.logo_name || '',
+    logo_url: row.logo_url || '',
+    logo_key: row.logo_key || '',
+    logo_name: row.logo_name || '',
 
     // Business Details
-    organisation_name: vendor.organisation_name || '',
-    gst_number: vendor.gst_number || '',
-    pan_number: vendor.pan_number || '',
-    tax_id_number: vendor.tax_id_number || '',
-    vat_number: vendor.vat_number || '',
-    business_registration_number: vendor.business_email || '',
+    organisation_name: row.organisation_name || '',
+    gst_number: row.gst_number || '',
+    pan_number: row.pan_number || '',
+    tax_id_number: row.tax_id_number || '',
+    vat_number: row.vat_number || '',
+    business_registration_number: row.business_email || '',
 
     // Financial Details
-    payment_terms: vendor.payment_terms || '',
-    financial_notes: vendor.financial_notes || '',
+    payment_terms: row.payment_terms || '',
+    financial_notes: row.financial_notes || '',
 
     // Additional Information
-    additional_details_1: vendor.additional_details_1 || '',
-    additional_details_2: vendor.additional_details_2 || '',
-    additional_details_3: vendor.additional_details_3 || '',
+    additional_details_1: row.additional_details_1 || '',
+    additional_details_2: row.additional_details_2 || '',
+    additional_details_3: row.additional_details_3 || '',
 
     // Relations
-    organisation_id: vendor.organisation_id || '',
+    organisation_id: row.organisation_id || '',
 
-    vendor_type_ids: vendor.FleetVendorTypeLink?.map((v) => v.vendor_type_id) || [],
-    vendor_tag_ids: vendor.FleetVendorTagLink?.map((v) => v.vendor_tag_id) || [],
+    vendor_type_ids: row.FleetVendorTypeLink?.map((v) => v.vendor_type_id) || [],
+    vendor_tag_ids: row.FleetVendorTagLink?.map((v) => v.vendor_tag_id) || [],
 
     status: Status.Active,
 });
@@ -759,31 +762,31 @@ export const newFleetVendorPayload = (): FleetVendorDTO => ({
 });
 
 // ✅ Convert FleetVendorAddress Data to API Payload
-export const toFleetVendorAddressPayload = (vendorAddress: FleetVendorAddress): FleetVendorAddressDTO => ({
-    vendor_address_label: vendorAddress.vendor_address_label || FleetVendorAddressLabel.HQ,
+export const toFleetVendorAddressPayload = (row: FleetVendorAddress): FleetVendorAddressDTO => ({
+    vendor_address_label: row.vendor_address_label || FleetVendorAddressLabel.HQ,
 
     // Address Details
-    address_line1: vendorAddress.address_line1 || '',
-    address_line2: vendorAddress.address_line2 || '',
-    locality_landmark: vendorAddress.locality_landmark || '',
-    neighborhood: vendorAddress.neighborhood || '',
-    town_city: vendorAddress.town_city || '',
-    district_county: vendorAddress.district_county || '',
-    state_province_region: vendorAddress.state_province_region || '',
-    postal_code: vendorAddress.postal_code || '',
-    country: vendorAddress.country || '',
-    country_code: vendorAddress.country_code || '',
+    address_line1: row.address_line1 || '',
+    address_line2: row.address_line2 || '',
+    locality_landmark: row.locality_landmark || '',
+    neighborhood: row.neighborhood || '',
+    town_city: row.town_city || '',
+    district_county: row.district_county || '',
+    state_province_region: row.state_province_region || '',
+    postal_code: row.postal_code || '',
+    country: row.country || '',
+    country_code: row.country_code || '',
 
     // Location Details
-    latitude: vendorAddress.latitude || 0,
-    longitude: vendorAddress.longitude || 0,
-    google_location: vendorAddress.google_location || '',
+    latitude: row.latitude || 0,
+    longitude: row.longitude || 0,
+    google_location: row.google_location || '',
 
-    organisation_id: vendorAddress.organisation_id || '',
-    vendor_id: vendorAddress.vendor_id || '',
+    organisation_id: row.organisation_id || '',
+    vendor_id: row.vendor_id || '',
 
-    is_default: vendorAddress.is_default || YesNo.No,
-    notes: vendorAddress.notes || '',
+    is_default: row.is_default || YesNo.No,
+    notes: row.notes || '',
 
     status: Status.Active,
 });
@@ -817,21 +820,21 @@ export const newFleetVendorAddressPayload = (): FleetVendorAddressDTO => ({
 });
 
 // ✅ Convert FleetVendorBankAccount Data to API Payload
-export const toFleetVendorBankAccountPayload = (vendorBankAccount: FleetVendorBankAccount): FleetVendorBankAccountDTO => ({
-    bank_name: vendorBankAccount.bank_name || '',
-    bank_branch_name: vendorBankAccount.bank_branch_name || '',
-    bank_account_name: vendorBankAccount.bank_account_name || '',
-    bank_account_number: vendorBankAccount.bank_account_number || '',
-    ifsc_code: vendorBankAccount.ifsc_code || '',
-    swift_code: vendorBankAccount.swift_code || '',
-    iban_number: vendorBankAccount.iban_number || '',
-    upi_id: vendorBankAccount.upi_id || '',
-    is_primary: vendorBankAccount.is_primary || YesNo.No,
-    notes: vendorBankAccount.notes || '',
+export const toFleetVendorBankAccountPayload = (row: FleetVendorBankAccount): FleetVendorBankAccountDTO => ({
+    bank_name: row.bank_name || '',
+    bank_branch_name: row.bank_branch_name || '',
+    bank_account_name: row.bank_account_name || '',
+    bank_account_number: row.bank_account_number || '',
+    ifsc_code: row.ifsc_code || '',
+    swift_code: row.swift_code || '',
+    iban_number: row.iban_number || '',
+    upi_id: row.upi_id || '',
+    is_primary: row.is_primary || YesNo.No,
+    notes: row.notes || '',
 
     // Relations
-    organisation_id: vendorBankAccount.organisation_id || '',
-    vendor_id: vendorBankAccount.vendor_id || '',
+    organisation_id: row.organisation_id || '',
+    vendor_id: row.vendor_id || '',
 
     status: Status.Active,
 });
@@ -856,28 +859,28 @@ export const newFleetVendorBankAccountPayload = (): FleetVendorBankAccountDTO =>
 });
 
 // ✅ Convert FleetVendorContactPersons Data to API Payload
-export const toFleetVendorContactPersonsPayload = (vendorContactPersons: FleetVendorContactPersons): FleetVendorContactPersonsDTO => ({
+export const toFleetVendorContactPersonsPayload = (row: FleetVendorContactPersons): FleetVendorContactPersonsDTO => ({
     // Image
-    image_url: vendorContactPersons.image_url || '',
-    image_key: vendorContactPersons.image_key || '',
-    image_name: vendorContactPersons.image_name || '',
+    image_url: row.image_url || '',
+    image_key: row.image_key || '',
+    image_name: row.image_name || '',
 
     // Primary Details
-    name: vendorContactPersons.name || '',
-    mobile: vendorContactPersons.mobile || '',
-    alternative_mobile: vendorContactPersons.alternative_mobile || '',
-    email: vendorContactPersons.email || '',
-    designation: vendorContactPersons.designation || '',
+    name: row.name || '',
+    mobile: row.mobile || '',
+    alternative_mobile: row.alternative_mobile || '',
+    email: row.email || '',
+    designation: row.designation || '',
 
     // Additional Details
-    branch_name: vendorContactPersons.branch_name || '',
-    preferred_language: vendorContactPersons.preferred_language || '',
-    is_primary: vendorContactPersons.is_primary || YesNo.No,
-    is_active_contact: vendorContactPersons.is_active_contact || YesNo.Yes,
-    notes: vendorContactPersons.notes || '',
+    branch_name: row.branch_name || '',
+    preferred_language: row.preferred_language || '',
+    is_primary: row.is_primary || YesNo.No,
+    is_active_contact: row.is_active_contact || YesNo.Yes,
+    notes: row.notes || '',
 
-    organisation_id: vendorContactPersons.organisation_id || '',
-    vendor_id: vendorContactPersons.vendor_id || '',
+    organisation_id: row.organisation_id || '',
+    vendor_id: row.vendor_id || '',
 
     status: Status.Active,
 });
@@ -907,14 +910,14 @@ export const newFleetVendorContactPersonsPayload = (): FleetVendorContactPersons
 });
 
 // ✅ Convert FleetVendorReview Data to API Payload
-export const toFleetVendorReviewPayload = (vendorReview: FleetVendorReview): FleetVendorReviewDTO => ({
-    rating: vendorReview.rating || 0,
-    comment: vendorReview.comment || '',
+export const toFleetVendorReviewPayload = (row: FleetVendorReview): FleetVendorReviewDTO => ({
+    rating: row.rating || 0,
+    comment: row.comment || '',
 
     // Relations
-    organisation_id: vendorReview.organisation_id || '',
-    vendor_id: vendorReview.vendor_id || '',
-    user_id: vendorReview.user_id || '',
+    organisation_id: row.organisation_id || '',
+    vendor_id: row.vendor_id || '',
+    user_id: row.user_id || '',
 
     status: Status.Active,
 });
@@ -932,24 +935,25 @@ export const newFleetVendorReviewPayload = (): FleetVendorReviewDTO => ({
 });
 
 // ✅ Convert FleetVendorDocument Data to API Payload
-export const toFleetVendorDocumentPayload = (vendorDocument: FleetVendorDocument): FleetVendorDocumentDTO => ({
+export const toFleetVendorDocumentPayload = (row: FleetVendorDocument): FleetVendorDocumentDTO => ({
     // Document Details
-    document_name: vendorDocument.document_name || '',
-    document_number: vendorDocument.document_number || '',
-    issuing_authority: vendorDocument.issuing_authority || '',
-    issue_date: vendorDocument.issue_date || '',
-    expiry_date: vendorDocument.expiry_date || '',
-    remarks: vendorDocument.remarks || '',
+    document_name: row.document_name || '',
+    document_number: row.document_number || '',
+    issuing_authority: row.issuing_authority || '',
+    issue_date: row.issue_date || '',
+    expiry_date: row.expiry_date || '',
+    remarks: row.remarks || '',
 
     // Relations
-    organisation_id: vendorDocument.organisation_id || '',
-    vendor_id: vendorDocument.vendor_id || '',
-    user_id: vendorDocument.user_id || '',
-    document_type_id: vendorDocument.document_type_id || '',
+    organisation_id: row.organisation_id || '',
+    vendor_id: row.vendor_id || '',
+    user_id: row.user_id || '',
+    document_type_id: row.document_type_id || '',
 
     status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 
-    FleetVendorDocumentFileSchema: vendorDocument.FleetVendorDocumentFile?.map((file) => ({
+    FleetVendorDocumentFileSchema: row.FleetVendorDocumentFile?.map((file) => ({
         fleet_vendor_document_file_id: file.fleet_vendor_document_file_id ?? '',
 
         usage_type: file.usage_type,
@@ -986,8 +990,9 @@ export const newFleetVendorDocumentPayload = (): FleetVendorDocumentDTO => ({
     document_type_id: '',
 
     status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 
-    FleetVendorDocumentFileSchema: []
+    FleetVendorDocumentFileSchema: [],
 });
 
 
@@ -1135,5 +1140,5 @@ export const deleteFleetVendorDocument = async (id: string): Promise<SBR> => {
 
 // API Cache Methods
 export const getFleetVendorCacheSimple = async (organisation_id: string): Promise<FBR<FleetVendor[]>> => {
-  return apiGet<FBR<FleetVendor[]>>(ENDPOINTS.cache_simple(organisation_id));
+    return apiGet<FBR<FleetVendor[]>>(ENDPOINTS.cache_simple(organisation_id));
 };

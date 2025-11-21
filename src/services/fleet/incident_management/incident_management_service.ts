@@ -265,7 +265,7 @@ export const FleetIncidentManagementSchema = z.object({
     insurance_settled_amount: doubleOptional('Insurance Settled Amount'),
     insurance_policy_number: stringOptional('Insurance Policy  Number', 0, 100),
     insurance_company_name: stringOptional('Insurance Company Name', 0, 100),
-    insurance_contact_number: stringOptional('Insurance Contact Number', 0, 50),
+    insurance_contact_number: stringOptional('Insurance Contact Number', 0, 100),
     insurance_description: stringOptional('Insurance Description', 0, 2000),
 
     // Complaint Details
@@ -286,7 +286,9 @@ export const FleetIncidentManagementSchema = z.object({
         2000,
     ),
 
+    // Other
     status: enumMandatory('Status', Status, Status.Active),
+    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
     FleetIncidentManagementFileSchema: nestedArrayOfObjectsOptional(
         'FleetIncidentManagementFileSchema',
@@ -380,7 +382,9 @@ export const FleetIncidentManagementCostSchema = z.object({
         2000,
     ),
 
+    // Other
     status: enumMandatory('Status', Status, Status.Active),
+    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type FleetIncidentManagementCostDTO = z.infer<
     typeof FleetIncidentManagementCostSchema
@@ -453,6 +457,7 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
     fleet_insurance_claim_status_id: row.fleet_insurance_claim_status_id || '',
 
     status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 
     FleetIncidentManagementFileSchema: row.FleetIncidentManagementFile?.map((file) => ({
         fleet_incident_management_file_id: file.fleet_incident_management_file_id ?? '',
@@ -524,7 +529,8 @@ export const newFleetIncidentManagementPayload = (): FleetIncidentManagementDTO 
 
     status: Status.Active,
 
-    FleetIncidentManagementFileSchema: []
+    FleetIncidentManagementFileSchema: [],
+    time_zone_id: '', // Needs to be provided manually
 });
 
 // ✅ Convert FleetIncidentManagementCost Data to API Payload
@@ -538,6 +544,7 @@ export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagemen
     expense_name_id: row.expense_name_id || '',
 
     status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 // ✅ Create New FleetIncidentManagementCost Payload
@@ -551,6 +558,7 @@ export const newFleetIncidentManagementCostPayload = (): FleetIncidentManagement
     incident_cost_description: '',
 
     status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 // Generate presigned URL
