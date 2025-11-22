@@ -21,7 +21,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { IncidentRoadType, IncidentTime, IncidentVisibility, IncidentWeather, Status, YesNo } from '../../../core/Enums';
+import { FileType, IncidentRoadType, IncidentTime, IncidentVisibility, IncidentWeather, Status, YesNo } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -38,7 +38,6 @@ import { MasterExpenseName } from 'src/services/master/expense/master_expense_na
 const URL = 'fleet/incident_management/incidents';
 
 const ENDPOINTS = {
-
     // AWS S3 PRESIGNED
     incident_file_presigned_url: `${URL}/incident_file_presigned_url`,
 
@@ -251,7 +250,7 @@ export const FleetIncidentManagementSchema = z.object({
     ),
     odometer_reading: numberOptional('Odometer Reading'),
     incident_cost: doubleOptional('Incident Cost'),
-    incident_description: stringOptional('Incident DescriptionL', 0, 2000),
+    incident_description: stringOptional('Incident Description', 0, 2000),
 
     // Location Details
     latitude: doubleOptionalLatLng('Latitude'),
@@ -462,22 +461,19 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
     FleetIncidentManagementFileSchema: row.FleetIncidentManagementFile?.map((file) => ({
         fleet_incident_management_file_id: file.fleet_incident_management_file_id ?? '',
 
-        usage_type: file.usage_type,
-
-        file_type: file.file_type,
-        file_url: file.file_url || '',
-        file_key: file.file_key || '',
-        file_name: file.file_name || '',
-        file_description: file.file_description || '',
+        usage_type: (file.usage_type || '').trim(),
+        file_type: file.file_type || FileType.Image,
+        file_url: (file.file_url || '').trim(),
+        file_key: (file.file_key || '').trim(),
+        file_name: (file.file_name || '').trim(),
+        file_description: (file.file_description || '').trim(),
         file_size: file.file_size || 0,
-        file_metadata: file.file_metadata ?? {},
+        file_metadata: file.file_metadata || {},
 
         status: file.status,
-        added_date_time: file.added_date_time,
-        modified_date_time: file.modified_date_time,
-
-        organisation_id: file.organisation_id ?? '',
-        vehicle_incident_id: file.vehicle_incident_id ?? '',
+        organisation_id: file.organisation_id || '',
+        
+        vehicle_incident_id: file.vehicle_incident_id || '',
     })) ?? [],
 });
 
@@ -597,8 +593,8 @@ export const createFleetIncidentManagementCost = async (data: FleetIncidentManag
     return apiPost<SBR, FleetIncidentManagementCostDTO>(ENDPOINTS.create_cost, data);
 };
 
-export const findFleetIncidentManagementCost = async (data: FleetIncidentManagementQueryDTO): Promise<FBR<FleetIncidentManagementCost[]>> => {
-    return apiPost<FBR<FleetIncidentManagementCost[]>, FleetIncidentManagementQueryDTO>(ENDPOINTS.find_cost, data);
+export const findFleetIncidentManagementCost = async (data: FleetIncidentManagementCostQueryDTO): Promise<FBR<FleetIncidentManagementCost[]>> => {
+    return apiPost<FBR<FleetIncidentManagementCost[]>, FleetIncidentManagementCostQueryDTO>(ENDPOINTS.find_cost, data);
 };
 
 export const updateFleetIncidentManagementCost = async (id: string, data: FleetIncidentManagementCostDTO): Promise<SBR> => {
