@@ -20,7 +20,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { IssueSeverity, IssueSource, IssueStatus, Priority, Status } from '../../../core/Enums';
+import { FileType, IssueSeverity, IssueSource, IssueStatus, Priority, Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -64,7 +64,7 @@ export interface FleetIssueManagement extends Record<string, unknown> {
     // Issue Details
     issue_title: string;
     issue_description?: string;
-    issue_status: IssueStatus
+    issue_status: IssueStatus;
     issue_priority: Priority;
     issue_severity: IssueSeverity;
     report_date: string;
@@ -111,7 +111,9 @@ export interface FleetIssueManagement extends Record<string, unknown> {
     // FleetServiceJobCard?: FleetServiceJobCard;
 
     // Count Child
-    FleetIssueManagementFile: FleetIssueManagementFile[]
+    FleetIssueManagementFile: FleetIssueManagementFile[];
+    FleetIssueManagementComment?: FleetIssueManagementComment[];
+    FleetIssueManagementHistory?: FleetIssueManagementHistory[];
 
     // ✅ Count (Child Relations)
     _count?: {
@@ -172,7 +174,7 @@ export interface FleetIssueManagementComment extends Record<string, unknown> {
 // ✅ FleetIssueManagementFile Interface
 export interface FleetIssueManagementFile extends BaseCommonFile {
     // Primary Fields
-    vehicle_issue_file_id: string;
+    fleet_issue_management_file_id: string;
 
     // ✅ Relations - Parent
     organisation_id: string;
@@ -296,7 +298,7 @@ export const toFleetIssueManagementPayload = (row: FleetIssueManagement): FleetI
     issue_title: row.issue_title || '',
     issue_description: row.issue_description || '',
     issue_status: row.issue_status || IssueStatus.Open,
-    issue_priority: row.issue_priority || Priority.Critical,
+    issue_priority: row.issue_priority || Priority.NoPriority,
     issue_severity: row.issue_severity || IssueSeverity.Minor,
     report_date: row.report_date || '',
     resolved_date: row.resolved_date || '',
@@ -320,21 +322,21 @@ export const toFleetIssueManagementPayload = (row: FleetIssueManagement): FleetI
     FleetIssueManagementFileSchema: row.FleetIssueManagementFile?.map((file) => ({
         fleet_issue_management_file_id: file.fleet_issue_management_file_id ?? '',
 
-        usage_type: file.usage_type,
-
-        file_type: file.file_type,
-        file_url: file.file_url || '',
-        file_key: file.file_key || '',
-        file_name: file.file_name || '',
-        file_description: file.file_description || '',
+        usage_type: (file.usage_type || '').trim(),
+        file_type: file.file_type || FileType.Image,
+        file_url: (file.file_url || '').trim(),
+        file_key: (file.file_key || '').trim(),
+        file_name: (file.file_name || '').trim(),
+        file_description: (file.file_description || '').trim(),
         file_size: file.file_size || 0,
-        file_metadata: file.file_metadata ?? {},
+        file_metadata: file.file_metadata || {},
 
         status: file.status,
         added_date_time: file.added_date_time,
         modified_date_time: file.modified_date_time,
 
         organisation_id: file.organisation_id ?? '',
+
         vehicle_issue_id: file.vehicle_issue_id ?? '',
     })) ?? [],
 });
@@ -344,7 +346,7 @@ export const newFleetIssueManagementPayload = (): FleetIssueManagementDTO => ({
     issue_title: '',
     issue_description: '',
     issue_status: IssueStatus.Open,
-    issue_priority: Priority.Critical,
+    issue_priority: Priority.NoPriority,
     issue_severity: IssueSeverity.Minor,
     report_date: '',
     resolved_date: '',
@@ -364,7 +366,7 @@ export const newFleetIssueManagementPayload = (): FleetIssueManagementDTO => ({
     status: Status.Active,
     time_zone_id: '', // Needs to be provided manually
 
-    FleetIssueManagementFileSchema: []
+    FleetIssueManagementFileSchema: [],
 });
 
 // ✅ Convert FleetIssueManagementComment Data to API Payload

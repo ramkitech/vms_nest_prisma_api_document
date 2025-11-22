@@ -46,6 +46,9 @@ const ENDPOINTS = {
     update_vendor_logo: (id: string): string => `${URL}/update_vendor_logo/${id}`,
     delete_vendor_logo: (id: string): string => `${URL}/delete_vendor_logo/${id}`,
 
+    create_vendor_document_file: `${URL}/create_vendor_document_file`,
+    remove_vendor_document_file: (id: string): string => `${URL}/remove_vendor_document_file/${id}`,
+
     find: `${URL}/search`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
@@ -76,10 +79,6 @@ const ENDPOINTS = {
     find_review: `${URL}/review/search`,
     update_review: (id: string): string => `${URL}/review/${id}`,
     remove_review: (id: string): string => `${URL}/review/${id}`,
-
-    // File
-    create_file: `${URL}/create_file`,
-    remove_file: (id: string): string => `${URL}/remove_file/${id}`,
 
     // Document
     create_document: `${URL}/document`,
@@ -426,7 +425,7 @@ export const FleetVendorSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
 
     vendor_name: stringMandatory('Vendor Name', 3, 100),
-    vendor_code: stringOptional('Vendor Name', 0, 100),
+    vendor_code: stringOptional('Vendor Code', 0, 100),
     business_mobile: stringOptional('Business Mobile', 0, 15),
     business_email: stringOptional('Business Email', 0, 100),
 
@@ -708,7 +707,7 @@ export const toFleetVendorPayload = (row: FleetVendor): FleetVendorDTO => ({
     pan_number: row.pan_number || '',
     tax_id_number: row.tax_id_number || '',
     vat_number: row.vat_number || '',
-    business_registration_number: row.business_email || '',
+    business_registration_number: row.business_registration_number || '',
 
     // Financial Details
     payment_terms: row.payment_terms || '',
@@ -997,11 +996,11 @@ export const newFleetVendorDocumentPayload = (): FleetVendorDocumentDTO => ({
 
 
 // Generate presigned URL for file uploads
-export const vendor_logo_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+export const get_vendor_logo_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
     return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.vendor_logo_presigned_url(fileName));
 };
 
-export const vendor_contact_person_logo_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+export const get_vendor_contact_person_logo_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
     return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.vendor_contact_person_logo_presigned_url(fileName));
 };
 
@@ -1009,12 +1008,20 @@ export const get_vendor_document_file_presigned_url = async (data: FilePresigned
     return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vendor_document_file_presigned_url, data);
 };
 
-export const updateFleetVendorLogo = async (id: string, data: FleetVendorLogoDTO): Promise<SBR> => {
+export const update_vendor_logo = async (id: string, data: FleetVendorLogoDTO): Promise<SBR> => {
     return apiPatch<SBR, FleetVendorLogoDTO>(ENDPOINTS.update_vendor_logo(id), data);
 };
 
-export const deleteFleetVendorLogo = async (id: string): Promise<SBR> => {
+export const delete_vendor_logo = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete_vendor_logo(id));
+};
+
+export const create_vendor_document_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
+    return apiPost<SBR, MasterDriverFileDTO>(ENDPOINTS.create_vendor_document_file, data);
+};
+
+export const remove_vendor_document_file = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.remove_vendor_document_file(id));
 };
 
 // API Methods
@@ -1109,15 +1116,6 @@ export const updateFleetVendorReview = async (id: string, data: FleetVendorRevie
 
 export const deleteFleetVendorReview = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_review(id));
-};
-
-// File API Methods
-export const create_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterDriverFileDTO>(ENDPOINTS.create_file, data);
-};
-
-export const remove_file = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_file(id));
 };
 
 // Document

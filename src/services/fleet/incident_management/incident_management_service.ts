@@ -471,8 +471,11 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
         file_metadata: file.file_metadata || {},
 
         status: file.status,
-        organisation_id: file.organisation_id || '',
+        added_date_time: file.added_date_time,
+        modified_date_time: file.modified_date_time,
         
+        organisation_id: file.organisation_id || '',
+
         vehicle_incident_id: file.vehicle_incident_id || '',
     })) ?? [],
 });
