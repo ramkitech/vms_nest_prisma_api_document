@@ -68,6 +68,9 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   // Event Time
   date_time: string;
   date_time_f?: string;
+  date: string;
+  date_f?: string;
+
 
   // Verification
   admin_verify_status: GPSFuelApproveStatus;
