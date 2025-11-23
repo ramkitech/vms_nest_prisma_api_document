@@ -1,6 +1,6 @@
 // Imports
-import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { apiPost, apiPatch, apiDelete, apiGet } from '../../../core/apiCall';
+import { SBR, FBR, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -31,6 +31,9 @@ const ENDPOINTS = {
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
+
+    // Cache
+    cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
 // ✅ FleetVendorServiceCenter Interface
@@ -115,6 +118,13 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
     };
 }
 
+// ✅ FleetVendorServiceCenter Interface
+export interface FleetVendorServiceCenterSimple extends Record<string, unknown> {
+    vendor_id: string;
+    service_center_id: string;
+    center_name?: string;
+    center_code?: string;
+};
 
 // ✅ FleetVendorServiceCenter Create/Update Schema
 export const FleetVendorServiceCenterSchema = z.object({
@@ -184,17 +194,17 @@ export type FleetVendorServiceCenterDTO = z.infer<
 
 // ✅ FleetVendorServiceCenter Query Schema
 export const FleetVendorServiceCenterQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
 
-    vendor_ids: multi_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-    service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // ✅ Single-Selection -> FleetVendorServiceCenter
+  vendor_ids: multi_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+  service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // ✅ Single-Selection -> FleetVendorServiceCenter
 
-    is_company_owned: enumArrayOptional('Is Company Owned', YesNo),
-    oem_authorised: enumArrayOptional('OEM Authorised', YesNo),
-    is_preferred_station: enumArrayOptional('Is Preferred Station', YesNo),
+  is_company_owned: enumArrayOptional('Is Company Owned', YesNo),
+  oem_authorised: enumArrayOptional('OEM Authorised', YesNo),
+  is_preferred_center: enumArrayOptional('Is Preferred Center', YesNo),
 });
 export type FleetVendorServiceCenterQueryDTO = z.infer<
-    typeof FleetVendorServiceCenterQuerySchema
+  typeof FleetVendorServiceCenterQuerySchema
 >;
 
 // ✅ Convert FleetVendorServiceCenter Data to API Payload
@@ -329,4 +339,9 @@ export const updateFleetVendorServiceCenter = async (id: string, data: FleetVend
 
 export const deleteFleetVendorServiceCenter = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+// API Cache Methods
+export const getFleetVendorServiceCenterCacheSimple = async (organisation_id: string): Promise<BR<FleetVendorServiceCenterSimple[]>> => {
+    return apiGet<BR<FleetVendorServiceCenterSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
 };

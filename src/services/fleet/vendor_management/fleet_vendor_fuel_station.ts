@@ -1,6 +1,6 @@
 // Imports
-import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { apiPost, apiPatch, apiDelete, apiGet } from '../../../core/apiCall';
+import { SBR, FBR, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -34,6 +34,9 @@ const ENDPOINTS = {
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
+
+    // Cache
+    cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
 // ✅ FleetVendorFuelStation Interface
@@ -116,6 +119,13 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     };
 }
 
+// ✅ FleetVendorFuelStationSimple Interface
+export interface FleetVendorFuelStationSimple extends Record<string, unknown> {
+    vendor_id: string;
+    fuel_station_id: string;
+    station_name?: string;
+    station_code?: string;
+};
 
 // ✅ FleetVendorFuelStation Create/Update Schema
 export const FleetVendorFuelStationSchema = z.object({
@@ -337,4 +347,9 @@ export const updateFleetVendorFuelStation = async (id: string, data: FleetVendor
 
 export const deleteFleetVendorFuelStation = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+// API Cache Methods
+export const getFleetVendorFuelStationCacheSimple = async (organisation_id: string): Promise<BR<FleetVendorFuelStationSimple[]>> => {
+    return apiGet<BR<FleetVendorFuelStationSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
 };

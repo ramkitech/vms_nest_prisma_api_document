@@ -24,7 +24,6 @@ import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../z
 import { Status, YesNo, FleetVendorAddressLabel } from '../../../core/Enums';
 
 // Other Models
-import { MasterDriverFileDTO } from 'src/services/main/drivers/master_driver_service';
 import { MasterVendorType } from 'src/services/master/expense/master_vendor_type_service';
 import { MasterVendorTag } from 'src/services/master/expense/master_vendor_tag_service';
 import { MasterMainLandmark } from 'src/services/master/main/master_main_landmark_service';
@@ -155,6 +154,15 @@ export interface FleetVendor extends Record<string, unknown> {
         FleetVendorFuelStation: number;
     };
 }
+
+// ✅ FleetVendorSimple Interface
+export interface FleetVendorSimple extends Record<string, unknown> {
+    vendor_id: string;
+    vendor_name: string;
+    vendor_code?: string;
+    business_mobile?: string;
+    business_email?: string;
+};
 
 // ✅ FleetVendorTypeLink Interface
 export interface FleetVendorTypeLink extends Record<string, unknown> {
@@ -724,7 +732,7 @@ export const toFleetVendorPayload = (row: FleetVendor): FleetVendorDTO => ({
     vendor_type_ids: row.FleetVendorTypeLink?.map((v) => v.vendor_type_id) || [],
     vendor_tag_ids: row.FleetVendorTagLink?.map((v) => v.vendor_tag_id) || [],
 
-    status: Status.Active,
+    status: row.status,
 });
 
 // ✅ Create New FleetVendor Payload
@@ -762,7 +770,7 @@ export const newFleetVendorPayload = (): FleetVendorDTO => ({
 
 // ✅ Convert FleetVendorAddress Data to API Payload
 export const toFleetVendorAddressPayload = (row: FleetVendorAddress): FleetVendorAddressDTO => ({
-    vendor_address_label: row.vendor_address_label || FleetVendorAddressLabel.HQ,
+    vendor_address_label: row.vendor_address_label || FleetVendorAddressLabel.OTHER,
 
     // Address Details
     address_line1: row.address_line1 || '',
@@ -792,7 +800,7 @@ export const toFleetVendorAddressPayload = (row: FleetVendorAddress): FleetVendo
 
 // ✅ Create New FleetVendorAddress Payload
 export const newFleetVendorAddressPayload = (): FleetVendorAddressDTO => ({
-    vendor_address_label: FleetVendorAddressLabel.HQ,
+    vendor_address_label: FleetVendorAddressLabel.OTHER,
 
     address_line1: '',
     address_line2: '',
@@ -1016,15 +1024,23 @@ export const delete_vendor_logo = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete_vendor_logo(id));
 };
 
-export const create_vendor_document_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterDriverFileDTO>(ENDPOINTS.create_vendor_document_file, data);
+export const updateFleetVendorContactPersonsLogo = async (id: string, data: FleetVendorContactPersonsLogoDTO): Promise<SBR> => {
+    return apiPatch<SBR, FleetVendorContactPersonsLogoDTO>(ENDPOINTS.update_vendor_contact_person_logo(id), data);
+};
+
+export const deleteFleetVendorContactPersonsLogo = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.delete_vendor_contact_person_logo(id));
+};
+
+export const create_vendor_document_file = async (data: FleetVendorDocumentFileDTO): Promise<SBR> => {
+    return apiPost<SBR, FleetVendorDocumentFileDTO>(ENDPOINTS.create_vendor_document_file, data);
 };
 
 export const remove_vendor_document_file = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_vendor_document_file(id));
 };
 
-// API Methods
+// FleetVendor
 export const findFleetVendor = async (data: FleetVendorQueryDTO): Promise<FBR<FleetVendor[]>> => {
     return apiPost<FBR<FleetVendor[]>, FleetVendorQueryDTO>(ENDPOINTS.find, data);
 };
@@ -1041,7 +1057,7 @@ export const deleteFleetVendor = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// Address
+// FleetVendorAddress
 export const createFleetVendorAddress = async (data: FleetVendorAddressDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorAddressDTO>(ENDPOINTS.create_address, data);
 };
@@ -1058,7 +1074,7 @@ export const deleteFleetVendorAddress = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_address(id));
 };
 
-// Bank Account
+// FleetVendorBankAccount
 export const createFleetVendorBankAccount = async (data: FleetVendorBankAccountDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorBankAccountDTO>(ENDPOINTS.create_bank_account, data);
 };
@@ -1075,8 +1091,7 @@ export const deleteFleetVendorBankAccount = async (id: string): Promise<SBR> => 
     return apiDelete<SBR>(ENDPOINTS.remove_bank_account(id));
 };
 
-
-// Contact Person
+// FleetVendorContactPersons
 export const createFleetVendorContactPersons = async (data: FleetVendorContactPersonsDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorContactPersonsDTO>(ENDPOINTS.create_contact_person, data);
 };
@@ -1093,15 +1108,7 @@ export const deleteFleetVendorContactPersons = async (id: string): Promise<SBR> 
     return apiDelete<SBR>(ENDPOINTS.remove_contact_person(id));
 };
 
-export const updateFleetVendorContactPersonsLogo = async (id: string, data: FleetVendorContactPersonsLogoDTO): Promise<SBR> => {
-    return apiPatch<SBR, FleetVendorContactPersonsLogoDTO>(ENDPOINTS.update_vendor_contact_person_logo(id), data);
-};
-
-export const deleteFleetVendorContactPersonsLogo = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.delete_vendor_contact_person_logo(id));
-};
-
-// Review
+// FleetVendorReview
 export const createFleetVendorReview = async (data: FleetVendorReviewDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorReviewDTO>(ENDPOINTS.create_review, data);
 };
@@ -1118,7 +1125,7 @@ export const deleteFleetVendorReview = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_review(id));
 };
 
-// Document
+// FleetVendorDocument
 export const createFleetVendorDocument = async (data: FleetVendorDocumentDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorDocumentDTO>(ENDPOINTS.create_document, data);
 };
@@ -1135,8 +1142,7 @@ export const deleteFleetVendorDocument = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_document(id));
 };
 
-
 // API Cache Methods
-export const getFleetVendorCacheSimple = async (organisation_id: string): Promise<FBR<FleetVendor[]>> => {
-    return apiGet<FBR<FleetVendor[]>>(ENDPOINTS.cache_simple(organisation_id));
+export const getFleetVendorCacheSimple = async (organisation_id: string): Promise<BR<FleetVendorSimple[]>> => {
+    return apiGet<BR<FleetVendorSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
 };
