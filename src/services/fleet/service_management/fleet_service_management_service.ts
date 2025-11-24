@@ -16,7 +16,7 @@ import {
     single_select_optional,
     dateOptional,
     getAllEnums,
-    doubleOptionalLatLng,
+    doubleOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
@@ -31,6 +31,7 @@ import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service'
 
 import { FleetVendor } from '../vendor_management/fleet_vendor_service';
 import { FleetVendorServiceCenter } from '../vendor_management/fleet_vendor_service_center';
+import { MasterFleetServiceTask } from 'src/services/master/fleet/master_fleet_service_task_service';
 
 const URL = 'fleet/service/service_management';
 
@@ -47,6 +48,11 @@ const ENDPOINTS = {
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
+
+    find_task: `${URL}/task/search`,
+    create_task: `${URL}/task`,
+    update_task: (id: string): string => `${URL}/task/${id}`,
+    delete_task: (id: string): string => `${URL}/task/${id}`,
 };
 
 // ✅ FleetServiceManagement Interface
@@ -137,6 +143,33 @@ export interface FleetServiceManagement extends Record<string, unknown> {
     };
 }
 
+// ✅ FleetServiceManagementTask Interface
+export interface FleetServiceManagementTask extends Record<string, unknown> {
+    fleet_service_management_task_id: string;
+
+    task_cost?: number;
+    labor_cost?: number;
+    parts_cost?: number;
+    task_notes?: string;
+
+    // ✅ Metadata
+    status: Status;
+    added_date_time: string;
+    modified_date_time: string;
+
+    // Relations
+    service_management_id: string;
+    FleetServiceManagement?: FleetServiceManagement;
+
+    fleet_service_task_id: string;
+    MasterFleetServiceTask?: MasterFleetServiceTask;
+    fleet_service_task?: string;
+
+    // Relations - Child
+    _count?: {
+    };
+}
+
 // ✅ FleetServiceManagementFile Interface
 export interface FleetServiceManagementFile extends BaseCommonFile {
     // Primary Fields
@@ -152,126 +185,165 @@ export interface FleetServiceManagementFile extends BaseCommonFile {
 
 // ✅ FleetServiceManagementFile Schema
 export const FleetServiceManagementFileSchema = BaseFileSchema.extend({
-    organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    service_management_id: single_select_optional('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
+  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  service_management_id: single_select_optional('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
 });
 export type FleetServiceManagementFileDTO = z.infer<
-    typeof FleetServiceManagementFileSchema
+  typeof FleetServiceManagementFileSchema
 >;
 
 // ✅ FleetServiceManagement Create/Update Schema
 export const FleetServiceManagementSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
-    vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> Vehicle
-    driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
-    vendor_id: single_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-    service_center_id: single_select_optional('FleetVendorServiceCenter'), // ✅ Single-Selection -> FleetVendorServiceCenter
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
+  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> Vehicle
+  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+  vendor_id: single_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+  service_center_id: single_select_optional('FleetVendorServiceCenter'), // ✅ Single-Selection -> FleetVendorServiceCenter
+  service_schedule_id: single_select_optional('FleetServiceSchedule'), // ✅ Single-Selection -> FleetServiceSchedule
 
-    service_status: enumMandatory(
-        'Service Status',
-        ServiceStatus,
-        ServiceStatus.Pending,
-    ),
-    service_type: enumMandatory(
-        'Service Type',
-        ServiceType,
-        ServiceType.Preventive,
-    ),
+  service_status: enumMandatory(
+    'Service Status',
+    ServiceStatus,
+    ServiceStatus.Pending,
+  ),
+  service_type: enumMandatory(
+    'Service Type',
+    ServiceType,
+    ServiceType.Preventive,
+  ),
 
-    service_date: dateMandatory('Service Date'),
-    service_start_date: dateOptional('Service Start Date'),
-    service_complete_date: dateOptional('Service Complete Date'),
+  service_date: dateMandatory('Service Date'),
+  service_start_date: dateOptional('Service Start Date'),
+  service_complete_date: dateOptional('Service Complete Date'),
 
-    odometer_reading: numberOptional('Odometer Reading'),
-    fuel: doubleOptionalLatLng('Fuel'),
+  odometer_reading: numberOptional('Odometer Reading'),
+  fuel: doubleOptional('Fuel'),
 
-    // Estimated Costs
-    estimated_labor_cost: doubleOptionalLatLng('Estimated Labor Cost', 3),
-    estimated_parts_cost: doubleOptionalLatLng('Estimated Parts Cost', 3),
-    estimated_total_cost: doubleOptionalLatLng('Estimated Total Cost', 3),
-    estimated_notes: stringOptional('Estimated Notes', 0, 2000),
+  // Estimated Costs
+  estimated_labor_cost: doubleOptional('Estimated Labor Cost'),
+  estimated_parts_cost: doubleOptional('Estimated Parts Cost'),
+  estimated_total_cost: doubleOptional('Estimated Total Cost'),
+  estimated_notes: stringOptional('Estimated Notes', 0, 2000),
 
-    // Actual Costs
-    actual_labor_cost: doubleOptionalLatLng('Actual Labor Cost', 3),
-    actual_parts_cost: doubleOptionalLatLng('Actual Parts Cost', 3),
-    actual_total_cost: doubleOptionalLatLng('Actual Total Cost', 3),
-    final_notes: stringOptional('Final Notes', 0, 2000),
+  // Actual Costs
+  actual_labor_cost: doubleOptional('Actual Labor Cost'),
+  actual_parts_cost: doubleOptional('Actual Parts Cost'),
+  actual_total_cost: doubleOptional('Actual Total Cost'),
+  final_notes: stringOptional('Final Notes', 0, 2000),
 
-    is_inhouse_service: enumMandatory('Is Inhouse Service', YesNo, YesNo.No),
+  is_inhouse_service: enumMandatory('Is Inhouse Service', YesNo, YesNo.No),
 
-    // Rating
-    rating: numberOptional('Rating'),
-    rating_comments: stringOptional('Rating Comments', 0, 2000),
+  // Rating
+  rating: numberOptional('Rating'),
+  rating_comments: stringOptional('Rating Comments', 0, 2000),
 
-    // Warranty Information
-    warranty_related_information: stringOptional('Warranty Related Information'),
+  // Warranty Information
+  warranty_related_information: stringOptional(
+    'Warranty Related Information',
+    0,
+    500,
+  ),
 
-    // Payment Information
-    payment_related_information: stringOptional('Payment Related Information'),
-    payment_status: enumMandatory(
-        'Payment Status',
-        PaymentStatus,
-        PaymentStatus.Pending,
-    ),
-    payment_method: stringOptional('Payment Method', 0, 50),
+  // Payment Information
+  payment_related_information: stringOptional(
+    'Payment Related Information',
+    0,
+    500,
+  ),
+  payment_status: enumMandatory(
+    'Payment Status',
+    PaymentStatus,
+    PaymentStatus.Pending,
+  ),
+  payment_method: stringOptional('Payment Method', 0, 50),
 
-    // Next Schedule
-    next_odometer_reading: numberOptional('Next Odometer Reading'),
-    next_service_schedule_date: dateOptional('Next Service Schedule Date'),
+  // Next Schedule
+  next_odometer_reading: numberOptional('Next Odometer Reading'),
+  next_service_schedule_date: dateOptional('Next Service Schedule Date'),
 
-    status: enumMandatory('Status', Status, Status.Active),
+  // Other
+  status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
-    FleetServiceManagementFileSchema: nestedArrayOfObjectsOptional(
-        'FleetServiceManagementFileSchema',
-        FleetServiceManagementFileSchema,
-        [],
-    ),
+  FleetServiceManagementFileSchema: nestedArrayOfObjectsOptional(
+    'FleetServiceManagementFileSchema',
+    FleetServiceManagementFileSchema,
+    [],
+  ),
 });
 export type FleetServiceManagementDTO = z.infer<
-    typeof FleetServiceManagementSchema
+  typeof FleetServiceManagementSchema
 >;
 
 // ✅ FleetServiceManagement Query Schema
 export const FleetServiceManagementQuerySchema = BaseQuerySchema.extend({
-    service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
+  service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
 
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
-    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> Vehicle
-    driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> Vehicle
+  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
 
-    vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
-    service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // ✅ Multi-Selection -> FleetVendorServiceCenter
+  vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
+  service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // ✅ Multi-Selection -> FleetVendorServiceCenter
 
-    service_status: enumArrayOptional(
-        'Service Status',
-        ServiceStatus,
-        getAllEnums(ServiceStatus),
-    ),
-    service_type: enumArrayOptional(
-        'Service Type',
-        ServiceType,
-        getAllEnums(ServiceType),
-    ),
-    is_inhouse_service: enumArrayOptional(
-        'Is Inhouse Service',
-        YesNo,
-        getAllEnums(YesNo),
-    ),
-    payment_status: enumArrayOptional(
-        'Payment Status',
-        PaymentStatus,
-        getAllEnums(PaymentStatus),
-    ),
+  service_status: enumArrayOptional(
+    'Service Status',
+    ServiceStatus,
+    getAllEnums(ServiceStatus),
+  ),
+  service_type: enumArrayOptional(
+    'Service Type',
+    ServiceType,
+    getAllEnums(ServiceType),
+  ),
+  is_inhouse_service: enumArrayOptional(
+    'Is Inhouse Service',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
+  payment_status: enumArrayOptional(
+    'Payment Status',
+    PaymentStatus,
+    getAllEnums(PaymentStatus),
+  ),
 
-    from_date: dateMandatory('From Date'),
-    to_date: dateMandatory('To Date'),
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
 });
 export type FleetServiceManagementQueryDTO = z.infer<
-    typeof FleetServiceManagementQuerySchema
+  typeof FleetServiceManagementQuerySchema
 >;
 
+// ✅ FleetServiceManagementTask Create/Update Schema
+export const FleetServiceManagementTaskSchema = z.object({
+  fleet_service_task_id: single_select_mandatory('MasterFleetServiceTask'), // ✅ Single-Selection -> MasterFleetServiceTask
+  service_management_id: single_select_mandatory('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
+
+  task_cost: doubleOptional('Task Cost', 3),
+  labor_cost: doubleOptional('Labor Cost', 3),
+  parts_cost: doubleOptional('Parts Cost', 3),
+  task_notes: stringOptional('Task Notes', 0, 2000),
+
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetServiceManagementTaskDTO = z.infer<
+  typeof FleetServiceManagementTaskSchema
+>;
+
+// ✅ FleetServiceManagementTask Query Schema
+export const FleetServiceManagementTaskQuerySchema = BaseQuerySchema.extend({
+  fleet_service_management_task_ids: multi_select_optional(
+    'FleetServiceManagementTask',
+  ), // ✅ Multi-Selection -> FleetServiceManagementTask
+
+  service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
+  fleet_service_task_ids: multi_select_optional('MasterFleetServiceTask'), // ✅ Multi-Selection -> MasterFleetServiceTask
+});
+export type FleetServiceManagementTaskQueryDTO = z.infer<
+  typeof FleetServiceManagementTaskQuerySchema
+>;
 
 // ✅ Convert FleetServiceManagement Data to API Payload
 export const toFleetServiceManagementPayload = (row: FleetServiceManagement): FleetServiceManagementDTO => ({
@@ -297,7 +369,7 @@ export const toFleetServiceManagementPayload = (row: FleetServiceManagement): Fl
     actual_total_cost: row.actual_total_cost || 0,
     final_notes: row.final_notes || '',
 
-    is_inhouse_service: row.is_inhouse_service || YesNo.Yes,
+    is_inhouse_service: row.is_inhouse_service || YesNo.No,
 
     // Rating
     rating: row.rating || 0,
@@ -345,6 +417,8 @@ export const toFleetServiceManagementPayload = (row: FleetServiceManagement): Fl
         organisation_id: file.organisation_id ?? '',
         service_management_id: file.service_management_id ?? '',
     })) ?? [],
+    time_zone_id: '',
+    service_schedule_id: ''
 });
 
 // ✅ Create New FleetServiceManagement Payload
@@ -375,7 +449,7 @@ export const newFleetServiceManagementPayload = (): FleetServiceManagementDTO =>
     actual_total_cost: 0,
     final_notes: '',
 
-    is_inhouse_service: YesNo.Yes,
+    is_inhouse_service: YesNo.No,
 
     rating: 0,
     rating_comments: '',
@@ -391,7 +465,34 @@ export const newFleetServiceManagementPayload = (): FleetServiceManagementDTO =>
 
     status: Status.Active,
 
-    FleetServiceManagementFileSchema: []
+    FleetServiceManagementFileSchema: [],
+    service_schedule_id: '',
+    time_zone_id: ''
+});
+
+// ✅ Convert FleetServiceManagementTask Data to API Payload
+export const toFleetServiceManagementTaskPayload = (row: FleetServiceManagementTask): FleetServiceManagementTaskDTO => ({
+    task_cost: row.task_cost || 0,
+    labor_cost: row.labor_cost || 0,
+    parts_cost: row.parts_cost || 0,
+    task_notes: row.task_notes || '',
+
+    fleet_service_task_id: row.fleet_service_task_id || '',
+    service_management_id: row.service_management_id || '',
+    status: Status.Active,
+});
+
+// ✅ Create New FleetServiceManagementTask Payload
+export const newFleetServiceManagementTaskPayload = (): FleetServiceManagementTaskDTO => ({
+    task_cost: 0,
+    labor_cost: 0,
+    parts_cost: 0,
+    task_notes: '',
+
+    status: Status.Active,
+
+    service_management_id: '',
+    fleet_service_task_id: '',
 });
 
 
@@ -409,7 +510,7 @@ export const remove_service_file = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_service_file(id));
 };
 
-// API Methods
+// FleetServiceManagement
 export const findFleetServiceManagement = async (data: FleetServiceManagementQueryDTO): Promise<FBR<FleetServiceManagement[]>> => {
     return apiPost<FBR<FleetServiceManagement[]>, FleetServiceManagementQueryDTO>(ENDPOINTS.find, data);
 };
@@ -424,4 +525,21 @@ export const updateFleetServiceManagement = async (id: string, data: FleetServic
 
 export const deleteFleetServiceManagement = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+// FleetServiceManagementTask
+export const findFleetServiceManagementTask = async (data: FleetServiceManagementTaskQueryDTO): Promise<FBR<FleetServiceManagementTask[]>> => {
+    return apiPost<FBR<FleetServiceManagementTask[]>, FleetServiceManagementTaskQueryDTO>(ENDPOINTS.find_task, data);
+};
+
+export const createFleetServiceManagementTask = async (data: FleetServiceManagementTaskDTO): Promise<SBR> => {
+    return apiPost<SBR, FleetServiceManagementTaskDTO>(ENDPOINTS.create_task, data);
+};
+
+export const updateFleetServiceManagementTask = async (id: string, data: FleetServiceManagementTaskDTO): Promise<SBR> => {
+    return apiPatch<SBR, FleetServiceManagementTaskDTO>(ENDPOINTS.update_task(id), data);
+};
+
+export const deleteFleetServiceManagementTask = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.delete_task(id));
 };
