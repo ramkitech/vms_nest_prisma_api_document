@@ -44,6 +44,7 @@ const ENDPOINTS = {
   remove_inspection_file: (id: string): string => `${URL}/remove_inspection_file/${id}`,
 
   find: `${URL}/search`,
+  find_check_pending: `${URL}/check_pending`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
@@ -205,6 +206,14 @@ export type FleetInspectionQueryDTO = z.infer<
   typeof FleetInspectionQuerySchema
 >;
 
+// ✅ FleetInspectionCheckPending Query Schema
+export const FleetInspectionCheckPendingQuerySchema = BaseQuerySchema.extend({
+  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+});
+export type FleetInspectionCheckPendingQueryDTO = z.infer<
+  typeof FleetInspectionCheckPendingQuerySchema
+>;
+
 // ✅ Convert FleetInspection Data to API Payload
 export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionDTO => ({
   organisation_id: row.organisation_id || '',
@@ -287,6 +296,10 @@ export const remove_service_file = async (id: string): Promise<SBR> => {
 // FleetInspection
 export const findFleetInspection = async (data: FleetInspectionQueryDTO): Promise<FBR<FleetInspection[]>> => {
   return apiPost<FBR<FleetInspection[]>, FleetInspectionQueryDTO>(ENDPOINTS.find, data);
+};
+
+export const find_check_pending = async (data: FleetInspectionCheckPendingQueryDTO): Promise<FBR<FleetInspection[]>> => {
+  return apiPost<FBR<FleetInspection[]>, FleetInspectionCheckPendingQueryDTO>(ENDPOINTS.find_check_pending, data);
 };
 
 export const createFleetInspection = async (data: FleetInspectionDTO): Promise<SBR> => {
