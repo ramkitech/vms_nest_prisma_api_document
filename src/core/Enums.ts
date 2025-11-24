@@ -267,6 +267,14 @@ export enum InspectionStatus {
   Failed = 'Failed',
 }
 
+export enum InspectionPriority {
+  Critical = 'Critical',
+  High = 'High',
+  Medium = 'Medium',
+  Low = 'Low',
+  NoPriority = 'NoPriority',
+}
+
 export enum ScheduleType {
   OneTime = 'OneTime',
   Recurring = 'Recurring',
