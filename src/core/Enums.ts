@@ -46,6 +46,11 @@ export enum Status {
   Inactive = 'Inactive',
 }
 
+export enum ReminderType {
+  Upcoming = 'Upcoming',
+  OverDue = 'OverDue',
+}
+
 export enum ExpenseCategory {
   Main = 'Main',
   Document = 'Document',

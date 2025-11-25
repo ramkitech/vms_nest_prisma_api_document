@@ -90,7 +90,7 @@ export const FleetServiceScheduleSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
 
-  service_schedule_name: stringMandatory('Service Schedule Name', 0, 100),
+  service_schedule_name: stringMandatory('Service Schedule Name', 3, 100),
   service_schedule_description: stringOptional(
     'Service Schedule Description',
     0,
@@ -131,7 +131,7 @@ export const toFleetServiceSchedulePayload = (row: FleetServiceSchedule): FleetS
   vehicle_ids:
     row.FleetServiceScheduleVehicleLink?.map((v) => v.vehicle_id) ?? [],
 
-  status: Status.Active,
+  status: row.status || Status.Active,
   time_zone_id: '', // Needs to be provided manually
 });
 
