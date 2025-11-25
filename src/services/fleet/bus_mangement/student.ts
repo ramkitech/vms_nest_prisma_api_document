@@ -108,6 +108,7 @@ export interface Student extends Record<string, unknown> {
     email?: string;
 
     dob: string;
+    dob_f: string;
     gender?: string;
     blood_group?: string;
     special_notes?: string;
@@ -128,7 +129,7 @@ export interface Student extends Record<string, unknown> {
 
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
-    organisation_branch_id: string;
+    organisation_branch_id?: string;
     OrganisationBranch?: OrganisationBranch;
 
     program_id?: string;
@@ -150,7 +151,7 @@ export interface Student extends Record<string, unknown> {
 export interface StudentAddress extends Record<string, unknown> {
     student_address_id: string;
 
-    address_line1: string;
+    address_line1?: string;
     address_line2?: string;
     locality_landmark?: string;
     neighborhood?: string;
@@ -251,151 +252,155 @@ export interface StudentGuardianLink extends Record<string, unknown> {
 
 // ✅ Student Create/Update Schema
 export const StudentSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
 
-    program_id: single_select_optional('MasterProgram'), // ✅ Single-Selection -> MasterProgram
-    stream_id: single_select_optional('MasterStream'), // ✅ Single-Selection -> MasterStream
-    year_id: single_select_optional('MasterYear'), // ✅ Single-Selection -> MasterYear
-    semester_id: single_select_optional('MasterSemester'), // ✅ Single-Selection -> MasterSemester
-    class_id: single_select_optional('MasterClass'), // ✅ Single-Selection -> MasterClass
-    section_id: single_select_optional('MasterSection'), // ✅ Single-Selection -> MasterSection
+  program_id: single_select_optional('MasterProgram'), // ✅ Single-Selection -> MasterProgram
+  stream_id: single_select_optional('MasterStream'), // ✅ Single-Selection -> MasterStream
+  year_id: single_select_optional('MasterYear'), // ✅ Single-Selection -> MasterYear
+  semester_id: single_select_optional('MasterSemester'), // ✅ Single-Selection -> MasterSemester
+  class_id: single_select_optional('MasterClass'), // ✅ Single-Selection -> MasterClass
+  section_id: single_select_optional('MasterSection'), // ✅ Single-Selection -> MasterSection
 
-    photo_url: stringOptional('Photo URL', 0, 300),
-    photo_key: stringOptional('Photo Key', 0, 300),
-    photo_name: stringOptional('Photo Name', 0, 300),
+  photo_url: stringOptional('Photo URL', 0, 300),
+  photo_key: stringOptional('Photo Key', 0, 300),
+  photo_name: stringOptional('Photo Name', 0, 300),
 
-    admission_registration_number: stringOptional(
-        'Admission Registration Number',
-        0,
-        100,
-    ),
-    roll_number: stringOptional('Roll Number', 0, 100),
+  admission_registration_number: stringOptional(
+    'Admission Registration Number',
+    0,
+    100,
+  ),
+  roll_number: stringOptional('Roll Number', 0, 100),
 
-    first_name: stringMandatory('First Name', 3, 100),
-    last_name: stringOptional('Last Name', 0, 100),
+  first_name: stringMandatory('First Name', 3, 100),
+  last_name: stringOptional('Last Name', 0, 100),
 
-    mobile_number: stringOptional('Mobile Number', 0, 10),
-    email: stringOptional('Email', 0, 100),
+  mobile_number: stringOptional('Mobile Number', 0, 10),
+  email: stringOptional('Email', 0, 100),
 
-    dob: dateOptional('DOB'),
+  dob: dateOptional('DOB'),
 
-    gender: stringOptional('Gender', 0, 10),
-    blood_group: stringOptional('Blood Group', 0, 10),
-    special_notes: stringOptional('Special Notes', 0, 500),
+  gender: stringOptional('Gender', 0, 10),
+  blood_group: stringOptional('Blood Group', 0, 10),
+  special_notes: stringOptional('Special Notes', 0, 500),
 
-    enrollment_status: enumOptional(
-        'Enrollment Status',
-        EnrollmentStatus,
-        EnrollmentStatus.Active,
-    ),
-    transport_plan_type: enumOptional(
-        'Transport Plan Type',
-        TransportPlanType,
-        TransportPlanType.Both,
-    ),
+  // Admin Will Update
+  enrollment_status: enumOptional(
+    'Enrollment Status',
+    EnrollmentStatus,
+    EnrollmentStatus.Active,
+  ),
+  transport_plan_type: enumOptional(
+    'Transport Plan Type',
+    TransportPlanType,
+    TransportPlanType.Both,
+  ),
 
-    change_reason: stringOptional('Change Reason', 0, 500),
+  // Other
+  status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type StudentDTO = z.infer<typeof StudentSchema>;
 
 // ✅ StudentProfilePicture Update Schema
 export const StudentProfilePictureSchema = z.object({
-    photo_url: stringOptional('Photo URL', 0, 300),
-    photo_key: stringOptional('Photo Key', 0, 300),
-    photo_name: stringOptional('Photo Name', 0, 300),
+  photo_url: stringMandatory('Photo URL', 0, 300),
+  photo_key: stringMandatory('Photo Key', 0, 300),
+  photo_name: stringMandatory('Photo Name', 0, 300),
 });
 export type StudentProfilePictureDTO = z.infer<
-    typeof StudentProfilePictureSchema
+  typeof StudentProfilePictureSchema
 >;
 
 // ✅ Student Query Schema
 export const StudentQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
 
-    program_ids: multi_select_optional('MasterProgram'), // ✅ Multi-selection -> MasterProgram
-    stream_ids: multi_select_optional('MasterStream'), // ✅ Multi-selection -> MasterStream
-    year_ids: multi_select_optional('MasterYear'), // ✅ Multi-selection -> MasterYear
-    semester_ids: multi_select_optional('MasterSemester'), // ✅ Multi-selection -> MasterSemester
-    class_ids: multi_select_optional('MasterClass'), // ✅ Multi-selection -> MasterClass
-    section_ids: multi_select_optional('MasterSection'), // ✅ Multi-selection -> MasterSection
-    student_ids: multi_select_optional('Student'), // ✅ Multi-selection -> Student
+  program_ids: multi_select_optional('MasterProgram'), // ✅ Multi-selection -> MasterProgram
+  stream_ids: multi_select_optional('MasterStream'), // ✅ Multi-selection -> MasterStream
+  year_ids: multi_select_optional('MasterYear'), // ✅ Multi-selection -> MasterYear
+  semester_ids: multi_select_optional('MasterSemester'), // ✅ Multi-selection -> MasterSemester
+  class_ids: multi_select_optional('MasterClass'), // ✅ Multi-selection -> MasterClass
+  section_ids: multi_select_optional('MasterSection'), // ✅ Multi-selection -> MasterSection
+  student_ids: multi_select_optional('Student'), // ✅ Multi-selection -> Student
 
-    pickup_route_ids: multi_select_optional('MasterRoute'), // ✅ Multi-selection -> MasterRoute
-    drop_route_ids: multi_select_optional('MasterRoute'), // ✅ Multi-selection -> MasterRoute
-    pickup_route_stop_ids: multi_select_optional('MasterRouteStop'), // ✅ Multi-selection -> MasterRouteStop
-    drop_route_stop_ids: multi_select_optional('MasterRouteStop'), // ✅ Multi-selection -> MasterRouteStop
-    pickup_fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // ✅ Multi-selection -> MasterFixedSchedule
-    drop_fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // ✅ Multi-selection -> MasterFixedSchedule
+  pickup_route_ids: multi_select_optional('MasterRoute'), // ✅ Multi-selection -> MasterRoute
+  drop_route_ids: multi_select_optional('MasterRoute'), // ✅ Multi-selection -> MasterRoute
+  pickup_route_stop_ids: multi_select_optional('MasterRouteStop'), // ✅ Multi-selection -> MasterRouteStop
+  drop_route_stop_ids: multi_select_optional('MasterRouteStop'), // ✅ Multi-selection -> MasterRouteStop
+  pickup_fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // ✅ Multi-selection -> MasterFixedSchedule
+  drop_fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // ✅ Multi-selection -> MasterFixedSchedule
 
-    enrollment_status: enumArrayOptional(
-        'Enrollment Status',
-        EnrollmentStatus,
-        getAllEnums(EnrollmentStatus),
-    ),
-    transport_plan_type: enumArrayOptional(
-        'Transport Plan Type',
-        TransportPlanType,
-        getAllEnums(TransportPlanType),
-    ),
+  enrollment_status: enumArrayOptional(
+    'Enrollment Status',
+    EnrollmentStatus,
+    getAllEnums(EnrollmentStatus),
+  ),
+  transport_plan_type: enumArrayOptional(
+    'Transport Plan Type',
+    TransportPlanType,
+    getAllEnums(TransportPlanType),
+  ),
 });
 export type StudentQueryDTO = z.infer<typeof StudentQuerySchema>;
 
 // ✅ Student NoRoute Query Schema
 export const StudentNoRouteQuerySchema = BaseQuerySchema.extend({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
 });
 export type StudentNoRouteQueryDTO = z.infer<typeof StudentNoRouteQuerySchema>;
 
 // ✅ StudentAddress Create/Update Schema
 export const StudentAddressSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
-    student_id: single_select_mandatory('Student'), // ✅ Single-Selection -> Student
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
+  student_id: single_select_mandatory('Student'), // ✅ Single-Selection -> Student
 
-    // Address
-    address_line1: stringMandatory('Address Line 1', 1, 150),
-    address_line2: stringOptional('Address Line 2', 0, 150),
-    locality_landmark: stringOptional('Locality / Landmark', 0, 150),
-    neighborhood: stringOptional('Neighborhood', 0, 100),
-    town_city: stringOptional('Town / City', 0, 100),
-    district_county: stringOptional('District / County', 0, 100),
-    state_province_region: stringOptional('State / Province / Region', 0, 100),
-    postal_code: stringOptional('Postal Code', 0, 20),
-    country: stringOptional('Country', 0, 100),
-    country_code: stringOptional('Country Code', 0, 5),
-    google_location: stringOptional('Google Location', 0, 500),
+  // Address
+  address_line1: stringOptional('Address Line 1', 0, 150),
+  address_line2: stringOptional('Address Line 2', 0, 150),
+  locality_landmark: stringOptional('Locality / Landmark', 0, 150),
+  neighborhood: stringOptional('Neighborhood', 0, 100),
+  town_city: stringOptional('Town / City', 0, 100),
+  district_county: stringOptional('District / County', 0, 100),
+  state_province_region: stringOptional('State / Province / Region', 0, 100),
+  postal_code: stringOptional('Postal Code', 0, 20),
+  country: stringOptional('Country', 0, 100),
+  country_code: stringOptional('Country Code', 0, 5),
 
-    latitude: doubleOptionalLatLng('Latitude'),
-    longitude: doubleOptionalLatLng('Longitude'),
+  // Location Details
+  latitude: doubleOptionalLatLng('Latitude'),
+  longitude: doubleOptionalLatLng('Longitude'),
+  google_location: stringOptional('Google Location', 0, 500),
 
-    is_default: enumMandatory('Is Active', YesNo, YesNo.No),
-    notes: stringOptional('Notes', 0, 1000),
+  is_default: enumMandatory('Is Active', YesNo, YesNo.No),
+  notes: stringOptional('Notes', 0, 1000),
 
-    status: enumMandatory('Status', Status, Status.Active),
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type StudentAddressDTO = z.infer<typeof StudentAddressSchema>;
 
 // ✅ StudentAddressBusStopAssign Update Schema
 export const StudentAddressBusStopAssignSchema = z.object({
-    bus_stop_id: single_select_mandatory('BusStop'), // ✅ Single-Selection -> BusStop
+  bus_stop_id: single_select_mandatory('BusStop'), // ✅ Single-Selection -> BusStop
 });
 export type StudentAddressBusStopAssignDTO = z.infer<
-    typeof StudentAddressBusStopAssignSchema
+  typeof StudentAddressBusStopAssignSchema
 >;
 
 // ✅ StudentAddress Query Schema
 export const StudentAddressQuerySchema = BaseQuerySchema.extend({
-    // Multi-select relations
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
-    student_ids: multi_select_optional('Student'), // ✅ Multi-selection -> Student
-    bus_stop_ids: multi_select_optional('BusStop'), // ✅ Multi-selection -> BusStop
-    student_address_ids: multi_select_optional('StudentAddress'), // ✅ Multi-selection -> StudentAddress
+  student_address_ids: multi_select_optional('StudentAddress'), // ✅ Multi-selection -> StudentAddress
 
-    is_default: enumArrayOptional('Is Active', YesNo, getAllEnums(YesNo)),
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
+  student_ids: multi_select_optional('Student'), // ✅ Multi-selection -> Student
+  bus_stop_ids: multi_select_optional('BusStop'), // ✅ Multi-selection -> BusStop
+
+  is_default: enumArrayOptional('Is Active', YesNo, getAllEnums(YesNo)),
 });
 export type StudentAddressQueryDTO = z.infer<typeof StudentAddressQuerySchema>;
 
@@ -580,88 +585,99 @@ export type StudentStopChangeRequestQueryDTO = z.infer<
 // Helpers: payload creators
 // -----------------------------
 export const toStudentPayload = (row: Student): StudentDTO => ({
-    organisation_id: row.organisation_id,
-    organisation_branch_id: row.organisation_branch_id,
-    program_id: row.program_id ?? '',
-    stream_id: row.stream_id ?? '',
-    year_id: row.year_id ?? '',
-    semester_id: row.semester_id ?? '',
-    class_id: row.class_id ?? '',
-    section_id: row.section_id ?? '',
+    organisation_id: row.organisation_id || '',
+    organisation_branch_id: row.organisation_branch_id || '',
 
-    photo_url: row.photo_url ?? '',
-    photo_key: row.photo_key ?? '',
-    photo_name: row.photo_name ?? '',
+    program_id: row.program_id || '',
+    stream_id: row.stream_id || '',
+    year_id: row.year_id || '',
+    semester_id: row.semester_id || '',
+    class_id: row.class_id || '',
+    section_id: row.section_id || '',
 
-    admission_registration_number: row.admission_registration_number ?? '',
-    roll_number: row.roll_number ?? '',
+    photo_url: row.photo_url || '',
+    photo_key: row.photo_key || '',
+    photo_name: row.photo_name || '',
+
+    admission_registration_number: row.admission_registration_number || '',
+    roll_number: row.roll_number || '',
 
     first_name: row.first_name,
-    last_name: row.last_name ?? '',
+    last_name: row.last_name || '',
 
-    mobile_number: row.mobile_number ?? '',
-    email: row.email ?? '',
+    mobile_number: row.mobile_number || '',
+    email: row.email || '',
+
     dob: row.dob,
-    gender: row.gender ?? '',
-    blood_group: row.blood_group ?? '',
-    special_notes: row.special_notes ?? '',
-    enrollment_status: row.enrollment_status ?? '',
-    transport_plan_type: row.transport_plan_type ?? '',
-    change_reason: '',
+    gender: row.gender || '',
+    blood_group: row.blood_group || '',
+    special_notes: row.special_notes || '',
+
+    enrollment_status: row.enrollment_status || EnrollmentStatus.Active,
+    transport_plan_type: row.transport_plan_type || TransportPlanType.Both,
+
+    status: row.status,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 export const newStudentPayload = (): StudentDTO => ({
     organisation_id: '',
     organisation_branch_id: '',
+
     program_id: '',
     stream_id: '',
     year_id: '',
     semester_id: '',
     class_id: '',
     section_id: '',
+
     photo_url: '',
     photo_key: '',
     photo_name: '',
+
     admission_registration_number: '',
     roll_number: '',
+
     first_name: '',
     last_name: '',
+
     mobile_number: '',
     email: '',
     dob: '',
     gender: '',
     blood_group: '',
     special_notes: '',
+
     enrollment_status: EnrollmentStatus.Active,
     transport_plan_type: TransportPlanType.Both,
-    change_reason: ''
+    status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 export const toStudentAddressPayload = (row: StudentAddress): StudentAddressDTO => ({
-    organisation_id: row.organisation_id,
-    organisation_branch_id: row.organisation_branch_id,
-    student_id: row.student_id,
-    address_line1: row.address_line1,
-    address_line2: row.address_line2 ?? '',
-    locality_landmark: row.locality_landmark ?? '',
-    neighborhood: row.neighborhood ?? '',
-    town_city: row.town_city ?? '',
-    district_county: row.district_county ?? '',
-    state_province_region: row.state_province_region ?? '',
-    postal_code: row.postal_code ?? '',
-    country: row.country ?? '',
-    country_code: row.country_code ?? '',
-    google_location: row.google_location ?? '',
-    latitude: row.latitude ?? 0,
-    longitude: row.longitude ?? 0,
-    is_default: row.is_default,
-    notes: row.notes ?? '',
+    organisation_id: row.organisation_id || '',
+    organisation_branch_id: row.organisation_branch_id || '',
+    student_id: row.student_id || '',
+    address_line1: row.address_line1 || '',
+    address_line2: row.address_line2 || '',
+    locality_landmark: row.locality_landmark || '',
+    neighborhood: row.neighborhood || '',
+    town_city: row.town_city || '',
+    district_county: row.district_county || '',
+    state_province_region: row.state_province_region || '',
+    postal_code: row.postal_code || '',
+    country: row.country || '',
+    country_code: row.country_code || '',
+    google_location: row.google_location || '',
+    latitude: row.latitude || 0,
+    longitude: row.longitude || 0,
+    is_default: row.is_default || YesNo.No,
+    notes: row.notes || '',
     status: row.status,
 });
 
 export const newStudentAddressPayload = (): StudentAddressDTO => ({
     student_id: '',
-    status: Status.Active,
     organisation_id: '',
     organisation_branch_id: '',
     address_line1: '',
@@ -676,7 +692,8 @@ export const newStudentAddressPayload = (): StudentAddressDTO => ({
     country_code: '',
     google_location: '',
     is_default: YesNo.Yes,
-    notes: ''
+    notes: '',
+    status: Status.Active
 });
 
 export const toStudentLeaveRequestPayload = (row: StudentLeaveRequest): StudentLeaveRequestDTO => ({
@@ -686,7 +703,7 @@ export const toStudentLeaveRequestPayload = (row: StudentLeaveRequest): StudentL
     date_from: row.date_from,
     date_to: row.date_to,
     leave_type: row.leave_type,
-    reason: row.reason ?? '',
+    reason: row.reason || '',
 });
 
 export const newStudentLeaveRequestPayload = (): StudentLeaveRequestDTO => ({
@@ -709,8 +726,8 @@ export const toStudentStopChangeRequestPayload = (row: StudentStopChangeRequest)
     change_drop: row.change_drop,
     is_temporary: row.is_temporary,
     apply_from: row.apply_from,
-    apply_until: row.apply_until ?? '',
-    reason: row.reason ?? '',
+    apply_until: row.apply_until || '',
+    reason: row.reason || '',
     status: row.status,
 });
 
@@ -735,16 +752,16 @@ export const toStudentGuardianLinkPayload = (row: StudentGuardianLink): StudentG
     relationship_id: row.relationship_id,
 
     is_primary: row.is_primary,
-    notes: row.notes ?? '',
+    notes: row.notes || '',
 
-    photo_url: row.photo_url ?? '',
-    photo_key: row.photo_key ?? '',
-    photo_name: row.photo_name ?? '',
+    photo_url: row.photo_url || '',
+    photo_key: row.photo_key || '',
+    photo_name: row.photo_name || '',
 
     full_name: row.full_name,
     mobile: row.mobile,
-    email: row.email ?? '',
-    alternative_mobile: row.alternative_mobile ?? '',
+    email: row.email || '',
+    alternative_mobile: row.alternative_mobile || '',
 
     status: row.status,
 });

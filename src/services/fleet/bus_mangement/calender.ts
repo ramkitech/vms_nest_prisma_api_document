@@ -47,6 +47,7 @@ export interface OrganisationCalendar extends Record<string, unknown> {
 
     // Basic Info
     calendar_date: string;
+    calendar_date_f: string;
     holiday_type: HolidayType;
     title: string;
     notes?: string;
@@ -73,35 +74,38 @@ export interface OrganisationCalendar extends Record<string, unknown> {
 
 // ✅ OrganisationCalendar Create/Update Schema
 export const OrganisationCalendarSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
 
-    calendar_date: dateMandatory('Calendar Date'),
-    holiday_type: enumMandatory('Holiday Type', HolidayType, HolidayType.FullDay),
+  calendar_date: dateMandatory('Calendar Date'),
+  holiday_type: enumMandatory('Holiday Type', HolidayType, HolidayType.FullDay),
 
-    title: stringMandatory('Title', 3, 100),
-    notes: stringOptional('Notes', 0, 500),
+  title: stringMandatory('Title', 3, 100),
+  notes: stringOptional('Notes', 0, 500),
 
-    status: enumMandatory('Status', Status, Status.Active),
+  // Other
+  status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type OrganisationCalendarDTO = z.infer<
-    typeof OrganisationCalendarSchema
+  typeof OrganisationCalendarSchema
 >;
 
 // ✅ OrganisationCalendar Query Schema
 export const OrganisationCalendarQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
-    calendar_ids: multi_select_optional('OrganisationCalendar'), // ✅ Multi-selection -> OrganisationCalendar
+  calendar_ids: multi_select_optional('OrganisationCalendar'), // ✅ Multi-selection -> OrganisationCalendar
 
-    holiday_type: enumArrayOptional(
-        'Holiday Type',
-        HolidayType,
-        getAllEnums(HolidayType),
-    ),
+  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
+
+  holiday_type: enumArrayOptional(
+    'Holiday Type',
+    HolidayType,
+    getAllEnums(HolidayType),
+  ),
 });
 export type OrganisationCalendarQueryDTO = z.infer<
-    typeof OrganisationCalendarQuerySchema
+  typeof OrganisationCalendarQuerySchema
 >;
 
 
@@ -111,24 +115,31 @@ export type OrganisationCalendarQueryDTO = z.infer<
 
 // Convert existing data to DTO
 export const toOrganisationCalendarPayload = (row: OrganisationCalendar): OrganisationCalendarDTO => ({
-    organisation_id: row.organisation_id,
-    organisation_branch_id: row.organisation_branch_id ?? '',
-    calendar_date: row.calendar_date,
-    holiday_type: row.holiday_type,
-    title: row.title,
-    notes: row.notes ?? '',
+    organisation_id: row.organisation_id || '',
+    organisation_branch_id: row.organisation_branch_id || '',
+
+    calendar_date: row.calendar_date || '',
+    holiday_type: row.holiday_type || HolidayType.FullDay,
+
+    title: row.title || '',
+    notes: row.notes || '',
     status: row.status,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 // New payload with default values
 export const newOrganisationCalendarPayload = (): OrganisationCalendarDTO => ({
+    organisation_id: '',
+    organisation_branch_id: '',
+
     calendar_date: '',
     holiday_type: HolidayType.FullDay,
+
     title: '',
     notes: '',
+
     status: Status.Active,
-    organisation_id: '',
-    organisation_branch_id: ''
+    time_zone_id: '', // Needs to be provided manually
 });
 
 // --------------------------------------------------------------

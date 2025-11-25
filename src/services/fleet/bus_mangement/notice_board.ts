@@ -16,7 +16,7 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import {  HolidayType, Status } from '../../../core/Enums';
+import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
@@ -45,6 +45,7 @@ export interface OrganisationNoticeBoard extends Record<string, unknown> {
 
     // Basic Info
     notice_date_time: string;
+    notice_date_time_f: string;
     notice_subject: string;
     notice_description?: string;
 
@@ -78,7 +79,9 @@ export const OrganisationNoticeBoardSchema = z.object({
   notice_subject: stringMandatory('Notice Subject', 3, 100),
   notice_description: stringOptional('Notice Description', 0, 500),
 
+  // Other
   status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type OrganisationNoticeBoardDTO = z.infer<
   typeof OrganisationNoticeBoardSchema
@@ -86,9 +89,10 @@ export type OrganisationNoticeBoardDTO = z.infer<
 
 // ✅ OrganisationNoticeBoard Query Schema
 export const OrganisationNoticeBoardQuerySchema = BaseQuerySchema.extend({
+  notice_ids: multi_select_optional('OrganisationNoticeBoard'), // ✅ Multi-selection -> OrganisationNoticeBoard
+
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
   organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
-  notice_ids: multi_select_optional('OrganisationNoticeBoard'), // ✅ Multi-selection -> OrganisationNoticeBoard
 });
 export type OrganisationNoticeBoardQueryDTO = z.infer<
   typeof OrganisationNoticeBoardQuerySchema
@@ -101,22 +105,28 @@ export type OrganisationNoticeBoardQueryDTO = z.infer<
 
 // Convert existing data to DTO
 export const toOrganisationNoticeBoardPayload = (row: OrganisationNoticeBoard): OrganisationNoticeBoardDTO => ({
-    organisation_id: row.organisation_id,
-    organisation_branch_id: row.organisation_branch_id ?? '',
-    notice_date_time: row.notice_date_time,
-    notice_subject: row.notice_subject,
-    notice_description: row.notice_description ?? '',
+    organisation_id: row.organisation_id || '',
+    organisation_branch_id: row.organisation_branch_id || '',
+
+    notice_date_time: row.notice_date_time || '',
+    notice_subject: row.notice_subject || '',
+    notice_description: row.notice_description || '',
+
     status: row.status,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 // New payload with default values
 export const newOrganisationNoticeBoardPayload = (): OrganisationNoticeBoardDTO => ({
     organisation_id: '',
     organisation_branch_id: '',
+
     notice_date_time: '',
     notice_subject: '',
     notice_description: '',
-    status: Status.Active
+
+    status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 // --------------------------------------------------------------
