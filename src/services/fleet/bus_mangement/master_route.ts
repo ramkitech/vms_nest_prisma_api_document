@@ -268,7 +268,9 @@ export const MasterFixedScheduleSchema = z.object({
     friday: enumMandatory('Friday', YesNo, YesNo.Yes),
     saturday: enumMandatory('Saturday', YesNo, YesNo.Yes),
 
+    // Other
     status: enumMandatory('Status', Status, Status.Active),
+    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type MasterFixedScheduleDTO = z.infer<typeof MasterFixedScheduleSchema>;
 
@@ -424,97 +426,120 @@ export type MasterRouteStudentScheduleAssignRemoveDTO = z.infer<
 // Helpers: payload creators
 // -----------------------------
 export const toMasterRoutePayload = (row: MasterRoute): MasterRouteDTO => ({
-    organisation_id: row.organisation_id,
-    organisation_branch_id: row.organisation_branch_id,
-    pickup_start_stop_id: row.pickup_start_stop_id ?? '',
-    pickup_end_stop_id: row.pickup_end_stop_id ?? '',
-    drop_start_stop_id: row.drop_start_stop_id ?? '',
-    drop_end_stop_id: row.drop_end_stop_id ?? '',
-    route_name: row.route_name,
-    route_code: row.route_code ?? '',
-    route_notes: row.route_notes ?? '',
+    organisation_id: row.organisation_id || '',
+    organisation_branch_id: row.organisation_branch_id || '',
+
+    pickup_start_stop_id: row.pickup_start_stop_id || '',
+    pickup_end_stop_id: row.pickup_end_stop_id || '',
+    drop_start_stop_id: row.drop_start_stop_id || '',
+    drop_end_stop_id: row.drop_end_stop_id || '',
+
+    route_name: row.route_name || '',
+    route_code: row.route_code || '',
+    route_notes: row.route_notes || '',
+
     route_status: row.route_status,
-    pickup_journey_time_in_seconds: Number(row.pickup_journey_time_in_seconds) ?? 0,
-    drop_journey_time_in_seconds: Number(row.drop_journey_time_in_seconds) ?? 0,
-    status: row.status ?? Status.Active,
+    pickup_journey_time_in_seconds: row.pickup_journey_time_in_seconds || 0,
+    drop_journey_time_in_seconds: row.drop_journey_time_in_seconds || 0,
+
+    status: row.status || Status.Active,
 });
 
 export const newMasterRoutePayload = (): MasterRouteDTO => ({
-    status: Status.Active,
     organisation_id: '',
     organisation_branch_id: '',
+
     pickup_start_stop_id: '',
     pickup_end_stop_id: '',
     drop_start_stop_id: '',
     drop_end_stop_id: '',
+
     route_name: '',
     route_code: '',
     route_notes: '',
+
     route_status: Status.Active,
     pickup_journey_time_in_seconds: 0,
     drop_journey_time_in_seconds: 0,
+
+    status: Status.Active,
 });
 
 export const toMasterFixedSchedulePayload = (row: MasterFixedSchedule): MasterFixedScheduleDTO => ({
-    organisation_id: row.organisation_id,
-    organisation_branch_id: row.organisation_branch_id,
-    route_id: row.route_id,
-    vehicle_id: row.vehicle_id ?? '',
-    driver_id: row.driver_id ?? '',
-    attendant_id: row.attendant_id ?? '',
-    schedule_name: row.schedule_name,
-    schedule_status: row.schedule_status,
-    is_stops_finalized: row.is_stops_finalized,
-    schedule_type: row.schedule_type,
-    start_hour: Number(row.start_hour) ?? '',
-    start_minute: Number(row.start_minute) ?? '',
-    end_hour: Number(row.end_hour) ?? '',
-    end_minute: Number(row.end_minute) ?? '',
-    schedule_plan_start_date: row.schedule_plan_start_date ?? '',
-    schedule_plan_end_date: row.schedule_plan_end_date ?? '',
-    sunday: row.sunday,
-    monday: row.monday,
-    tuesday: row.tuesday,
-    wednesday: row.wednesday,
-    thursday: row.thursday,
-    friday: row.friday,
-    saturday: row.saturday,
+    organisation_id: row.organisation_id || '',
+    organisation_branch_id: row.organisation_branch_id || '',
+    route_id: row.route_id || '',
+
+    vehicle_id: row.vehicle_id || '',
+    driver_id: row.driver_id || '',
+    attendant_id: row.attendant_id || '',
+
+    schedule_name: row.schedule_name || '',
+    schedule_status: row.schedule_status || Status.Active,
+    is_stops_finalized: row.is_stops_finalized || YesNo.No,
+    schedule_type: row.schedule_type || BusLeg.Pickup,
+
+    start_hour: row.start_hour || 0,
+    start_minute: row.start_minute || 0,
+    end_hour: row.end_hour || 0,
+    end_minute: row.end_minute || 0,
+
+    schedule_plan_start_date: row.schedule_plan_start_date || '',
+    schedule_plan_end_date: row.schedule_plan_end_date || '',
+
+    sunday: row.sunday || YesNo.No,
+    monday: row.monday || YesNo.Yes,
+    tuesday: row.tuesday || YesNo.Yes,
+    wednesday: row.wednesday || YesNo.Yes,
+    thursday: row.thursday || YesNo.Yes,
+    friday: row.friday || YesNo.Yes,
+    saturday: row.saturday || YesNo.Yes,
+
     status: row.status,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 export const newMasterFixedSchedulePayload = (): MasterFixedScheduleDTO => ({
     route_id: '',
-    status: Status.Active,
     organisation_id: '',
     organisation_branch_id: '',
+
     schedule_name: '',
     schedule_status: Status.Active,
-    is_stops_finalized: YesNo.Yes,
+    is_stops_finalized: YesNo.No,
     schedule_type: BusLeg.Pickup,
+
     start_hour: 0,
     start_minute: 0,
     end_hour: 0,
     end_minute: 0,
+
     schedule_plan_start_date: '',
     schedule_plan_end_date: '',
-    sunday: YesNo.Yes,
+
+    sunday: YesNo.No,
     monday: YesNo.Yes,
     tuesday: YesNo.Yes,
     wednesday: YesNo.Yes,
     thursday: YesNo.Yes,
     friday: YesNo.Yes,
     saturday: YesNo.Yes,
+
     vehicle_id: '',
     driver_id: '',
-    attendant_id: ''
+    attendant_id: '',
+
+    status: Status.Active,
+    time_zone_id: '', // Needs to be provided manually
 });
 
 export const toMasterRouteStopPayload = (row: MasterRouteStop): MasterRouteStopCreateDTO => ({
-    organisation_id: row.organisation_id,
-    organisation_branch_id: row.organisation_branch_id,
-    route_id: row.route_id,
-    leg: row.leg,
-    status: row.status,
+    organisation_id: row.organisation_id || '',
+    organisation_branch_id: row.organisation_branch_id || '',
+    route_id: row.route_id || '',
+
+    leg: row.leg || BusLeg.Pickup,
+    status: row.status || Status.Active,
     MasterRouteStop: [],
 });
 
@@ -522,20 +547,22 @@ export const newMasterRouteStopPayload = (): MasterRouteStopCreateDTO => ({
     organisation_id: '',
     organisation_branch_id: '',
     route_id: '',
+
     leg: BusLeg.Pickup,
     status: Status.Active,
     MasterRouteStop: [],
 });
 
 export const toMasterRouteStopReorderPayload = (row: MasterRouteStop): MasterRouteStopReorderDTO => ({
-    route_id: row.route_id ?? '',
-    leg: row.leg,
+    route_id: row.route_id || '',
+
+    leg: row.leg || BusLeg.Pickup,
     MasterRouteStopIds: [],
 });
 
 export const toMasterRouteStudentAssignPayload = (row: MasterRouteStudent): MasterRouteStudentAssignRemoveDTO => ({
-    route_id: row.route_id ?? '',
-    student_ids: Array.isArray((row as any).student_ids) ? (row as any).student_ids : [],
+    route_id: row.route_id || '',
+    student_ids: [],
 });
 
 export const newMasterRouteStudentAssignPayload = (): MasterRouteStudentAssignRemoveDTO => ({
