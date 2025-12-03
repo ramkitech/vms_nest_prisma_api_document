@@ -442,6 +442,13 @@ export enum GPSSource {
   NoDevice = 'NoDevice',
 }
 
+export enum GPSVehicleCategory {
+  ALL = 'ALL',
+  Moving = 'Moving',
+  Stopped = 'Stopped',
+  AwaitingGPS = 'AwaitingGPS',
+}
+
 export enum TicketStatus {
   Open = 'Open',
   InProgress = 'InProgress',

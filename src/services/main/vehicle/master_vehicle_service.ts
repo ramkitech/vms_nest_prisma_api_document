@@ -40,6 +40,7 @@ import {
   OdometerSource,
   ExpiryType,
   FuelTankType,
+  GPSVehicleCategory,
 } from '../../../core/Enums';
 
 import {
@@ -1499,6 +1500,12 @@ export const VehicleQuerySchema = BaseQuerySchema.extend({
   vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // ✅ Multi-Selection -> MasterVehicleFuelUnit
 
   vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+
+  gps_vehicle_category: enumOptional(
+    'GPS Vehicle Category',
+    GPSVehicleCategory,
+    GPSVehicleCategory.ALL,
+  ),
 });
 export type VehicleQueryDTO = z.infer<typeof VehicleQuerySchema>;
 
