@@ -69,4 +69,11 @@ export interface GpsPacket extends Record<string, unknown> {
   dt_f?: string;
   f1_f?: string;
   t_f?: string;
+
+  // Obd Values
+  gear_ratio_f?: string;
+  coolant_temp_f?: string;
+  ad_blue_f?: string;
+  engine_oil_f?: string;
+  obd_fuel_f?: string;
 }
