@@ -72,8 +72,6 @@ export interface FleetServiceManagement extends Record<string, unknown> {
   service_status: ServiceStatus;
   service_type: ServiceType;
 
-  service_date: string;
-  service_date_f: string;
   service_start_date?: string;
   service_start_date_f?: string;
   service_complete_date?: string;
@@ -156,8 +154,6 @@ export interface FleetServiceManagementTask extends Record<string, unknown> {
   fleet_service_management_task_id: string;
 
   task_cost?: number;
-  labor_cost?: number;
-  parts_cost?: number;
   task_notes?: string;
 
   // ✅ Metadata
@@ -245,7 +241,6 @@ export const FleetServiceManagementSchema = z.object({
     ServiceType.Preventive,
   ),
 
-  service_date: dateMandatory('Service Date'),
   service_start_date: dateOptional('Service Start Date'),
   service_complete_date: dateOptional('Service Complete Date'),
 
@@ -354,8 +349,6 @@ export const FleetServiceManagementTaskSchema = z.object({
   service_management_id: single_select_mandatory('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
 
   task_cost: doubleOptional('Task Cost', 3),
-  labor_cost: doubleOptional('Labor Cost', 3),
-  parts_cost: doubleOptional('Parts Cost', 3),
   task_notes: stringOptional('Task Notes', 0, 2000),
 
   status: enumMandatory('Status', Status, Status.Active),
@@ -417,7 +410,6 @@ export const toFleetServiceManagementPayload = (row: FleetServiceManagement): Fl
   service_status: row.service_status || ServiceStatus.Pending,
   service_type: row.service_type || ServiceType.Preventive,
 
-  service_date: row.service_date || '',
   service_start_date: row.service_start_date || '',
   service_complete_date: row.service_complete_date || '',
 
@@ -499,7 +491,6 @@ export const newFleetServiceManagementPayload = (): FleetServiceManagementDTO =>
 
   service_status: ServiceStatus.Pending,
   service_type: ServiceType.Preventive,
-  service_date: '',
   service_start_date: '',
   service_complete_date: '',
 
@@ -540,8 +531,6 @@ export const newFleetServiceManagementPayload = (): FleetServiceManagementDTO =>
 // ✅ Convert FleetServiceManagementTask Data to API Payload
 export const toFleetServiceManagementTaskPayload = (row: FleetServiceManagementTask): FleetServiceManagementTaskDTO => ({
   task_cost: row.task_cost || 0,
-  labor_cost: row.labor_cost || 0,
-  parts_cost: row.parts_cost || 0,
   task_notes: row.task_notes || '',
 
   fleet_service_task_id: row.fleet_service_task_id || '',
@@ -574,8 +563,6 @@ export const toFleetServiceReminderPayload = (row: FleetServiceReminder): FleetS
 // ✅ Create New FleetServiceManagementTask Payload
 export const newFleetServiceManagementTaskPayload = (): FleetServiceManagementTaskDTO => ({
   task_cost: 0,
-  labor_cost: 0,
-  parts_cost: 0,
   task_notes: '',
 
   status: Status.Active,

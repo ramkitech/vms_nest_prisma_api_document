@@ -114,7 +114,6 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
 
     // ✅ Count (Child Relations)
     _count?: {
-        FleetFuelStationRate: number;
         FleetFuelRefill: number;
     };
 }
@@ -198,33 +197,6 @@ export const FleetVendorFuelStationQuerySchema = BaseQuerySchema.extend({
 });
 export type FleetVendorFuelStationQueryDTO = z.infer<
     typeof FleetVendorFuelStationQuerySchema
->;
-
-// ✅ FleetFuelStationRate Create/Update Schema
-export const FleetFuelStationRateSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    fuel_station_id: single_select_mandatory('FleetVendorFuelStation'), // ✅ Single-Selection -> FleetVendorFuelStation
-    vehicle_fuel_type_id: single_select_mandatory('MasterVehicleFuelType'), // ✅ Single-Selection -> MasterVehicleFuelType
-    vehicle_fuel_unit_id: single_select_mandatory('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
-    rate_date: dateMandatory('Rate Date'),
-    price_per_unit: doubleMandatoryAmount('Price Per Unit'),
-    remarks: stringOptional('Remarks', 0, 500),
-    status: enumMandatory('Status', Status, Status.Active),
-});
-export type FleetFuelStationRateDTO = z.infer<
-    typeof FleetFuelStationRateSchema
->;
-
-// ✅ FleetFuelStationRate Query Schema
-export const FleetFuelStationRateQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // ✅ Multi-Selection -> FleetVendorFuelStation
-    vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // ✅ Multi-Selection -> MasterVehicleFuelType
-    vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // ✅ Multi-Selection -> MasterVehicleFuelUnit
-    fuel_rate_ids: multi_select_optional('FleetFuelStationRate'), // ✅ Multi-Selection -> FleetFuelStationRate
-});
-export type FleetFuelStationRateQueryDTO = z.infer<
-    typeof FleetFuelStationRateQuerySchema
 >;
 
 
