@@ -157,6 +157,14 @@ export interface FleetVendor extends Record<string, unknown> {
     };
 }
 
+export interface VendorDashboard {
+    main_counts: {
+        vendors: number;
+        fuel_stations: number;
+        service_centers: number;
+    };
+}
+
 // ✅ FleetVendorSimple Interface
 export interface FleetVendorSimple extends Record<string, unknown> {
     vendor_id: string;
@@ -481,10 +489,10 @@ export type FleetVendorQueryDTO = z.infer<typeof FleetVendorQuerySchema>;
 
 // ✅ FleetVendorDashBoard Query Schema
 export const FleetVendorDashBoardQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_mandatory('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+    organisation_ids: multi_select_mandatory('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
 });
 export type FleetVendorDashBoardQueryDTO = z.infer<
-  typeof FleetVendorDashBoardQuerySchema
+    typeof FleetVendorDashBoardQuerySchema
 >;
 
 // ✅ FleetVendorAddress Create/Update Schema
@@ -629,14 +637,14 @@ export type FleetVendorContactPersonsQueryDTO = z.infer<
 
 // ✅ FleetVendorReview Create/Update Schema
 export const FleetVendorReviewSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-  user_id: single_select_optional('User'), // ✅ Single-Selection -> User
+    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+    user_id: single_select_optional('User'), // ✅ Single-Selection -> User
 
-  rating: numberMandatory('Rating'),
-  rating_comments: stringOptional('Rating Comments', 0, 2000),
+    rating: numberMandatory('Rating'),
+    rating_comments: stringOptional('Rating Comments', 0, 2000),
 
-  status: enumMandatory('Status', Status, Status.Active),
+    status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetVendorReviewDTO = z.infer<typeof FleetVendorReviewSchema>;
 
@@ -653,8 +661,8 @@ export type FleetVendorReviewQueryDTO = z.infer<
 
 // ✅ FleetVendorDocumentFile Schema
 export const FleetVendorDocumentFileSchema = BaseFileSchema.extend({
-    organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    fleet_vendor_document_id: single_select_optional('FleetVendorDocument'), // ✅ Single-Selection -> FleetVendorDocument
+    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    fleet_vendor_document_id: single_select_mandatory('FleetVendorDocument'), // ✅ Single-Selection -> FleetVendorDocument
 });
 export type FleetVendorDocumentFileDTO = z.infer<
     typeof FleetVendorDocumentFileSchema
@@ -691,14 +699,12 @@ export const FleetVendorDocumentQuerySchema = BaseQuerySchema.extend({
     fleet_vendor_document_ids: multi_select_optional('FleetVendorDocument'), // ✅ Multi-selection -> FleetVendorDocument
 
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-    user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-selection -> FleetVendor
     document_type_ids: multi_select_optional('MasterVendorDocumentType'), // ✅ Multi-selection -> MasterVendorDocumentType
 });
 export type FleetVendorDocumentQueryDTO = z.infer<
     typeof FleetVendorDocumentQuerySchema
 >;
-
 
 // ✅ Convert FleetVendor Data to API Payload
 export const toFleetVendorPayload = (row: FleetVendor): FleetVendorDTO => ({
@@ -797,7 +803,7 @@ export const toFleetVendorAddressPayload = (row: FleetVendorAddress): FleetVendo
     is_default: row.is_default || YesNo.No,
     notes: row.notes || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
 });
 
 // ✅ Create New FleetVendorAddress Payload
@@ -845,7 +851,7 @@ export const toFleetVendorBankAccountPayload = (row: FleetVendorBankAccount): Fl
     organisation_id: row.organisation_id || '',
     vendor_id: row.vendor_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
 });
 
 // ✅ Create New FleetVendorBankAccount Payload
@@ -890,7 +896,7 @@ export const toFleetVendorContactPersonsPayload = (row: FleetVendorContactPerson
     organisation_id: row.organisation_id || '',
     vendor_id: row.vendor_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
 });
 
 // ✅ Create New FleetVendorContactPersons Payload
@@ -926,7 +932,7 @@ export const toFleetVendorReviewPayload = (row: FleetVendorReview): FleetVendorR
     vendor_id: row.vendor_id || '',
     user_id: row.user_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
 });
 
 // ✅ Create New FleetVendorReview Payload
@@ -957,7 +963,8 @@ export const toFleetVendorDocumentPayload = (row: FleetVendorDocument): FleetVen
     user_id: row.user_id || '',
     document_type_id: row.document_type_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
+
     time_zone_id: '', // Needs to be provided manually
 
     FleetVendorDocumentFileSchema: row.FleetVendorDocumentFile?.map((file) => ({
@@ -1045,10 +1052,6 @@ export const findFleetVendor = async (data: FleetVendorQueryDTO): Promise<FBR<Fl
     return apiPost<FBR<FleetVendor[]>, FleetVendorQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const vendor_dashboard = async (data: FleetVendorDashBoardQueryDTO): Promise<FBR<FleetVendor[]>> => {
-    return apiPost<FBR<FleetVendor[]>, FleetVendorDashBoardQueryDTO>(ENDPOINTS.vendor_dashboard, data);
-};
-
 export const createFleetVendor = async (data: FleetVendorDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorDTO>(ENDPOINTS.create, data);
 };
@@ -1059,6 +1062,10 @@ export const updateFleetVendor = async (id: string, data: FleetVendorDTO): Promi
 
 export const deleteFleetVendor = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+export const vendor_dashboard = async (data: FleetVendorDashBoardQueryDTO,): Promise<FBR<VendorDashboard[]>> => {
+    return apiPost<FBR<VendorDashboard[]>, FleetVendorDashBoardQueryDTO>(ENDPOINTS.vendor_dashboard, data);
 };
 
 // FleetVendorAddress
