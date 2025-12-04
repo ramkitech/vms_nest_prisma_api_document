@@ -125,7 +125,7 @@ export interface FleetVendor extends Record<string, unknown> {
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations - Organisation
+    // ✅ Relations - Parent
     organisation_id: string;
     UserOrganisation: UserOrganisation;
 
@@ -314,7 +314,6 @@ export interface FleetVendorContactPersons extends Record<string, unknown> {
     branch_name?: string;
     preferred_language?: string;
     is_primary: YesNo;
-    is_active_contact: YesNo;
     notes?: string;
 
     // Metadata
@@ -340,7 +339,7 @@ export interface FleetVendorReview extends Record<string, unknown> {
     vendor_review_id: string;
 
     rating: number
-    comment?: string;
+    rating_comments?: string;
 
     // Metadata
     status: Status;
@@ -597,7 +596,6 @@ export const FleetVendorContactPersonsSchema = z.object({
     branch_name: stringOptional('Branch Name', 0, 100),
     preferred_language: stringOptional('Preferred Language', 0, 10),
     is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
-    is_active_contact: enumMandatory('Is Active Contact', YesNo, YesNo.Yes),
     notes: stringOptional('Notes', 0, 2000),
 
     status: enumMandatory('Status', Status, Status.Active),
@@ -614,11 +612,6 @@ export const FleetVendorContactPersonsQuerySchema = BaseQuerySchema.extend({
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
 
     is_primary: enumArrayOptional('Is Primary', YesNo, getAllEnums(YesNo)),
-    is_active_contact: enumArrayOptional(
-        'Is Active Contact',
-        YesNo,
-        getAllEnums(YesNo),
-    ),
 });
 export type FleetVendorContactPersonsQueryDTO = z.infer<
     typeof FleetVendorContactPersonsQuerySchema
@@ -626,14 +619,14 @@ export type FleetVendorContactPersonsQueryDTO = z.infer<
 
 // ✅ FleetVendorReview Create/Update Schema
 export const FleetVendorReviewSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-    user_id: single_select_optional('User'), // ✅ Single-Selection -> User
+  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+  user_id: single_select_optional('User'), // ✅ Single-Selection -> User
 
-    rating: numberMandatory('Rating'),
-    comment: stringOptional('Comment', 0, 2000),
+  rating: numberMandatory('Rating'),
+  rating_comments: stringOptional('Rating Comments', 0, 2000),
 
-    status: enumMandatory('Status', Status, Status.Active),
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetVendorReviewDTO = z.infer<typeof FleetVendorReviewSchema>;
 
@@ -643,7 +636,6 @@ export const FleetVendorReviewQuerySchema = BaseQuerySchema.extend({
 
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
     vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
-    user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
 });
 export type FleetVendorReviewQueryDTO = z.infer<
     typeof FleetVendorReviewQuerySchema
@@ -883,7 +875,6 @@ export const toFleetVendorContactPersonsPayload = (row: FleetVendorContactPerson
     branch_name: row.branch_name || '',
     preferred_language: row.preferred_language || '',
     is_primary: row.is_primary || YesNo.No,
-    is_active_contact: row.is_active_contact || YesNo.Yes,
     notes: row.notes || '',
 
     organisation_id: row.organisation_id || '',
@@ -907,7 +898,6 @@ export const newFleetVendorContactPersonsPayload = (): FleetVendorContactPersons
     branch_name: '',
     preferred_language: '',
     is_primary: YesNo.No,
-    is_active_contact: YesNo.Yes,
     notes: '',
 
     organisation_id: '',
@@ -919,7 +909,7 @@ export const newFleetVendorContactPersonsPayload = (): FleetVendorContactPersons
 // ✅ Convert FleetVendorReview Data to API Payload
 export const toFleetVendorReviewPayload = (row: FleetVendorReview): FleetVendorReviewDTO => ({
     rating: row.rating || 0,
-    comment: row.comment || '',
+    rating_comments: row.rating_comments || '',
 
     // Relations
     organisation_id: row.organisation_id || '',
@@ -932,7 +922,7 @@ export const toFleetVendorReviewPayload = (row: FleetVendorReview): FleetVendorR
 // ✅ Create New FleetVendorReview Payload
 export const newFleetVendorReviewPayload = (): FleetVendorReviewDTO => ({
     rating: 0,
-    comment: '',
+    rating_comments: '',
 
     organisation_id: '',
     vendor_id: '',

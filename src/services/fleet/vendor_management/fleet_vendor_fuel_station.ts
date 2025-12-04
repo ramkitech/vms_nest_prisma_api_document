@@ -15,6 +15,7 @@ import {
     doubleOptional,
     dateMandatory,
     doubleMandatoryAmount,
+    numberOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -45,15 +46,20 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     fuel_station_id: string;
 
     // Basic Info
-    station_name: string;
-    station_code?: string;
+    fuel_station_name: string;
+    fuel_station_code?: string;
     is_company_owned: YesNo;
+
+    is_preferred_station: YesNo;
+
+    // Rating 
+    rating?: number;
+    rating_comments?: string;
 
     // Notes & Feedback
     station_notes?: string;
     station_feedback?: string;
-    station_rating?: number;
-    is_preferred_station: YesNo;
+
 
     // Operational Details
     operating_hours?: string;
@@ -133,9 +139,14 @@ export const FleetVendorFuelStationSchema = z.object({
     fuel_company_id: single_select_mandatory('MasterFuelCompany'), // ✅ Single-Selection -> MasterFuelCompany
 
     // Basic Info
-    station_name: stringMandatory('Station Name', 3, 100),
-    station_code: stringOptional('Station Code', 0, 100),
+    fuel_station_name: stringMandatory('Fuel Station Name', 3, 100),
+    fuel_station_code: stringOptional('FuelStation Code', 0, 100),
     is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
+    is_preferred_station: enumMandatory('Is Preferred Station', YesNo, YesNo.No),
+
+    // Rating
+    rating: numberOptional('Rating'),
+    rating_comments: stringOptional('Rating Comments', 0, 2000),
 
     // Operational Details
     operating_hours: stringOptional('Operating Hours', 0, 100),
@@ -175,8 +186,6 @@ export const FleetVendorFuelStationSchema = z.object({
     // Notes & Feedback
     station_notes: stringOptional('Station Notes', 0, 2000),
     station_feedback: stringOptional('Station Feedback', 0, 2000),
-    station_rating: doubleOptional('Station Rating'),
-    is_preferred_station: enumMandatory('Is Preferred Station', YesNo, YesNo.No),
 
     status: enumMandatory('Status', Status, Status.Active),
 });
@@ -203,15 +212,18 @@ export type FleetVendorFuelStationQueryDTO = z.infer<
 // ✅ Convert FleetVendorFuelStation Data to API Payload
 export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): FleetVendorFuelStationDTO => ({
     // Basic Info
-    station_name: row.station_name || '',
-    station_code: row.station_code || '',
+    fuel_station_name: row.fuel_station_name || '',
+    fuel_station_code: row.fuel_station_code || '',
     is_company_owned: row.is_company_owned || YesNo.No,
+    is_preferred_station: row.is_preferred_station || YesNo.No,
+
+    // Rating
+    rating: row.rating || 0,
+    rating_comments: row.rating_comments || '',
 
     // Notes & Feedback
     station_notes: row.station_notes || '',
     station_feedback: row.station_feedback || '',
-    station_rating: row.station_rating || 0,
-    is_preferred_station: row.is_preferred_station || YesNo.No,
 
     // Operational Details
     operating_hours: row.operating_hours || '',
@@ -257,14 +269,17 @@ export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): Fl
 
 // ✅ Create New FleetVendorFuelStation Payload
 export const newFleetVendorFuelStationPayload = (): FleetVendorFuelStationDTO => ({
-    station_name: '',
-    station_code: '',
+    fuel_station_name: '',
+    fuel_station_code: '',
     is_company_owned: YesNo.No,
+    is_preferred_station: YesNo.No,
+
+    rating: 0,
+    rating_comments: '',
 
     station_notes: '',
     station_feedback: '',
-    station_rating: 0,
-    is_preferred_station: YesNo.No,
+
 
     operating_hours: '',
     is_24x7: YesNo.No,
