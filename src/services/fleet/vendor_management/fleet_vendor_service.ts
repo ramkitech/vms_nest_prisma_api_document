@@ -556,7 +556,7 @@ export const FleetVendorBankAccountSchema = z.object({
     bank_name: stringOptional('Bank Name', 0, 100),
     bank_branch_name: stringOptional('Bank Branch Name', 0, 100),
     bank_account_name: stringOptional('Bank Account Name', 0, 100),
-    bank_account_number: stringOptional('Bank Account Number', 0, 34),
+    bank_account_number: stringMandatory('Bank Account Number', 1, 50),
     ifsc_code: stringOptional('IFSC Code', 0, 20),
     swift_code: stringOptional('Swift Code', 0, 20),
     iban_number: stringOptional('IBAN Number', 0, 34),
