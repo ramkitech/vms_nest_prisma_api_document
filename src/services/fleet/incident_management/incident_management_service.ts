@@ -46,6 +46,7 @@ const ENDPOINTS = {
     remove_incident_file: (id: string): string => `${URL}/remove_incident_file/${id}`,
 
     find: `${URL}/search`,
+    incident_dashboard: `${URL}/incident_dashboard`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
@@ -297,6 +298,19 @@ export const FleetIncidentManagementSchema = z.object({
 });
 export type FleetIncidentManagementDTO = z.infer<
     typeof FleetIncidentManagementSchema
+>;
+
+// ✅ FleetIncidentManagementDashBoard Query Schema
+export const FleetIncidentManagementDashBoardQuerySchema =
+  BaseQuerySchema.extend({
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+
+    from_date: dateMandatory('From Date'),
+    to_date: dateMandatory('To Date'),
+  });
+export type FleetIncidentManagementDashBoardQueryDTO = z.infer<
+  typeof FleetIncidentManagementDashBoardQuerySchema
 >;
 
 // ✅ FleetIncidentManagementComment Query Schema
@@ -581,6 +595,10 @@ export const createFleetIncidentManagement = async (data: FleetIncidentManagemen
 
 export const findFleetIncidentManagement = async (data: FleetIncidentManagementQueryDTO): Promise<FBR<FleetIncidentManagement[]>> => {
     return apiPost<FBR<FleetIncidentManagement[]>, FleetIncidentManagementQueryDTO>(ENDPOINTS.find, data);
+};
+
+export const incident_dashboard = async (data: FleetIncidentManagementDashBoardQueryDTO): Promise<FBR<FleetIncidentManagement[]>> => {
+    return apiPost<FBR<FleetIncidentManagement[]>, FleetIncidentManagementDashBoardQueryDTO>(ENDPOINTS.incident_dashboard, data);
 };
 
 export const updateFleetIncidentManagement = async (id: string, data: FleetIncidentManagementDTO): Promise<SBR> => {

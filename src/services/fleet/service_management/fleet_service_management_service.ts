@@ -46,6 +46,7 @@ const ENDPOINTS = {
 
   // FleetServiceManagement
   find: `${URL}/search`,
+  service_dashboard: `${URL}/service_dashboard`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
@@ -343,6 +344,19 @@ export type FleetServiceManagementQueryDTO = z.infer<
   typeof FleetServiceManagementQuerySchema
 >;
 
+// ✅ FleetServiceManagementDashBoard Query Schema
+export const FleetServiceManagementDashBoardQuerySchema =
+  BaseQuerySchema.extend({
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+
+    from_date: dateMandatory('From Date'),
+    to_date: dateMandatory('To Date'),
+  });
+export type FleetServiceManagementDashBoardQueryDTO = z.infer<
+  typeof FleetServiceManagementDashBoardQuerySchema
+>;
+
 // ✅ FleetServiceManagementTask Create/Update Schema
 export const FleetServiceManagementTaskSchema = z.object({
   fleet_service_task_id: single_select_mandatory('MasterFleetServiceTask'), // ✅ Single-Selection -> MasterFleetServiceTask
@@ -588,6 +602,10 @@ export const remove_service_file = async (id: string): Promise<SBR> => {
 // FleetServiceManagement
 export const findFleetServiceManagement = async (data: FleetServiceManagementQueryDTO): Promise<FBR<FleetServiceManagement[]>> => {
   return apiPost<FBR<FleetServiceManagement[]>, FleetServiceManagementQueryDTO>(ENDPOINTS.find, data);
+};
+
+export const service_dashboard = async (data: FleetServiceManagementDashBoardQueryDTO): Promise<FBR<FleetServiceManagement[]>> => {
+  return apiPost<FBR<FleetServiceManagement[]>, FleetServiceManagementDashBoardQueryDTO>(ENDPOINTS.service_dashboard, data);
 };
 
 export const createFleetServiceManagement = async (data: FleetServiceManagementDTO): Promise<SBR> => {

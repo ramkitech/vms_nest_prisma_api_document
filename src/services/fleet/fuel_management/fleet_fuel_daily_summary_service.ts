@@ -32,6 +32,7 @@ const URL = 'fleet/fuel_management/fleet_fuel_daily_summary';
 
 const ENDPOINTS = {
   find: `${URL}/search`,
+  fuel_dashboard: `${URL}/fuel_dashboard`,
   find_monthly: `${URL}/monthly/search`,
   find_vehicle_fuel_summary: `${URL}/vehicle_fuel_summary/search`,
   create: URL,
@@ -138,6 +139,20 @@ export type FleetFuelDailySummaryQueryDTO = z.infer<
   typeof FleetFuelDailySummaryQuerySchema
 >;
 
+// ✅ FleetFuelDailySummaryDashBoard Query Schema
+export const FleetFuelDailySummaryDashBoardQuerySchema = BaseQuerySchema.extend(
+  {
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+
+    from_date: dateMandatory('From Date'),
+    to_date: dateMandatory('To Date'),
+  },
+);
+export type FleetFuelDailySummaryDashBoardQueryDTO = z.infer<
+  typeof FleetFuelDailySummaryDashBoardQuerySchema
+>;
+
 // ✅ FleetFuelDailyMonthlySummary Query Schema
 export const FleetFuelDailyMonthlySummaryQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
@@ -215,6 +230,10 @@ export const newFleetFuelDailySummaryPayload = (): FleetFuelDailySummaryDTO => (
 // API Methods
 export const findFleetFuelDailySummary = async (data: FleetFuelDailySummaryQueryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
   return apiPost<FBR<FleetFuelDailySummary[]>, FleetFuelDailySummaryQueryDTO>(ENDPOINTS.find, data);
+};
+
+export const fuel_dashboard = async (data: FleetFuelDailySummaryDashBoardQueryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
+  return apiPost<FBR<FleetFuelDailySummary[]>, FleetFuelDailySummaryDashBoardQueryDTO>(ENDPOINTS.fuel_dashboard, data);
 };
 
 export const findFleetFuelMonthlySummary = async (data: FleetFuelDailyMonthlySummaryQueryDTO): Promise<FBR<FuelConsumptionMonthly[]>> => {

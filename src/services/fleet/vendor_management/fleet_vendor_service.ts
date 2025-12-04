@@ -17,6 +17,7 @@ import {
     dateOptional,
     doubleOptionalLatLng,
     numberMandatory,
+    multi_select_mandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
@@ -49,6 +50,7 @@ const ENDPOINTS = {
     remove_vendor_document_file: (id: string): string => `${URL}/remove_vendor_document_file/${id}`,
 
     find: `${URL}/search`,
+    vendor_dashboard: `${URL}/vendor_dashboard`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
@@ -476,6 +478,14 @@ export const FleetVendorQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
 });
 export type FleetVendorQueryDTO = z.infer<typeof FleetVendorQuerySchema>;
+
+// ✅ FleetVendorDashBoard Query Schema
+export const FleetVendorDashBoardQuerySchema = BaseQuerySchema.extend({
+  organisation_ids: multi_select_mandatory('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+});
+export type FleetVendorDashBoardQueryDTO = z.infer<
+  typeof FleetVendorDashBoardQuerySchema
+>;
 
 // ✅ FleetVendorAddress Create/Update Schema
 export const FleetVendorAddressSchema = z.object({
@@ -1033,6 +1043,10 @@ export const remove_vendor_document_file = async (id: string): Promise<SBR> => {
 // FleetVendor
 export const findFleetVendor = async (data: FleetVendorQueryDTO): Promise<FBR<FleetVendor[]>> => {
     return apiPost<FBR<FleetVendor[]>, FleetVendorQueryDTO>(ENDPOINTS.find, data);
+};
+
+export const vendor_dashboard = async (data: FleetVendorDashBoardQueryDTO): Promise<FBR<FleetVendor[]>> => {
+    return apiPost<FBR<FleetVendor[]>, FleetVendorDashBoardQueryDTO>(ENDPOINTS.vendor_dashboard, data);
 };
 
 export const createFleetVendor = async (data: FleetVendorDTO): Promise<SBR> => {
