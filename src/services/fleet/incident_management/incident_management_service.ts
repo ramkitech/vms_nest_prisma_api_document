@@ -194,6 +194,13 @@ export interface FleetIncidentManagementFile extends BaseCommonFile {
     FleetIncidentManagement?: FleetIncidentManagement;
 }
 
+export interface IncidentDashboard {
+  vehicle_id: string;
+  vehicle_number: string;
+  vehicle_type: string;
+  incidents_count: number;
+}
+
 // ✅ FleetIncidentManagementFile Schema
 export const FleetIncidentManagementFileSchema = BaseFileSchema.extend({
     organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
@@ -597,8 +604,8 @@ export const findFleetIncidentManagement = async (data: FleetIncidentManagementQ
     return apiPost<FBR<FleetIncidentManagement[]>, FleetIncidentManagementQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const incident_dashboard = async (data: FleetIncidentManagementDashBoardQueryDTO): Promise<FBR<FleetIncidentManagement[]>> => {
-    return apiPost<FBR<FleetIncidentManagement[]>, FleetIncidentManagementDashBoardQueryDTO>(ENDPOINTS.incident_dashboard, data);
+export const incident_dashboard = async (data: FleetIncidentManagementDashBoardQueryDTO): Promise<FBR<IncidentDashboard[]>> => {
+    return apiPost<FBR<IncidentDashboard[]>, FleetIncidentManagementDashBoardQueryDTO>(ENDPOINTS.incident_dashboard, data);
 };
 
 export const updateFleetIncidentManagement = async (id: string, data: FleetIncidentManagementDTO): Promise<SBR> => {

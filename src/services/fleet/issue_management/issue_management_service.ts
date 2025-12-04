@@ -185,6 +185,16 @@ export interface FleetIssueManagementFile extends BaseCommonFile {
     FleetIssueManagement?: FleetIssueManagement;
 }
 
+export interface IssueDashboard {
+  date: string;
+  total_count: number;
+  open: number;
+  closed: number;
+  resolved: number;
+  overdue: number;
+  reopen: number;
+}
+
 // ✅ FleetIssueManagementFile Schema
 export const FleetIssueManagementFileSchema = BaseFileSchema.extend({
     organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
@@ -423,10 +433,6 @@ export const findFleetIssueManagement = async (data: FleetIssueManagementQueryDT
     return apiPost<FBR<FleetIssueManagement[]>, FleetIssueManagementQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const issue_dashboard = async (data: FleetIssueManagementDashBoardQueryDTO): Promise<FBR<FleetIssueManagement[]>> => {
-    return apiPost<FBR<FleetIssueManagement[]>, FleetIssueManagementDashBoardQueryDTO>(ENDPOINTS.issue_dashboard, data);
-};
-
 export const createFleetIssueManagement = async (data: FleetIssueManagementDTO): Promise<SBR> => {
     return apiPost<SBR, FleetIssueManagementDTO>(ENDPOINTS.create, data);
 };
@@ -437,6 +443,10 @@ export const updateFleetIssueManagement = async (id: string, data: FleetIssueMan
 
 export const deleteFleetIssueManagement = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+export const issue_dashboard = async (data: FleetIssueManagementDashBoardQueryDTO): Promise<FBR<IssueDashboard[]>> => {
+    return apiPost<FBR<IssueDashboard[]>, FleetIssueManagementDashBoardQueryDTO>(ENDPOINTS.issue_dashboard, data);
 };
 
 // FleetIssueManagementComment

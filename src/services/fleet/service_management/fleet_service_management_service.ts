@@ -212,6 +212,12 @@ export interface FleetServiceReminder extends Record<string, unknown> {
   FleetServiceManagement?: FleetServiceManagement;
 }
 
+export interface ServiceDashboard {
+  date: string;
+  services_count: number;
+  total_amount: number;
+}
+
 // ✅ FleetServiceManagementFile Schema
 export const FleetServiceManagementFileSchema = BaseFileSchema.extend({
   organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
@@ -604,10 +610,6 @@ export const findFleetServiceManagement = async (data: FleetServiceManagementQue
   return apiPost<FBR<FleetServiceManagement[]>, FleetServiceManagementQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const service_dashboard = async (data: FleetServiceManagementDashBoardQueryDTO): Promise<FBR<FleetServiceManagement[]>> => {
-  return apiPost<FBR<FleetServiceManagement[]>, FleetServiceManagementDashBoardQueryDTO>(ENDPOINTS.service_dashboard, data);
-};
-
 export const createFleetServiceManagement = async (data: FleetServiceManagementDTO): Promise<SBR> => {
   return apiPost<SBR, FleetServiceManagementDTO>(ENDPOINTS.create, data);
 };
@@ -618,6 +620,10 @@ export const updateFleetServiceManagement = async (id: string, data: FleetServic
 
 export const deleteFleetServiceManagement = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+export const service_dashboard = async (data: FleetServiceManagementDashBoardQueryDTO): Promise<FBR<ServiceDashboard[]>> => {
+  return apiPost<FBR<ServiceDashboard[]>, FleetServiceManagementDashBoardQueryDTO>(ENDPOINTS.service_dashboard, data);
 };
 
 // FleetServiceManagementTask

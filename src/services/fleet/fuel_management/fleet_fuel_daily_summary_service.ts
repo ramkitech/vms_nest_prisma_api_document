@@ -174,6 +174,14 @@ export type AllVehiclesFuelDailySummaryDTO = z.infer<
   typeof AllVehiclesFuelDailySummaryQuerySchema
 >;
 
+export interface FuelDashboard {
+  vehicle_id: string;
+  vehicle_number: string;
+  vehicle_type: string;
+  refills_count: number;
+  removals_count: number;
+}
+
 // Convert existing data to a payload structure
 export const toFleetFuelDailySummaryPayload = (row: FleetFuelDailySummary): FleetFuelDailySummaryDTO => ({
   organisation_id: row.organisation_id ?? '',
@@ -232,8 +240,8 @@ export const findFleetFuelDailySummary = async (data: FleetFuelDailySummaryQuery
   return apiPost<FBR<FleetFuelDailySummary[]>, FleetFuelDailySummaryQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const fuel_dashboard = async (data: FleetFuelDailySummaryDashBoardQueryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
-  return apiPost<FBR<FleetFuelDailySummary[]>, FleetFuelDailySummaryDashBoardQueryDTO>(ENDPOINTS.fuel_dashboard, data);
+export const fuel_dashboard = async (data: FleetFuelDailySummaryDashBoardQueryDTO): Promise<FBR<FuelDashboard[]>> => {
+  return apiPost<FBR<FuelDashboard[]>, FleetFuelDailySummaryDashBoardQueryDTO>(ENDPOINTS.fuel_dashboard, data);
 };
 
 export const findFleetFuelMonthlySummary = async (data: FleetFuelDailyMonthlySummaryQueryDTO): Promise<FBR<FuelConsumptionMonthly[]>> => {
