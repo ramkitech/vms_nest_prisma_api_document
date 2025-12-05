@@ -18,15 +18,18 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { User } from '../../main/users/user_service';
+import { Student } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/section';
 
 const ENDPOINTS = {
+  // MasterSection APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
@@ -35,24 +38,25 @@ const ENDPOINTS = {
 export interface MasterSection extends Record<string, unknown> {
   // Primary Fields
   section_id: string;
-  section_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  section_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id?: string;
   UserOrganisation?: UserOrganisation;
 
-  // Relations - Child
-  Student: User[];
+  // Children
+  // Child - Fleet
+  Student?: Student[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    Student: number;
+    Student?: number;
   };
 }
 
@@ -72,15 +76,15 @@ export const MasterSectionQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterSectionQueryDTO = z.infer<typeof MasterSectionQuerySchema>;
 
-// Convert existing data to a payload structure
+// Convert MasterSection Data to API Payload
 export const toMasterSectionPayload = (row: MasterSection): MasterSectionDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  section_name: row.section_name,
+  organisation_id: row.organisation_id || '',
+  section_name: row.section_name || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterSection Payload
 export const newMasterSectionPayload = (): MasterSectionDTO => ({
   organisation_id: '',
   section_name: '',
@@ -88,7 +92,7 @@ export const newMasterSectionPayload = (): MasterSectionDTO => ({
   status: Status.Active
 });
 
-// API Methods
+// MasterSection APIs
 export const findMasterSection = async (data: MasterSectionQueryDTO): Promise<FBR<MasterSection[]>> => {
   return apiPost<FBR<MasterSection[]>, MasterSectionQueryDTO>(ENDPOINTS.find, data);
 };
@@ -105,7 +109,7 @@ export const deleteMasterSection = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterSectionCache = async (organisation_id: string): Promise<FBR<MasterSection[]>> => {
   return apiGet<FBR<MasterSection[]>>(ENDPOINTS.cache(organisation_id));
 };

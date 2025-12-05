@@ -19,15 +19,18 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { MasterMainCountry } from '../main/master_main_country_service';
+import { FleetVendorFuelStation } from 'src/services/fleet/vendor_management/fleet_vendor_fuel_station';
 
-// URL & Endpoints
 const URL = 'master/expense/fuel_company';
 
 const ENDPOINTS = {
+  // MasterFuelCompany APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
@@ -35,8 +38,8 @@ const ENDPOINTS = {
 export interface MasterFuelCompany extends Record<string, unknown> {
   // Primary Fields
   fuel_company_id: string;
-  company_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 100
+  company_name: string;
+  description?: string;
 
   // Logo
   logo_url: string;
@@ -47,12 +50,21 @@ export interface MasterFuelCompany extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  country_id?: string;
+  country_id: string;
   MasterMainCountry?: MasterMainCountry;
+
+  // Child
+  // Child - Fleet
+  FleetVendorFuelStation?: FleetVendorFuelStation[]
+
+  // Relations - Child Count
+  _count?: {
+    FleetVendorFuelStation?: number;
+  };
 }
 
 // ✅ MasterFuelCompany Create/Update Schema
@@ -77,18 +89,18 @@ export type MasterFuelCompanyQueryDTO = z.infer<
   typeof MasterFuelCompanyQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterFuelCompany Data to API Payload
 export const toMasterFuelCompanyPayload = (row: MasterFuelCompany): MasterFuelCompanyDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  country_id: row.country_id ?? '',
-  company_name: row.company_name,
+  organisation_id: row.organisation_id || '',
+  country_id: row.country_id || '',
+  company_name: row.company_name || '',
   logo_url: '',
   logo_key: '',
-  description: row.description ?? '',
-  status: row.status,
+  description: row.description || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterFuelCompany Payload
 export const newMasterFuelCompanyPayload = (): MasterFuelCompanyDTO => ({
   organisation_id: '',
   country_id: '',
@@ -99,7 +111,7 @@ export const newMasterFuelCompanyPayload = (): MasterFuelCompanyDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterFuelCompany APIs
 export const findMasterFuelCompanys = async (data: MasterFuelCompanyQueryDTO): Promise<FBR<MasterFuelCompany[]>> => {
   return apiPost<FBR<MasterFuelCompany[]>, MasterFuelCompanyQueryDTO>(ENDPOINTS.find, data);
 };
@@ -116,7 +128,7 @@ export const deleteMasterFuelCompany = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterFuelCompanyCache = async (organisation_id: string): Promise<FBR<MasterFuelCompany[]>> => {
   return apiGet<FBR<MasterFuelCompany[]>>(ENDPOINTS.cache(organisation_id));
 };

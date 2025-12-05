@@ -18,19 +18,23 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
 //import { FleetIncidentManagement } from "@api/services/fleet/fleet_incident_management_service";
 
 const URL = 'master/fleet/insurance_claim_status';
 
 const ENDPOINTS = {
+  // MasterFleetInsuranceClaimStatus APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// Master Fleet Insurance Claim Status Interface
+// MasterFleetInsuranceClaimStatus Interface
 export interface MasterFleetInsuranceClaimStatus
   extends Record<string, unknown> {
   // Primary Fields
@@ -43,16 +47,17 @@ export interface MasterFleetInsuranceClaimStatus
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  //FleetIncidentManagement: FleetIncidentManagement[];
+  // Child - Fleet
+  FleetIncidentManagement?: FleetIncidentManagement[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    FleetIncidentManagement: number;
+    FleetIncidentManagement?: number;
   };
 }
 
@@ -83,15 +88,15 @@ export type MasterFleetInsuranceClaimStatusQueryDTO = z.infer<
   typeof MasterFleetInsuranceClaimStatusQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterFleetInsuranceClaimStatus Data to API Payload
 export const toMasterFleetInsuranceClaimStatusPayload = (row: MasterFleetInsuranceClaimStatus): MasterFleetInsuranceClaimStatusDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  fleet_insurance_claim_status: row.fleet_insurance_claim_status,
+  organisation_id: row.organisation_id || '',
+  fleet_insurance_claim_status: row.fleet_insurance_claim_status || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterFleetInsuranceClaimStatus Payload
 export const newMasterFleetInsuranceClaimStatusPayload = (): MasterFleetInsuranceClaimStatusDTO => ({
   organisation_id: '',
   fleet_insurance_claim_status: '',
@@ -99,7 +104,7 @@ export const newMasterFleetInsuranceClaimStatusPayload = (): MasterFleetInsuranc
   status: Status.Active,
 });
 
-// API Methods
+// MasterFleetInsuranceClaimStatus APIs
 export const findMasterFleetInsuranceClaimStatuses = async (data: MasterFleetInsuranceClaimStatusQueryDTO): Promise<FBR<MasterFleetInsuranceClaimStatus[]>> => {
   return apiPost<FBR<MasterFleetInsuranceClaimStatus[]>, MasterFleetInsuranceClaimStatusQueryDTO>(ENDPOINTS.find, data);
 };
@@ -116,7 +121,7 @@ export const deleteMasterFleetInsuranceClaimStatus = async (id: string): Promise
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterFleetInsuranceClaimStatusCache = async (organisation_id: string): Promise<FBR<MasterFleetInsuranceClaimStatus[]>> => {
   return apiGet<FBR<MasterFleetInsuranceClaimStatus[]>>(ENDPOINTS.cache(organisation_id));
 };

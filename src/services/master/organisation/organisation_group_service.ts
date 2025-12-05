@@ -20,14 +20,16 @@ import { Status } from '../../../core/Enums';
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
-// URL & Endpoints
 const URL = 'master/organisation/group';
 
 const ENDPOINTS = {
+  // OrganisationGroup APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
@@ -37,42 +39,46 @@ const ENDPOINTS = {
 export interface OrganisationGroup extends Record<string, unknown> {
   // Primary Fields
   organisation_group_id: string;
-  group_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  group_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  VehicleOrganisationGroupLink: VehicleOrganisationGroupLink[];
+  // Child - Master
+  VehicleOrganisationGroupLink?: VehicleOrganisationGroupLink[]
 
   // Count
   _count?: {
-    VehicleOrganisationGroupLink: number;
+    VehicleOrganisationGroupLink?: number;
   };
 }
 
 export interface VehicleOrganisationGroupLink extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   group_link_id: string;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   organisation_group_id: string;
   OrganisationGroup?: OrganisationGroup;
+  group_name?: string;
 
   vehicle_id: string;
-  Vehicle?: MasterVehicle;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 }
 
 // ✅ OrganisationGroup Create/Update Schema
@@ -95,7 +101,7 @@ export type OrganisationGroupQueryDTO = z.infer<
   typeof OrganisationGroupQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert OrganisationGroup Data to API Payload
 export const toOrganisationGroupPayload = (row: OrganisationGroup): OrganisationGroupDTO => ({
   organisation_id: row.organisation_id,
   group_name: row.group_name,
@@ -105,7 +111,7 @@ export const toOrganisationGroupPayload = (row: OrganisationGroup): Organisation
   status: row.status,
 });
 
-// Generate a new payload with default values
+// Create New OrganisationGroup Payload
 export const newOrganisationGroupPayload = (): OrganisationGroupDTO => ({
   organisation_id: '',
   group_name: '',
@@ -114,7 +120,7 @@ export const newOrganisationGroupPayload = (): OrganisationGroupDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// OrganisationGroup APIs
 export const findOrganisationGroups = async (data: OrganisationGroupQueryDTO): Promise<FBR<OrganisationGroup[]>> => {
   return apiPost<FBR<OrganisationGroup[]>, OrganisationGroupQueryDTO>(ENDPOINTS.find, data);
 };
@@ -131,7 +137,7 @@ export const deleteOrganisationGroup = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getOrganisationGroupCache = async (organisation_id: string): Promise<FBR<OrganisationGroup[]>> => {
   return apiGet<FBR<OrganisationGroup[]>>(ENDPOINTS.cache(organisation_id));
 };

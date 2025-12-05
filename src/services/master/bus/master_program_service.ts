@@ -19,14 +19,18 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { User } from '../../main/users/user_service';
+import { Student } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/program';
 
 const ENDPOINTS = {
+  // MasterProgram APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
@@ -35,24 +39,25 @@ const ENDPOINTS = {
 export interface MasterProgram extends Record<string, unknown> {
   // Primary Fields
   program_id: string;
-  program_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  program_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  // Relations - Child
-  Student: User[];
+  // Children
+  // Child - Fleet
+  Student?: Student[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    Student: number;
+    Student?: number;
   };
 }
 
@@ -72,15 +77,15 @@ export const MasterProgramQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterProgramQueryDTO = z.infer<typeof MasterProgramQuerySchema>;
 
-// Convert existing data to a payload structure
+// Convert MasterProgram Data to API Payload
 export const toMasterProgramPayload = (row: MasterProgram): MasterProgramDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  program_name: row.program_name,
+  organisation_id: row.organisation_id || '',
+  program_name: row.program_name || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterProgram Payload
 export const newMasterProgramPayload = (): MasterProgramDTO => ({
   organisation_id: '',
   program_name: '',
@@ -88,7 +93,7 @@ export const newMasterProgramPayload = (): MasterProgramDTO => ({
   status: Status.Active
 });
 
-// API Methods
+// MasterProgram APIs
 export const findMasterProgram = async (data: MasterProgramQueryDTO): Promise<FBR<MasterProgram[]>> => {
   return apiPost<FBR<MasterProgram[]>, MasterProgramQueryDTO>(ENDPOINTS.find, data);
 };
@@ -105,7 +110,7 @@ export const deleteMasterProgram = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterProgramCache = async (organisation_id: string): Promise<FBR<MasterProgram[]>> => {
   return apiGet<FBR<MasterProgram[]>>(ENDPOINTS.cache(organisation_id));
 };

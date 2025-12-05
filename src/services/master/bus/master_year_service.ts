@@ -18,15 +18,18 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { User } from '../../main/users/user_service';
+import { Student } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/year';
 
 const ENDPOINTS = {
+  // MasterYear APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
@@ -35,24 +38,25 @@ const ENDPOINTS = {
 export interface MasterYear extends Record<string, unknown> {
   // Primary Fields
   year_id: string;
-  year_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  year_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  // Relations - Child
-  Student: User[];
+  // Children
+  // Child - Fleet
+  Student?: Student[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    Student: number;
+    Student?: number;
   };
 }
 
@@ -72,15 +76,15 @@ export const MasterYearQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterYearQueryDTO = z.infer<typeof MasterYearQuerySchema>;
 
-// Convert existing data to a payload structure
+// Convert MasterYear Data to API Payload
 export const toMasterYearPayload = (row: MasterYear): MasterYearDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  year_name: row.year_name,
+  organisation_id: row.organisation_id || '',
+  year_name: row.year_name || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterYear Payload
 export const newMasterYearPayload = (): MasterYearDTO => ({
   organisation_id: '',
   year_name: '',
@@ -88,7 +92,7 @@ export const newMasterYearPayload = (): MasterYearDTO => ({
   status: Status.Active
 });
 
-// API Methods
+// MasterYear APIs
 export const findMasterYear = async (data: MasterYearQueryDTO): Promise<FBR<MasterYear[]>> => {
   return apiPost<FBR<MasterYear[]>, MasterYearQueryDTO>(ENDPOINTS.find, data);
 };
@@ -105,7 +109,7 @@ export const deleteMasterYear = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterYearCache = async (organisation_id: string): Promise<FBR<MasterYear[]>> => {
   return apiGet<FBR<MasterYear[]>>(ENDPOINTS.cache(organisation_id));
 };

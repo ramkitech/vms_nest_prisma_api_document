@@ -18,44 +18,38 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/organisation/color';
 
 const ENDPOINTS = {
+  // OrganisationColor APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Organisation Color Interface
+// OrganisationColor Interface
 export interface OrganisationColor extends Record<string, unknown> {
   // Primary Fields
   organisation_color_id: string;
-  color_name: string; // Min: 3, Max: 100
-  color_code: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  color_name: string;
+  color_code: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id?: string;
   UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicle: number;
-  };
 }
 
 // ✅ OrganisationColor Create/Update Schema
@@ -77,16 +71,16 @@ export type OrganisationColorQueryDTO = z.infer<
   typeof OrganisationColorQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert OrganisationColor Data to API Payload
 export const toOrganisationColorPayload = (row: OrganisationColor): OrganisationColorDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  color_name: row.color_name,
-  color_code: row.color_code,
+  organisation_id: row.organisation_id || '',
+  color_name: row.color_name || '',
+  color_code: row.color_code || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New OrganisationColor Payload
 export const newOrganisationColorPayload = (): OrganisationColorDTO => ({
   organisation_id: '',
   color_name: '',
@@ -95,7 +89,7 @@ export const newOrganisationColorPayload = (): OrganisationColorDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// OrganisationColor APIs
 export const findOrganisationColors = async (data: OrganisationColorQueryDTO): Promise<FBR<OrganisationColor[]>> => {
   return apiPost<FBR<OrganisationColor[]>, OrganisationColorQueryDTO>(ENDPOINTS.find, data);
 };
@@ -112,7 +106,7 @@ export const deleteOrganisationColor = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getOrganisationColorCache = async (organisation_id: string): Promise<FBR<OrganisationColor[]>> => {
   return apiGet<FBR<OrganisationColor[]>>(ENDPOINTS.cache(organisation_id));
 };

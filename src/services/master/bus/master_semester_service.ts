@@ -19,14 +19,18 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { User } from '../../main/users/user_service';
+import { Student } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/semester';
 
 const ENDPOINTS = {
+  // MasterSemester APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
@@ -43,16 +47,17 @@ export interface MasterSemester extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  // Relations - Child
-  Student: User[];
+  // Children
+  // Child - Fleet
+  Student?: Student[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    Student: number;
+    Student?: number;
   };
 }
 
@@ -72,15 +77,15 @@ export const MasterSemesterQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterSemesterQueryDTO = z.infer<typeof MasterSemesterQuerySchema>;
 
-// Convert existing data to a payload structure
+// Convert MasterSemester Data to API Payload
 export const toMasterSemesterPayload = (row: MasterSemester): MasterSemesterDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  semester_name: row.semester_name,
+  organisation_id: row.organisation_id || '',
+  semester_name: row.semester_name || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterSemester Payload
 export const newMasterSemesterPayload = (): MasterSemesterDTO => ({
   organisation_id: '',
   semester_name: '',
@@ -88,7 +93,7 @@ export const newMasterSemesterPayload = (): MasterSemesterDTO => ({
   status: Status.Active
 });
 
-// API Methods
+// MasterSemester APIs
 export const findMasterSemester = async (data: MasterSemesterQueryDTO): Promise<FBR<MasterSemester[]>> => {
   return apiPost<FBR<MasterSemester[]>, MasterSemesterQueryDTO>(ENDPOINTS.find, data);
 };
@@ -105,7 +110,7 @@ export const deleteMasterSemester = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterSemesterCache = async (organisation_id: string): Promise<FBR<MasterSemester[]>> => {
   return apiGet<FBR<MasterSemester[]>>(ENDPOINTS.cache(organisation_id));
 };

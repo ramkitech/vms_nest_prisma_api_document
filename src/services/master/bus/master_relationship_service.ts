@@ -19,14 +19,18 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { User } from '../../main/users/user_service';
+import { StudentGuardianLink } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/relationship';
 
 const ENDPOINTS = {
+  // MasterRelationship APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
@@ -43,16 +47,17 @@ export interface MasterRelationship extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  // Relations - Child
-  StudentGuardianLink: User[];
+  // Children
+  // Child - Fleet
+  StudentGuardianLink?: StudentGuardianLink[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    StudentGuardianLink: number;
+    StudentGuardianLink?: number;
   };
 }
 
@@ -74,15 +79,15 @@ export type MasterRelationshipQueryDTO = z.infer<
   typeof MasterRelationshipQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterRelationship Data to API Payload
 export const toMasterRelationshipPayload = (row: MasterRelationship): MasterRelationshipDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  relationship_name: row.relationship_name,
+  organisation_id: row.organisation_id || '',
+  relationship_name: row.relationship_name || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterRelationship Payload
 export const newMasterRelationshipPayload = (): MasterRelationshipDTO => ({
   organisation_id: '',
   relationship_name: '',
@@ -90,7 +95,7 @@ export const newMasterRelationshipPayload = (): MasterRelationshipDTO => ({
   status: Status.Active
 });
 
-// API Methods
+// MasterRelationship APIs
 export const findMasterRelationship = async (data: MasterRelationshipQueryDTO): Promise<FBR<MasterRelationship[]>> => {
   return apiPost<FBR<MasterRelationship[]>, MasterRelationshipQueryDTO>(ENDPOINTS.find, data);
 };
@@ -107,7 +112,7 @@ export const deleteMasterRelationship = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterRelationshipCache = async (organisation_id: string): Promise<FBR<MasterRelationship[]>> => {
   return apiGet<FBR<MasterRelationship[]>>(ENDPOINTS.cache(organisation_id));
 };

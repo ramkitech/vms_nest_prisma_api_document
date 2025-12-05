@@ -24,42 +24,44 @@ import { MasterDevice } from '../../../services/main/devices/master_device_servi
 const URL = 'master/device/model';
 
 const ENDPOINTS = {
+  // MasterDeviceModel APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (device_manufacturer_id?: string): string => `${URL}/cache?device_manufacturer_id=${device_manufacturer_id || ''}`,
   cache_count: (device_manufacturer_id?: string): string => `${URL}/cache_count?device_manufacturer_id=${device_manufacturer_id || ''}`,
   cache_child: (device_manufacturer_id?: string): string => `${URL}/cache_child?device_manufacturer_id=${device_manufacturer_id || ''}`,
 };
 
-// Master Device Model Interface
+// MasterDeviceModel Interface
 export interface MasterDeviceModel extends Record<string, unknown> {
   // Primary Fields
   device_model_id: string;
-  device_model_name: string; // Min: 3, Max: 100
-  device_model_code?: string; // Max: 100
-  description?: string; // Max: 300
+  device_model_name: string;
+  device_model_code?: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-
-
-  // Relations
+  // Relations - Parent
   device_manufacturer_id: string;
   MasterDeviceManufacturer?: MasterDeviceManufacturer;
 
   // Relations - Child
-  MasterDeviceType: MasterDeviceType[];
-  MasterDevice: MasterDevice[];
+  // Child - Master
+  MasterDeviceType?: MasterDeviceType[];
+  MasterDevice?: MasterDevice[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    MasterDeviceType: number;
-    MasterDevice: number;
+    MasterDeviceType?: number;
+    MasterDevice?: number;
   };
 }
 
@@ -82,16 +84,16 @@ export type MasterDeviceModelQueryDTO = z.infer<
   typeof MasterDeviceModelQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterDeviceModel Data to API Payload
 export const toMasterDeviceModelPayload = (row: MasterDeviceModel): MasterDeviceModelDTO => ({
-  device_manufacturer_id: row.device_manufacturer_id,
-  device_model_name: row.device_model_name,
-  device_model_code: row.device_model_code ?? '',
+  device_manufacturer_id: row.device_manufacturer_id || '',
+  device_model_name: row.device_model_name || '',
+  device_model_code: row.device_model_code || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterDeviceModel Payload
 export const newMasterDeviceModelPayload = (): MasterDeviceModelDTO => ({
   device_manufacturer_id: '',
   device_model_name: '',
@@ -100,7 +102,7 @@ export const newMasterDeviceModelPayload = (): MasterDeviceModelDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterDeviceModel APIs
 export const findMasterDeviceModels = async (data: MasterDeviceModelQueryDTO): Promise<FBR<MasterDeviceModel[]>> => {
   return apiPost<FBR<MasterDeviceModel[]>, MasterDeviceModelQueryDTO>(ENDPOINTS.find, data);
 };
@@ -117,7 +119,7 @@ export const deleteMasterDeviceModel = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterDeviceModelCache = async (device_manufacturer_id?: string): Promise<FBR<MasterDeviceModel[]>> => {
   return apiGet<FBR<MasterDeviceModel[]>>(ENDPOINTS.cache(device_manufacturer_id));
 };

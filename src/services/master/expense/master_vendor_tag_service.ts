@@ -19,14 +19,16 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 
-// URL & Endpoints
 const URL = 'master/expense/vendor_tag';
 
 const ENDPOINTS = {
+  // MasterVendorTag APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
@@ -34,15 +36,15 @@ const ENDPOINTS = {
 export interface MasterVendorTag extends Record<string, unknown> {
   // Primary Fields
   vendor_tag_id: string;
-  vendor_tag: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 100
+  vendor_tag: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 }
@@ -65,15 +67,15 @@ export type MasterVendorTagQueryDTO = z.infer<
   typeof MasterVendorTagQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVendorTag Data to API Payload
 export const toMasterVendorTagPayload = (row: MasterVendorTag): MasterVendorTagDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  vendor_tag: row.vendor_tag,
-  description: row.description ?? '',
-  status: row.status,
+  organisation_id: row.organisation_id || '',
+  vendor_tag: row.vendor_tag || '',
+  description: row.description || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVendorTag Payload
 export const newMasterVendorTagPayload = (): MasterVendorTagDTO => ({
   organisation_id: '',
   vendor_tag: '',
@@ -81,7 +83,7 @@ export const newMasterVendorTagPayload = (): MasterVendorTagDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterVendorTag APIs
 export const findMasterVendorTags = async (data: MasterVendorTagQueryDTO): Promise<FBR<MasterVendorTag[]>> => {
   return apiPost<FBR<MasterVendorTag[]>, MasterVendorTagQueryDTO>(ENDPOINTS.find, data);
 };
@@ -98,7 +100,7 @@ export const deleteMasterVendorTag = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVendorTagCache = async (organisation_id: string): Promise<FBR<MasterVendorTag[]>> => {
   return apiGet<FBR<MasterVendorTag[]>>(ENDPOINTS.cache(organisation_id));
 };

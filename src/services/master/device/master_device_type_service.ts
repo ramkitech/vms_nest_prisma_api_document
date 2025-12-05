@@ -24,10 +24,13 @@ import { MasterDevice } from '../../../services/main/devices/master_device_servi
 const URL = 'master/device/type';
 
 const ENDPOINTS = {
+  // MasterDeviceType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (device_model_id?: string): string => `${URL}/cache?device_model_id=${device_model_id || '0'}`,
   cache_count: (device_model_id?: string): string => `${URL}/cache_count?device_model_id=${device_model_id || '0'}`,
   cache_child: (device_model_id?: string): string => `${URL}/cache_child?device_model_id=${device_model_id || '0'}`,
@@ -46,18 +49,20 @@ export interface MasterDeviceType extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   device_manufacturer_id: string;
   MasterDeviceManufacturer?: MasterDeviceManufacturer;
+
   device_model_id: string;
   MasterDeviceModel?: MasterDeviceModel;
 
   // Relations - Child
-  MasterDevice: MasterDevice[];
+  // Child - Master
+  MasterDevice?: MasterDevice[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    MasterDevice: number;
+    MasterDevice?: number;
   };
 }
 
@@ -82,17 +87,17 @@ export type MasterDeviceTypeQueryDTO = z.infer<
   typeof MasterDeviceTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterDeviceType Data to API Payload
 export const toMasterDeviceTypePayload = (row: MasterDeviceType): MasterDeviceTypeDTO => ({
-  device_manufacturer_id: row.device_manufacturer_id,
-  device_model_id: row.device_model_id,
-  device_type_name: row.device_type_name,
-  device_type_code: row.device_type_code ?? '',
-  description: row.description ?? '',
-  status: row.status,
+  device_manufacturer_id: row.device_manufacturer_id || '',
+  device_model_id: row.device_model_id || '',
+  device_type_name: row.device_type_name || '',
+  device_type_code: row.device_type_code || '',
+  description: row.description || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterDeviceType Payload
 export const newMasterDeviceTypePayload = (): MasterDeviceTypeDTO => ({
   device_manufacturer_id: '',
   device_model_id: '',
@@ -102,7 +107,7 @@ export const newMasterDeviceTypePayload = (): MasterDeviceTypeDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterDeviceType APIs
 export const findMasterDeviceTypes = async (data: MasterDeviceTypeQueryDTO): Promise<FBR<MasterDeviceType[]>> => {
   return apiPost<FBR<MasterDeviceType[]>, MasterDeviceTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -119,7 +124,7 @@ export const deleteMasterDeviceType = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterDeviceTypeCache = async (device_model_id?: string): Promise<FBR<MasterDeviceType[]>> => {
   return apiGet<FBR<MasterDeviceType[]>>(ENDPOINTS.cache(device_model_id));
 };

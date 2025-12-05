@@ -22,27 +22,30 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/expense/expense_type';
 
 const ENDPOINTS = {
+  // MasterExpenseType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// Master Expense Type Interface
+// MasterExpenseType Interface
 export interface MasterExpenseType extends Record<string, unknown> {
   // Primary Fields
   expense_type_id: string;
-  expense_type_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  expense_type_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Count
@@ -67,15 +70,15 @@ export type MasterExpenseTypeQueryDTO = z.infer<
   typeof MasterExpenseTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterExpenseType Data to API Payload
 export const toMasterExpenseTypePayload = (row: MasterExpenseType): MasterExpenseTypeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  expense_type_name: row.expense_type_name,
+  organisation_id: row.organisation_id || '',
+  expense_type_name: row.expense_type_name || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterExpenseType Payload
 export const newMasterExpenseTypePayload = (): MasterExpenseTypeDTO => ({
   organisation_id: '',
   expense_type_name: '',
@@ -83,7 +86,7 @@ export const newMasterExpenseTypePayload = (): MasterExpenseTypeDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterExpenseType APIs
 export const findMasterExpenseTypes = async (data: MasterExpenseTypeQueryDTO): Promise<FBR<MasterExpenseType[]>> => {
   return apiPost<FBR<MasterExpenseType[]>, MasterExpenseTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -100,7 +103,7 @@ export const deleteMasterExpenseType = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterExpenseTypeCache = async (organisation_id: string): Promise<FBR<MasterExpenseType[]>> => {
   return apiGet<FBR<MasterExpenseType[]>>(ENDPOINTS.cache(organisation_id));
 };

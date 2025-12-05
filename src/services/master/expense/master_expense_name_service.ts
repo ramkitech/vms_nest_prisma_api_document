@@ -19,42 +19,45 @@ import { ExpenseCategory, Status } from '../../../core/Enums';
 
 //Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { FleetIncidentManagementCost } from 'src/services/fleet/incident_management/incident_management_service';
 
 const URL = 'master/expense/expense_name';
 
 const ENDPOINTS = {
+  // MasterExpenseName APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// Master Expense Name Interface
+// MasterExpenseName Interface
 export interface MasterExpenseName extends Record<string, unknown> {
   // Primary Fields
   expense_name_id: string;
-  expense_name: string; // Min: 3, Max: 100
+  expense_name: string;
   expense_category: ExpenseCategory;
-  description?: string; // Optional, Max: 300
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  //VehicleDocument: VehicleDocument[];
-  //FleetIncidentManagementCost: FleetIncidentManagementCost[];
+  // Child - Fleet
+  FleetIncidentManagementCost?: FleetIncidentManagementCost[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    VehicleDocument: number;
-    FleetIncidentManagementCost: number;
+    FleetIncidentManagementCost?: number;
   };
 }
 
@@ -82,16 +85,16 @@ export type MasterExpenseNameQueryDTO = z.infer<
   typeof MasterExpenseNameQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterExpenseName Data to API Payload
 export const toMasterExpenseNamePayload = (row: MasterExpenseName): MasterExpenseNameDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  expense_name: row.expense_name,
-  expense_category: row.expense_category,
+  organisation_id: row.organisation_id || '',
+  expense_name: row.expense_name || '',
+  expense_category: row.expense_category || ExpenseCategory.Other,
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterExpenseName Payload
 export const newMasterExpenseNamePayload = (): MasterExpenseNameDTO => ({
   organisation_id: '',
   expense_name: '',
@@ -100,7 +103,7 @@ export const newMasterExpenseNamePayload = (): MasterExpenseNameDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterExpenseName APIs
 export const findMasterExpenseNames = async (data: MasterExpenseNameQueryDTO): Promise<FBR<MasterExpenseName[]>> => {
   return apiPost<FBR<MasterExpenseName[]>, MasterExpenseNameQueryDTO>(ENDPOINTS.find, data);
 };
@@ -117,7 +120,7 @@ export const deleteMasterExpenseName = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterExpenseNameCache = async (organisation_id: string): Promise<FBR<MasterExpenseName[]>> => {
   return apiGet<FBR<MasterExpenseName[]>>(ENDPOINTS.cache(organisation_id));
 };

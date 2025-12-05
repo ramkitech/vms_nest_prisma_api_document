@@ -39,10 +39,10 @@ const ENDPOINTS = {
 export interface OrganisationBranch extends Record<string, unknown> {
   // Primary Fields
   organisation_branch_id: string;
-  branch_name: string; // Min: 3, Max: 100
-  branch_city: string; // Min: 3, Max: 100
-  branch_address: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  branch_name: string;
+  branch_city: string;
+  branch_address: string;
+  description?: string;
 
   // Metadata
   status: Status;
@@ -54,11 +54,11 @@ export interface OrganisationBranch extends Record<string, unknown> {
   UserOrganisation: UserOrganisation;
 
   // Relations - Child
-  MasterVehicle: MasterVehicle[];
+  MasterVehicle?: MasterVehicle[];
 
   // Relations - Child Count
   _count?: {
-    MasterVehicle: number;
+    MasterVehicle?: number;
   };
 }
 
@@ -82,9 +82,9 @@ export type OrganisationBranchQueryDTO = z.infer<
   typeof OrganisationBranchQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert OrganisationBranch Data to API Payload
 export const toOrganisationBranchPayload = (row: OrganisationBranch): OrganisationBranchDTO => ({
-  organisation_id: row.organisation_id,
+  organisation_id: row.organisation_id || '',
 
   branch_name: row.branch_name || '',
   branch_city: row.branch_city || '',
@@ -94,7 +94,7 @@ export const toOrganisationBranchPayload = (row: OrganisationBranch): Organisati
   status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New OrganisationBranch Payload
 export const newOrganisationBranchPayload = (): OrganisationBranchDTO => ({
   organisation_id: '',
 

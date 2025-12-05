@@ -18,15 +18,18 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { User } from '../../main/users/user_service';
+import { Student } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/stream';
 
 const ENDPOINTS = {
+  // MasterStream APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
@@ -35,24 +38,25 @@ const ENDPOINTS = {
 export interface MasterStream extends Record<string, unknown> {
   // Primary Fields
   stream_id: string;
-  stream_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  stream_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  // Relations - Child
-  Student: User[];
+  // Children
+  // Child - Fleet
+  Student?: Student[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    Student: number;
+    Student?: number;
   };
 }
 
@@ -72,15 +76,15 @@ export const MasterStreamQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterStreamQueryDTO = z.infer<typeof MasterStreamQuerySchema>;
 
-// Convert existing data to a payload structure
+// Convert MasterStream Data to API Payload
 export const toMasterStreamPayload = (row: MasterStream): MasterStreamDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  stream_name: row.stream_name,
+  organisation_id: row.organisation_id || '',
+  stream_name: row.stream_name || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterStream Payload
 export const newMasterStreamPayload = (): MasterStreamDTO => ({
   organisation_id: '',
   stream_name: '',
@@ -88,7 +92,7 @@ export const newMasterStreamPayload = (): MasterStreamDTO => ({
   status: Status.Active
 });
 
-// API Methods
+// MasterStream APIs
 export const findMasterStream = async (data: MasterStreamQueryDTO): Promise<FBR<MasterStream[]>> => {
   return apiPost<FBR<MasterStream[]>, MasterStreamQueryDTO>(ENDPOINTS.find, data);
 };
@@ -105,7 +109,7 @@ export const deleteMasterStream = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterStreamCache = async (organisation_id: string): Promise<FBR<MasterStream[]>> => {
   return apiGet<FBR<MasterStream[]>>(ENDPOINTS.cache(organisation_id));
 };

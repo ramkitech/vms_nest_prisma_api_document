@@ -18,31 +18,35 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
+import { FleetVendorDocument } from 'src/services/fleet/vendor_management/fleet_vendor_service';
 
 // URL & Endpoints
 const URL = 'master/expense/vendor_document_type';
 
 const ENDPOINTS = {
+  // MasterVendorDocumentType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// Vendor Type Interface
+// MasterVendorDocumentType Interface
 export interface MasterVendorDocumentType extends Record<string, unknown> {
   // Primary Fields
   document_type_id: string;
-  document_type: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 100
+  document_type: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id?: string;
   UserOrganisation?: UserOrganisation;
 }
@@ -67,15 +71,15 @@ export type MasterVendorDocumentTypeQueryDTO = z.infer<
   typeof MasterVendorDocumentTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVendorDocumentType Data to API Payload
 export const toMasterVendorDocumentTypePayload = (row: MasterVendorDocumentType): MasterVendorDocumentTypeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  document_type: row.document_type,
-  description: row.description ?? '',
-  status: row.status,
+  organisation_id: row.organisation_id || '',
+  document_type: row.document_type || '',
+  description: row.description || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVendorDocumentType Payload
 export const newMasterVendorDocumentTypePayload = (): MasterVendorDocumentTypeDTO => ({
   organisation_id: '',
   document_type: '',
@@ -83,7 +87,7 @@ export const newMasterVendorDocumentTypePayload = (): MasterVendorDocumentTypeDT
   status: Status.Active,
 });
 
-// API Methods
+// MasterVendorDocumentType APIs
 export const findMasterVendorDocumentTypes = async (data: MasterVendorDocumentTypeQueryDTO): Promise<FBR<MasterVendorDocumentType[]>> => {
   return apiPost<FBR<MasterVendorDocumentType[]>, MasterVendorDocumentTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -100,7 +104,7 @@ export const deleteMasterVendorDocumentType = async (id: string): Promise<SBR> =
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVendorDocumentTypeCache = async (organisation_id: string): Promise<FBR<MasterVendorDocumentType[]>> => {
   return apiGet<FBR<MasterVendorDocumentType[]>>(ENDPOINTS.cache(organisation_id));
 };

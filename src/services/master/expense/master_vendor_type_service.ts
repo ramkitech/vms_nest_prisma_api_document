@@ -19,30 +19,32 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 
-// URL & Endpoints
 const URL = 'master/expense/vendor_type';
 
 const ENDPOINTS = {
+  // MasterVendorType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// Vendor Type Interface
+// VendorType Interface
 export interface MasterVendorType extends Record<string, unknown> {
   // Primary Fields
   vendor_type_id: string;
-  vendor_type: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 100
+  vendor_type: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 }
@@ -65,15 +67,15 @@ export type MasterVendorTypeQueryDTO = z.infer<
   typeof MasterVendorTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVendorType Data to API Payload
 export const toMasterVendorTypePayload = (row: MasterVendorType): MasterVendorTypeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  vendor_type: row.vendor_type,
-  description: row.description ?? '',
-  status: row.status,
+  organisation_id: row.organisation_id || '',
+  vendor_type: row.vendor_type || '',
+  description: row.description || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVendorType Payload
 export const newMasterVendorTypePayload = (): MasterVendorTypeDTO => ({
   organisation_id: '',
   vendor_type: '',
@@ -81,7 +83,7 @@ export const newMasterVendorTypePayload = (): MasterVendorTypeDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterVendorType APIs
 export const findMasterVendorTypes = async (data: MasterVendorTypeQueryDTO): Promise<FBR<MasterVendorType[]>> => {
   return apiPost<FBR<MasterVendorType[]>, MasterVendorTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -98,7 +100,7 @@ export const deleteMasterVendorType = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVendorTypeCache = async (organisation_id: string): Promise<FBR<MasterVendorType[]>> => {
   return apiGet<FBR<MasterVendorType[]>>(ENDPOINTS.cache(organisation_id));
 };

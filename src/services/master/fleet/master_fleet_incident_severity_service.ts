@@ -18,40 +18,44 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-//import { FleetIncidentManagement } from "@api/services/fleet/fleet_incident_management_service";
+import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
 
 const URL = 'master/fleet/incident_severity';
 
 const ENDPOINTS = {
+  // MasterFleetIncidentSeverity APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// Master Fleet Incident Severity Interface
+// MasterFleetIncidentSeverity Interface
 export interface MasterFleetIncidentSeverity extends Record<string, unknown> {
   // Primary Fields
   fleet_incident_severity_id: string;
-  fleet_incident_severity: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  fleet_incident_severity: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  // FleetIncidentManagement: FleetIncidentManagement[];
+  // Child - Fleet
+  FleetIncidentManagement?: FleetIncidentManagement[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    FleetIncidentManagement: number;
+    FleetIncidentManagement?: number;
   };
 }
 
@@ -77,15 +81,15 @@ export type MasterFleetIncidentSeverityQueryDTO = z.infer<
   typeof MasterFleetIncidentSeverityQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterFleetIncidentSeverity Data to API Payload
 export const toMasterFleetIncidentSeverityPayload = (row: MasterFleetIncidentSeverity): MasterFleetIncidentSeverityDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  fleet_incident_severity: row.fleet_incident_severity,
+  organisation_id: row.organisation_id || '',
+  fleet_incident_severity: row.fleet_incident_severity || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterFleetIncidentSeverity Payload
 export const newMasterFleetIncidentSeverityPayload = (): MasterFleetIncidentSeverityDTO => ({
   organisation_id: '',
   fleet_incident_severity: '',
@@ -93,7 +97,7 @@ export const newMasterFleetIncidentSeverityPayload = (): MasterFleetIncidentSeve
   status: Status.Active,
 });
 
-// API Methods
+// MasterFleetIncidentSeverity APIs
 export const findMasterFleetIncidentSeverities = async (data: MasterFleetIncidentSeverityQueryDTO): Promise<FBR<MasterFleetIncidentSeverity[]>> => {
   return apiPost<FBR<MasterFleetIncidentSeverity[]>, MasterFleetIncidentSeverityQueryDTO>(ENDPOINTS.find, data);
 };
@@ -110,7 +114,7 @@ export const deleteMasterFleetIncidentSeverity = async (id: string): Promise<SBR
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterFleetIncidentSeverityCache = async (organisation_id: string): Promise<FBR<MasterFleetIncidentSeverity[]>> => {
   return apiGet<FBR<MasterFleetIncidentSeverity[]>>(ENDPOINTS.cache(organisation_id));
 };
