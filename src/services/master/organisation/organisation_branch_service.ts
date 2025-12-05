@@ -49,14 +49,14 @@ export interface OrganisationBranch extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation: UserOrganisation;
 
   // Relations - Child
   MasterVehicle: MasterVehicle[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
     MasterVehicle: number;
   };

@@ -108,12 +108,12 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
     legal_description?: string;
     involved_parties_description?: string;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations - Parent
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
@@ -145,12 +145,12 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
     MasterFleetInsuranceClaimStatus?: MasterFleetInsuranceClaimStatus;
     fleet_insurance_claim_status?: string;
 
-    // ✅ Relations - Child
+    // Relations - Child
     FleetIncidentManagementFile?: FleetIncidentManagementFile[]
     FleetIncidentManagementCost?: FleetIncidentManagementCost[]
     FleetIssueManagement?: FleetIssueManagement[]
 
-    // ✅ Count (Child Relations)
+    // Relations - Child Count
     _count?: {
         FleetIncidentManagementFile?: number;
         FleetIncidentManagementCost?: number;
