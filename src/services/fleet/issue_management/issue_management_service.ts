@@ -30,33 +30,35 @@ import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service'
 
 import { FleetIncidentManagement } from '../incident_management/incident_management_service';
 import { FleetServiceManagement } from '../service_management/fleet_service_management_service';
+import { FleetInspection } from '../inspection_management/fleet_inspection_management_service';
 
 const URL = 'fleet/issue_management/issues';
 
 const ENDPOINTS = {
-
     // AWS S3 PRESIGNED
     issue_file_presigned_url: `${URL}/issue_file_presigned_url`,
 
-    // File
+    // File Uploads
     create_issue_file: `${URL}/create_issue_file`,
     remove_issue_file: (id: string): string => `${URL}/remove_issue_file/${id}`,
 
+    // FleetIssueManagement APIs
     find: `${URL}/search`,
-    issue_dashboard: `${URL}/issue_dashboard`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
+    issue_dashboard: `${URL}/issue_dashboard`,
 
+    // FleetIssueManagementComment APIs
     create_comment: `${URL}/create_comment`,
     find_comment: `${URL}/comment/search`,
     update_comment: (id: string): string => `${URL}/update_comment/${id}`,
     delete_comment: (id: string): string => `${URL}/delete_comment/${id}`,
 };
 
-// ✅ FleetIssueManagement Interface
+// FleetIssueManagement Interface
 export interface FleetIssueManagement extends Record<string, unknown> {
-    // ✅ Primary Fields
+    // Primary Fields
     vehicle_issue_id: string;
     vehicle_sub_issue_id: number;
 
@@ -78,17 +80,18 @@ export interface FleetIssueManagement extends Record<string, unknown> {
     due_odometer_reading?: number;
     issue_source: IssueSource;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     user_id: string;
     User?: User;
+    user_details?: string;
 
     vehicle_id: string;
     MasterVehicle?: MasterVehicle;
@@ -103,7 +106,7 @@ export interface FleetIssueManagement extends Record<string, unknown> {
     FleetIncidentManagement?: FleetIncidentManagement;
 
     inspection_id?: string;
-    // FleetInspection?: FleetInspection;
+    FleetInspection?: FleetInspection;
 
     service_management_id?: string;
     FleetServiceManagement?: FleetServiceManagement;
@@ -111,20 +114,21 @@ export interface FleetIssueManagement extends Record<string, unknown> {
     job_card_id?: string;
     // FleetServiceJobCard?: FleetServiceJobCard;
 
-    // Count Child
-    FleetIssueManagementFile: FleetIssueManagementFile[];
+    // Relations - Child
+    // Child - Fleet
     FleetIssueManagementComment?: FleetIssueManagementComment[];
+    FleetIssueManagementFile?: FleetIssueManagementFile[];
     FleetIssueManagementHistory?: FleetIssueManagementHistory[];
 
-    // ✅ Count (Child Relations)
+    // Relations - Child Count
     _count?: {
-        FleetIssueManagementComment: number;
-        FleetIssueManagementFile: number;
-        FleetIssueManagementHistory: number;
+        FleetIssueManagementComment?: number;
+        FleetIssueManagementFile?: number;
+        FleetIssueManagementHistory?: number;
     };
 }
 
-// FleetIssueManagementHistory
+// FleetIssueManagementHistory Interface
 export interface FleetIssueManagementHistory extends Record<string, unknown> {
     vehicle_issue_history_id: string;
     old_issue_status: IssueStatus;
@@ -134,50 +138,42 @@ export interface FleetIssueManagementHistory extends Record<string, unknown> {
     change_date: string;
     change_date_f: string;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations
+    // Relations - Parent
     vehicle_issue_id: string;
     FleetIssueManagement?: FleetIssueManagement;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
 }
 
-// FleetIssueManagementComment
+// FleetIssueManagementComment Interface
 export interface FleetIssueManagementComment extends Record<string, unknown> {
     vehicle_issue_comment_id: string;
 
     comment_text: string;
     comment_description?: string;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     vehicle_issue_id: string;
     FleetIssueManagement?: FleetIssueManagement;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
 }
 
-// ✅ FleetIssueManagementFile Interface
+// FleetIssueManagementFile Interface
 export interface FleetIssueManagementFile extends BaseCommonFile {
     // Primary Fields
     fleet_issue_management_file_id: string;
 
-    // ✅ Relations - Parent
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
@@ -186,16 +182,16 @@ export interface FleetIssueManagementFile extends BaseCommonFile {
 }
 
 export interface IssueDashboard {
-  date: string;
-  total_count: number;
-  open: number;
-  closed: number;
-  resolved: number;
-  overdue: number;
-  reopen: number;
+    date: string;
+    total_count: number;
+    open: number;
+    closed: number;
+    resolved: number;
+    overdue: number;
+    reopen: number;
 }
 
-// ✅ FleetIssueManagementFile Schema
+// FleetIssueManagementFile Schema
 export const FleetIssueManagementFileSchema = BaseFileSchema.extend({
     organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     vehicle_issue_id: single_select_optional('FleetIssueManagement'), // ✅ Single-Selection -> FleetIssueManagement
@@ -204,7 +200,7 @@ export type FleetIssueManagementFileDTO = z.infer<
     typeof FleetIssueManagementFileSchema
 >;
 
-// ✅ FleetIssueManagement Create/Update Schema
+// FleetIssueManagement Create/Update Schema
 export const FleetIssueManagementSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
@@ -250,7 +246,7 @@ export type FleetIssueManagementDTO = z.infer<
     typeof FleetIssueManagementSchema
 >;
 
-// ✅ FleetIssueManagement Query Schema
+// FleetIssueManagement Query Schema
 export const FleetIssueManagementQuerySchema = BaseQuerySchema.extend({
     vehicle_issue_ids: multi_select_optional('FleetIssueManagement'), // ✅ Multi-Selection -> FleetIssueManagement
 
@@ -275,19 +271,19 @@ export type FleetIssueManagementQueryDTO = z.infer<
     typeof FleetIssueManagementQuerySchema
 >;
 
-// ✅ FleetIssueManagementDashBoard Query Schema
+// FleetIssueManagementDashBoard Query Schema
 export const FleetIssueManagementDashBoardQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
 
-  from_date: dateMandatory('From Date'),
-  to_date: dateMandatory('To Date'),
+    from_date: dateMandatory('From Date'),
+    to_date: dateMandatory('To Date'),
 });
 export type FleetIssueManagementDashBoardQueryDTO = z.infer<
-  typeof FleetIssueManagementDashBoardQuerySchema
+    typeof FleetIssueManagementDashBoardQuerySchema
 >;
 
-// ✅ FleetIssueManagementComment Create/Update Schema
+// FleetIssueManagementComment Create/Update Schema
 export const FleetIssueManagementCommentSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     vehicle_issue_id: single_select_mandatory('FleetIssueManagement'), // ✅ Single-Selection -> FleetIssueManagement
@@ -300,7 +296,7 @@ export type FleetIssueManagementCommentDTO = z.infer<
     typeof FleetIssueManagementCommentSchema
 >;
 
-// ✅ FleetIssueManagementComment Query Schema
+// FleetIssueManagementComment Query Schema
 export const FleetIssueManagementCommentQuerySchema = BaseQuerySchema.extend({
     vehicle_issue_comment_ids: multi_select_optional(
         'FleetIssueManagementComment',
@@ -314,8 +310,7 @@ export type FleetIssueManagementCommentQueryDTO = z.infer<
 >;
 
 
-
-// ✅ Convert FleetIssueManagement Data to API Payload
+// Convert FleetIssueManagement Data to API Payload
 export const toFleetIssueManagementPayload = (row: FleetIssueManagement): FleetIssueManagementDTO => ({
     // Issue Details
     issue_title: row.issue_title || '',
@@ -339,32 +334,31 @@ export const toFleetIssueManagementPayload = (row: FleetIssueManagement): FleetI
     inspection_id: row.inspection_id || '',
     service_management_id: row.service_management_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
     time_zone_id: '', // Needs to be provided manually
 
     FleetIssueManagementFileSchema: row.FleetIssueManagementFile?.map((file) => ({
-        fleet_issue_management_file_id: file.fleet_issue_management_file_id ?? '',
+        organisation_id: file.organisation_id || '',
+        vehicle_issue_id: file.vehicle_issue_id || '',
+        fleet_issue_management_file_id: file.fleet_issue_management_file_id || '',
 
-        usage_type: (file.usage_type || '').trim(),
+        // Usage Type -> Odometer Image, Fuel Bill, Fuel Tank Image, Refill Recording Video
+        usage_type: file.usage_type || '',
+
         file_type: file.file_type || FileType.Image,
-        file_url: (file.file_url || '').trim(),
-        file_key: (file.file_key || '').trim(),
-        file_name: (file.file_name || '').trim(),
-        file_description: (file.file_description || '').trim(),
+
+        file_url: file.file_url || '',
+        file_key: file.file_key || '',
+        file_name: file.file_name || '',
+        file_description: file.file_description || '',
         file_size: file.file_size || 0,
         file_metadata: file.file_metadata || {},
 
-        status: file.status,
-        added_date_time: file.added_date_time,
-        modified_date_time: file.modified_date_time,
-
-        organisation_id: file.organisation_id ?? '',
-
-        vehicle_issue_id: file.vehicle_issue_id ?? '',
-    })) ?? [],
+        status: file.status || Status.Active,
+    })) || [],
 });
 
-// ✅ Create New FleetIssueManagement Payload
+// Create New FleetIssueManagement Payload
 export const newFleetIssueManagementPayload = (): FleetIssueManagementDTO => ({
     issue_title: '',
     issue_description: '',
@@ -392,7 +386,7 @@ export const newFleetIssueManagementPayload = (): FleetIssueManagementDTO => ({
     FleetIssueManagementFileSchema: [],
 });
 
-// ✅ Convert FleetIssueManagementComment Data to API Payload
+// Convert FleetIssueManagementComment Data to API Payload
 export const toFleetIssueManagementCommentPayload = (row: FleetIssueManagementComment): FleetIssueManagementCommentDTO => ({
     comment_text: row.comment_text || '',
     comment_description: row.comment_description || '',
@@ -400,10 +394,10 @@ export const toFleetIssueManagementCommentPayload = (row: FleetIssueManagementCo
     organisation_id: row.organisation_id || '',
     vehicle_issue_id: row.vehicle_issue_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetIssueManagementComment Payload
+// Create New FleetIssueManagementComment Payload
 export const newFleetIssueManagementCommentPayload = (): FleetIssueManagementCommentDTO => ({
     comment_text: '',
     comment_description: '',
@@ -414,12 +408,12 @@ export const newFleetIssueManagementCommentPayload = (): FleetIssueManagementCom
     status: Status.Active,
 });
 
-// Generate presigned URL for file uploads
+// AWS S3 PRESIGNED
 export const get_issue_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
     return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.issue_file_presigned_url, data);
 };
 
-// File API Methods
+// File Uploads
 export const create_issue_file = async (data: FleetIssueManagementFileDTO): Promise<SBR> => {
     return apiPost<SBR, FleetIssueManagementFileDTO>(ENDPOINTS.create_issue_file, data);
 };
@@ -428,7 +422,7 @@ export const remove_issue_file = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_issue_file(id));
 };
 
-// API Methods
+// FleetIssueManagement APIs
 export const findFleetIssueManagement = async (data: FleetIssueManagementQueryDTO): Promise<FBR<FleetIssueManagement[]>> => {
     return apiPost<FBR<FleetIssueManagement[]>, FleetIssueManagementQueryDTO>(ENDPOINTS.find, data);
 };
@@ -449,7 +443,7 @@ export const issue_dashboard = async (data: FleetIssueManagementDashBoardQueryDT
     return apiPost<FBR<IssueDashboard[]>, FleetIssueManagementDashBoardQueryDTO>(ENDPOINTS.issue_dashboard, data);
 };
 
-// FleetIssueManagementComment
+// FleetIssueManagementComment APIs
 export const findFleetIssueManagementComment = async (data: FleetIssueManagementCommentQueryDTO): Promise<FBR<FleetIssueManagementComment[]>> => {
     return apiPost<FBR<FleetIssueManagementComment[]>, FleetIssueManagementCommentQueryDTO>(ENDPOINTS.find_comment, data);
 };

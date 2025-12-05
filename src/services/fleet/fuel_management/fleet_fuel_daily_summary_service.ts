@@ -31,16 +31,18 @@ import { FuelConsumptionMonthly } from 'src/services/gps/reports/gps_models/Fuel
 const URL = 'fleet/fuel_management/fleet_fuel_daily_summary';
 
 const ENDPOINTS = {
+  // FleetFuelDailySummary APIs
   find: `${URL}/search`,
-  fuel_dashboard: `${URL}/fuel_dashboard`,
-  find_monthly: `${URL}/monthly/search`,
-  find_vehicle_fuel_summary: `${URL}/vehicle_fuel_summary/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  fuel_dashboard: `${URL}/fuel_dashboard`,
+  find_monthly: `${URL}/monthly/search`,
+  find_vehicle_fuel_summary: `${URL}/vehicle_fuel_summary/search`,
 };
 
-// ✅ FleetFuelDailySummary Interface
+// FleetFuelDailySummary Interface
 export interface FleetFuelDailySummary extends Record<string, unknown> {
   // Primary Fields
   fleet_fuel_daily_summary_id: string;
@@ -61,15 +63,16 @@ export interface FleetFuelDailySummary extends Record<string, unknown> {
 
   // Metadata
   status: Status;
-  added_date_time: string; // ISO string
-  modified_date_time: string; // ISO string
+  added_date_time: string;
+  modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   user_id?: string;
   User?: User;
+  user_details?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -83,13 +86,9 @@ export interface FleetFuelDailySummary extends Record<string, unknown> {
   device_id: string;
   MasterDevice?: MasterDevice;
   device_identifier?: string;
-
-  // Optional count object (if used in aggregation queries)
-  _count?: {
-  };
 }
 
-// ✅ FleetFuelDailySummary Create/Update Schema
+// FleetFuelDailySummary Create/Update Schema
 export const FleetFuelDailySummarySchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   user_id: single_select_optional('User'), // ✅ Single-Selection -> User
@@ -119,7 +118,7 @@ export type FleetFuelDailySummaryDTO = z.infer<
   typeof FleetFuelDailySummarySchema
 >;
 
-// ✅ FleetFuelDailySummary Query Schema
+// FleetFuelDailySummary Query Schema
 export const FleetFuelDailySummaryQuerySchema = BaseQuerySchema.extend({
   fleet_fuel_daily_summary_ids: multi_select_optional('FleetFuelDailySummary'), // ✅ Multi-selection -> FleetFuelDailySummary
 
@@ -139,7 +138,7 @@ export type FleetFuelDailySummaryQueryDTO = z.infer<
   typeof FleetFuelDailySummaryQuerySchema
 >;
 
-// ✅ FleetFuelDailySummaryDashBoard Query Schema
+// FleetFuelDailySummaryDashBoard Query Schema
 export const FleetFuelDailySummaryDashBoardQuerySchema = BaseQuerySchema.extend(
   {
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
@@ -153,7 +152,7 @@ export type FleetFuelDailySummaryDashBoardQueryDTO = z.infer<
   typeof FleetFuelDailySummaryDashBoardQuerySchema
 >;
 
-// ✅ FleetFuelDailyMonthlySummary Query Schema
+// FleetFuelDailyMonthlySummary Query Schema
 export const FleetFuelDailyMonthlySummaryQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
   vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
@@ -164,8 +163,7 @@ export type FleetFuelDailyMonthlySummaryQueryDTO = z.infer<
   typeof FleetFuelDailyMonthlySummaryQuerySchema
 >;
 
-// ✅ AllVehiclesFuelDailySummary Query Schema
-
+// AllVehiclesFuelDailySummary Query Schema
 export const AllVehiclesFuelDailySummaryQuerySchema = z.object({
   date: dateMandatory('Date'),
   organisation_utrack_id: stringMandatory('Organisation Utrack ID'),
@@ -182,11 +180,11 @@ export interface FuelDashboard {
   removals_count: number;
 }
 
-// Convert existing data to a payload structure
+// Convert FleetFuelDailySummary Data to API Payload
 export const toFleetFuelDailySummaryPayload = (row: FleetFuelDailySummary): FleetFuelDailySummaryDTO => ({
   organisation_id: row.organisation_id ?? '',
   user_id: row.user_id || '',
-  vehicle_id: row.vehicle_id ?? '',
+  vehicle_id: row.vehicle_id || '',
   driver_id: row.driver_id || '',
   device_id: row.device_id || '',
 
@@ -205,10 +203,10 @@ export const toFleetFuelDailySummaryPayload = (row: FleetFuelDailySummary): Flee
   mileage_kmpl: row.mileage_kmpl || 0,
   liters_per_100km: row.liters_per_100km || 0,
 
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New FleetFuelDailySummary Payload
 export const newFleetFuelDailySummaryPayload = (): FleetFuelDailySummaryDTO => ({
   organisation_id: '',
   user_id: '',
@@ -235,21 +233,9 @@ export const newFleetFuelDailySummaryPayload = (): FleetFuelDailySummaryDTO => (
   status: Status.Active,
 });
 
-// API Methods
+// FleetFuelDailySummary APIs
 export const findFleetFuelDailySummary = async (data: FleetFuelDailySummaryQueryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
   return apiPost<FBR<FleetFuelDailySummary[]>, FleetFuelDailySummaryQueryDTO>(ENDPOINTS.find, data);
-};
-
-export const fuel_dashboard = async (data: FleetFuelDailySummaryDashBoardQueryDTO): Promise<FBR<FuelDashboard[]>> => {
-  return apiPost<FBR<FuelDashboard[]>, FleetFuelDailySummaryDashBoardQueryDTO>(ENDPOINTS.fuel_dashboard, data);
-};
-
-export const findFleetFuelMonthlySummary = async (data: FleetFuelDailyMonthlySummaryQueryDTO): Promise<FBR<FuelConsumptionMonthly[]>> => {
-  return apiPost<FBR<FuelConsumptionMonthly[]>, FleetFuelDailyMonthlySummaryQueryDTO>(ENDPOINTS.find_monthly, data);
-};
-
-export const findVehicleFuelSummary = async (data: AllVehiclesFuelDailySummaryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
-  return apiPost<FBR<FleetFuelDailySummary[]>, AllVehiclesFuelDailySummaryDTO>(ENDPOINTS.find_vehicle_fuel_summary, data);
 };
 
 export const createFleetFuelDailySummary = async (data: FleetFuelDailySummaryDTO): Promise<SBR> => {
@@ -264,3 +250,14 @@ export const deleteFleetFuelDailySummary = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
+export const fuel_dashboard = async (data: FleetFuelDailySummaryDashBoardQueryDTO): Promise<FBR<FuelDashboard[]>> => {
+  return apiPost<FBR<FuelDashboard[]>, FleetFuelDailySummaryDashBoardQueryDTO>(ENDPOINTS.fuel_dashboard, data);
+};
+
+export const findFleetFuelMonthlySummary = async (data: FleetFuelDailyMonthlySummaryQueryDTO): Promise<FBR<FuelConsumptionMonthly[]>> => {
+  return apiPost<FBR<FuelConsumptionMonthly[]>, FleetFuelDailyMonthlySummaryQueryDTO>(ENDPOINTS.find_monthly, data);
+};
+
+export const findVehicleFuelSummary = async (data: AllVehiclesFuelDailySummaryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
+  return apiPost<FBR<FleetFuelDailySummary[]>, AllVehiclesFuelDailySummaryDTO>(ENDPOINTS.find_vehicle_fuel_summary, data);
+};

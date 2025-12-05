@@ -29,29 +29,23 @@ import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
 import { MasterRouteStop } from './master_route';
 
-// --------------------------------------------------------------
-// URL & ENDPOINTS
-// --------------------------------------------------------------
 const URL = 'bus_stop';
 
 const ENDPOINTS = {
-  create: URL,
+  // BusStop APIs
   find: `${URL}/search`,
+  create: URL,
   update: (id: string): string => `${URL}/${id}`,
   remove: (id: string): string => `${URL}/${id}`,
 };
 
-// --------------------------------------------------------------
-// Interfaces
-// --------------------------------------------------------------
-
-// ✅ Polygon Data Interface
+// BusStopPolygonData Interface
 export interface BusStopPolygonData {
   latitude: number;
   longitude: number;
 }
 
-// ✅ BusStop Interface
+// BusStop Interface
 export interface BusStop extends Record<string, unknown> {
   // Primary Fields
   bus_stop_id: string;
@@ -89,33 +83,30 @@ export interface BusStop extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   organisation_branch_id?: string;
   OrganisationBranch?: OrganisationBranch;
 
-  MasterRouteStop: MasterRouteStop[];
+  // Relations - Child
+  MasterRouteStop?: MasterRouteStop[];
 
-  // ✅ Count (Child Relations)
+  // Relations - Child Count
   _count?: {
-    MasterRouteStop: number;
+    MasterRouteStop?: number;
   };
 }
 
-// --------------------------------------------------------------
-// Zod Schemas
-// --------------------------------------------------------------
-
-// ✅ BusStop Polygon Data Create/Update Schema
+// BusStop Polygon Data Create/Update Schema
 export const BusStopPolygonDataSchema = z.object({
   latitude: doubleMandatoryLatLng('latitude'),
   longitude: doubleMandatoryLatLng('longitude'),
 });
 export type BusStopPolygonDataDTO = z.infer<typeof BusStopPolygonDataSchema>;
 
-// ✅ BusStop Create/Update Schema
+// BusStop Create/Update Schema
 export const BusStopSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -160,7 +151,7 @@ export const BusStopSchema = z.object({
 });
 export type BusStopDTO = z.infer<typeof BusStopSchema>;
 
-// ✅ BusStop Query Schema
+// BusStop Query Schema
 export const BusStopQuerySchema = BaseQuerySchema.extend({
   bus_stop_ids: multi_select_optional('BusStop'), // ✅ Multi-selection -> BusStop
 
@@ -180,11 +171,7 @@ export const BusStopQuerySchema = BaseQuerySchema.extend({
 });
 export type BusStopQueryDTO = z.infer<typeof BusStopQuerySchema>;
 
-// --------------------------------------------------------------
-// Payload Helpers
-// --------------------------------------------------------------
-
-// Convert existing data to DTO
+// Convert BusStop Data to API Payload
 export const toBusStopPayload = (row: BusStop): BusStopDTO => ({
   organisation_id: row.organisation_id || '',
   organisation_branch_id: row.organisation_branch_id || '',
@@ -214,10 +201,10 @@ export const toBusStopPayload = (row: BusStop): BusStopDTO => ({
   radius_meters: row.radius_meters || 0,
   radius_km: row.radius_km || 0,
   polygon_data: row.polygon_data || [],
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// New payload with default values
+// Create New BusStop Payload
 export const newBusStopPayload = (): BusStopDTO => ({
   organisation_id: '',
   organisation_branch_id: '',
@@ -250,9 +237,7 @@ export const newBusStopPayload = (): BusStopDTO => ({
   status: Status.Active,
 });
 
-// --------------------------------------------------------------
-// API Methods
-// --------------------------------------------------------------
+// BusStop APIs
 export const findBusStop = async (data: BusStopQueryDTO): Promise<FBR<BusStop[]>> => {
   return apiPost<FBR<BusStop[]>, BusStopQueryDTO>(ENDPOINTS.find, data);
 };

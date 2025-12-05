@@ -60,7 +60,7 @@ const ENDPOINTS = {
     remove_cost: (id: string): string => `${URL}/remove_cost/${id}`,
 };
 
-// ✅ FleetIncidentManagement Interface
+// FleetIncidentManagement Interface
 export interface FleetIncidentManagement extends Record<string, unknown> {
     vehicle_incident_id: string;
     vehicle_sub_incident_id: number;
@@ -186,7 +186,7 @@ export interface FleetIncidentManagementCost extends Record<string, unknown> {
     };
 }
 
-// ✅ FleetIncidentManagementFile Interface
+// FleetIncidentManagementFile Interface
 export interface FleetIncidentManagementFile extends BaseCommonFile {
     // Primary Fields
     fleet_incident_management_file_id: string;
@@ -206,7 +206,7 @@ export interface IncidentDashboard {
     incidents_count: number;
 }
 
-// ✅ FleetIncidentManagementFile Schema
+// FleetIncidentManagementFile Schema
 export const FleetIncidentManagementFileSchema = BaseFileSchema.extend({
     organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     vehicle_incident_id: single_select_optional('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
@@ -215,7 +215,7 @@ export type FleetIncidentManagementFileDTO = z.infer<
     typeof FleetIncidentManagementFileSchema
 >;
 
-// ✅ FleetIncidentManagement Create/update Schema
+// FleetIncidentManagement Create/update Schema
 export const FleetIncidentManagementSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
@@ -312,7 +312,7 @@ export type FleetIncidentManagementDTO = z.infer<
     typeof FleetIncidentManagementSchema
 >;
 
-// ✅ FleetIncidentManagementDashBoard Query Schema
+// FleetIncidentManagementDashBoard Query Schema
 export const FleetIncidentManagementDashBoardQuerySchema =
     BaseQuerySchema.extend({
         organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
@@ -325,7 +325,7 @@ export type FleetIncidentManagementDashBoardQueryDTO = z.infer<
     typeof FleetIncidentManagementDashBoardQuerySchema
 >;
 
-// ✅ FleetIncidentManagementComment Query Schema
+// FleetIncidentManagementComment Query Schema
 export const FleetIncidentManagementQuerySchema = BaseQuerySchema.extend({
     vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
 
@@ -393,7 +393,7 @@ export type FleetIncidentManagementQueryDTO = z.infer<
     typeof FleetIncidentManagementQuerySchema
 >;
 
-// ✅ FleetIncidentManagementCost Create/update Schema
+// FleetIncidentManagementCost Create/update Schema
 export const FleetIncidentManagementCostSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     vehicle_incident_id: single_select_mandatory('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
@@ -415,7 +415,7 @@ export type FleetIncidentManagementCostDTO = z.infer<
     typeof FleetIncidentManagementCostSchema
 >;
 
-// ✅ FleetIncidentManagementCost Query Schema
+// FleetIncidentManagementCost Query Schema
 export const FleetIncidentManagementCostQuerySchema = BaseQuerySchema.extend({
     incident_cost_ids: multi_select_optional('FleetIncidentManagementCost'), // ✅ Multi-Selection -> FleetIncidentManagementCost
 
@@ -427,7 +427,7 @@ export type FleetIncidentManagementCostQueryDTO = z.infer<
     typeof FleetIncidentManagementCostQuerySchema
 >;
 
-// ✅ Convert FleetIncidentManagement Data to API Payload
+// Convert FleetIncidentManagement Data to API Payload
 export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): FleetIncidentManagementDTO => ({
     // Incident Details
     incident_date: row.incident_date || '',
@@ -506,7 +506,7 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
     })) ?? [],
 });
 
-// ✅ Create New FleetIncidentManagement Payload
+// Create New FleetIncidentManagement Payload
 export const newFleetIncidentManagementPayload = (): FleetIncidentManagementDTO => ({
     organisation_id: '',
     user_id: '',
@@ -558,7 +558,7 @@ export const newFleetIncidentManagementPayload = (): FleetIncidentManagementDTO 
     time_zone_id: '', // Needs to be provided manually
 });
 
-// ✅ Convert FleetIncidentManagementCost Data to API Payload
+// Convert FleetIncidentManagementCost Data to API Payload
 export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagementCost): FleetIncidentManagementCostDTO => ({
     incident_cost_date: row.incident_cost_date || '',
     incident_cost_amount: row.incident_cost_amount || 0,
@@ -572,7 +572,7 @@ export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagemen
     time_zone_id: '', // Needs to be provided manually
 });
 
-// ✅ Create New FleetIncidentManagementCost Payload
+// Create New FleetIncidentManagementCost Payload
 export const newFleetIncidentManagementCostPayload = (): FleetIncidentManagementCostDTO => ({
     organisation_id: '',
     vehicle_incident_id: '',

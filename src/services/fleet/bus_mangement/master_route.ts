@@ -33,22 +33,22 @@ import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 import { Student } from './student';
 
-// Base URL
 const URL = 'master_route';
 
 const ENDPOINTS = {
-    create_route: (id: string): string => `${URL}/route/${id}`,
+    // MasterRoute APIs
     find_route: `${URL}/route/search`,
+    create_route: (id: string): string => `${URL}/route/${id}`,
     update_route: (id: string): string => `${URL}/route/${id}`,
     remove_route: (id: string): string => `${URL}/route/${id}`,
 
-    // Schedule endpoints
-    create_schedule: `${URL}/schedule`,
+    // MasterFixedSchedule APIs
     find_schedule: `${URL}/schedule/search`,
+    create_schedule: `${URL}/schedule`,
     update_schedule: (id: string): string => `${URL}/schedule/${id}`,
     remove_schedule: (id: string): string => `${URL}/schedule/${id}`,
 
-    // Route stops
+    // StopsFirstTimeRoute APIs
     create_stops_first_time_route: `${URL}/create_stops_first_time_route`,
     append_route_stop: `${URL}/append_route_stop`,
     update_route_stop: (id: string): string => `${URL}/route_stop/${id}`,
@@ -56,7 +56,7 @@ const ENDPOINTS = {
     delete_route_stops_all: `${URL}/delete_route_stops_all`,
     delete_route_stop_reorder: `${URL}/delete_route_stop_reorder`,
 
-    // Student assign
+    // MasterRouteStudent assign/unassign APIs
     find_students_with_no_stop_pickup: `${URL}/students_with_no_stop_pickup/search`,
     find_students_with_no_stop_drop: `${URL}/students_with_no_stop_drop/search`,
     find_students_with_no_schedule_pickup: `${URL}/students_with_no_schedule_pickup/search`,
@@ -76,9 +76,7 @@ const ENDPOINTS = {
     remove_master_route_student_schedule_to_students_drop: `${URL}/remove_master_route_student_schedule_to_students_drop`,
 };
 
-// -----------------------------
-// Interfaces (frontend model)
-// -----------------------------
+// MasterRoute Interface
 export interface MasterRoute extends Record<string, unknown> {
     route_id: string;
     route_name: string;
@@ -99,7 +97,7 @@ export interface MasterRoute extends Record<string, unknown> {
     added_date_time?: string;
     modified_date_time?: string;
 
-    // Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
@@ -112,7 +110,12 @@ export interface MasterRoute extends Record<string, unknown> {
     Drop_Start_BusStop?: BusStop;
     Drop_End_BusStop?: BusStop;
 
-    // children counts
+    // Relations - Child
+    MasterRouteStop?: MasterRouteStop[];
+    MasterFixedSchedule?: MasterFixedSchedule[];
+    MasterRouteStudent?: MasterRouteStudent[];
+
+    // Relations - Child Count
     _count?: {
         MasterRouteStop?: number;
         MasterFixedSchedule?: number;
@@ -120,6 +123,7 @@ export interface MasterRoute extends Record<string, unknown> {
     };
 }
 
+// MasterRouteStop Interface
 export interface MasterRouteStop extends Record<string, unknown> {
     route_stop_id: string;
     leg: BusLeg;
@@ -127,20 +131,38 @@ export interface MasterRouteStop extends Record<string, unknown> {
     stop_duration_seconds: number;
     travel_seconds_to_next_stop: number;
 
-    stop_name?: string;
-
+    // Metadata
     status: Status;
     added_date_time?: string;
     modified_date_time?: string;
 
+    // Relations - Parent
     organisation_id: string;
-    organisation_branch_id: string;
-    route_id: string;
+    UserOrganisation?: UserOrganisation;
 
-    bus_stop_id?: string;
+    organisation_branch_id: string;
+    OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
+
+    route_id: string;
+    MasterRoute?: MasterRoute;
+
+    bus_stop_id: string;
     BusStop?: BusStop;
+    stop_name?: string;
+
+    // Relations - Child
+    // Child - Fleet
+    MasterRouteStudent?: MasterRouteStudent[]
+
+    // Relations - Child Count
+    _count?: {
+        MasterRouteStudent?: number;
+    };
 }
 
+// MasterFixedSchedule Interface
 export interface MasterFixedSchedule extends Record<string, unknown> {
     fixed_schedule_id: string;
     schedule_name: string;
@@ -167,44 +189,80 @@ export interface MasterFixedSchedule extends Record<string, unknown> {
     added_date_time?: string;
     modified_date_time?: string;
 
+    // Relations - Parent
     organisation_id: string;
+    UserOrganisation?: UserOrganisation;
+
     organisation_branch_id: string;
+    OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
+
     route_id: string;
+    MasterRoute?: MasterRoute;
 
     vehicle_id?: string;
-    driver_id?: string;
-    attendant_id?: string;
-
     MasterVehicle?: MasterVehicle;
+    vehicle_number?: string;
+    vehicle_type?: string;
+
+    driver_id?: string;
     MasterDriver?: MasterDriver;
+    driver_details?: string;
+
+    attendant_id?: string;
+    Attendant?: MasterDriver;
+    attendant_details?: string;
+
+    // Relations - Child
+    // Child - Fleet
+    MasterRouteStudent?: MasterRouteStudent[];
+    // FixedScheduleDayRun?: FixedScheduleDayRun[];
+    // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
+    // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
+
+    // Relations - Child Count
+    _count?: {
+        MasterRouteStudent?: number;
+        FixedScheduleDayRun?: number;
+        FixedScheduleDayRunStop?: number;
+        FixedScheduleDayRunStudent?: number;
+    };
 }
 
+// MasterRouteStudent Interface
 export interface MasterRouteStudent extends Record<string, unknown> {
     route_student_id: string;
     leg: BusLeg | string;
 
+    // Metadata
     status: Status;
     added_date_time?: string;
     modified_date_time?: string;
 
-    organisation_id?: string;
-    organisation_branch_id?: string;
+    // Relations - Parent
+    organisation_id: string;
+    UserOrganisation?: UserOrganisation;
 
-    route_id?: string;
+    organisation_branch_id: string;
+    OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
+
+    route_id: string;
+    MasterRoute?: MasterRoute;
+
     student_id?: string;
-    route_stop_id?: string;
-    fixed_schedule_id?: string;
-
     Student?: Student;
+
+    route_stop_id?: string;
     MasterRouteStop?: MasterRouteStop;
+
+    fixed_schedule_id?: string;
     MasterFixedSchedule?: MasterFixedSchedule;
 }
 
-// -----------------------------
-// Zod DTOs (create / update)
-// -----------------------------
-
-// ✅ MasterRoute Create/Update Schema
+// MasterRoute Create/Update Schema
 export const MasterRouteSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -228,7 +286,7 @@ export const MasterRouteSchema = z.object({
 });
 export type MasterRouteDTO = z.infer<typeof MasterRouteSchema>;
 
-// ✅ MasterRoute Query Schema
+// MasterRoute Query Schema
 export const MasterRouteQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
     organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
@@ -237,7 +295,7 @@ export const MasterRouteQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterRouteQueryDTO = z.infer<typeof MasterRouteQuerySchema>;
 
-// ✅ MasterFixedSchedule Create/Update Schema
+// MasterFixedSchedule Create/Update Schema
 export const MasterFixedScheduleSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -274,7 +332,7 @@ export const MasterFixedScheduleSchema = z.object({
 });
 export type MasterFixedScheduleDTO = z.infer<typeof MasterFixedScheduleSchema>;
 
-// ✅ MasterFixedSchedule Query Schema
+// MasterFixedSchedule Query Schema
 export const MasterFixedScheduleQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
     organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
@@ -304,7 +362,7 @@ export type MasterFixedScheduleQueryDTO = z.infer<
     typeof MasterFixedScheduleQuerySchema
 >;
 
-// ✅ MasterRouteStop Create Array Schema
+// MasterRouteStop Create Array Schema
 export const MasterRouteStopSchema = z.object({
     order_no: numberMandatory('Order No'),
     stop_duration_seconds: numberMandatory('Stop Duration Seconds'),
@@ -313,7 +371,7 @@ export const MasterRouteStopSchema = z.object({
 });
 export type MasterRouteStopDTO = z.infer<typeof MasterRouteStopSchema>;
 
-// ✅ MasterRouteStop Update Schema
+// MasterRouteStop Update Schema
 export const MasterRouteStopUpdateSchema = z.object({
     stop_duration_seconds: numberMandatory('Stop Duration Seconds'),
     travel_seconds_to_next_stop: numberMandatory('Travel Seconds To Next Stop'),
@@ -323,7 +381,7 @@ export type MasterRouteStopUpdateDTO = z.infer<
     typeof MasterRouteStopUpdateSchema
 >;
 
-// ✅ MasterRouteStop Create Schema
+// MasterRouteStop Create Schema
 export const MasterRouteStopCreateSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -340,13 +398,13 @@ export type MasterRouteStopCreateDTO = z.infer<
     typeof MasterRouteStopCreateSchema
 >;
 
-// ✅ MasterRouteStop Reorder Array Schema
+// MasterRouteStop Reorder Array Schema
 export const MasterRouteStopIds = z.object({
     route_stop_id: single_select_mandatory('MasterRouteStop'), // ✅ Single-Selection -> MasterRouteStop
 });
 export type MasterRouteStopIdsDTO = z.infer<typeof MasterRouteStopIds>;
 
-// ✅ MasterRouteStop Reorder Schema
+// MasterRouteStopReorder Schema
 export const MasterRouteStopReorderSchema = z.object({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
     leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
@@ -360,7 +418,7 @@ export type MasterRouteStopReorderDTO = z.infer<
     typeof MasterRouteStopReorderSchema
 >;
 
-// ✅ MasterRouteStop DeleteAll Schema
+// MasterRouteStopDeleteAll Schema
 export const MasterRouteStopDeleteAllSchema = z.object({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
     leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
@@ -369,7 +427,7 @@ export type MasterRouteStopDeleteDTO = z.infer<
     typeof MasterRouteStopDeleteAllSchema
 >;
 
-// ✅ MasterRouteStop Delete Schema
+// MasterRouteStop Delete Schema
 export const MasterRouteStopDeleteSchema = z.object({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
     bus_stop_id: single_select_mandatory('BusStop'), // ✅ Single-Selection -> BusStop
@@ -379,13 +437,13 @@ export type MasterRouteStopDeleteReOrderDTO = z.infer<
     typeof MasterRouteStopDeleteSchema
 >;
 
-// ✅ Student NoRoute Query Schema
+// StudentNoRoute Query Schema
 export const StudentNoStopQuerySchema = BaseQuerySchema.extend({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
 });
 export type StudentNoStopQueryDTO = z.infer<typeof StudentNoStopQuerySchema>;
 
-// ✅ Student NoRoute Query Schema
+// StudentNoSchedule Query Schema
 export const StudentNoScheduleQuerySchema = BaseQuerySchema.extend({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
 });
@@ -393,7 +451,7 @@ export type StudentNoScheduleQueryDTO = z.infer<
     typeof StudentNoScheduleQuerySchema
 >;
 
-// MasterRouteStudent assign remove Schema
+// MasterRouteStudentAssignRemove Schema
 export const MasterRouteStudentAssignRemoveSchema = z.object({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
     student_ids: multi_select_optional('Student'), // Multi selection -> Student
@@ -402,7 +460,7 @@ export type MasterRouteStudentAssignRemoveDTO = z.infer<
     typeof MasterRouteStudentAssignRemoveSchema
 >;
 
-// MasterRouteStudent assign remove Schema
+// MasterRouteStudentAssignRemove Schema
 export const MasterRouteStudentStopAssignRemoveSchema = z.object({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
     route_stop_id: single_select_mandatory('MasterRouteStop'), // ✅ Single-Selection -> MasterRouteStop
@@ -412,7 +470,7 @@ export type MasterRouteStudentStopAssignRemoveDTO = z.infer<
     typeof MasterRouteStudentStopAssignRemoveSchema
 >;
 
-// MasterRouteStudent assign remove Schema
+// MasterRouteStudentAssignRemove Schema
 export const MasterRouteStudentScheduleAssignRemoveSchema = z.object({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
     fixed_schedule_id: single_select_mandatory('MasterFixedSchedule'), // ✅ Single-Selection -> MasterFixedSchedule
@@ -422,9 +480,7 @@ export type MasterRouteStudentScheduleAssignRemoveDTO = z.infer<
     typeof MasterRouteStudentScheduleAssignRemoveSchema
 >;
 
-// -----------------------------
-// Helpers: payload creators
-// -----------------------------
+// Convert MasterRoute Data to API Payload
 export const toMasterRoutePayload = (row: MasterRoute): MasterRouteDTO => ({
     organisation_id: row.organisation_id || '',
     organisation_branch_id: row.organisation_branch_id || '',
@@ -438,13 +494,14 @@ export const toMasterRoutePayload = (row: MasterRoute): MasterRouteDTO => ({
     route_code: row.route_code || '',
     route_notes: row.route_notes || '',
 
-    route_status: row.route_status,
+    route_status: row.route_status || Status.Active,
     pickup_journey_time_in_seconds: row.pickup_journey_time_in_seconds || 0,
     drop_journey_time_in_seconds: row.drop_journey_time_in_seconds || 0,
 
     status: row.status || Status.Active,
 });
 
+// Create New MasterRoute Payload
 export const newMasterRoutePayload = (): MasterRouteDTO => ({
     organisation_id: '',
     organisation_branch_id: '',
@@ -465,6 +522,7 @@ export const newMasterRoutePayload = (): MasterRouteDTO => ({
     status: Status.Active,
 });
 
+// Convert MasterFixedSchedule Data to API Payload
 export const toMasterFixedSchedulePayload = (row: MasterFixedSchedule): MasterFixedScheduleDTO => ({
     organisation_id: row.organisation_id || '',
     organisation_branch_id: row.organisation_branch_id || '',
@@ -495,10 +553,11 @@ export const toMasterFixedSchedulePayload = (row: MasterFixedSchedule): MasterFi
     friday: row.friday || YesNo.Yes,
     saturday: row.saturday || YesNo.Yes,
 
-    status: row.status,
+    status: row.status || Status.Active,
     time_zone_id: '', // Needs to be provided manually
 });
 
+// Create New MasterFixedSchedule Payload
 export const newMasterFixedSchedulePayload = (): MasterFixedScheduleDTO => ({
     route_id: '',
     organisation_id: '',
@@ -533,6 +592,7 @@ export const newMasterFixedSchedulePayload = (): MasterFixedScheduleDTO => ({
     time_zone_id: '', // Needs to be provided manually
 });
 
+// Convert MasterRouteStop Data to API Payload
 export const toMasterRouteStopPayload = (row: MasterRouteStop): MasterRouteStopCreateDTO => ({
     organisation_id: row.organisation_id || '',
     organisation_branch_id: row.organisation_branch_id || '',
@@ -543,6 +603,7 @@ export const toMasterRouteStopPayload = (row: MasterRouteStop): MasterRouteStopC
     MasterRouteStop: [],
 });
 
+// Create New MasterRouteStop Payload
 export const newMasterRouteStopPayload = (): MasterRouteStopCreateDTO => ({
     organisation_id: '',
     organisation_branch_id: '',
@@ -553,6 +614,7 @@ export const newMasterRouteStopPayload = (): MasterRouteStopCreateDTO => ({
     MasterRouteStop: [],
 });
 
+// Convert MasterRouteStopReorder Data to API Payload
 export const toMasterRouteStopReorderPayload = (row: MasterRouteStop): MasterRouteStopReorderDTO => ({
     route_id: row.route_id || '',
 
@@ -560,21 +622,19 @@ export const toMasterRouteStopReorderPayload = (row: MasterRouteStop): MasterRou
     MasterRouteStopIds: [],
 });
 
+// Convert MasterRouteStudentAssign Data to API Payload
 export const toMasterRouteStudentAssignPayload = (row: MasterRouteStudent): MasterRouteStudentAssignRemoveDTO => ({
     route_id: row.route_id || '',
     student_ids: [],
 });
 
+// Create New MasterRouteStudentAssign Payload
 export const newMasterRouteStudentAssignPayload = (): MasterRouteStudentAssignRemoveDTO => ({
     route_id: '',
     student_ids: [],
 });
 
-// -----------------------------
-// API Methods
-// -----------------------------
-
-// MasterRoute CRUD
+// MasterRoute APIs
 export const findMasterRoute = async (data: MasterRouteQueryDTO): Promise<FBR<MasterRoute[]>> => {
     return apiPost<FBR<MasterRoute[]>, MasterRouteQueryDTO>(ENDPOINTS.find_route, data);
 };
@@ -591,7 +651,7 @@ export const deleteMasterRoute = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_route(id));
 };
 
-// Fixed Schedule - CRUD
+// MasterFixedSchedule APIs
 export const findMasterFixedSchedule = async (data: MasterFixedScheduleQueryDTO): Promise<FBR<MasterFixedSchedule[]>> => {
     return apiPost<FBR<MasterFixedSchedule[]>, MasterFixedScheduleQueryDTO>(ENDPOINTS.find_schedule, data);
 };
@@ -608,7 +668,7 @@ export const deleteMasterFixedSchedule = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_schedule(id));
 };
 
-// MasterRouteStop APIs
+// StopsFirstTimeRoute APIs
 export const createStopsFirstTimeRoute = async (data: MasterRouteStopCreateDTO): Promise<SBR> => {
     return apiPost<SBR, MasterRouteStopCreateDTO>(ENDPOINTS.create_stops_first_time_route, data);
 };
@@ -636,7 +696,7 @@ export const deleteRouteStopReorder = async (data: MasterRouteStopDeleteReOrderD
     return apiDelete<SBR, MasterRouteStopDeleteReOrderDTO>(ENDPOINTS.delete_route_stop_reorder, data);
 };
 
-// MasterRouteStudent assign/unassign
+// MasterRouteStudent assign/unassign APIs
 export const findStudentsWithNoStopPickup = async (data: StudentNoStopQueryDTO): Promise<FBR<MasterRouteStudent[]>> => {
     return apiPost<FBR<MasterRouteStudent[]>, StudentNoStopQueryDTO>(ENDPOINTS.find_students_with_no_stop_pickup, data);
 };

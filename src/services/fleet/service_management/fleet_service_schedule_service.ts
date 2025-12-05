@@ -26,13 +26,14 @@ import { FleetServiceManagement } from './fleet_service_management_service';
 const URL = 'fleet/service_management/service_schedule';
 
 const ENDPOINTS = {
+  // FleetServiceSchedule APIs
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// ✅ FleetServiceSchedule Interface
+// FleetServiceSchedule Interface
 export interface FleetServiceSchedule extends Record<string, unknown> {
   service_schedule_id: string;
 
@@ -43,39 +44,41 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
   service_schedule_due_date?: string;
   service_schedule_due_date_f?: string;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   user_id: string;
   User?: User;
+  user_details?: string;
 
-  // Relations - Child
-  FleetServiceManagement: FleetServiceManagement[];
-  FleetServiceScheduleVehicleLink: FleetServiceScheduleVehicleLink[];
+  // Relations (Child)
+  // Child - Fleet
+  FleetServiceManagement?: FleetServiceManagement[];
+  FleetServiceScheduleVehicleLink?: FleetServiceScheduleVehicleLink[];
 
-  // Relations - Count
+  // Relations - Child Count
   _count?: {
-    FleetServiceManagement: number;
-    FleetServiceScheduleVehicleLink: number;
+    FleetServiceManagement?: number;
+    FleetServiceScheduleVehicleLink?: number;
   };
 }
 
-// ✅ FleetServiceScheduleVehicleLink Interface
+// FleetServiceScheduleVehicleLink Interface
 export interface FleetServiceScheduleVehicleLink extends Record<string, unknown> {
   service_schedule_vehicle_link_id: string;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   service_schedule_id: string;
   FleetServiceSchedule?: FleetServiceSchedule;
 
@@ -85,7 +88,7 @@ export interface FleetServiceScheduleVehicleLink extends Record<string, unknown>
   vehicle_type?: string;
 }
 
-// ✅ FleetServiceSchedule Create/Update Schema
+// FleetServiceSchedule Create/Update Schema
 export const FleetServiceScheduleSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
@@ -109,7 +112,7 @@ export type FleetServiceScheduleDTO = z.infer<
   typeof FleetServiceScheduleSchema
 >;
 
-// ✅ FleetServiceSchedule Query Schema
+// FleetServiceSchedule Query Schema
 export const FleetServiceScheduleQuerySchema = BaseQuerySchema.extend({
   service_schedule_ids: multi_select_optional('FleetServiceSchedule'), // ✅ Multi-Selection -> FleetServiceSchedule
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
@@ -118,7 +121,7 @@ export type FleetServiceScheduleQueryDTO = z.infer<
   typeof FleetServiceScheduleQuerySchema
 >;
 
-// ✅ Convert FleetServiceSchedule Data to API Payload
+// Convert FleetServiceSchedule Data to API Payload
 export const toFleetServiceSchedulePayload = (row: FleetServiceSchedule): FleetServiceScheduleDTO => ({
   organisation_id: row.organisation_id || '',
   user_id: row.user_id || '',
@@ -129,13 +132,13 @@ export const toFleetServiceSchedulePayload = (row: FleetServiceSchedule): FleetS
   service_schedule_due_date: row.service_schedule_due_date || '',
 
   vehicle_ids:
-    row.FleetServiceScheduleVehicleLink?.map((v) => v.vehicle_id) ?? [],
+    row.FleetServiceScheduleVehicleLink?.map((v) => v.vehicle_id) || [],
 
   status: row.status || Status.Active,
   time_zone_id: '', // Needs to be provided manually
 });
 
-// ✅ Create New FleetServiceSchedule Payload
+// Create New FleetServiceSchedule Payload
 export const newFleetServiceSchedulePayload = (): FleetServiceScheduleDTO => ({
   organisation_id: '',
   user_id: '',
@@ -151,7 +154,7 @@ export const newFleetServiceSchedulePayload = (): FleetServiceScheduleDTO => ({
   time_zone_id: '', // Needs to be provided manually
 });
 
-// FleetServiceSchedule
+// FleetServiceSchedule APIs
 export const findFleetServiceSchedule = async (data: FleetServiceScheduleQueryDTO): Promise<FBR<FleetServiceSchedule[]>> => {
   return apiPost<FBR<FleetServiceSchedule[]>, FleetServiceScheduleQueryDTO>(ENDPOINTS.find, data);
 };

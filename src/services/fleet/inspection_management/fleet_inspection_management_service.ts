@@ -19,7 +19,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { InspectionActionStatus, InspectionPriority, InspectionStatus, InspectionType, PaymentStatus, ServiceStatus, ServiceType, Status, YesNo } from '../../../core/Enums';
+import { FileType, InspectionActionStatus, InspectionPriority, InspectionStatus, InspectionType, PaymentStatus, ServiceStatus, ServiceType, Status, YesNo } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -35,22 +35,22 @@ import { FleetInspectionSchedule } from './fleet_inspection_schedule_service';
 const URL = 'fleet/inspection_management/inspections';
 
 const ENDPOINTS = {
-
   // AWS S3 PRESIGNED
   inspection_file_presigned_url: `${URL}/inspection_file_presigned_url`,
 
-  // File
+  // File Uploads
   create_inspection_file: `${URL}/create_inspection_file`,
   remove_inspection_file: (id: string): string => `${URL}/remove_inspection_file/${id}`,
 
+  // FleetInspection APIs
   find: `${URL}/search`,
-  find_check_pending: `${URL}/check_pending`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+  find_check_pending: `${URL}/check_pending`,
 };
 
-// ✅ FleetInspection Interface
+// FleetInspection Interface
 export interface FleetInspection extends Record<string, unknown> {
   inspection_id: string;
 
@@ -62,12 +62,12 @@ export interface FleetInspection extends Record<string, unknown> {
 
   odometer_reading: number;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -82,6 +82,13 @@ export interface FleetInspection extends Record<string, unknown> {
 
   inspector_id: string;
   InspectorUser?: User;
+  inspector_user_details?: string;
+
+  inspection_schedule_id?: string;
+  FleetInspectionSchedule?: FleetInspectionSchedule;
+  inspection_schedule_name?: string;
+  inspection_schedule_start_date?: string;
+  inspection_schedule_due_date?: string;
 
   inspection_form_id?: string;
   FleetInspectionForm?: FleetInspectionForm;
@@ -91,28 +98,32 @@ export interface FleetInspection extends Record<string, unknown> {
   service_management_id?: string;
   FleetServiceManagement?: FleetServiceManagement;
 
-  inspection_schedule_id?: string;
-  FleetInspectionSchedule?: FleetInspectionSchedule;
-  inspection_schedule_name?: string;
-  inspection_schedule_start_date?: string;
-  inspection_schedule_due_date?: string;
+  inspection_approved_id?: string;
+  ApprovedUser?: User;
+  approved_user_details?: string;
 
-  FleetIssueManagement: FleetIssueManagement[]
-  FleetInspectionFile: FleetInspectionFile[];
+  inspection_action_status?: InspectionActionStatus;
+  inspection_action_date?: string;
+  inspection_action_comments: string;
 
   // Relations - Child
+  // Child - Fleet
+  FleetIssueManagement?: FleetIssueManagement[]
+  FleetInspectionFile?: FleetInspectionFile[]
+
+  // Relations - Child Count
   _count?: {
-    FleetInspectionFile: number;
-    FleetIssueManagement: number;
+    FleetInspectionFile?: number;
+    FleetIssueManagement?: number;
   };
 }
 
-// ✅ FleetInspectionFile Interface
+// FleetInspectionFile Interface
 export interface FleetInspectionFile extends BaseCommonFile {
   // Primary Fields
   fleet_inspection_file_id: string;
 
-  // ✅ Relations - Parent
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -120,14 +131,14 @@ export interface FleetInspectionFile extends BaseCommonFile {
   FleetInspection?: FleetInspection;
 }
 
-// ✅ FleetInspectionFile Schema
+// FleetInspectionFile Schema
 export const FleetInspectionFileSchema = BaseFileSchema.extend({
   organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   inspection_id: single_select_optional('FleetInspection'), // ✅ Single-Selection -> FleetInspection
 });
 export type FleetInspectionFileDTO = z.infer<typeof FleetInspectionFileSchema>;
 
-// ✅ FleetInspection Create/Update Schema
+// FleetInspection Create/Update Schema
 export const FleetInspectionSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
@@ -170,7 +181,7 @@ export const FleetInspectionSchema = z.object({
 });
 export type FleetInspectionDTO = z.infer<typeof FleetInspectionSchema>;
 
-// ✅ FleetInspection Query Schema
+// FleetInspection Query Schema
 export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
   inspection_ids: multi_select_optional('FleetInspection'), // ✅ Multi-Selection -> FleetInspection
 
@@ -237,23 +248,24 @@ export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionD
   FleetInspectionFileSchema: row.FleetInspectionFile?.map((file) => ({
     fleet_inspection_file_id: file.fleet_inspection_file_id ?? '',
 
-    usage_type: file.usage_type,
+    // Usage Type -> Odometer Image, Fuel Bill, Fuel Tank Image, Refill Recording Video
+    usage_type: file.usage_type || '',
 
-    file_type: file.file_type,
+    file_type: file.file_type || FileType.Image,
     file_url: file.file_url || '',
     file_key: file.file_key || '',
     file_name: file.file_name || '',
     file_description: file.file_description || '',
     file_size: file.file_size || 0,
-    file_metadata: file.file_metadata ?? {},
+    file_metadata: file.file_metadata || {},
 
-    status: file.status,
+    status: file.status || Status.Active,
     added_date_time: file.added_date_time,
     modified_date_time: file.modified_date_time,
 
-    organisation_id: file.organisation_id ?? '',
-    inspection_id: file.inspection_id ?? '',
-  })) ?? [],
+    organisation_id: file.organisation_id || '',
+    inspection_id: file.inspection_id || '',
+  })) || [],
 });
 
 // ✅ Create New FleetInspection Payload
@@ -279,12 +291,12 @@ export const newFleetInspectionPayload = (): FleetInspectionDTO => ({
   FleetInspectionFileSchema: []
 });
 
-// Generate presigned URL for file uploads
+// AWS S3 PRESIGNED
 export const get_inspection_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.inspection_file_presigned_url, data);
 };
 
-// File API Methods
+// File Uploads
 export const create_service_file = async (data: FleetInspectionFileDTO): Promise<SBR> => {
   return apiPost<SBR, FleetInspectionFileDTO>(ENDPOINTS.create_inspection_file, data);
 };
@@ -293,13 +305,9 @@ export const remove_service_file = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_inspection_file(id));
 };
 
-// FleetInspection
+// FleetInspection APIs
 export const findFleetInspection = async (data: FleetInspectionQueryDTO): Promise<FBR<FleetInspection[]>> => {
   return apiPost<FBR<FleetInspection[]>, FleetInspectionQueryDTO>(ENDPOINTS.find, data);
-};
-
-export const find_check_pending = async (data: FleetInspectionCheckPendingQueryDTO): Promise<FBR<FleetInspection[]>> => {
-  return apiPost<FBR<FleetInspection[]>, FleetInspectionCheckPendingQueryDTO>(ENDPOINTS.find_check_pending, data);
 };
 
 export const createFleetInspection = async (data: FleetInspectionDTO): Promise<SBR> => {
@@ -312,4 +320,8 @@ export const updateFleetInspection = async (id: string, data: FleetInspectionDTO
 
 export const deleteFleetInspection = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+export const find_check_pending = async (data: FleetInspectionCheckPendingQueryDTO): Promise<FBR<FleetInspection[]>> => {
+  return apiPost<FBR<FleetInspection[]>, FleetInspectionCheckPendingQueryDTO>(ENDPOINTS.find_check_pending, data);
 };

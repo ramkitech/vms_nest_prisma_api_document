@@ -28,18 +28,19 @@ import { FleetServiceManagement } from '../service_management/fleet_service_mana
 const URL = 'fleet/vendor_management/vendor_service_center';
 
 const ENDPOINTS = {
+    // FleetVendorServiceCenter APIs
     find: `${URL}/search`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
 
-    // Cache
+    // Cache APIs
     cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
-// ✅ FleetVendorServiceCenter Interface
+// FleetVendorServiceCenter Interface
 export interface FleetVendorServiceCenter extends Record<string, unknown> {
-    // ✅ Primary Fields
+    // Primary Fields
     service_center_id: string;
 
     // Basic Info
@@ -104,12 +105,12 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
     landmark_location?: string;
     landmark_distance?: number;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations - Parent
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
@@ -117,18 +118,19 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
     FleetVendor?: FleetVendor;
     vendor_name?: string;
 
-    // ✅ Relations - Child
+    // Relations (Child)
+    // Child - Fleet
     FleetServiceManagement?: FleetServiceManagement[]
-    //FleetServiceJobCard?: FleetServiceJobCard[]
+    // FleetServiceJobCard?: FleetServiceJobCard[]
 
-    // ✅ Count (Child Relations)
+    // Relations - Child Count
     _count?: {
-        FleetServiceManagement: number;
-        FleetServiceJobCard: number;
+        FleetServiceManagement?: number;
+        FleetServiceJobCard?: number;
     };
 }
 
-// ✅ FleetVendorServiceCenter Interface
+// FleetVendorServiceCenter Interface
 export interface FleetVendorServiceCenterSimple extends Record<string, unknown> {
     vendor_id: string;
     service_center_id: string;
@@ -136,77 +138,77 @@ export interface FleetVendorServiceCenterSimple extends Record<string, unknown> 
     center_code?: string;
 };
 
-// ✅ FleetVendorServiceCenter Create/Update Schema
+// FleetVendorServiceCenter Create/Update Schema
 export const FleetVendorServiceCenterSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
 
-  // Basic Info
-  service_center_name: stringMandatory('ServiceCenter Name', 3, 100),
-  service_center_code: stringOptional('Service Center Code', 0, 100),
-  is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
-  oem_authorised: enumMandatory('OEM Authorised', YesNo, YesNo.No),
-  oem_brand_name: stringOptional('OEM Brand Name', 0, 100),
-  service_brand_name: stringOptional('Service Brand Name', 0, 100),
+    // Basic Info
+    service_center_name: stringMandatory('ServiceCenter Name', 3, 100),
+    service_center_code: stringOptional('Service Center Code', 0, 100),
+    is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
+    oem_authorised: enumMandatory('OEM Authorised', YesNo, YesNo.No),
+    oem_brand_name: stringOptional('OEM Brand Name', 0, 100),
+    service_brand_name: stringOptional('Service Brand Name', 0, 100),
 
-  // Rating
-  rating: numberOptional('Rating'),
-  rating_comments: stringOptional('Rating Comments', 0, 2000),
+    // Rating
+    rating: numberOptional('Rating'),
+    rating_comments: stringOptional('Rating Comments', 0, 2000),
 
-  // Operational Details
-  operating_hours: stringOptional('Operating Hours', 0, 100),
-  is_24x7: enumMandatory('Is 24x7', YesNo, YesNo.No),
-  supports_credit: enumMandatory('Supports Credit', YesNo, YesNo.No),
-  pickup_and_drop: enumMandatory('Pickup And Drop', YesNo, YesNo.No),
-  roadside_assistance: enumMandatory('Roadside Assistance', YesNo, YesNo.No),
-  warranty_repairs: enumMandatory('Warranty Repairs', YesNo, YesNo.No),
-  supported_service_types: stringOptional('Supported Service Types', 0, 500),
-  supported_vehicle_types: stringOptional('Supported Vehicle Types', 0, 500),
+    // Operational Details
+    operating_hours: stringOptional('Operating Hours', 0, 100),
+    is_24x7: enumMandatory('Is 24x7', YesNo, YesNo.No),
+    supports_credit: enumMandatory('Supports Credit', YesNo, YesNo.No),
+    pickup_and_drop: enumMandatory('Pickup And Drop', YesNo, YesNo.No),
+    roadside_assistance: enumMandatory('Roadside Assistance', YesNo, YesNo.No),
+    warranty_repairs: enumMandatory('Warranty Repairs', YesNo, YesNo.No),
+    supported_service_types: stringOptional('Supported Service Types', 0, 500),
+    supported_vehicle_types: stringOptional('Supported Vehicle Types', 0, 500),
 
-  has_alignment_bay: enumMandatory('Has Alignment Bay', YesNo, YesNo.No),
-  has_body_shop: enumMandatory('Has Body Shop', YesNo, YesNo.No),
-  has_paint_booth: enumMandatory('Has Paint Booth', YesNo, YesNo.No),
-  has_wash_bay: enumMandatory('Has Wash Bay', YesNo, YesNo.Yes),
-  has_tow_truck: enumMandatory('Has Tow Truck', YesNo, YesNo.No),
+    has_alignment_bay: enumMandatory('Has Alignment Bay', YesNo, YesNo.No),
+    has_body_shop: enumMandatory('Has Body Shop', YesNo, YesNo.No),
+    has_paint_booth: enumMandatory('Has Paint Booth', YesNo, YesNo.No),
+    has_wash_bay: enumMandatory('Has Wash Bay', YesNo, YesNo.Yes),
+    has_tow_truck: enumMandatory('Has Tow Truck', YesNo, YesNo.No),
 
-  service_capacity_per_day: numberOptional('Service Capacity Per Day', 0),
-  eta_regular_service_hours: numberOptional('ETA Regular Service Hours'),
-  eta_repair_hours: numberOptional('ETA Repair Hours'),
+    service_capacity_per_day: numberOptional('Service Capacity Per Day', 0),
+    eta_regular_service_hours: numberOptional('ETA Regular Service Hours'),
+    eta_repair_hours: numberOptional('ETA Repair Hours'),
 
-  // Contact Info
-  center_email: stringOptional('Center Email', 0, 100),
-  center_mobile: stringOptional('Center Mobile', 0, 15),
-  center_phone: stringOptional('Center Phone', 0, 15),
-  website_url: stringOptional('Website URL', 0, 200),
+    // Contact Info
+    center_email: stringOptional('Center Email', 0, 100),
+    center_mobile: stringOptional('Center Mobile', 0, 15),
+    center_phone: stringOptional('Center Phone', 0, 15),
+    website_url: stringOptional('Website URL', 0, 200),
 
-  // Address
-  address_line1: stringOptional('Address Line 1', 0, 150),
-  address_line2: stringOptional('Address Line 2', 0, 150),
-  locality_landmark: stringOptional('Locality / Landmark', 0, 150),
-  neighborhood: stringOptional('Neighborhood', 0, 100),
-  town_city: stringOptional('Town / City', 0, 100),
-  district_county: stringOptional('District / County', 0, 100),
-  state_province_region: stringOptional('State / Province / Region', 0, 100),
-  postal_code: stringOptional('Postal Code', 0, 20),
-  country: stringOptional('Country', 0, 100),
-  country_code: stringOptional('Country Code', 0, 5),
+    // Address
+    address_line1: stringOptional('Address Line 1', 0, 150),
+    address_line2: stringOptional('Address Line 2', 0, 150),
+    locality_landmark: stringOptional('Locality / Landmark', 0, 150),
+    neighborhood: stringOptional('Neighborhood', 0, 100),
+    town_city: stringOptional('Town / City', 0, 100),
+    district_county: stringOptional('District / County', 0, 100),
+    state_province_region: stringOptional('State / Province / Region', 0, 100),
+    postal_code: stringOptional('Postal Code', 0, 20),
+    country: stringOptional('Country', 0, 100),
+    country_code: stringOptional('Country Code', 0, 5),
 
-  // Location Details
-  latitude: doubleOptionalLatLng('Latitude'),
-  longitude: doubleOptionalLatLng('Longitude'),
-  google_location: stringOptional('Google Location', 0, 500),
+    // Location Details
+    latitude: doubleOptionalLatLng('Latitude'),
+    longitude: doubleOptionalLatLng('Longitude'),
+    google_location: stringOptional('Google Location', 0, 500),
 
-  // Notes
-  center_notes: stringOptional('Center Notes', 0, 2000),
-  is_preferred_center: enumMandatory('Is Preferred Center', YesNo, YesNo.No),
+    // Notes
+    center_notes: stringOptional('Center Notes', 0, 2000),
+    is_preferred_center: enumMandatory('Is Preferred Center', YesNo, YesNo.No),
 
-  status: enumMandatory('Status', Status, Status.Active),
+    status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetVendorServiceCenterDTO = z.infer<
-  typeof FleetVendorServiceCenterSchema
+    typeof FleetVendorServiceCenterSchema
 >;
 
-// ✅ FleetVendorServiceCenter Query Schema
+// FleetVendorServiceCenter Query Schema
 export const FleetVendorServiceCenterQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
 
@@ -221,7 +223,7 @@ export type FleetVendorServiceCenterQueryDTO = z.infer<
     typeof FleetVendorServiceCenterQuerySchema
 >;
 
-// ✅ Convert FleetVendorServiceCenter Data to API Payload
+// Convert FleetVendorServiceCenter Data to API Payload
 export const toFleetVendorServiceCenterPayload = (row: FleetVendorServiceCenter): FleetVendorServiceCenterDTO => ({
     // Basic Info
     service_center_name: row.service_center_name || '',
@@ -284,10 +286,10 @@ export const toFleetVendorServiceCenterPayload = (row: FleetVendorServiceCenter)
     organisation_id: row.organisation_id || '',
     vendor_id: row.vendor_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetVendorServiceCenter Payload
+// Create New FleetVendorServiceCenter Payload
 export const newFleetVendorServiceCenterPayload = (): FleetVendorServiceCenterDTO => ({
     organisation_id: '',
     vendor_id: '',
@@ -345,7 +347,7 @@ export const newFleetVendorServiceCenterPayload = (): FleetVendorServiceCenterDT
     status: Status.Active,
 });
 
-// API Methods
+// FleetVendorServiceCenter APIs
 export const findFleetVendorServiceCenter = async (data: FleetVendorServiceCenterQueryDTO): Promise<FBR<FleetVendorServiceCenter[]>> => {
     return apiPost<FBR<FleetVendorServiceCenter[]>, FleetVendorServiceCenterQueryDTO>(ENDPOINTS.find, data);
 };
@@ -362,7 +364,7 @@ export const deleteFleetVendorServiceCenter = async (id: string): Promise<SBR> =
     return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getFleetVendorServiceCenterCacheSimple = async (organisation_id: string): Promise<BR<FleetVendorServiceCenterSimple[]>> => {
     return apiGet<BR<FleetVendorServiceCenterSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
 };

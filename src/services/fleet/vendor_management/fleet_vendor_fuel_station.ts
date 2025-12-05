@@ -12,9 +12,6 @@ import {
     multi_select_optional,
     enumArrayOptional,
     doubleOptionalLatLng,
-    doubleOptional,
-    dateMandatory,
-    doubleMandatoryAmount,
     numberOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
@@ -27,20 +24,22 @@ import { MasterMainLandmark } from 'src/services/master/main/master_main_landmar
 import { FleetVendor } from './fleet_vendor_service';
 import { MasterFuelCompany } from 'src/services/master/expense/master_fuel_company_service';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
+import { FleetFuelRefill } from '../fuel_management/fleet_fuel_refill_service';
 
 const URL = 'fleet/vendor_management/fuel_station';
 
 const ENDPOINTS = {
+    // FleetVendorFuelStation APIs
     find: `${URL}/search`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
 
-    // Cache
+    // Cache APIs
     cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
-// ✅ FleetVendorFuelStation Interface
+// FleetVendorFuelStation Interface
 export interface FleetVendorFuelStation extends Record<string, unknown> {
     // ✅ Primary Fields
     fuel_station_id: string;
@@ -59,7 +58,6 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     // Notes & Feedback
     station_notes?: string;
     station_feedback?: string;
-
 
     // Operational Details
     operating_hours?: string;
@@ -101,12 +99,12 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     landmark_location?: string;
     landmark_distance?: number;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
@@ -118,13 +116,17 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     MasterFuelCompany?: MasterFuelCompany;
     company_name?: string;
 
-    // ✅ Count (Child Relations)
+    // Relations - Child
+    // Child - Fleet
+    FleetFuelRefill?: FleetFuelRefill[]
+
+    // Relations - Child Count
     _count?: {
-        FleetFuelRefill: number;
+        FleetFuelRefill?: number;
     };
 }
 
-// ✅ FleetVendorFuelStationSimple Interface
+// FleetVendorFuelStationSimple Interface
 export interface FleetVendorFuelStationSimple extends Record<string, unknown> {
     vendor_id: string;
     fuel_station_id: string;
@@ -132,7 +134,7 @@ export interface FleetVendorFuelStationSimple extends Record<string, unknown> {
     station_code?: string;
 };
 
-// ✅ FleetVendorFuelStation Create/Update Schema
+// FleetVendorFuelStation Create/Update Schema
 export const FleetVendorFuelStationSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
@@ -193,7 +195,7 @@ export type FleetVendorFuelStationDTO = z.infer<
     typeof FleetVendorFuelStationSchema
 >;
 
-// ✅ FleetVendorFuelStation Query Schema
+// FleetVendorFuelStation Query Schema
 export const FleetVendorFuelStationQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
 
@@ -209,7 +211,7 @@ export type FleetVendorFuelStationQueryDTO = z.infer<
 >;
 
 
-// ✅ Convert FleetVendorFuelStation Data to API Payload
+// Convert FleetVendorFuelStation Data to API Payload
 export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): FleetVendorFuelStationDTO => ({
     // Basic Info
     fuel_station_name: row.fuel_station_name || '',
@@ -264,10 +266,10 @@ export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): Fl
     vendor_id: row.vendor_id || '',
     fuel_company_id: row.fuel_company_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetVendorFuelStation Payload
+// Create New FleetVendorFuelStation Payload
 export const newFleetVendorFuelStationPayload = (): FleetVendorFuelStationDTO => ({
     fuel_station_name: '',
     fuel_station_code: '',
@@ -319,7 +321,7 @@ export const newFleetVendorFuelStationPayload = (): FleetVendorFuelStationDTO =>
     status: Status.Active,
 });
 
-// API Methods
+// FleetVendorFuelStation APIs
 export const findFleetVendorFuelStation = async (data: FleetVendorFuelStationQueryDTO): Promise<FBR<FleetVendorFuelStation[]>> => {
     return apiPost<FBR<FleetVendorFuelStation[]>, FleetVendorFuelStationQueryDTO>(ENDPOINTS.find, data);
 };
@@ -336,7 +338,7 @@ export const deleteFleetVendorFuelStation = async (id: string): Promise<SBR> => 
     return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getFleetVendorFuelStationCacheSimple = async (organisation_id: string): Promise<BR<FleetVendorFuelStationSimple[]>> => {
     return apiGet<BR<FleetVendorFuelStationSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
 };

@@ -21,7 +21,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { PaymentStatus, ReminderType, ServiceStatus, ServiceType, Status, YesNo } from '../../../core/Enums';
+import { FileType, PaymentStatus, ReminderType, ServiceStatus, ServiceType, Status, YesNo } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -32,39 +32,40 @@ import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service'
 import { FleetVendor } from '../vendor_management/fleet_vendor_service';
 import { FleetVendorServiceCenter } from '../vendor_management/fleet_vendor_service_center';
 import { MasterFleetServiceTask } from 'src/services/master/fleet/master_fleet_service_task_service';
+import { FleetServiceSchedule } from './fleet_service_schedule_service';
+import { FleetIssueManagement } from '../issue_management/issue_management_service';
 
 const URL = 'fleet/service_management/service_management';
 
 const ENDPOINTS = {
-
   // AWS S3 PRESIGNED
   service_file_presigned_url: `${URL}/service_file_presigned_url`,
 
-  // File
+  // File Uploads
   create_service_file: `${URL}/create_service_file`,
   remove_service_file: (id: string): string => `${URL}/remove_service_file/${id}`,
 
-  // FleetServiceManagement
+  // FleetServiceManagement APIs
   find: `${URL}/search`,
   service_dashboard: `${URL}/service_dashboard`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
-  // FleetServiceManagementTask
+  // FleetServiceManagementTask APIs
   find_service_task: `${URL}/service_task/search`,
   create_service_task: `${URL}/service_task`,
   update_service_task: (id: string): string => `${URL}/service_task/${id}`,
   delete_service_task: (id: string): string => `${URL}/service_task/${id}`,
 
-  // FleetServiceReminder
+  // FleetServiceReminder APIs
   find_service_reminder: `${URL}/service_reminder/search`,
   create_service_reminder: `${URL}/service_reminder`,
   update_service_reminder: (id: string): string => `${URL}/service_reminder/${id}`,
   delete_service_reminder: (id: string): string => `${URL}/service_reminder/${id}`,
 };
 
-// ✅ FleetServiceManagement Interface
+// FleetServiceManagement Interface
 export interface FleetServiceManagement extends Record<string, unknown> {
   service_management_id: string;
   service_management_sub_id: number;
@@ -111,17 +112,18 @@ export interface FleetServiceManagement extends Record<string, unknown> {
   next_odometer_reading?: number;
   next_service_schedule_date?: string;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   user_id: string;
   User?: User;
+  user_details?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -138,41 +140,49 @@ export interface FleetServiceManagement extends Record<string, unknown> {
 
   service_center_id?: string;
   FleetVendorServiceCenter?: FleetVendorServiceCenter;
-  center_name?: string;
+  service_center_name?: string;
 
-  FleetServiceManagementFile: FleetServiceManagementFile[];
+  service_schedule_id?: string;
+  FleetServiceSchedule?: FleetServiceSchedule;
+  service_schedule_name?: string;
+  service_schedule_start_date?: string;
+  service_schedule_due_date?: string;
 
   // Relations - Child
+  // Child - Fleet
+  FleetServiceManagementTask?: FleetServiceManagementTask[]
+  FleetServiceManagementFile?: FleetServiceManagementFile[]
+  FleetIssueManagement?: FleetIssueManagement[]
+  FleetServiceReminder?: FleetServiceReminder[]
+
+  // Relations - Child Count
   _count?: {
-    FleetServiceManagementTask: number;
-    FleetServiceManagementFile: number;
-    FleetIssueManagement: number;
+    FleetServiceManagementTask?: number;
+    FleetServiceManagementFile?: number;
+    FleetIssueManagement?: number;
+    FleetServiceReminder?: number;
   };
 }
 
-// ✅ FleetServiceManagementTask Interface
+// FleetServiceManagementTask Interface
 export interface FleetServiceManagementTask extends Record<string, unknown> {
   fleet_service_management_task_id: string;
 
   task_cost?: number;
   task_notes?: string;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   service_management_id: string;
   FleetServiceManagement?: FleetServiceManagement;
 
   fleet_service_task_id: string;
   MasterFleetServiceTask?: MasterFleetServiceTask;
   fleet_service_task?: string;
-
-  // Relations - Child
-  _count?: {
-  };
 }
 
 // ✅ FleetServiceManagementFile Interface
@@ -180,7 +190,7 @@ export interface FleetServiceManagementFile extends BaseCommonFile {
   // Primary Fields
   fleet_service_management_file_id: string;
 
-  // ✅ Relations - Parent
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -188,18 +198,18 @@ export interface FleetServiceManagementFile extends BaseCommonFile {
   FleetServiceManagement?: FleetServiceManagement;
 }
 
-// ✅ FleetServiceReminder Interface
+// FleetServiceReminder Interface
 export interface FleetServiceReminder extends Record<string, unknown> {
   service_reminder_id: string;
 
   reminder_type?: ReminderType;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -218,7 +228,7 @@ export interface ServiceDashboard {
   total_amount: number;
 }
 
-// ✅ FleetServiceManagementFile Schema
+// FleetServiceManagementFile Schema
 export const FleetServiceManagementFileSchema = BaseFileSchema.extend({
   organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   service_management_id: single_select_optional('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
@@ -227,7 +237,7 @@ export type FleetServiceManagementFileDTO = z.infer<
   typeof FleetServiceManagementFileSchema
 >;
 
-// ✅ FleetServiceManagement Create/Update Schema
+// FleetServiceManagement Create/Update Schema
 export const FleetServiceManagementSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
@@ -310,7 +320,7 @@ export type FleetServiceManagementDTO = z.infer<
   typeof FleetServiceManagementSchema
 >;
 
-// ✅ FleetServiceManagement Query Schema
+// FleetServiceManagement Query Schema
 export const FleetServiceManagementQuerySchema = BaseQuerySchema.extend({
   service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
 
@@ -350,7 +360,7 @@ export type FleetServiceManagementQueryDTO = z.infer<
   typeof FleetServiceManagementQuerySchema
 >;
 
-// ✅ FleetServiceManagementDashBoard Query Schema
+// FleetServiceManagementDashBoard Query Schema
 export const FleetServiceManagementDashBoardQuerySchema =
   BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
@@ -363,7 +373,7 @@ export type FleetServiceManagementDashBoardQueryDTO = z.infer<
   typeof FleetServiceManagementDashBoardQuerySchema
 >;
 
-// ✅ FleetServiceManagementTask Create/Update Schema
+// FleetServiceManagementTask Create/Update Schema
 export const FleetServiceManagementTaskSchema = z.object({
   fleet_service_task_id: single_select_mandatory('MasterFleetServiceTask'), // ✅ Single-Selection -> MasterFleetServiceTask
   service_management_id: single_select_mandatory('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
@@ -377,7 +387,7 @@ export type FleetServiceManagementTaskDTO = z.infer<
   typeof FleetServiceManagementTaskSchema
 >;
 
-// ✅ FleetServiceManagementTask Query Schema
+// FleetServiceManagementTask Query Schema
 export const FleetServiceManagementTaskQuerySchema = BaseQuerySchema.extend({
   fleet_service_management_task_ids: multi_select_optional(
     'FleetServiceManagementTask',
@@ -390,7 +400,7 @@ export type FleetServiceManagementTaskQueryDTO = z.infer<
   typeof FleetServiceManagementTaskQuerySchema
 >;
 
-// ✅ FleetServiceReminder Create/Update Schema
+// FleetServiceReminder Create/Update Schema
 export const FleetServiceReminderSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
   vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
@@ -408,7 +418,7 @@ export type FleetServiceReminderDTO = z.infer<
   typeof FleetServiceReminderSchema
 >;
 
-// ✅ FleetServiceReminder Query Schema
+// FleetServiceReminder Query Schema
 export const FleetServiceReminderQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
   vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
@@ -425,7 +435,7 @@ export type FleetServiceReminderQueryDTO = z.infer<
   typeof FleetServiceReminderQuerySchema
 >;
 
-// ✅ Convert FleetServiceManagement Data to API Payload
+// Convert FleetServiceManagement Data to API Payload
 export const toFleetServiceManagementPayload = (row: FleetServiceManagement): FleetServiceManagementDTO => ({
   service_status: row.service_status || ServiceStatus.Pending,
   service_type: row.service_type || ServiceType.Preventive,
@@ -477,30 +487,32 @@ export const toFleetServiceManagementPayload = (row: FleetServiceManagement): Fl
   service_center_id: row.service_center_id || '',
 
   FleetServiceManagementFileSchema: row.FleetServiceManagementFile?.map((file) => ({
-    fleet_service_management_file_id: file.fleet_service_management_file_id ?? '',
+    fleet_service_management_file_id: file.fleet_service_management_file_id || '',
 
-    usage_type: file.usage_type,
+    // Usage Type -> Odometer Image, Fuel Bill, Fuel Tank Image, Refill Recording Video
+    usage_type: file.usage_type || '',
 
-    file_type: file.file_type,
+    file_type: file.file_type || FileType.Image,
+
     file_url: file.file_url || '',
     file_key: file.file_key || '',
     file_name: file.file_name || '',
     file_description: file.file_description || '',
     file_size: file.file_size || 0,
-    file_metadata: file.file_metadata ?? {},
+    file_metadata: file.file_metadata || {},
 
-    status: file.status,
+    status: file.status || Status.Active,
     added_date_time: file.added_date_time,
     modified_date_time: file.modified_date_time,
 
-    organisation_id: file.organisation_id ?? '',
-    service_management_id: file.service_management_id ?? '',
-  })) ?? [],
+    organisation_id: file.organisation_id || '',
+    service_management_id: file.service_management_id || '',
+  })) || [],
   time_zone_id: '',
   service_schedule_id: ''
 });
 
-// ✅ Create New FleetServiceManagement Payload
+// Create New FleetServiceManagement Payload
 export const newFleetServiceManagementPayload = (): FleetServiceManagementDTO => ({
   organisation_id: '',
   user_id: '',
@@ -548,39 +560,17 @@ export const newFleetServiceManagementPayload = (): FleetServiceManagementDTO =>
   time_zone_id: ''
 });
 
-// ✅ Convert FleetServiceManagementTask Data to API Payload
+// Convert FleetServiceManagementTask Data to API Payload
 export const toFleetServiceManagementTaskPayload = (row: FleetServiceManagementTask): FleetServiceManagementTaskDTO => ({
   task_cost: row.task_cost || 0,
   task_notes: row.task_notes || '',
 
   fleet_service_task_id: row.fleet_service_task_id || '',
   service_management_id: row.service_management_id || '',
-  status: Status.Active,
-});
-
-// ✅ Create New FleetServiceReminder Payload
-export const newFleetServiceReminderPayload = (): FleetServiceReminderDTO => ({
-  organisation_id: '',
-  vehicle_id: '',
-  service_management_id: '',
-
-  reminder_type: ReminderType.Upcoming,
-
-  status: Status.Active,
-});
-
-// ✅ Convert FleetServiceReminder Data to API Payload
-export const toFleetServiceReminderPayload = (row: FleetServiceReminder): FleetServiceReminderDTO => ({
-  organisation_id: row.organisation_id || '',
-  vehicle_id: row.vehicle_id || '',
-  service_management_id: row.service_management_id || '',
-
-  reminder_type: row.reminder_type || ReminderType.Upcoming,
-
   status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetServiceManagementTask Payload
+// Create New FleetServiceManagementTask Payload
 export const newFleetServiceManagementTaskPayload = (): FleetServiceManagementTaskDTO => ({
   task_cost: 0,
   task_notes: '',
@@ -591,12 +581,35 @@ export const newFleetServiceManagementTaskPayload = (): FleetServiceManagementTa
   fleet_service_task_id: '',
 });
 
-// Generate presigned URL for file uploads
+// Convert FleetServiceReminder Data to API Payload
+export const toFleetServiceReminderPayload = (row: FleetServiceReminder): FleetServiceReminderDTO => ({
+  organisation_id: row.organisation_id || '',
+  vehicle_id: row.vehicle_id || '',
+  service_management_id: row.service_management_id || '',
+
+  reminder_type: row.reminder_type || ReminderType.Upcoming,
+
+  status: row.status || Status.Active,
+});
+
+// Create New FleetServiceReminder Payload
+export const newFleetServiceReminderPayload = (): FleetServiceReminderDTO => ({
+  organisation_id: '',
+  vehicle_id: '',
+  service_management_id: '',
+
+  reminder_type: ReminderType.Upcoming,
+
+  status: Status.Active,
+});
+
+
+// AWS S3 PRESIGNED
 export const get_service_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.service_file_presigned_url, data);
 };
 
-// File API Methods
+// File Uploads
 export const create_service_file = async (data: FleetServiceManagementFileDTO): Promise<SBR> => {
   return apiPost<SBR, FleetServiceManagementFileDTO>(ENDPOINTS.create_service_file, data);
 };
@@ -605,7 +618,7 @@ export const remove_service_file = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_service_file(id));
 };
 
-// FleetServiceManagement
+// FleetServiceManagement APIs
 export const findFleetServiceManagement = async (data: FleetServiceManagementQueryDTO): Promise<FBR<FleetServiceManagement[]>> => {
   return apiPost<FBR<FleetServiceManagement[]>, FleetServiceManagementQueryDTO>(ENDPOINTS.find, data);
 };
@@ -626,7 +639,7 @@ export const service_dashboard = async (data: FleetServiceManagementDashBoardQue
   return apiPost<FBR<ServiceDashboard[]>, FleetServiceManagementDashBoardQueryDTO>(ENDPOINTS.service_dashboard, data);
 };
 
-// FleetServiceManagementTask
+// FleetServiceManagementTask APIs
 export const findFleetServiceManagementTask = async (data: FleetServiceManagementTaskQueryDTO): Promise<FBR<FleetServiceManagementTask[]>> => {
   return apiPost<FBR<FleetServiceManagementTask[]>, FleetServiceManagementTaskQueryDTO>(ENDPOINTS.find_service_task, data);
 };
@@ -643,7 +656,7 @@ export const deleteFleetServiceManagementTask = async (id: string): Promise<SBR>
   return apiDelete<SBR>(ENDPOINTS.delete_service_task(id));
 };
 
-// FleetServiceReminder
+// FleetServiceReminder APIs
 export const findFleetServiceReminder = async (data: FleetServiceReminderQueryDTO): Promise<FBR<FleetServiceReminder[]>> => {
   return apiPost<FBR<FleetServiceReminder[]>, FleetServiceReminderQueryDTO>(ENDPOINTS.find_service_reminder, data);
 };

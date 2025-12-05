@@ -42,12 +42,12 @@ import { MasterSemester } from 'src/services/master/bus/master_semester_service'
 import { MasterStream } from 'src/services/master/bus/master_stream_service';
 import { MasterYear } from 'src/services/master/bus/master_year_service';
 import { MasterRelationship } from 'src/services/master/bus/master_relationship_service';
+import { MasterRouteStudent } from './master_route';
 
-// Base URL
 const URL = 'student';
 
 const ENDPOINTS = {
-    // Student
+    // Student APIs
     find: `${URL}/search`,
     create: URL,
     find_students_with_no_route_pickup: `${URL}/no_route_pickup/search`,
@@ -56,16 +56,16 @@ const ENDPOINTS = {
     update_profile_picture: (id: string): string => `${URL}/update_profile_picture/${id}`,
     remove: (id: string): string => `${URL}/${id}`,
 
-    // Address
-    create_address: `${URL}/address`,
+    // StudentAddress APIs
     find_address: `${URL}/address/search`,
+    create_address: `${URL}/address`,
     update_address: (id: string): string => `${URL}/address/${id}`,
     update_address_bus_stop_assign: (id: string): string => `${URL}/address_bus_stop_assign/${id}`,
     remove_address: (id: string): string => `${URL}/address/${id}`,
 
-    // Guardian Link
-    create_guardian_link: `${URL}/guardian_link`,
+    // StudentGuardianLink APIs
     find_guardian_link: `${URL}/guardian_link/search`,
+    create_guardian_link: `${URL}/guardian_link`,
     update_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
     update_guardian_profile_picture: (id: string): string => `${URL}/guardian_profile_picture/${id}`,
     update_guardian_details: (id: string): string => `${URL}/guardian_details/${id}`,
@@ -73,14 +73,14 @@ const ENDPOINTS = {
     remove_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
     find_guardian_autofill_details: `${URL}/guardian_autofill/search`,
 
-    // Leave Request
-    create_leave_request: `${URL}/leave_request`,
+    // StudentLeaveRequest APIs
     find_leave_request: `${URL}/leave_request/search`,
+    create_leave_request: `${URL}/leave_request`,
     update_leave_request: (id: string): string => `${URL}/leave_request/${id}`,
     approve_leave_request: (id: string): string => `${URL}/approve_leave_request/${id}`,
     remove_leave_request: (id: string): string => `${URL}/leave_request/${id}`,
 
-    // Stop Change Request
+    // StudentStopChangeRequest APIs
     create_stop_change_request: `${URL}/stop_change_request`,
     find_stop_change_request: `${URL}/stop_change_request/search`,
     update_stop_change_request: (id: string): string => `${URL}/stop_change_request/${id}`,
@@ -88,9 +88,7 @@ const ENDPOINTS = {
     remove_stop_change_request: (id: string): string => `${URL}/stop_change_request/${id}`,
 };
 
-// -----------------------------
-// Interfaces (frontend model)
-// -----------------------------
+// Student Interface
 export interface Student extends Record<string, unknown> {
     student_id: string;
 
@@ -129,34 +127,68 @@ export interface Student extends Record<string, unknown> {
     added_date_time?: string;
     modified_date_time?: string;
 
-    // Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     organisation_branch_id?: string;
     OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
 
     program_id?: string;
     MasterProgram?: MasterProgram;
+    program_name?: string;
 
     stream_id?: string;
     MasterStream?: MasterStream;
+    stream_name?: string;
 
     year_id?: string;
     MasterYear?: MasterYear;
+    year_name?: string;
 
     semester_id?: string;
     MasterSemester?: MasterSemester;
+    semester_name?: string;
 
     class_id?: string;
     MasterClass?: MasterClass;
+    class_name?: string;
 
     section_id?: string;
     MasterSection?: MasterSection;
+    section_name?: string;
 
-    _count?: Record<string, number>;
+    // Children
+    // Child - Fleet
+    StudentAddress?: StudentAddress[]
+    StudentGuardianLink?: StudentGuardianLink[]
+    StudentLeaveRequest?: StudentLeaveRequest[]
+    StudentStopChangeRequest?: StudentStopChangeRequest[]
+    // StudentEnrollmentStatusHistory?: StudentEnrollmentStatusHistory[]
+
+    // StudentLoginPush: StudentLoginPush[]
+    MasterRouteStudent: MasterRouteStudent[]
+    // MasterRouteStudentChangeHistory: MasterRouteStudentChangeHistory[]
+    // FixedScheduleDayRunStudent: FixedScheduleDayRunStudent[]
+
+    // Relations - Child Count
+    _count?: {
+        StudentAddress?: number;
+        StudentGuardianLink?: number;
+        StudentLeaveRequest?: number;
+        StudentStopChangeRequest?: number;
+        StudentEnrollmentStatusHistory?: number;
+
+        StudentLoginPush?: number;
+        MasterRouteStudent?: number;
+        MasterRouteStudentChangeHistory?: number;
+        FixedScheduleDayRunStudent?: number;
+    };
 }
 
+// StudentAddress Interface
 export interface StudentAddress extends Record<string, unknown> {
     student_address_id: string;
 
@@ -188,17 +220,29 @@ export interface StudentAddress extends Record<string, unknown> {
     added_date_time?: string;
     modified_date_time?: string;
 
-    // Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
 
     student_id: string;
     Student?: Student
+
+    // Relations - Child
+    // Child - Fleet
+    StudentStopChangeRequest: StudentStopChangeRequest[]
+
+    // Relations - Child Count
+    _count?: {
+        StudentStopChangeRequest?: number;
+    };
 }
 
+// StudentLeaveRequest Interface
 export interface StudentLeaveRequest extends Record<string, unknown> {
     student_leave_request_id: string;
 
@@ -208,17 +252,25 @@ export interface StudentLeaveRequest extends Record<string, unknown> {
     leave_type: StudentLeaveType;
     reason?: string;
 
-    // Relations
+    // Metadata
+    status: Status;
+    added_date_time?: string;
+    modified_date_time?: string;
+
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
 
     student_id: string;
     Student?: Student
 }
 
+// StudentStopChangeRequest Interface
 export interface StudentStopChangeRequest extends Record<string, unknown> {
     student_stop_change_request_id: string;
     change_pickup: YesNo;
@@ -231,22 +283,28 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
     approval_notes?: string;
     approval_date?: string;
 
-    // Relations
+    // Metadata
+    status: Status;
+    added_date_time?: string;
+    modified_date_time?: string;
+
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
 
     student_id: string;
     Student?: Student
 
     student_address_id: string;
     StudentAddress?: StudentAddress
-
-    status: Status;
 }
 
+// StudentGuardianLink Interface
 export interface StudentGuardianLink extends Record<string, unknown> {
     student_guardian_link_id: string;
     is_primary: YesNo;
@@ -260,12 +318,19 @@ export interface StudentGuardianLink extends Record<string, unknown> {
     photo_key?: string;
     photo_name?: string;
 
-    // Relations
+    // Metadata
+    status: Status;
+    added_date_time?: string;
+    modified_date_time?: string;
+
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
 
     student_id: string;
     Student?: Student
@@ -273,15 +338,10 @@ export interface StudentGuardianLink extends Record<string, unknown> {
     relationship_id: string;
     MasterRelationship?: MasterRelationship
     relationship_name?: string;
-
-    status: Status;
 }
 
-// -----------------------------
-// Zod DTOs (create / update)
-// -----------------------------
 
-// ✅ Student Create/Update Schema
+// Student Create/Update Schema
 export const StudentSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -334,7 +394,7 @@ export const StudentSchema = z.object({
 });
 export type StudentDTO = z.infer<typeof StudentSchema>;
 
-// ✅ StudentProfilePicture Update Schema
+// StudentProfilePicture Update Schema
 export const StudentProfilePictureSchema = z.object({
     photo_url: stringMandatory('Photo URL', 0, 300),
     photo_key: stringMandatory('Photo Key', 0, 300),
@@ -344,7 +404,7 @@ export type StudentProfilePictureDTO = z.infer<
     typeof StudentProfilePictureSchema
 >;
 
-// ✅ Student Query Schema
+// Student Query Schema
 export const StudentQuerySchema = BaseQuerySchema.extend({
     student_ids: multi_select_optional('Student'), // ✅ Multi-selection -> Student
 
@@ -378,14 +438,14 @@ export const StudentQuerySchema = BaseQuerySchema.extend({
 });
 export type StudentQueryDTO = z.infer<typeof StudentQuerySchema>;
 
-// ✅ Student NoRoute Query Schema
+// Student NoRoute Query Schema
 export const StudentNoRouteQuerySchema = BaseQuerySchema.extend({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
 });
 export type StudentNoRouteQueryDTO = z.infer<typeof StudentNoRouteQuerySchema>;
 
-// ✅ StudentAddress Create/Update Schema
+// StudentAddress Create/Update Schema
 export const StudentAddressSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -415,7 +475,7 @@ export const StudentAddressSchema = z.object({
 });
 export type StudentAddressDTO = z.infer<typeof StudentAddressSchema>;
 
-// ✅ StudentAddressBusStopAssign Update Schema
+// StudentAddressBusStopAssign Update Schema
 export const StudentAddressBusStopAssignSchema = z.object({
     bus_stop_id: single_select_mandatory('BusStop'), // ✅ Single-Selection -> BusStop
 });
@@ -423,7 +483,7 @@ export type StudentAddressBusStopAssignDTO = z.infer<
     typeof StudentAddressBusStopAssignSchema
 >;
 
-// ✅ StudentAddress Query Schema
+// StudentAddress Query Schema
 export const StudentAddressQuerySchema = BaseQuerySchema.extend({
     student_address_ids: multi_select_optional('StudentAddress'), // ✅ Multi-selection -> StudentAddress
 
@@ -436,7 +496,7 @@ export const StudentAddressQuerySchema = BaseQuerySchema.extend({
 });
 export type StudentAddressQueryDTO = z.infer<typeof StudentAddressQuerySchema>;
 
-// ✅ StudentGuardianLink Create/Update Schema
+// StudentGuardianLink Create/Update Schema
 export const StudentGuardianLinkSchema = z.object({
     is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
     notes: stringOptional('Notes', 0, 500),
@@ -460,7 +520,7 @@ export const StudentGuardianLinkSchema = z.object({
 });
 export type StudentGuardianLinkDTO = z.infer<typeof StudentGuardianLinkSchema>;
 
-// ✅ GuardianProfilePicture Update Schema
+// GuardianProfilePicture Update Schema
 export const GuardianProfilePictureSchema = z.object({
     photo_url: stringMandatory('Photo URL', 0, 300),
     photo_key: stringMandatory('Photo Key', 0, 300),
@@ -470,7 +530,7 @@ export type GuardianProfilePictureDTO = z.infer<
     typeof GuardianProfilePictureSchema
 >;
 
-// ✅ GuardianDetails Update Schema
+// GuardianDetails Update Schema
 export const GuardianDetailsSchema = z.object({
     full_name: stringMandatory('Full Name', 3, 100),
     email: stringOptional('Email', 0, 100),
@@ -478,7 +538,7 @@ export const GuardianDetailsSchema = z.object({
 });
 export type GuardianDetailsDTO = z.infer<typeof GuardianDetailsSchema>;
 
-// ✅ GuardianMobileNumber Update Schema
+// GuardianMobileNumber Update Schema
 export const GuardianMobileNumberSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'),
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -489,7 +549,7 @@ export type GuardianMobileNumberDTO = z.infer<
     typeof GuardianMobileNumberSchema
 >;
 
-// ✅ StudentGuardian Query Schema
+// StudentGuardian Query Schema
 export const StudentGuardianLinkQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
     organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
@@ -500,7 +560,7 @@ export type StudentGuardianLinkQueryDTO = z.infer<
     typeof StudentGuardianLinkQuerySchema
 >;
 
-// ✅ StudentGuardianAutofill Query Schema
+// StudentGuardianAutofill Query Schema
 export const StudentGuardianAutofillQuerySchema = BaseQuerySchema.extend({
     organisation_id: single_select_mandatory('UserOrganisation'),
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -510,7 +570,7 @@ export type StudentGuardianAutofillQueryDTO = z.infer<
     typeof StudentGuardianAutofillQuerySchema
 >;
 
-// ✅ StudentLeaveRequest Create/Update Schema
+// StudentLeaveRequest Create/Update Schema
 export const StudentLeaveRequestSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'),
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -530,7 +590,7 @@ export const StudentLeaveRequestSchema = z.object({
 });
 export type StudentLeaveRequestDTO = z.infer<typeof StudentLeaveRequestSchema>;
 
-// ✅ StudentLeaveRequest Approval Schema
+// StudentLeaveRequest Approval Schema
 export const StudentLeaveRequestApprovalSchema = z.object({
     approval_status: enumMandatory(
         'Approval Status',
@@ -545,7 +605,7 @@ export type StudentLeaveRequestApprovalDTO = z.infer<
     typeof StudentLeaveRequestApprovalSchema
 >;
 
-// ✅ StudentLeaveRequest Query Schema
+// StudentLeaveRequest Query Schema
 export const StudentLeaveRequestQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
     organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
@@ -562,7 +622,7 @@ export type StudentLeaveRequestQueryDTO = z.infer<
     typeof StudentLeaveRequestQuerySchema
 >;
 
-// ✅ StudentStopChangeRequest Create/Update Schema
+// StudentStopChangeRequest Create/Update Schema
 export const StudentStopChangeRequestSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'),
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
@@ -586,7 +646,7 @@ export type StudentStopChangeRequestDTO = z.infer<
     typeof StudentStopChangeRequestSchema
 >;
 
-// ✅ StudentStopChangeRequest Approval Schema
+// StudentStopChangeRequest Approval Schema
 export const StudentStopChangeRequestApprovalSchema = z.object({
     approval_status: enumMandatory(
         'Approval Status',
@@ -599,7 +659,7 @@ export type StudentStopChangeRequestApprovalDTO = z.infer<
     typeof StudentStopChangeRequestApprovalSchema
 >;
 
-// ✅ StudentStopChangeRequest Query Schema
+// StudentStopChangeRequest Query Schema
 export const StudentStopChangeRequestQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
     organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
@@ -619,9 +679,7 @@ export type StudentStopChangeRequestQueryDTO = z.infer<
     typeof StudentStopChangeRequestQuerySchema
 >;
 
-// -----------------------------
-// Helpers: payload creators
-// -----------------------------
+// Convert Student Data to API Payload
 export const toStudentPayload = (row: Student): StudentDTO => ({
     organisation_id: row.organisation_id || '',
     organisation_branch_id: row.organisation_branch_id || '',
@@ -640,13 +698,13 @@ export const toStudentPayload = (row: Student): StudentDTO => ({
     admission_registration_number: row.admission_registration_number || '',
     roll_number: row.roll_number || '',
 
-    first_name: row.first_name,
+    first_name: row.first_name || '',
     last_name: row.last_name || '',
 
     mobile_number: row.mobile_number || '',
     email: row.email || '',
 
-    dob: row.dob,
+    dob: row.dob || '',
     gender: row.gender || '',
     blood_group: row.blood_group || '',
     special_notes: row.special_notes || '',
@@ -654,7 +712,7 @@ export const toStudentPayload = (row: Student): StudentDTO => ({
     enrollment_status: row.enrollment_status || EnrollmentStatus.Active,
     transport_plan_type: row.transport_plan_type || TransportPlanType.Both,
 
-    status: row.status,
+    status: row.status || Status.Active,
     time_zone_id: '', // Needs to be provided manually
 });
 
@@ -692,6 +750,7 @@ export const newStudentPayload = (): StudentDTO => ({
     time_zone_id: '', // Needs to be provided manually
 });
 
+// Convert Student Data to API Payload
 export const toStudentAddressPayload = (row: StudentAddress): StudentAddressDTO => ({
     organisation_id: row.organisation_id || '',
     organisation_branch_id: row.organisation_branch_id || '',
@@ -720,6 +779,7 @@ export const toStudentAddressPayload = (row: StudentAddress): StudentAddressDTO 
     status: row.status,
 });
 
+// Create New Student Payload
 export const newStudentAddressPayload = (): StudentAddressDTO => ({
     student_id: '',
     organisation_id: '',
@@ -746,6 +806,7 @@ export const newStudentAddressPayload = (): StudentAddressDTO => ({
     status: Status.Active
 });
 
+// Convert StudentLeaveRequest Data to API Payload
 export const toStudentLeaveRequestPayload = (row: StudentLeaveRequest): StudentLeaveRequestDTO => ({
     organisation_id: row.organisation_id || '',
     organisation_branch_id: row.organisation_branch_id || '',
@@ -760,6 +821,7 @@ export const toStudentLeaveRequestPayload = (row: StudentLeaveRequest): StudentL
     time_zone_id: '', // Needs to be provided manually
 });
 
+// Create New StudentLeaveRequest Payload
 export const newStudentLeaveRequestPayload = (): StudentLeaveRequestDTO => ({
     student_id: '',
     organisation_id: '',
@@ -773,6 +835,7 @@ export const newStudentLeaveRequestPayload = (): StudentLeaveRequestDTO => ({
     time_zone_id: '', // Needs to be provided manually
 });
 
+// Convert StudentStopChangeRequest Data to API Payload
 export const toStudentStopChangeRequestPayload = (row: StudentStopChangeRequest): StudentStopChangeRequestDTO => ({
     organisation_id: row.organisation_id || '',
     organisation_branch_id: row.organisation_branch_id || '',
@@ -787,10 +850,11 @@ export const toStudentStopChangeRequestPayload = (row: StudentStopChangeRequest)
     apply_until: row.apply_until || '',
     reason: row.reason || '',
 
-    status: row.status,
+    status: row.status || Status.Active,
     time_zone_id: '', // Needs to be provided manually
 });
 
+// Create New StudentStopChangeRequest Payload
 export const newStudentStopChangeRequestPayload = (): StudentStopChangeRequestDTO => ({
     student_id: '',
     organisation_id: '',
@@ -809,6 +873,7 @@ export const newStudentStopChangeRequestPayload = (): StudentStopChangeRequestDT
     time_zone_id: '', // Needs to be provided manually
 });
 
+// Convert StudentGuardianLink Data to API Payload
 export const toStudentGuardianLinkPayload = (row: StudentGuardianLink): StudentGuardianLinkDTO => ({
     organisation_id: row.organisation_id || '',
     organisation_branch_id: row.organisation_branch_id || '',
@@ -827,9 +892,10 @@ export const toStudentGuardianLinkPayload = (row: StudentGuardianLink): StudentG
     email: row.email || '',
     alternative_mobile: row.alternative_mobile || '',
 
-    status: row.status,
+    status: row.status || Status.Active,
 });
 
+// Create New StudentGuardianLink Payload
 export const newStudentGuardianLinkPayload = (): StudentGuardianLinkDTO => ({
     student_id: '',
     organisation_id: '',
@@ -852,11 +918,8 @@ export const newStudentGuardianLinkPayload = (): StudentGuardianLinkDTO => ({
     status: Status.Active,
 });
 
-// -----------------------------
-// API Methods
-// -----------------------------
 
-// Student CRUD
+// Student APIs
 export const findStudent = async (data: StudentQueryDTO): Promise<FBR<Student[]>> => {
     return apiPost<FBR<Student[]>, StudentQueryDTO>(ENDPOINTS.find, data);
 };
@@ -886,7 +949,7 @@ export const updateProfilePicture = async (id: string, data: StudentProfilePictu
     return apiPatch<SBR, StudentProfilePictureDTO>(ENDPOINTS.update_profile_picture(id), data);
 };
 
-// StudentAddress CRUD
+// StudentAddress APIs
 export const createStudentAddress = async (data: StudentAddressDTO): Promise<SBR> => {
     return apiPost<SBR, StudentAddressDTO>(ENDPOINTS.create_address, data);
 };
@@ -907,13 +970,13 @@ export const deleteStudentAddress = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_address(id));
 };
 
-// Student Guardian Link CRUD
-export const createStudentGuardianLink = async (data: StudentGuardianLinkDTO): Promise<SBR> => {
-    return apiPost<SBR, StudentGuardianLinkDTO>(ENDPOINTS.create_guardian_link, data);
-};
-
+// StudentGuardianLink APIs
 export const findStudentGuardianLink = async (data: StudentGuardianLinkQueryDTO): Promise<FBR<StudentGuardianLink[]>> => {
     return apiPost<FBR<StudentGuardianLink[]>, StudentGuardianLinkQueryDTO>(ENDPOINTS.find_guardian_link, data);
+};
+
+export const createStudentGuardianLink = async (data: StudentGuardianLinkDTO): Promise<SBR> => {
+    return apiPost<SBR, StudentGuardianLinkDTO>(ENDPOINTS.create_guardian_link, data);
 };
 
 export const updateStudentGuardianLink = async (id: string, data: StudentGuardianLinkDTO): Promise<SBR> => {
@@ -940,7 +1003,7 @@ export const findStudentGuardianAutofillDetails = async (data: StudentGuardianAu
     return apiPost<FBR<StudentGuardianLink[]>, StudentGuardianAutofillQueryDTO>(ENDPOINTS.find_guardian_autofill_details, data);
 };
 
-// Student Leave Request CRUD
+// StudentLeaveRequest APIs
 export const createStudentLeaveRequest = async (data: StudentLeaveRequestDTO): Promise<SBR> => {
     return apiPost<SBR, StudentLeaveRequestDTO>(ENDPOINTS.create_leave_request, data);
 };
@@ -961,13 +1024,13 @@ export const deleteStudentLeaveRequest = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_leave_request(id));
 };
 
-// Student Stop Change Request CRUD
-export const createStudentStopChangeRequest = async (data: StudentStopChangeRequestDTO): Promise<SBR> => {
-    return apiPost<SBR, StudentStopChangeRequestDTO>(ENDPOINTS.create_stop_change_request, data);
-};
-
+// StudentStopChangeRequest APIs
 export const findStudentStopChangeRequest = async (data: StudentStopChangeRequestQueryDTO): Promise<FBR<StudentStopChangeRequest[]>> => {
     return apiPost<FBR<StudentStopChangeRequest[]>, StudentStopChangeRequestQueryDTO>(ENDPOINTS.find_stop_change_request, data);
+};
+
+export const createStudentStopChangeRequest = async (data: StudentStopChangeRequestDTO): Promise<SBR> => {
+    return apiPost<SBR, StudentStopChangeRequestDTO>(ENDPOINTS.create_stop_change_request, data);
 };
 
 export const updateStudentStopChangeRequest = async (id: string, data: StudentStopChangeRequestDTO): Promise<SBR> => {

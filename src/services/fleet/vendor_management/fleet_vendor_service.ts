@@ -22,7 +22,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo, FleetVendorAddressLabel } from '../../../core/Enums';
+import { Status, YesNo, FleetVendorAddressLabel, FileType } from '../../../core/Enums';
 
 // Other Models
 import { MasterVendorType } from 'src/services/master/expense/master_vendor_type_service';
@@ -37,7 +37,6 @@ import { FleetVendorFuelStation } from './fleet_vendor_fuel_station';
 const URL = 'fleet/vendor_management/fleet_vendor';
 
 const ENDPOINTS = {
-
     // AWS S3 PRESIGNED
     vendor_logo_presigned_url: (fileName: string): string => `${URL}/vendor_logo_presigned_url/${fileName}`,
     vendor_contact_person_logo_presigned_url: (fileName: string): string => `${URL}/vendor_contact_person_logo_presigned_url/${fileName}`,
@@ -46,28 +45,30 @@ const ENDPOINTS = {
     update_vendor_logo: (id: string): string => `${URL}/update_vendor_logo/${id}`,
     delete_vendor_logo: (id: string): string => `${URL}/delete_vendor_logo/${id}`,
 
+    // File Uploads
     create_vendor_document_file: `${URL}/create_vendor_document_file`,
     remove_vendor_document_file: (id: string): string => `${URL}/remove_vendor_document_file/${id}`,
 
+    // FleetVendor APIs
     find: `${URL}/search`,
     vendor_dashboard: `${URL}/vendor_dashboard`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
 
-    // Address
+    // FleetVendorAddress APIs
     create_address: `${URL}/address`,
     find_address: `${URL}/address/search`,
     update_address: (id: string): string => `${URL}/address/${id}`,
     remove_address: (id: string): string => `${URL}/address/${id}`,
 
-    // Bank Account
+    // FleetVendorBankAccount APIs
     create_bank_account: `${URL}/bank_account`,
     find_bank_account: `${URL}/bank_account/search`,
     update_bank_account: (id: string): string => `${URL}/bank_account/${id}`,
     remove_bank_account: (id: string): string => `${URL}/bank_account/${id}`,
 
-    // Contact Person
+    // FleetVendorContactPersons APIs
     create_contact_person: `${URL}/contact_person`,
     find_contact_person: `${URL}/contact_person/search`,
     update_contact_person: (id: string): string => `${URL}/contact_person/${id}`,
@@ -75,32 +76,32 @@ const ENDPOINTS = {
     update_vendor_contact_person_logo: (id: string): string => `${URL}/update_vendor_contact_person_logo/${id}`,
     delete_vendor_contact_person_logo: (id: string): string => `${URL}/delete_vendor_contact_person_logo/${id}`,
 
-    // Review
+    // FleetVendorReview APIs
     create_review: `${URL}/review`,
     find_review: `${URL}/review/search`,
     update_review: (id: string): string => `${URL}/review/${id}`,
     remove_review: (id: string): string => `${URL}/review/${id}`,
 
-    // Document
+    // FleetVendorDocument APIs
     create_document: `${URL}/document`,
     find_document: `${URL}/document/search`,
     update_document: (id: string): string => `${URL}/document/${id}`,
     remove_document: (id: string): string => `${URL}/document/${id}`,
 
-    // Cache
+    // Cache APIs
     cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
-// ✅ FleetVendor Interface
+// FleetVendor Interface
 export interface FleetVendor extends Record<string, unknown> {
-    // ✅ Primary Fields
+    // Primary Fields
     vendor_id: string;
     vendor_name: string;
     vendor_code?: string;
     business_mobile?: string;
     business_email?: string;
 
-    // ✅ Logo
+    // Logo
     logo_url?: string;
     logo_key?: string;
     logo_name?: string;
@@ -122,16 +123,17 @@ export interface FleetVendor extends Record<string, unknown> {
     additional_details_2?: string;
     additional_details_3?: string;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations - Parent
+    // Relations - Parent
     organisation_id: string;
-    UserOrganisation: UserOrganisation;
+    UserOrganisation?: UserOrganisation;
 
-    // ✅ Relations - Child
+    // Relations - Child Main
+    // Child - Fleet
     FleetVendorTypeLink?: FleetVendorTypeLink[]
     FleetVendorTagLink?: FleetVendorTagLink[]
     FleetVendorAddress?: FleetVendorAddress[]
@@ -143,17 +145,18 @@ export interface FleetVendor extends Record<string, unknown> {
     FleetVendorServiceCenter?: FleetVendorServiceCenter[]
     FleetVendorFuelStation?: FleetVendorFuelStation[]
 
-    // ✅ Count (Child Relations)
+    // Relations - Child Count
     _count?: {
-        FleetVendorTypeLink: number;
-        FleetVendorTagLink: number;
-        FleetVendorAddress: number;
-        FleetVendorBankAccount: number;
-        FleetVendorContactPersons: number;
-        FleetVendorReview: number;
-        FleetVendorDocument: number;
-        FleetVendorServiceCenter: number;
-        FleetVendorFuelStation: number;
+        FleetVendorTypeLink?: number;
+        FleetVendorTagLink?: number;
+        FleetVendorAddress?: number;
+        FleetVendorBankAccount?: number;
+        FleetVendorContactPersons?: number;
+
+        FleetVendorReview?: number;
+        FleetVendorDocument?: number;
+        FleetVendorServiceCenter?: number;
+        FleetVendorFuelStation?: number;
     };
 }
 
@@ -165,7 +168,7 @@ export interface VendorDashboard {
     };
 }
 
-// ✅ FleetVendorSimple Interface
+// FleetVendorSimple Interface
 export interface FleetVendorSimple extends Record<string, unknown> {
     vendor_id: string;
     vendor_name: string;
@@ -174,17 +177,17 @@ export interface FleetVendorSimple extends Record<string, unknown> {
     business_email?: string;
 };
 
-// ✅ FleetVendorTypeLink Interface
+// FleetVendorTypeLink Interface
 export interface FleetVendorTypeLink extends Record<string, unknown> {
-    // ✅ Primary Fields
+    // Primary Fields
     vendor_type_link_id: string;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // Relations
+    // Relations - Parent
     vendor_id: string
     FleetVendor?: FleetVendor;
     vendor_name?: string;
@@ -192,23 +195,19 @@ export interface FleetVendorTypeLink extends Record<string, unknown> {
     vendor_type_id: string;
     MasterVendorType?: MasterVendorType;
     vendor_type?: string;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
 }
 
-// ✅ FleetVendorTagLink Interface
+// FleetVendorTagLink Interface
 export interface FleetVendorTagLink extends Record<string, unknown> {
-    // ✅ Primary Fields
+    // Primary Fields
     vendor_tag_link_id: string;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // Relations
+    // Relations - Parent
     vendor_id: string
     FleetVendor?: FleetVendor;
     vendor_name?: string;
@@ -216,13 +215,9 @@ export interface FleetVendorTagLink extends Record<string, unknown> {
     vendor_tag_id: string;
     MasterVendorTag?: MasterVendorTag;
     vendor_tag?: string;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
 }
 
-// ✅ FleetVendorAddress Interface
+// FleetVendorAddress Interface
 export interface FleetVendorAddress extends Record<string, unknown> {
     vendor_address_id: string;
 
@@ -258,20 +253,16 @@ export interface FleetVendorAddress extends Record<string, unknown> {
     added_date_time: string;
     modified_date_time: string;
 
-    // Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     vendor_id: string;
     FleetVendor?: FleetVendor;
     vendor_name?: string;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
 }
 
-// ✅ FleetVendorBankAccount Interface
+// FleetVendorBankAccount Interface
 export interface FleetVendorBankAccount extends Record<string, unknown> {
     vendor_bank_account_id: string;
 
@@ -291,20 +282,16 @@ export interface FleetVendorBankAccount extends Record<string, unknown> {
     added_date_time: string;
     modified_date_time: string;
 
-    // Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     vendor_id: string;
     FleetVendor?: FleetVendor;
     vendor_name?: string;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
 }
 
-// ✅ FleetVendorContactPersons Interface
+// FleetVendorContactPersons Interface
 export interface FleetVendorContactPersons extends Record<string, unknown> {
     contact_person_id: string;
 
@@ -331,20 +318,16 @@ export interface FleetVendorContactPersons extends Record<string, unknown> {
     added_date_time: string;
     modified_date_time: string;
 
-    // Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     vendor_id: string;
     FleetVendor?: FleetVendor;
     vendor_name?: string;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
 }
 
-// ✅ FleetVendorReview Interface
+// FleetVendorReview Interface
 export interface FleetVendorReview extends Record<string, unknown> {
     vendor_review_id: string;
 
@@ -356,23 +339,20 @@ export interface FleetVendorReview extends Record<string, unknown> {
     added_date_time: string;
     modified_date_time: string;
 
-    // Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     user_id?: string;
     User?: User;
+    user_details?: string;
 
     vendor_id: string;
     FleetVendor?: FleetVendor;
     vendor_name?: string;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
 }
 
-// ✅ FleetVendorDocument Interface
+// FleetVendorDocument Interface
 export interface FleetVendorDocument extends Record<string, unknown> {
     fleet_vendor_document_id: string;
 
@@ -391,12 +371,13 @@ export interface FleetVendorDocument extends Record<string, unknown> {
     added_date_time: string;
     modified_date_time: string;
 
-    // Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     user_id?: string;
     User?: User;
+    user_details?: string;
 
     vendor_id: string;
     FleetVendor?: FleetVendor;
@@ -406,21 +387,22 @@ export interface FleetVendorDocument extends Record<string, unknown> {
     MasterVendorDocumentType?: MasterVendorDocumentType;
     document_type?: string;
 
-    // ✅ Relations - Child
-    FleetVendorDocumentFile: FleetVendorDocumentFile[];
+    // Relations - Child
+    // Child - Fleet
+    FleetVendorDocumentFile?: FleetVendorDocumentFile[]
 
-    // ✅ Count (Child Relations)
+    // Relations - Child Count
     _count?: {
-        FleetVendorDocumentFile: number;
+        FleetVendorDocumentFile?: number;
     };
 }
 
-// ✅ FleetVendorDocumentFile Interface
+// FleetVendorDocumentFile Interface
 export interface FleetVendorDocumentFile extends BaseCommonFile {
     // Primary Fields
     fleet_vendor_document_file_id: string;
 
-    // ✅ Relations - Parent
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
@@ -429,7 +411,7 @@ export interface FleetVendorDocumentFile extends BaseCommonFile {
 }
 
 
-// ✅ FleetVendor Logo Schema
+// FleetVendor Logo Schema
 export const FleetVendorLogoSchema = z.object({
     logo_url: stringMandatory('Logo URL', 0, 300),
     logo_key: stringMandatory('Logo Key', 0, 300),
@@ -437,7 +419,7 @@ export const FleetVendorLogoSchema = z.object({
 });
 export type FleetVendorLogoDTO = z.infer<typeof FleetVendorLogoSchema>;
 
-// ✅ FleetVendor Create/Update Schema
+// FleetVendor Create/Update Schema
 export const FleetVendorSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
 
@@ -694,7 +676,7 @@ export const FleetVendorDocumentSchema = z.object({
 });
 export type FleetVendorDocumentDTO = z.infer<typeof FleetVendorDocumentSchema>;
 
-// ✅ FleetVendorDocument Query Schema
+// FleetVendorDocument Query Schema
 export const FleetVendorDocumentQuerySchema = BaseQuerySchema.extend({
     fleet_vendor_document_ids: multi_select_optional('FleetVendorDocument'), // ✅ Multi-selection -> FleetVendorDocument
 
@@ -706,7 +688,7 @@ export type FleetVendorDocumentQueryDTO = z.infer<
     typeof FleetVendorDocumentQuerySchema
 >;
 
-// ✅ Convert FleetVendor Data to API Payload
+// Convert FleetVendor Data to API Payload
 export const toFleetVendorPayload = (row: FleetVendor): FleetVendorDTO => ({
     vendor_name: row.vendor_name || '',
     vendor_code: row.vendor_code || '',
@@ -740,10 +722,10 @@ export const toFleetVendorPayload = (row: FleetVendor): FleetVendorDTO => ({
     vendor_type_ids: row.FleetVendorTypeLink?.map((v) => v.vendor_type_id) || [],
     vendor_tag_ids: row.FleetVendorTagLink?.map((v) => v.vendor_tag_id) || [],
 
-    status: row.status,
+    status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetVendor Payload
+// Create New FleetVendor Payload
 export const newFleetVendorPayload = (): FleetVendorDTO => ({
     vendor_name: '',
     vendor_code: '',
@@ -776,7 +758,7 @@ export const newFleetVendorPayload = (): FleetVendorDTO => ({
     status: Status.Active,
 });
 
-// ✅ Convert FleetVendorAddress Data to API Payload
+// Convert FleetVendorAddress Data to API Payload
 export const toFleetVendorAddressPayload = (row: FleetVendorAddress): FleetVendorAddressDTO => ({
     vendor_address_label: row.vendor_address_label || FleetVendorAddressLabel.OTHER,
 
@@ -806,7 +788,7 @@ export const toFleetVendorAddressPayload = (row: FleetVendorAddress): FleetVendo
     status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetVendorAddress Payload
+// Create New FleetVendorAddress Payload
 export const newFleetVendorAddressPayload = (): FleetVendorAddressDTO => ({
     vendor_address_label: FleetVendorAddressLabel.OTHER,
 
@@ -834,7 +816,7 @@ export const newFleetVendorAddressPayload = (): FleetVendorAddressDTO => ({
     status: Status.Active,
 });
 
-// ✅ Convert FleetVendorBankAccount Data to API Payload
+// Convert FleetVendorBankAccount Data to API Payload
 export const toFleetVendorBankAccountPayload = (row: FleetVendorBankAccount): FleetVendorBankAccountDTO => ({
     bank_name: row.bank_name || '',
     bank_branch_name: row.bank_branch_name || '',
@@ -854,7 +836,7 @@ export const toFleetVendorBankAccountPayload = (row: FleetVendorBankAccount): Fl
     status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetVendorBankAccount Payload
+// Create New FleetVendorBankAccount Payload
 export const newFleetVendorBankAccountPayload = (): FleetVendorBankAccountDTO => ({
     bank_name: '',
     bank_branch_name: '',
@@ -873,7 +855,7 @@ export const newFleetVendorBankAccountPayload = (): FleetVendorBankAccountDTO =>
     status: Status.Active,
 });
 
-// ✅ Convert FleetVendorContactPersons Data to API Payload
+// Convert FleetVendorContactPersons Data to API Payload
 export const toFleetVendorContactPersonsPayload = (row: FleetVendorContactPersons): FleetVendorContactPersonsDTO => ({
     // Image
     image_url: row.image_url || '',
@@ -899,7 +881,7 @@ export const toFleetVendorContactPersonsPayload = (row: FleetVendorContactPerson
     status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetVendorContactPersons Payload
+// Create New FleetVendorContactPersons Payload
 export const newFleetVendorContactPersonsPayload = (): FleetVendorContactPersonsDTO => ({
     image_url: '',
     image_key: '',
@@ -922,7 +904,7 @@ export const newFleetVendorContactPersonsPayload = (): FleetVendorContactPersons
     status: Status.Active,
 });
 
-// ✅ Convert FleetVendorReview Data to API Payload
+// Convert FleetVendorReview Data to API Payload
 export const toFleetVendorReviewPayload = (row: FleetVendorReview): FleetVendorReviewDTO => ({
     rating: row.rating || 0,
     rating_comments: row.rating_comments || '',
@@ -935,7 +917,7 @@ export const toFleetVendorReviewPayload = (row: FleetVendorReview): FleetVendorR
     status: row.status || Status.Active,
 });
 
-// ✅ Create New FleetVendorReview Payload
+// Create New FleetVendorReview Payload
 export const newFleetVendorReviewPayload = (): FleetVendorReviewDTO => ({
     rating: 0,
     rating_comments: '',
@@ -947,7 +929,7 @@ export const newFleetVendorReviewPayload = (): FleetVendorReviewDTO => ({
     status: Status.Active,
 });
 
-// ✅ Convert FleetVendorDocument Data to API Payload
+// Convert FleetVendorDocument Data to API Payload
 export const toFleetVendorDocumentPayload = (row: FleetVendorDocument): FleetVendorDocumentDTO => ({
     // Document Details
     document_name: row.document_name || '',
@@ -968,28 +950,30 @@ export const toFleetVendorDocumentPayload = (row: FleetVendorDocument): FleetVen
     time_zone_id: '', // Needs to be provided manually
 
     FleetVendorDocumentFileSchema: row.FleetVendorDocumentFile?.map((file) => ({
-        fleet_vendor_document_file_id: file.fleet_vendor_document_file_id ?? '',
+        fleet_vendor_document_file_id: file.fleet_vendor_document_file_id || '',
 
-        usage_type: file.usage_type,
+        // Usage Type -> Odometer Image, Fuel Bill, Fuel Tank Image, Refill Recording Video
+        usage_type: file.usage_type || '',
 
-        file_type: file.file_type,
+        file_type: file.file_type || FileType.Image,
+
         file_url: file.file_url || '',
         file_key: file.file_key || '',
         file_name: file.file_name || '',
         file_description: file.file_description || '',
         file_size: file.file_size || 0,
-        file_metadata: file.file_metadata ?? {},
+        file_metadata: file.file_metadata || {},
 
-        status: file.status,
+        status: file.status || Status.Active,
         added_date_time: file.added_date_time,
         modified_date_time: file.modified_date_time,
 
-        organisation_id: file.organisation_id ?? '',
-        fleet_vendor_document_id: file.fleet_vendor_document_id ?? '',
-    })) ?? [],
+        organisation_id: file.organisation_id || '',
+        fleet_vendor_document_id: file.fleet_vendor_document_id || '',
+    })) || [],
 });
 
-// ✅ Convert API Response to Frontend Data
+// Create New FleetVendorDocument Payload
 export const newFleetVendorDocumentPayload = (): FleetVendorDocumentDTO => ({
     document_name: '',
     document_number: '',
@@ -1010,7 +994,7 @@ export const newFleetVendorDocumentPayload = (): FleetVendorDocumentDTO => ({
 });
 
 
-// Generate presigned URL for file uploads
+// AWS S3 PRESIGNED
 export const get_vendor_logo_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
     return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.vendor_logo_presigned_url(fileName));
 };
@@ -1039,6 +1023,7 @@ export const deleteFleetVendorContactPersonsLogo = async (id: string): Promise<S
     return apiDelete<SBR>(ENDPOINTS.delete_vendor_contact_person_logo(id));
 };
 
+// File Uploads
 export const create_vendor_document_file = async (data: FleetVendorDocumentFileDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorDocumentFileDTO>(ENDPOINTS.create_vendor_document_file, data);
 };
@@ -1047,7 +1032,7 @@ export const remove_vendor_document_file = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_vendor_document_file(id));
 };
 
-// FleetVendor
+// FleetVendor APIs
 export const findFleetVendor = async (data: FleetVendorQueryDTO): Promise<FBR<FleetVendor[]>> => {
     return apiPost<FBR<FleetVendor[]>, FleetVendorQueryDTO>(ENDPOINTS.find, data);
 };
@@ -1068,7 +1053,7 @@ export const vendor_dashboard = async (data: FleetVendorDashBoardQueryDTO,): Pro
     return apiPost<FBR<VendorDashboard[]>, FleetVendorDashBoardQueryDTO>(ENDPOINTS.vendor_dashboard, data);
 };
 
-// FleetVendorAddress
+// FleetVendorAddress APIs
 export const createFleetVendorAddress = async (data: FleetVendorAddressDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorAddressDTO>(ENDPOINTS.create_address, data);
 };
@@ -1085,7 +1070,7 @@ export const deleteFleetVendorAddress = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_address(id));
 };
 
-// FleetVendorBankAccount
+// FleetVendorBankAccount APIs
 export const createFleetVendorBankAccount = async (data: FleetVendorBankAccountDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorBankAccountDTO>(ENDPOINTS.create_bank_account, data);
 };
@@ -1102,7 +1087,7 @@ export const deleteFleetVendorBankAccount = async (id: string): Promise<SBR> => 
     return apiDelete<SBR>(ENDPOINTS.remove_bank_account(id));
 };
 
-// FleetVendorContactPersons
+// FleetVendorContactPersons APIs
 export const createFleetVendorContactPersons = async (data: FleetVendorContactPersonsDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorContactPersonsDTO>(ENDPOINTS.create_contact_person, data);
 };
@@ -1119,7 +1104,7 @@ export const deleteFleetVendorContactPersons = async (id: string): Promise<SBR> 
     return apiDelete<SBR>(ENDPOINTS.remove_contact_person(id));
 };
 
-// FleetVendorReview
+// FleetVendorReview APIs
 export const createFleetVendorReview = async (data: FleetVendorReviewDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorReviewDTO>(ENDPOINTS.create_review, data);
 };
@@ -1136,7 +1121,7 @@ export const deleteFleetVendorReview = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_review(id));
 };
 
-// FleetVendorDocument
+// FleetVendorDocument APIs
 export const createFleetVendorDocument = async (data: FleetVendorDocumentDTO): Promise<SBR> => {
     return apiPost<SBR, FleetVendorDocumentDTO>(ENDPOINTS.create_document, data);
 };
@@ -1153,7 +1138,7 @@ export const deleteFleetVendorDocument = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_document(id));
 };
 
-// API Cache Methods
+// cache APIs
 export const getFleetVendorCacheSimple = async (organisation_id: string): Promise<BR<FleetVendorSimple[]>> => {
     return apiGet<BR<FleetVendorSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
 };
