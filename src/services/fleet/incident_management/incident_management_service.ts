@@ -34,6 +34,7 @@ import { MasterFleetIncidentSeverity } from 'src/services/master/fleet/master_fl
 import { MasterFleetIncidentStatus } from 'src/services/master/fleet/master_fleet_incident_status_service';
 import { MasterFleetIncidentType } from 'src/services/master/fleet/master_fleet_incident_type_service';
 import { MasterExpenseName } from 'src/services/master/expense/master_expense_name_service';
+import { FleetIssueManagement } from '../issue_management/issue_management_service';
 
 const URL = 'fleet/incident_management/incidents';
 
@@ -110,7 +111,7 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations
+    // ✅ Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
@@ -142,14 +143,16 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
     MasterFleetInsuranceClaimStatus?: MasterFleetInsuranceClaimStatus;
     fleet_insurance_claim_status?: string;
 
-
-    FleetIncidentManagementFile: FleetIncidentManagementFile[]
+    // ✅ Relations - Child
+    FleetIncidentManagementFile?: FleetIncidentManagementFile[]
+    FleetIncidentManagementCost?: FleetIncidentManagementCost[]
+    FleetIssueManagement?: FleetIssueManagement[]
 
     // ✅ Count (Child Relations)
     _count?: {
-        FleetIncidentManagementFile: number;
-        FleetIncidentManagementCost: number;
-        FleetIssueManagement: number;
+        FleetIncidentManagementFile?: number;
+        FleetIncidentManagementCost?: number;
+        FleetIssueManagement?: number;
     };
 }
 
@@ -195,10 +198,10 @@ export interface FleetIncidentManagementFile extends BaseCommonFile {
 }
 
 export interface IncidentDashboard {
-  vehicle_id: string;
-  vehicle_number: string;
-  vehicle_type: string;
-  incidents_count: number;
+    vehicle_id: string;
+    vehicle_number: string;
+    vehicle_type: string;
+    incidents_count: number;
 }
 
 // ✅ FleetIncidentManagementFile Schema
@@ -309,15 +312,15 @@ export type FleetIncidentManagementDTO = z.infer<
 
 // ✅ FleetIncidentManagementDashBoard Query Schema
 export const FleetIncidentManagementDashBoardQuerySchema =
-  BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+    BaseQuerySchema.extend({
+        organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+        vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
 
-    from_date: dateMandatory('From Date'),
-    to_date: dateMandatory('To Date'),
-  });
+        from_date: dateMandatory('From Date'),
+        to_date: dateMandatory('To Date'),
+    });
 export type FleetIncidentManagementDashBoardQueryDTO = z.infer<
-  typeof FleetIncidentManagementDashBoardQuerySchema
+    typeof FleetIncidentManagementDashBoardQuerySchema
 >;
 
 // ✅ FleetIncidentManagementComment Query Schema
@@ -494,7 +497,7 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
         status: file.status,
         added_date_time: file.added_date_time,
         modified_date_time: file.modified_date_time,
-        
+
         organisation_id: file.organisation_id || '',
 
         vehicle_incident_id: file.vehicle_incident_id || '',
