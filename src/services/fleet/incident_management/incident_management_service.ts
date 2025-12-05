@@ -476,7 +476,7 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
     fleet_incident_severity_id: row.fleet_incident_severity_id || '',
     fleet_insurance_claim_status_id: row.fleet_insurance_claim_status_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
     time_zone_id: '', // Needs to be provided manually
 
     FleetIncidentManagementFileSchema: row.FleetIncidentManagementFile?.map((file) => ({
@@ -563,7 +563,7 @@ export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagemen
     vehicle_incident_id: row.vehicle_incident_id || '',
     expense_name_id: row.expense_name_id || '',
 
-    status: Status.Active,
+    status: row.status || Status.Active,
     time_zone_id: '', // Needs to be provided manually
 });
 
