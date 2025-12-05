@@ -46,14 +46,14 @@ const ENDPOINTS = {
     create_incident_file: `${URL}/create_incident_file`,
     remove_incident_file: (id: string): string => `${URL}/remove_incident_file/${id}`,
 
-    // FleetIncidentManagement API Methods
+    // FleetIncidentManagement APIs
     find: `${URL}/search`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
     incident_dashboard: `${URL}/incident_dashboard`,
 
-    // FleetIncidentManagementCost API Methods
+    // FleetIncidentManagementCost APIs
     find_cost: `${URL}/cost/search`,
     create_cost: `${URL}/create_cost`,
     update_cost: (id: string): string => `${URL}/update_cost/${id}`,
@@ -600,7 +600,7 @@ export const remove_incident_file = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_incident_file(id));
 };
 
-// FleetIncidentManagement API Methods
+// FleetIncidentManagement APIs
 export const createFleetIncidentManagement = async (data: FleetIncidentManagementDTO): Promise<SBR> => {
     return apiPost<SBR, FleetIncidentManagementDTO>(ENDPOINTS.create, data);
 };
@@ -621,7 +621,7 @@ export const incident_dashboard = async (data: FleetIncidentManagementDashBoardQ
     return apiPost<FBR<IncidentDashboard[]>, FleetIncidentManagementDashBoardQueryDTO>(ENDPOINTS.incident_dashboard, data);
 };
 
-// FleetIncidentManagementCost API Methods
+// FleetIncidentManagementCost APIs
 export const createFleetIncidentManagementCost = async (data: FleetIncidentManagementCostDTO): Promise<SBR> => {
     return apiPost<SBR, FleetIncidentManagementCostDTO>(ENDPOINTS.create_cost, data);
 };

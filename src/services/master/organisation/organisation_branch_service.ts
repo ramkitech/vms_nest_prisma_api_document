@@ -23,10 +23,13 @@ import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_ser
 const URL = 'master/organisation/branch';
 
 const ENDPOINTS = {
+  // OrganisationBranch APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
@@ -82,24 +85,28 @@ export type OrganisationBranchQueryDTO = z.infer<
 // Convert existing data to a payload structure
 export const toOrganisationBranchPayload = (row: OrganisationBranch): OrganisationBranchDTO => ({
   organisation_id: row.organisation_id,
-  branch_name: row.branch_name,
-  branch_city: row.branch_city,
-  branch_address: row.branch_address,
+
+  branch_name: row.branch_name || '',
+  branch_city: row.branch_city || '',
+  branch_address: row.branch_address || '',
   description: row.description || '',
-  status: row.status,
+
+  status: row.status || Status.Active,
 });
 
 // Generate a new payload with default values
 export const newOrganisationBranchPayload = (): OrganisationBranchDTO => ({
   organisation_id: '',
+
   branch_name: '',
   branch_city: '',
   branch_address: '',
   description: '',
+
   status: Status.Active,
 });
 
-// API Methods
+// OrganisationBranch APIs
 export const findOrganisationBranchs = async (data: OrganisationBranchQueryDTO): Promise<FBR<OrganisationBranch[]>> => {
   return apiPost<FBR<OrganisationBranch[]>, OrganisationBranchQueryDTO>(ENDPOINTS.find, data);
 };
@@ -116,7 +123,7 @@ export const deleteOrganisationBranch = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getOrganisationBranchCache = async (organisation_id: string): Promise<FBR<OrganisationBranch[]>> => {
   return apiGet<FBR<OrganisationBranch[]>>(ENDPOINTS.cache(organisation_id));
 };
