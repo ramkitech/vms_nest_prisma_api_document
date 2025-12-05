@@ -86,6 +86,7 @@ export enum FileType {
   Image = 'Image',
   Video = 'Video',
   PDF = 'PDF',
+  Excel = 'Excel',
 }
 
 export enum DocumentValidityStatus {

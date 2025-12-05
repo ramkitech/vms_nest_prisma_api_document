@@ -612,7 +612,7 @@ export const FleetVendorContactPersonsSchema = z.object({
 
     // Additional Details
     branch_name: stringOptional('Branch Name', 0, 100),
-    preferred_language: stringOptional('Preferred Language', 0, 10),
+    preferred_language: stringOptional('Preferred Language', 0, 50),
     is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
     notes: stringOptional('Notes', 0, 2000),
 

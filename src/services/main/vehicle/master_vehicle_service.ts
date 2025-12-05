@@ -84,6 +84,17 @@ const ENDPOINTS = {
   vehicle_file_presigned_url: `${URL}/vehicle_file_presigned_url`,
   device_file_presigned_url: `${URL}/device_file_presigned_url`,
   vehicle_document_file_presigned_url: `${URL}/vehicle_document_file_presigned_url`,
+  calibration_file_presigned_url: `${URL}/calibration_file_presigned_url`,
+
+  // File
+  create_file_vehicle: `${URL}/create_file_vehicle`,
+  remove_file_vehicle: `${URL}/remove_file_vehicle/:id`,
+  create_file_device: `${URL}/create_file_device`,
+  remove_file_device: `${URL}/remove_file_device/:id`,
+  create_file_vehicle_document: `${URL}/create_file_vehicle_document`,
+  remove_file_vehicle_document: `${URL}/remove_file_vehicle_document/:id`,
+  update_calibration_file: `${URL}/update_calibration_file`,
+  delete_calibration_file: `${URL}/delete_calibration_file/:id`,
 
   // Vehicle CRED
   find: `${URL}/search`,
@@ -91,7 +102,7 @@ const ENDPOINTS = {
   find_gps_details: `${URL}/gps_details/search`,
   create: `${URL}`,
   update: `${URL}/:id`,
-  delete: `${URL}/:id`,
+  delete: (id: string): string => `${URL}/${id}`,
 
   // API Updates
   update_details_gps_sensor: `${URL}/gps_sensor_details/:id`,
@@ -117,14 +128,6 @@ const ENDPOINTS = {
   find_document: `${URL}/find_document/search`,
   update_document: `${URL}/vehicle_document/:id`,
   remove_document: `${URL}/vehicle_document/:id`,
-
-  // File
-  create_file_vehicle: `${URL}/create_file_vehicle`,
-  remove_file_vehicle: `${URL}/remove_file_vehicle/:id`,
-  create_file_device: `${URL}/create_file_device`,
-  remove_file_device: `${URL}/remove_file_device/:id`,
-  create_file_vehicle_document: `${URL}/create_file_vehicle_document`,
-  remove_file_vehicle_document: `${URL}/remove_file_vehicle_document/:id`,
 
   // Vehicle Document Expiry
   create_document_expiry: `${URL}/vehicle_document_expiry`,
@@ -333,6 +336,7 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
   fuel_tank_2_size: number;
   fuel_tank_total_size: number;
   over_speed_kmph: number;
+  is_obd: YesNo;
   gps_lock_relay: YesNo;
   gps_door_locker: YesNo;
   door_sensor: YesNo;
@@ -390,6 +394,7 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   fuel_tank_2_size?: number;
   fuel_tank_total_size?: number;
   over_speed_kmph?: number;
+  is_obd: YesNo;
   gps_lock_relay?: YesNo;
   gps_door_locker?: YesNo;
   door_sensor?: YesNo;
@@ -398,6 +403,13 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   is_rear_cam?: YesNo;
   is_front_cam?: YesNo;
   camera_extra_count?: number;
+
+  // Calibration File
+  calibration_file_url?: string;
+  calibration_file_key?: string;
+  calibration_file_name?: string;
+  calibration_file_updated_date_time?: string;
+  calibration_file_updated_date_time_f?: string;
 
   // GPS Data
   gps_source?: string;
@@ -912,6 +924,14 @@ export const MasterVehicleFileSchema = BaseFileSchema.extend({
 });
 export type MasterVehicleFileDTO = z.infer<typeof MasterVehicleFileSchema>;
 
+// ✅ CalibrationFile Schema
+export const CalibrationFileSchema = z.object({
+  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
+  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
+  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
+});
+export type CalibrationFileDTO = z.infer<typeof CalibrationFileSchema>;
+
 // ✅ Vehicle Create/Update Schema
 export const VehicleSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
@@ -1055,6 +1075,7 @@ export const VehicleDeviceLinkSchema = z.object({
   fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
   fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
   over_speed_kmph: numberOptional('Over Speed KMPH'),
+  is_obd: enumOptional('Is OBD', YesNo, YesNo.No),
   gps_lock_relay: enumOptional('GPS Lock Relay', YesNo, YesNo.No),
   gps_door_locker: enumOptional('GPS Door Locker', YesNo, YesNo.No),
   door_sensor: enumOptional('Door Sensor', YesNo, YesNo.No),
@@ -1105,6 +1126,7 @@ export const VehicleDetailGPSSensorSchema = z.object({
   fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
   fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
   over_speed_kmph: numberOptional('Over Speed KMPH'),
+  is_obd: enumOptional('Is OBD', YesNo, YesNo.No),
   gps_lock_relay: enumOptional('GPS Lock Relay', YesNo, YesNo.No),
   gps_door_locker: enumOptional('GPS Door Locker', YesNo, YesNo.No),
   door_sensor: enumOptional('Door Sensor', YesNo, YesNo.No),
@@ -1655,6 +1677,7 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   fuel_tank_2_size: vehicleGPS?.fuel_tank_2_size || 0,
   fuel_tank_total_size: vehicleGPS?.fuel_tank_total_size || 0,
   over_speed_kmph: vehicleGPS?.over_speed_kmph || 0,
+  is_obd: vehicleGPS?.is_obd || YesNo.No,
   gps_lock_relay: vehicleGPS?.gps_lock_relay || YesNo.No,
   gps_door_locker: vehicleGPS?.gps_door_locker || YesNo.No,
   door_sensor: vehicleGPS?.door_sensor || YesNo.No,
@@ -1950,24 +1973,32 @@ export const createFileVehicle = async (payload: MasterVehicleFileDTO): Promise<
   return apiPost<SBR, MasterVehicleFileDTO>(ENDPOINTS.create_file_vehicle, payload);
 };
 
-export const removeFileVehicle = async (id: string): Promise<SBR> => {
+export const remove_file_vehicle = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle.replace(':id', id));
 };
 
-export const createFileDevice = async (payload: MasterDeviceFileDTO): Promise<SBR> => {
+export const create_file_device = async (payload: MasterDeviceFileDTO): Promise<SBR> => {
   return apiPost<SBR, MasterDeviceFileDTO>(ENDPOINTS.create_file_device, payload);
 };
 
-export const removeFileDevice = async (id: string): Promise<SBR> => {
+export const remove_file_device = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_device.replace(':id', id));
 };
 
-export const createFileVehicleDocument = async (payload: VehicleDocumentFileDTO): Promise<SBR> => {
+export const create_file_vehicle_document = async (payload: VehicleDocumentFileDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDocumentFileDTO>(ENDPOINTS.create_file_vehicle_document, payload);
 };
 
 export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document.replace(':id', id));
+};
+
+export const update_calibration_file = async (payload: CalibrationFileDTO): Promise<SBR> => {
+  return apiPost<SBR, CalibrationFileDTO>(ENDPOINTS.update_calibration_file, payload);
+};
+
+export const delete_calibration_file = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_calibration_file.replace(':id', id));
 };
 
 // Vehicle CRED
@@ -1992,7 +2023,7 @@ export const updateVehicle = async (id: string, payload: VehicleDTO): Promise<SB
 };
 
 export const deleteVehicle = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete.replace(':id', id));
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
 // API Updates
