@@ -42,16 +42,18 @@ const ENDPOINTS = {
     // AWS S3 PRESIGNED
     incident_file_presigned_url: `${URL}/incident_file_presigned_url`,
 
-    // File
+    // File Uploads
     create_incident_file: `${URL}/create_incident_file`,
     remove_incident_file: (id: string): string => `${URL}/remove_incident_file/${id}`,
 
+    // FleetIncidentManagement API Methods
     find: `${URL}/search`,
-    incident_dashboard: `${URL}/incident_dashboard`,
     create: `${URL}`,
     update: (id: string): string => `${URL}/${id}`,
     delete: (id: string): string => `${URL}/${id}`,
+    incident_dashboard: `${URL}/incident_dashboard`,
 
+    // FleetIncidentManagementCost API Methods
     find_cost: `${URL}/cost/search`,
     create_cost: `${URL}/create_cost`,
     update_cost: (id: string): string => `${URL}/update_cost/${id}`,
@@ -584,12 +586,12 @@ export const newFleetIncidentManagementCostPayload = (): FleetIncidentManagement
     time_zone_id: '', // Needs to be provided manually
 });
 
-// Generate presigned URL
+// AWS S3 PRESIGNED
 export const get_incident_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
     return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.incident_file_presigned_url, data);
 };
 
-// File API Methods
+// File Uploads
 export const create_incident_file = async (data: FleetIncidentManagementFileDTO): Promise<SBR> => {
     return apiPost<SBR, FleetIncidentManagementFileDTO>(ENDPOINTS.create_incident_file, data);
 };
@@ -598,17 +600,13 @@ export const remove_incident_file = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_incident_file(id));
 };
 
-// API Methods
+// FleetIncidentManagement API Methods
 export const createFleetIncidentManagement = async (data: FleetIncidentManagementDTO): Promise<SBR> => {
     return apiPost<SBR, FleetIncidentManagementDTO>(ENDPOINTS.create, data);
 };
 
 export const findFleetIncidentManagement = async (data: FleetIncidentManagementQueryDTO): Promise<FBR<FleetIncidentManagement[]>> => {
     return apiPost<FBR<FleetIncidentManagement[]>, FleetIncidentManagementQueryDTO>(ENDPOINTS.find, data);
-};
-
-export const incident_dashboard = async (data: FleetIncidentManagementDashBoardQueryDTO): Promise<FBR<IncidentDashboard[]>> => {
-    return apiPost<FBR<IncidentDashboard[]>, FleetIncidentManagementDashBoardQueryDTO>(ENDPOINTS.incident_dashboard, data);
 };
 
 export const updateFleetIncidentManagement = async (id: string, data: FleetIncidentManagementDTO): Promise<SBR> => {
@@ -619,7 +617,11 @@ export const deleteFleetIncidentManagement = async (id: string): Promise<SBR> =>
     return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// FleetIncidentManagementCost
+export const incident_dashboard = async (data: FleetIncidentManagementDashBoardQueryDTO): Promise<FBR<IncidentDashboard[]>> => {
+    return apiPost<FBR<IncidentDashboard[]>, FleetIncidentManagementDashBoardQueryDTO>(ENDPOINTS.incident_dashboard, data);
+};
+
+// FleetIncidentManagementCost API Methods
 export const createFleetIncidentManagementCost = async (data: FleetIncidentManagementCostDTO): Promise<SBR> => {
     return apiPost<SBR, FleetIncidentManagementCostDTO>(ENDPOINTS.create_cost, data);
 };
