@@ -20,19 +20,22 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/main/unit_distance';
 
 const ENDPOINTS = {
+  // MasterMainUnitDistance APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: `${URL}/cache`,
 };
 
-// Master Main Unit Distance Interface
+// MasterMainUnitDistance Interface
 export interface MasterMainUnitDistance extends Record<string, unknown> {
   // Primary Fields
   unit_id: string;
-  unit_name: string; // Min: 1, Max: 20
-  unit_code: string; // Min: 1, Max: 10
+  unit_name: string;
+  unit_code: string;
 
   // Metadata
   status: Status;
@@ -40,11 +43,12 @@ export interface MasterMainUnitDistance extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Child
-  UserOrganisation: UserOrganisation[];
+  // Child - User
+  UserOrganisation?: UserOrganisation[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    UserOrganisation: number;
+    UserOrganisation?: number;
   };
 }
 
@@ -66,22 +70,21 @@ export type MasterMainUnitDistanceQueryDTO = z.infer<
   typeof MasterMainUnitDistanceQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainUnitDistance Data to API Payload
 export const toMasterMainUnitDistancePayload = (row: MasterMainUnitDistance): MasterMainUnitDistanceDTO => ({
-  unit_name: row.unit_name,
-  unit_code: row.unit_code,
-  status: row.status,
+  unit_name: row.unit_name || '',
+  unit_code: row.unit_code || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
-export const newMasterMainUnitDistancePayload =
-  (): MasterMainUnitDistanceDTO => ({
-    unit_name: '',
-    unit_code: '',
-    status: Status.Active,
-  });
+// Create New MasterMainUnitDistance Payload
+export const newMasterMainUnitDistancePayload = (): MasterMainUnitDistanceDTO => ({
+  unit_name: '',
+  unit_code: '',
+  status: Status.Active,
+});
 
-// API Methods
+// MasterMainUnitDistance APIs
 export const findMasterMainUnitDistances = async (data: MasterMainUnitDistanceQueryDTO): Promise<FBR<MasterMainUnitDistance[]>> => {
   return apiPost<FBR<MasterMainUnitDistance[]>, MasterMainUnitDistanceQueryDTO>(ENDPOINTS.find, data);
 };
@@ -98,7 +101,7 @@ export const deleteMasterMainUnitDistance = async (id: string): Promise<SBR> => 
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainUnitDistanceCache = async (): Promise<FBR<MasterMainUnitDistance[]>> => {
   return apiGet<FBR<MasterMainUnitDistance[]>>(ENDPOINTS.cache);
 };

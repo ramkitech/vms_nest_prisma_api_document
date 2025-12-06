@@ -24,39 +24,44 @@ import { MasterSparePartCategory } from '../../../services/master/spare_part/mas
 const URL = 'master/spare_part/sub_category';
 
 const ENDPOINTS = {
+  // MasterSparePartSubCategory APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string, spare_part_category_id: string = '0'): string => `${URL}/cache/${organisation_id}?spare_part_category_id=${spare_part_category_id}`,
   cache_count: (organisation_id: string, spare_part_category_id: string = '0'): string => `${URL}/cache_count/${organisation_id}?spare_part_category_id=${spare_part_category_id}`,
 };
 
-// Spare Part Sub-Category Interface
+// SparePartSubCategory Interface
 export interface MasterSparePartSubCategory extends Record<string, unknown> {
   // Primary Fields
   spare_part_sub_category_id: string;
-  sub_category_name: string; // Min: 3, Max: 50
-  sub_category_code: string; // Min: 2, Max: 10
-  description?: string; // Optional, Max: 300
+  sub_category_name: string;
+  sub_category_code: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
+
   spare_part_category_id: string;
   MasterSparePartCategory?: MasterSparePartCategory;
 
   // Relations - Child
-  //FleetSpareParts: FleetSpareParts[];
+  // Child - Fleet
+  // FleetSpareParts?: FleetSpareParts[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    FleetSpareParts: number;
+    FleetSpareParts?: number;
   };
 }
 
@@ -85,17 +90,18 @@ export type SparePartSubCategoryQueryDTO = z.infer<
   typeof SparePartSubCategoryQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterSparePartSubCategory Data to API Payload
 export const toMasterSparePartSubCategoryPayload = (row: MasterSparePartSubCategory): MasterSparePartSubCategoryDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  spare_part_category_id: row.spare_part_category_id,
-  sub_category_name: row.sub_category_name,
-  sub_category_code: row.sub_category_code,
+  organisation_id: row.organisation_id || '',
+  spare_part_category_id: row.spare_part_category_id || '',
+
+  sub_category_name: row.sub_category_name || '',
+  sub_category_code: row.sub_category_code || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterSparePartSubCategory Payload
 export const newMasterSparePartSubCategoryPayload = (): MasterSparePartSubCategoryDTO => ({
   organisation_id: '',
   spare_part_category_id: '',
@@ -105,7 +111,7 @@ export const newMasterSparePartSubCategoryPayload = (): MasterSparePartSubCatego
   status: Status.Active,
 });
 
-// API Methods
+// MasterSparePartSubCategory APIs
 export const findMasterSparePartSubCategories = async (data: SparePartSubCategoryQueryDTO): Promise<FBR<MasterSparePartSubCategory[]>> => {
   return apiPost<FBR<MasterSparePartSubCategory[]>, SparePartSubCategoryQueryDTO>(ENDPOINTS.find, data);
 };
@@ -122,7 +128,7 @@ export const deleteMasterSparePartSubCategory = async (id: string): Promise<SBR>
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterSparePartSubCategoryCache = async (organisation_id: string, spare_part_category_id?: string): Promise<FBR<MasterSparePartSubCategory[]>> => {
   return apiGet<FBR<MasterSparePartSubCategory[]>>(ENDPOINTS.cache(organisation_id, spare_part_category_id));
 };

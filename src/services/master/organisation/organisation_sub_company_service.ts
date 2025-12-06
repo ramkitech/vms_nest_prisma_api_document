@@ -23,22 +23,25 @@ import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_ser
 const URL = 'master/organisation/sub_company';
 
 const ENDPOINTS = {
+  // OrganisationSubCompany APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Organisation Sub Company Interface
+// OrganisationSubCompany Interface
 export interface OrganisationSubCompany extends Record<string, unknown> {
   // Primary Fields
   organisation_sub_company_id: string;
-  sub_company_name: string; // Min: 3, Max: 100
-  sub_company_GSTIN: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  sub_company_name: string;
+  sub_company_GSTIN: string;
+  description?: string;
 
   logo_key?: string;
   logo_url?: string;
@@ -48,17 +51,9 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
-  UserOrganisation: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicle: number;
-  };
+  UserOrganisation?: UserOrganisation;
 }
 
 // ✅ OrganisationSubCompany Create/Update Schema
@@ -82,17 +77,16 @@ export type OrganisationSubCompanyQueryDTO = z.infer<
   typeof OrganisationSubCompanyQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert OrganisationSubCompany Data to API Payload
 export const toOrganisationSubCompanyPayload = (row: OrganisationSubCompany): OrganisationSubCompanyDTO => ({
-  organisation_id: row.organisation_id,
-  sub_company_name: row.sub_company_name,
-  sub_company_GSTIN: row.sub_company_GSTIN,
+  organisation_id: row.organisation_id || '',
+  sub_company_name: row.sub_company_name || '',
+  sub_company_GSTIN: row.sub_company_GSTIN || '',
   description: row.description || '',
-  status: row.status,
-
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New OrganisationSubCompany Payload
 export const newOrganisationSubCompanyPayload = (): OrganisationSubCompanyDTO => ({
   organisation_id: '',
   sub_company_name: '',
@@ -101,7 +95,7 @@ export const newOrganisationSubCompanyPayload = (): OrganisationSubCompanyDTO =>
   status: Status.Active,
 });
 
-// API Methods
+// OrganisationSubCompany APIs
 export const findOrganisationSubCompanyies = async (data: OrganisationSubCompanyQueryDTO): Promise<FBR<OrganisationSubCompany[]>> => {
   return apiPost<FBR<OrganisationSubCompany[]>, OrganisationSubCompanyQueryDTO>(ENDPOINTS.find, data);
 };
@@ -118,7 +112,7 @@ export const deleteOrganisationSubCompany = async (id: string): Promise<SBR> => 
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getOrganisationSubCompanyCache = async (organisation_id: string): Promise<FBR<OrganisationSubCompany[]>> => {
   return apiGet<FBR<OrganisationSubCompany[]>>(ENDPOINTS.cache(organisation_id));
 };

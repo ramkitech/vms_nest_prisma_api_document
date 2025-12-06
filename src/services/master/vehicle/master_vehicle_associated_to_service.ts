@@ -18,15 +18,17 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { MasterVehicle } from '../../main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/associated_to';
 
 const ENDPOINTS = {
+  // MasterVehicleAssociatedTo APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
@@ -36,25 +38,17 @@ const ENDPOINTS = {
 export interface MasterVehicleAssociatedTo extends Record<string, unknown> {
   // Primary Fields
   vehicle_associated_to_id: string;
-  associated_to: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  associated_to: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicle: number;
-  };
 }
 
 // ✅ MasterVehicleAssociatedTo Create/Update Schema
@@ -77,15 +71,16 @@ export type MasterVehicleAssociatedToQueryDTO = z.infer<
   typeof MasterVehicleAssociatedToQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleAssociatedTo Data to API Payload
 export const toMasterVehicleAssociatedToPayload = (row: MasterVehicleAssociatedTo): MasterVehicleAssociatedToDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  associated_to: row.associated_to,
+  organisation_id: row.organisation_id || '',
+
+  associated_to: row.associated_to || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleAssociatedTo Payload
 export const newMasterVehicleAssociatedToPayload = (): MasterVehicleAssociatedToDTO => ({
   organisation_id: '',
   associated_to: '',
@@ -93,7 +88,7 @@ export const newMasterVehicleAssociatedToPayload = (): MasterVehicleAssociatedTo
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleAssociatedTo APIs
 export const findMasterVehicleAssociatedTos = async (data: MasterVehicleAssociatedToQueryDTO): Promise<FBR<MasterVehicleAssociatedTo[]>> => {
   return apiPost<FBR<MasterVehicleAssociatedTo[]>, MasterVehicleAssociatedToQueryDTO>(ENDPOINTS.find, data);
 };
@@ -110,7 +105,7 @@ export const deleteMasterVehicleAssociatedTo = async (id: string): Promise<SBR> 
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleAssociatedToCache = async (organisation_id: string): Promise<FBR<MasterVehicleAssociatedTo[]>> => {
   return apiGet<FBR<MasterVehicleAssociatedTo[]>>(ENDPOINTS.cache(organisation_id));
 };

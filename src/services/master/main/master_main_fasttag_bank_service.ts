@@ -15,18 +15,20 @@ import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 // Enums
 import { Status } from '../../../core/Enums';
 
-// URL and Endpoints
 const URL = 'master/main/fasttag_bank';
 
 const ENDPOINTS = {
+  // MasterMainFasttagBank APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: `${URL}/cache`,
 };
 
-// Master Main Fasttag Bank Interface
+// MasterMainFasttagBank Interface
 export interface MasterMainFasttagBank extends Record<string, unknown> {
   // Primary Fields
   fasttag_bank_id: string;
@@ -37,6 +39,15 @@ export interface MasterMainFasttagBank extends Record<string, unknown> {
   status: Status;
   added_date_time: string;
   modified_date_time: string;
+
+  // Relations - Child
+  // Child - Main
+  // FasttagDetails?: FasttagDetails[];
+
+  // Relations - Child Count
+  _count?: {
+    FasttagDetails?: number;
+  };
 }
 
 // ✅ MasterMainFasttagBank Create/Update Schema
@@ -57,21 +68,21 @@ export type MasterMainFasttagBankQueryDTO = z.infer<
   typeof MasterMainFasttagBankQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainFasttagBank Data to API Payload
 export const toMasterMainFasttagPayload = (row: MasterMainFasttagBank): MasterMainFasttagBankDTO => ({
-  bank_name: row.bank_name,
-  bank_code: row.bank_code ?? '',
-  status: row.status,
+  bank_name: row.bank_name || '',
+  bank_code: row.bank_code || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainFasttagBank Payload
 export const newMasterMainFasttagPayload = (): MasterMainFasttagBankDTO => ({
   bank_name: '',
   bank_code: '',
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainFasttagBank APIs
 export const findMasterMainFasttagBanks = async (data: MasterMainFasttagBankQueryDTO): Promise<FBR<MasterMainFasttagBank[]>> => {
   return apiPost<FBR<MasterMainFasttagBank[]>, MasterMainFasttagBankQueryDTO>(ENDPOINTS.find, data);
 };
@@ -88,7 +99,7 @@ export const deleteMasterMainFasttagBank = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainFasttagBankCache = async (): Promise<FBR<MasterMainFasttagBank[]>> => {
   return apiGet<FBR<MasterMainFasttagBank[]>>(ENDPOINTS.cache);
 };

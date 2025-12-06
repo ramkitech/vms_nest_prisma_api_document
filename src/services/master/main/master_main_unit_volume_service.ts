@@ -20,19 +20,22 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/main/unit_volume';
 
 const ENDPOINTS = {
+  // MasterMainUnitVolume APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: `${URL}/cache`,
 };
 
-// Master Main Unit Volume Interface
+// MasterMainUnitVolume Interface
 export interface MasterMainUnitVolume extends Record<string, unknown> {
   // Primary Fields
   unit_id: string;
-  unit_name: string; // Min: 1, Max: 20
-  unit_code: string; // Min: 1, Max: 10
+  unit_name: string;
+  unit_code: string;
 
   // Metadata
   status: Status;
@@ -40,11 +43,12 @@ export interface MasterMainUnitVolume extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Child
-  UserOrganisation: UserOrganisation[];
+  // Child - User
+  UserOrganisation?: UserOrganisation[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    UserOrganisation: number;
+    UserOrganisation?: number;
   };
 }
 
@@ -66,21 +70,21 @@ export type MasterMainUnitVolumeQueryDTO = z.infer<
   typeof MasterMainUnitVolumeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainUnitVolume Data to API Payload
 export const toMasterMainUnitVolumePayload = (row: MasterMainUnitVolume): MasterMainUnitVolumeDTO => ({
-  unit_name: row.unit_name,
-  unit_code: row.unit_code,
-  status: row.status,
+  unit_name: row.unit_name || '',
+  unit_code: row.unit_code || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainUnitVolume Payload
 export const newMasterMainUnitVolumePayload = (): MasterMainUnitVolumeDTO => ({
   unit_name: '',
   unit_code: '',
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainUnitVolume APIs
 export const findMasterMainUnitVolumes = async (data: MasterMainUnitVolumeQueryDTO): Promise<FBR<MasterMainUnitVolume[]>> => {
   return apiPost<FBR<MasterMainUnitVolume[]>, MasterMainUnitVolumeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -97,7 +101,7 @@ export const deleteMasterMainUnitVolume = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainUnitVolumeCache = async (): Promise<FBR<MasterMainUnitVolume[]>> => {
   return apiGet<FBR<MasterMainUnitVolume[]>>(ENDPOINTS.cache);
 };

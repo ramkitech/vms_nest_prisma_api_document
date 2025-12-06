@@ -18,15 +18,17 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { MasterVehicle } from '../../main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/fuel_unit';
 
 const ENDPOINTS = {
+  // MasterVehicleFuelUnit APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
@@ -36,33 +38,17 @@ const ENDPOINTS = {
 export interface MasterVehicleFuelUnit extends Record<string, unknown> {
   // Primary Fields
   vehicle_fuel_unit_id: string;
-  fuel_unit: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  fuel_unit: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicle_PrimaryFuelType: MasterVehicle[]
-  MasterVehicle_SecondaryFuelType: MasterVehicle[]
-  // FleetFuelStationRate:            FleetFuelStationRate[]
-  // FleetFuelRefills:                FleetFuelRefills[]
-  // FleetFuelRemovals:               FleetFuelRemovals[]
-
-  // Count
-  _count?: {
-    MasterVehicle_PrimaryFuelType: number;
-    MasterVehicle_SecondaryFuelType: number;
-    FleetFuelStationRate: number;
-    FleetFuelRefills: number;
-    FleetFuelRemovals: number;
-  };
 }
 
 // ✅ MasterVehicleFuelUnit Create/Update Schema
@@ -85,15 +71,16 @@ export type MasterVehicleFuelUnitQueryDTO = z.infer<
   typeof MasterVehicleFuelUnitQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleFuelUnit Data to API Payload
 export const toMasterVehicleFuelUnitPayload = (row: MasterVehicleFuelUnit): MasterVehicleFuelUnitDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  fuel_unit: row.fuel_unit,
+  organisation_id: row.organisation_id  || '',
+
+  fuel_unit: row.fuel_unit || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleFuelUnit Payload
 export const newMasterVehicleFuelUnitPayload = (): MasterVehicleFuelUnitDTO => ({
   organisation_id: '',
   fuel_unit: '',
@@ -101,7 +88,7 @@ export const newMasterVehicleFuelUnitPayload = (): MasterVehicleFuelUnitDTO => (
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleFuelUnit APIs
 export const findMasterVehicleFuelUnits = async (data: MasterVehicleFuelUnitQueryDTO): Promise<FBR<MasterVehicleFuelUnit[]>> => {
   return apiPost<FBR<MasterVehicleFuelUnit[]>, MasterVehicleFuelUnitQueryDTO>(ENDPOINTS.find, data);
 };
@@ -118,7 +105,7 @@ export const deleteMasterVehicleFuelUnit = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleFuelUnitCache = async (organisation_id: string): Promise<FBR<MasterVehicleFuelUnit[]>> => {
   return apiGet<FBR<MasterVehicleFuelUnit[]>>(ENDPOINTS.cache(organisation_id));
 };

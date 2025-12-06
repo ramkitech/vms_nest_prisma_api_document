@@ -19,26 +19,32 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { MasterMainCountry } from '../../../services/master/main/master_main_country_service';
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterDevice } from 'src/services/main/devices/master_device_service';
+import { User } from 'src/services/main/users/user_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/main/time_zone';
 
 const ENDPOINTS = {
+  // MasterMainTimeZone APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache_all: `${URL}/cache_all`,
   cache: (country_id: string): string => `${URL}/cache?country_id=${country_id}`,
 };
 
-// Master Main Time Zone Interface
+// MasterMainTimeZone Interface
 export interface MasterMainTimeZone extends Record<string, unknown> {
   // Primary Fields
   time_zone_id: string;
-  time_zone_code: string; // Min: 2, Max: 50
-  time_zone_identifier?: string; // Optional, Max: 100
-  time_zone_abbrevation: string; // Min: 2, Max: 100
-  time_zone_offset: string; // Min: 2, Max: 100
+  time_zone_code: string;
+  time_zone_identifier?: string;
+  time_zone_abbrevation: string;
+  time_zone_offset: string;
   time_zone_offset_seconds: number;
 
   // Metadata
@@ -46,16 +52,25 @@ export interface MasterMainTimeZone extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   country_id: string;
   MasterMainCountry?: MasterMainCountry;
 
   // Relations - Child
-  UserOrganisation: UserOrganisation[];
+  // Child - User
+  UserOrganisation?: UserOrganisation[]
+  User?: User[]
+  // Child - Main
+  MasterVehicle?: MasterVehicle[]
+  MasterDevice?: MasterDevice[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    UserOrganisation: number;
+    UserOrganisation?: number;
+    User?: number;
+
+    MasterVehicle?: number;
+    MasterDevice?: number;
   };
 }
 
@@ -84,19 +99,18 @@ export type MasterMainTimeZoneQueryDTO = z.infer<
   typeof MasterMainTimeZoneQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainTimeZone Data to API Payload
 export const toMasterMainTimeZonePayload = (row: MasterMainTimeZone): MasterMainTimeZoneDTO => ({
-  country_id: row.country_id,
-  time_zone_identifier: row.time_zone_identifier ?? '',
-  time_zone_code: row.time_zone_code,
-  time_zone_abbrevation: row.time_zone_abbrevation,
-  time_zone_offset: row.time_zone_offset,
-  time_zone_offset_seconds: row.time_zone_offset_seconds,
-  status: row.status,
-
+  country_id: row.country_id || '',
+  time_zone_identifier: row.time_zone_identifier || '',
+  time_zone_code: row.time_zone_code || '',
+  time_zone_abbrevation: row.time_zone_abbrevation || '',
+  time_zone_offset: row.time_zone_offset || '',
+  time_zone_offset_seconds: row.time_zone_offset_seconds || 0,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainTimeZone Payload
 export const newMasterMainTimeZonePayload = (): MasterMainTimeZoneDTO => ({
   country_id: '',
   time_zone_identifier: '',
@@ -107,7 +121,7 @@ export const newMasterMainTimeZonePayload = (): MasterMainTimeZoneDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainTimeZone APIs
 export const findMasterMainTimeZones = async (data: MasterMainTimeZoneQueryDTO): Promise<FBR<MasterMainTimeZone[]>> => {
   return apiPost<FBR<MasterMainTimeZone[]>, MasterMainTimeZoneQueryDTO>(ENDPOINTS.find, data);
 };
@@ -124,7 +138,7 @@ export const deleteMasterMainTimeZone = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainTimeZoneCacheAll = async (): Promise<FBR<MasterMainTimeZone[]>> => {
   return apiGet<FBR<MasterMainTimeZone[]>>(ENDPOINTS.cache_all);
 };

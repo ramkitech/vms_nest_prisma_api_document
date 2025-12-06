@@ -16,23 +16,27 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { User } from '../../../services/main/users/user_service';
+import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
 
 const URL = 'master/main/language';
 
 const ENDPOINTS = {
+  // MasterMainLanguage APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: `${URL}/cache`,
 };
 
-// Master Main Language Interface
+// MasterMainLanguage Interface
 export interface MasterMainLanguage extends Record<string, unknown> {
   // Primary Fields
   language_id: string;
-  language_name: string; // Min: 3, Max: 50
-  language_code: string; // Min: 2, Max: 10
+  language_name: string;
+  language_code: string;
 
   // Metadata
   status: Status;
@@ -40,11 +44,14 @@ export interface MasterMainLanguage extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Child
-  User: User[];
+  // Child - User
+  UserOrganisation?: UserOrganisation[]
+  User?: User[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    User: number;
+    UserOrganisation?: number;
+    User?: number;
   };
 }
 
@@ -64,21 +71,21 @@ export type MasterMainLanguageQueryDTO = z.infer<
   typeof MasterMainLanguageQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainLanguage Data to API Payload
 export const toMasterMainLanguagePayload = (row: MasterMainLanguage): MasterMainLanguageDTO => ({
-  language_name: row.language_name,
-  language_code: row.language_code,
-  status: row.status,
+  language_name: row.language_name || '',
+  language_code: row.language_code || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainLanguage Payload
 export const newMasterMainLanguagePayload = (): MasterMainLanguageDTO => ({
   language_name: '',
   language_code: '',
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainLanguage APIs
 export const findMasterMainLanguages = async (data: MasterMainLanguageQueryDTO): Promise<FBR<MasterMainLanguage[]>> => {
   return apiPost<FBR<MasterMainLanguage[]>, MasterMainLanguageQueryDTO>(ENDPOINTS.find, data);
 };
@@ -95,7 +102,7 @@ export const deleteMasterMainLanguage = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainLanguageCache = async (): Promise<FBR<MasterMainLanguage[]>> => {
   return apiGet<FBR<MasterMainLanguage[]>>(ENDPOINTS.cache);
 };

@@ -24,37 +24,42 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/main/state';
 
 const ENDPOINTS = {
+  // MasterMainState APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (country_id: string): string => `${URL}/cache?country_id=${country_id}`,
 };
 
-// Master Main State Interface
+// MasterMainState Interface
 export interface MasterMainState extends Record<string, unknown> {
   // Primary Fields
   state_id: string;
-  state_name: string; // Min: 3, Max: 100
-  state_code?: string; // Optional, Max: 10
+  state_name: string;
+  state_code?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   country_id: string;
   MasterMainCountry?: MasterMainCountry;
 
   // Relations - Child
-  UserOrganisation: UserOrganisation[];
-  //MasterMainLandMark: MasterMainLandMark[];
+  // Child - User
+  UserOrganisation?: UserOrganisation[]
+  // Child - Master
+  // MasterMainLandMark?: MasterMainLandMark[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    UserOrganisation: number;
-    MasterMainLandMark: number;
+    UserOrganisation?: number;
+    MasterMainLandMark?: number;
   };
 }
 
@@ -76,15 +81,15 @@ export type MasterMainStateQueryDTO = z.infer<
   typeof MasterMainStateQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainState Data to API Payload
 export const toMasterMainStatePayload = (row: MasterMainState): MasterMainStateDTO => ({
-  country_id: row.country_id,
-  state_name: row.state_name,
-  state_code: row.state_code ?? '',
-  status: row.status,
+  country_id: row.country_id || '',
+  state_name: row.state_name || '',
+  state_code: row.state_code || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainState Payload
 export const newMasterMainStatePayload = (): MasterMainStateDTO => ({
   country_id: '',
   state_name: '',
@@ -92,7 +97,7 @@ export const newMasterMainStatePayload = (): MasterMainStateDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainState APIs
 export const findMasterMainStates = async (data: MasterMainStateQueryDTO): Promise<FBR<MasterMainState[]>> => {
   return apiPost<FBR<MasterMainState[]>, MasterMainStateQueryDTO>(ENDPOINTS.find, data);
 };
@@ -109,7 +114,7 @@ export const deleteMasterMainState = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainStateCache = async (country_id: string): Promise<FBR<MasterMainState[]>> => {
   return apiGet<FBR<MasterMainState[]>>(ENDPOINTS.cache(country_id));
 };

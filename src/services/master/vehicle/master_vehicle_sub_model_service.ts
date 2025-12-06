@@ -19,45 +19,41 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 import { MasterVehicleModel } from '../../../services/master/vehicle/master_vehicle_model_service';
-import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/sub_model';
 
 const ENDPOINTS = {
+  // MasterVehicleSubModel APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string, vehicle_model_id?: string): string => `${URL}/cache/${organisation_id}?vehicle_model_id=${vehicle_model_id || '0'}`,
   cache_count: (organisation_id: string, vehicle_model_id?: string): string => `${URL}/cache_count/${organisation_id}?vehicle_model_id=${vehicle_model_id || '0'}`,
   cache_child: (organisation_id: string, vehicle_model_id?: string): string => `${URL}/cache_child/${organisation_id}?vehicle_model_id=${vehicle_model_id || '0'}`,
 };
 
-// Vehicle Sub-Model Interface
+// MasterVehicleSubModel Interface
 export interface MasterVehicleSubModel extends Record<string, unknown> {
   // Primary Fields
   vehicle_sub_model_id: string;
-  vehicle_sub_model: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  vehicle_sub_model: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
+
   vehicle_model_id: string;
   MasterVehicleModel?: MasterVehicleModel;
-
-  // Relations - Child
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicle: number;
-  };
+  vehicle_model?: string;
 }
 
 // ✅ MasterVehicleSubModel Create/Update Schema
@@ -69,7 +65,6 @@ export const MasterVehicleSubModelSchema = z.object({
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
-
 export type MasterVehicleSubModelDTO = z.infer<
   typeof MasterVehicleSubModelSchema
 >;
@@ -81,22 +76,22 @@ export const MasterVehicleSubModelQuerySchema = BaseQuerySchema.extend({
   vehicle_model_ids: multi_select_optional('MasterVehicleModel'), // ✅ Multi-Selection -> MasterVehicleModel
   vehicle_sub_model_ids: multi_select_optional('MasterVehicleSubModel'), // ✅ Multi-Selection -> MasterVehicleSubModel
 });
-
 export type MasterVehicleSubModelQueryDTO = z.infer<
   typeof MasterVehicleSubModelQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleSubModel Data to API Payload
 export const toMasterVehicleSubModelPayload = (row: MasterVehicleSubModel): MasterVehicleSubModelDTO => ({
-  organisation_id: row.organisation_id ?? '',
+  organisation_id: row.organisation_id || '',
   vehicle_make_id: row.MasterVehicleModel?.vehicle_make_id || '',
-  vehicle_model_id: row.vehicle_model_id,
-  vehicle_sub_model: row.vehicle_sub_model,
+  vehicle_model_id: row.vehicle_model_id || '', 
+
+  vehicle_sub_model: row.vehicle_sub_model || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleSubModel Payload
 export const newMasterVehicleSubModelPayload = (): MasterVehicleSubModelDTO => ({
   organisation_id: '',
   vehicle_make_id: '',
@@ -106,7 +101,7 @@ export const newMasterVehicleSubModelPayload = (): MasterVehicleSubModelDTO => (
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleSubModel APIs
 export const findMasterVehicleSubModels = async (data: MasterVehicleSubModelQueryDTO): Promise<FBR<MasterVehicleSubModel[]>> => {
   return apiPost<FBR<MasterVehicleSubModel[]>, MasterVehicleSubModelQueryDTO>(ENDPOINTS.find, data);
 };
@@ -123,7 +118,7 @@ export const deleteMasterVehicleSubModel = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleSubModelCache = async (organisation_id: string, vehicle_model_id?: string): Promise<FBR<MasterVehicleSubModel[]>> => {
   return apiGet<FBR<MasterVehicleSubModel[]>>(ENDPOINTS.cache(organisation_id, vehicle_model_id));
 };

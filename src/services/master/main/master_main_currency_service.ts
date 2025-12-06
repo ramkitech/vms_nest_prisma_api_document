@@ -23,36 +23,39 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/main/currency';
 
 const ENDPOINTS = {
+  // MasterMainCurrency APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (country_id: string): string => `${URL}/cache?country_id=${country_id}`,
 };
 
-// Master Main Currency Interface
+// MasterMainCurrency Interface
 export interface MasterMainCurrency extends Record<string, unknown> {
   // Primary Fields
   currency_id: string;
-  currency_name: string; // Min: 3, Max: 100
-  currency_symbol?: string; // Optional, Max: 10
-  currency_code: string; // Min: 2, Max: 10
+  currency_name: string;
+  currency_symbol?: string;
+  currency_code: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   country_id: string;
   MasterMainCountry?: MasterMainCountry;
 
   // Relations - Child
-  UserOrganisation: UserOrganisation[];
+  UserOrganisation?: UserOrganisation[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    UserOrganisation: number;
+    UserOrganisation?: number;
   };
 }
 
@@ -75,16 +78,16 @@ export type MasterMainCurrencyQueryDTO = z.infer<
   typeof MasterMainCurrencyQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainCurrency Data to API Payload
 export const toMasterMainCurrencyPayload = (row: MasterMainCurrency): MasterMainCurrencyDTO => ({
-  country_id: row.country_id,
-  currency_name: row.currency_name,
-  currency_symbol: row.currency_symbol ?? '',
-  currency_code: row.currency_code,
-  status: row.status,
+  country_id: row.country_id || '',
+  currency_name: row.currency_name || '',
+  currency_symbol: row.currency_symbol || '',
+  currency_code: row.currency_code || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainCurrency Payload
 export const newMasterMainCurrencyPayload = (): MasterMainCurrencyDTO => ({
   country_id: '',
   currency_name: '',
@@ -93,7 +96,7 @@ export const newMasterMainCurrencyPayload = (): MasterMainCurrencyDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainCurrency APIs
 export const findMasterMainCurrencies = async (data: MasterMainCurrencyQueryDTO): Promise<FBR<MasterMainCurrency[]>> => {
   return apiPost<FBR<MasterMainCurrency[]>, MasterMainCurrencyQueryDTO>(ENDPOINTS.find, data);
 };
@@ -110,7 +113,7 @@ export const deleteMasterMainCurrency = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainCurrencyCache = async (country_id: string): Promise<FBR<MasterMainCurrency[]>> => {
   return apiGet<FBR<MasterMainCurrency[]>>(ENDPOINTS.cache(country_id));
 };

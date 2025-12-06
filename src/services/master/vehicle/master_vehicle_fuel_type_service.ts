@@ -18,43 +18,37 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/fuel_type';
 
 const ENDPOINTS = {
+  // MasterVehicleFuelType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Vehicle Fuel Type Interface
+// VehicleFuelType Interface
 export interface MasterVehicleFuelType extends Record<string, unknown> {
   // Primary Fields
   vehicle_fuel_type_id: string;
-  fuel_type: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  fuel_type: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicle: number;
-  };
 }
 
 // ✅ MasterVehicleFuelType Create/Update Schema
@@ -77,15 +71,16 @@ export type MasterVehicleFuelTypeQueryDTO = z.infer<
   typeof MasterVehicleFuelTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleFuelType Data to API Payload
 export const toMasterVehicleFuelTypePayload = (row: MasterVehicleFuelType): MasterVehicleFuelTypeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  fuel_type: row.fuel_type,
+  organisation_id: row.organisation_id || '',
+
+  fuel_type: row.fuel_type || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleFuelType Payload
 export const newMasterVehicleFuelTypePayload = (): MasterVehicleFuelTypeDTO => ({
   organisation_id: '',
   fuel_type: '',
@@ -93,7 +88,7 @@ export const newMasterVehicleFuelTypePayload = (): MasterVehicleFuelTypeDTO => (
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleFuelType APIs
 export const findMasterVehicleFuelTypes = async (data: MasterVehicleFuelTypeQueryDTO): Promise<FBR<MasterVehicleFuelType[]>> => {
   return apiPost<FBR<MasterVehicleFuelType[]>, MasterVehicleFuelTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -110,7 +105,7 @@ export const deleteMasterVehicleFuelType = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleFuelTypeCache = async (organisation_id: string): Promise<FBR<MasterVehicleFuelType[]>> => {
   return apiGet<FBR<MasterVehicleFuelType[]>>(ENDPOINTS.cache(organisation_id));
 };

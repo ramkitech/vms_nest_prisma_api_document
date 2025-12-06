@@ -24,40 +24,45 @@ import { MasterSparePartSubCategory } from '../../../services/master/spare_part/
 const URL = 'master/spare_part/category';
 
 const ENDPOINTS = {
+  // MasterSparePartCategory APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Spare Part Category Interface
+// SparePartCategory Interface
 export interface MasterSparePartCategory extends Record<string, unknown> {
   // Primary Fields
   spare_part_category_id: string;
-  category_name: string; // Min: 3, Max: 50
-  category_code: string; // Min: 2, Max: 10
-  description?: string; // Optional, Max: 300
+  category_name: string;
+  category_code: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  MasterSparePartSubCategory: MasterSparePartSubCategory[];
-  //FleetSpareParts: FleetSpareParts[];
+  // Child - Master
+  MasterSparePartSubCategory?: MasterSparePartSubCategory[]
+  // Child - Fleet
+  // FleetSpareParts?: FleetSpareParts[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    MasterSparePartSubCategory: number;
-    FleetSpareParts: number;
+    MasterSparePartSubCategory?: number;
+    FleetSpareParts?: number;
   };
 }
 
@@ -82,16 +87,17 @@ export type SparePartCategoryQueryDTO = z.infer<
   typeof SparePartCategoryQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterSparePartCategory Data to API Payload
 export const toMasterSparePartCategoryPayload = (row: MasterSparePartCategory): MasterSparePartCategoryDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  category_name: row.category_name,
-  category_code: row.category_code,
+  organisation_id: row.organisation_id || '',
+
+  category_name: row.category_name || '',
+  category_code: row.category_code || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterSparePartCategory Payload
 export const newMasterSparePartCategoryPayload = (): MasterSparePartCategoryDTO => ({
   organisation_id: '',
   category_name: '',
@@ -100,7 +106,7 @@ export const newMasterSparePartCategoryPayload = (): MasterSparePartCategoryDTO 
   status: Status.Active,
 });
 
-// API Methods
+// MasterSparePartCategory APIs
 export const findMasterSparePartCategories = async (data: SparePartCategoryQueryDTO): Promise<FBR<MasterSparePartCategory[]>> => {
   return apiPost<FBR<MasterSparePartCategory[]>, SparePartCategoryQueryDTO>(ENDPOINTS.find, data);
 };
@@ -117,7 +123,7 @@ export const deleteMasterSparePartCategory = async (id: string): Promise<SBR> =>
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterSparePartCategoryCache = async (organisation_id: string): Promise<FBR<MasterSparePartCategory[]>> => {
   return apiGet<FBR<MasterSparePartCategory[]>>(ENDPOINTS.cache(organisation_id));
 };

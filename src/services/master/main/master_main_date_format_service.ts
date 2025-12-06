@@ -16,23 +16,27 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { User } from 'src/services/main/users/user_service';
 
 const URL = 'master/main/date_format';
 
 const ENDPOINTS = {
+  // MasterMainDateFormat APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: `${URL}/cache`,
 };
 
-// Master Main Date Format Interface
+// MasterMainDateFormat Interface
 export interface MasterMainDateFormat extends Record<string, unknown> {
   // Primary Fields
   date_format_id: string;
-  date_format_date: string; // Min: 3, Max: 50
-  date_format_time: string; // Min: 3, Max: 50
+  date_format_date: string;
+  date_format_time: string;
 
   // Metadata
   status: Status;
@@ -40,11 +44,14 @@ export interface MasterMainDateFormat extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Child
-  UserOrganisation: UserOrganisation[];
+  // Child - User
+  UserOrganisation?: UserOrganisation[]
+  User?: User[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    UserOrganisation: number;
+    UserOrganisation?: number;
+    User?: number;
   };
 }
 
@@ -66,21 +73,21 @@ export type MasterMainDateFormatQueryDTO = z.infer<
   typeof MasterMainDateFormatQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainDateFormat Data to API Payload
 export const toMasterMainDateFormatPayload = (row: MasterMainDateFormat): MasterMainDateFormatDTO => ({
-  date_format_date: row.date_format_date,
-  date_format_time: row.date_format_time,
-  status: row.status,
+  date_format_date: row.date_format_date || '',
+  date_format_time: row.date_format_time || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainDateFormat Payload
 export const newMasterMainDateFormatPayload = (): MasterMainDateFormatDTO => ({
   date_format_date: '',
   date_format_time: '',
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainDateFormat APIs
 export const findMasterMainDateFormats = async (data: MasterMainDateFormatQueryDTO): Promise<FBR<MasterMainDateFormat[]>> => {
   return apiPost<FBR<MasterMainDateFormat[]>, MasterMainDateFormatQueryDTO>(ENDPOINTS.find, data);
 };
@@ -97,7 +104,7 @@ export const deleteMasterMainDateFormat = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainDateFormatCache = async (): Promise<FBR<MasterMainDateFormat[]>> => {
   return apiGet<FBR<MasterMainDateFormat[]>>(ENDPOINTS.cache);
 };

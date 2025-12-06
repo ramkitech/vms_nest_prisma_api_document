@@ -23,35 +23,39 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/trip/party_type';
 
 const ENDPOINTS = {
+  // MasterTripPartyType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// Trip Party Type Interface
+// TripPartyType Interface
 export interface MasterTripPartyType extends Record<string, unknown> {
   // Primary Fields
   party_type_id: string;
-  party_type: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  party_type: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  //FleetTripParty: FleetTripParty[];
+  // Child - Fleet
+  // FleetTripParty?: FleetTripParty[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    FleetTripParty: number;
+    FleetTripParty?: number;
   };
 }
 
@@ -73,15 +77,16 @@ export type MasterTripPartyTypeQueryDTO = z.infer<
   typeof MasterTripPartyTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterTripPartyType Data to API Payload
 export const toMasterTripPartyTypePayload = (row: MasterTripPartyType): MasterTripPartyTypeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  party_type: row.party_type,
+  organisation_id: row.organisation_id || '',
+
+  party_type: row.party_type || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterTripPartyType Payload
 export const newMasterTripPartyTypePayload = (): MasterTripPartyTypeDTO => ({
   organisation_id: '',
   party_type: '',
@@ -89,7 +94,7 @@ export const newMasterTripPartyTypePayload = (): MasterTripPartyTypeDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterTripPartyType APIs
 export const findMasterTripPartyTypes = async (data: MasterTripPartyTypeQueryDTO): Promise<FBR<MasterTripPartyType[]>> => {
   return apiPost<FBR<MasterTripPartyType[]>, MasterTripPartyTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -106,7 +111,7 @@ export const deleteMasterTripPartyType = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterTripPartyTypeCache = async (organisation_id: string): Promise<FBR<MasterTripPartyType[]>> => {
   return apiGet<FBR<MasterTripPartyType[]>>(ENDPOINTS.cache(organisation_id));
 };

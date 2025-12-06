@@ -20,49 +20,85 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { MasterMainState } from '../../../services/master/main/master_main_state_service';
 import { MasterMainCountry } from '../../../services/master/main/master_main_country_service';
+import { StudentAddress } from 'src/services/fleet/bus_mangement/student';
+import { FleetFuelRefill } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
+import { FleetFuelRemoval } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
+import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
+import { FleetVendorFuelStation } from 'src/services/fleet/vendor_management/fleet_vendor_fuel_station';
+import { FleetVendorAddress } from 'src/services/fleet/vendor_management/fleet_vendor_service';
+import { FleetVendorServiceCenter } from 'src/services/fleet/vendor_management/fleet_vendor_service_center';
+import { VehicleDetailGPS } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/main/landmark';
 
 const ENDPOINTS = {
+  // MasterMainLandmark APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// Master Main Country Interface
+// MasterMainLandmark Interface
 export interface MasterMainLandmark extends Record<string, unknown> {
   // Primary Fields
   landmark_id: string;
-  landmark_name: string; // Min: 3, Max: 100
+  landmark_name: string;
 
-  location: string; // Min: 2, Max: 100
-  locality: string; // Min: 2, Max: 100
-  city_district_town: string; // Min: 2, Max: 100
-  zip_code: string; // Min: 2, Max: 10
+  location: string;
+  locality: string;
+  city_district_town: string;
+  zip_code: string;
 
   latitude: number;
   longitude: number;
-  google_location: string; // Min: 2, Max: 100
+  google_location: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  country_id: string;
+  // Relations - Parent
+  country_id?: string;
   MasterMainCountry?: MasterMainCountry;
 
-  state_id: string;
+  state_id?: string;
   MasterMainState?: MasterMainState;
 
   // Relations - Child
-  //VehicleDetailGPS: VehicleDetailGPS[];
+  // Child - GPS
+  VehicleDetailGPS?: VehicleDetailGPS[]
+  // GPSLockRelayLog?: GPSLockRelayLog[]
+  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
+  // Child - FLeet
+  FleetVendorAddress?: FleetVendorAddress[]
+  FleetVendorFuelStation?: FleetVendorFuelStation[]
+  FleetVendorServiceCenter?: FleetVendorServiceCenter[]
 
-  // Count
+  FleetFuelRefill?: FleetFuelRefill[]
+  FleetFuelRemoval?: FleetFuelRemoval[]
+
+  FleetIncidentManagement?: FleetIncidentManagement[]
+
+  StudentAddress?: StudentAddress[]
+
+  // Relations - Child Count
   _count?: {
-    VehicleDetailGPS: number;
+    VehicleDetailGPS?: number;
+    GPSLockRelayLog?: number;
+    GPSLockDigitalDoorLog?: number;
+
+    FleetVendorAddress?: number;
+    FleetVendorFuelStation?: number;
+    FleetVendorServiceCenter?: number;
+
+    FleetFuelRefill?: number;
+    FleetFuelRemoval?: number;
+
+    FleetIncidentManagement?: number;
+
+    StudentAddress?: number;
   };
 }
 
@@ -92,22 +128,23 @@ export type MasterMainLandmarkQueryDTO = z.infer<
   typeof MasterMainLandmarkQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainLandmark Data to API Payload
 export const toMasterMainLandmarkPayload = (row: MasterMainLandmark): MasterMainLandmarkDTO => ({
-  country_id: row.country_id,
-  state_id: row.state_id,
-  landmark_name: row.landmark_name,
-  location: row.location,
-  google_location: row.google_location,
-  locality: row.locality,
-  city_district_town: row.city_district_town,
-  zip_code: row.zip_code,
-  latitude: row.latitude,
-  longitude: row.longitude,
-  status: row.status,
+  country_id: row.country_id || '',
+  state_id: row.state_id || '',
+
+  landmark_name: row.landmark_name || '',
+  location: row.location || '',
+  google_location: row.google_location || '',
+  locality: row.locality || '',
+  city_district_town: row.city_district_town || '',
+  zip_code: row.zip_code || '',
+  latitude: row.latitude || 0,
+  longitude: row.longitude || 0,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainLandmark Payload
 export const newMasterMainLandmarkPayload = (): MasterMainLandmarkDTO => ({
   country_id: '',
   state_id: '',
@@ -122,26 +159,16 @@ export const newMasterMainLandmarkPayload = (): MasterMainLandmarkDTO => ({
   status: Status.Active,
 });
 
-// API Methods
-export const findMasterMainCountries = async (
-  data: MasterMainLandmarkQueryDTO
-): Promise<FBR<MasterMainLandmark[]>> => {
-  return apiPost<FBR<MasterMainLandmark[]>, MasterMainLandmarkQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+// MasterMainLandmark APIs
+export const findMasterMainCountries = async (data: MasterMainLandmarkQueryDTO): Promise<FBR<MasterMainLandmark[]>> => {
+  return apiPost<FBR<MasterMainLandmark[]>, MasterMainLandmarkQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterMainCountry = async (
-  data: MasterMainLandmarkDTO
-): Promise<SBR> => {
+export const createMasterMainCountry = async (data: MasterMainLandmarkDTO): Promise<SBR> => {
   return apiPost<SBR, MasterMainLandmarkDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterMainCountry = async (
-  id: string,
-  data: MasterMainLandmarkDTO
-): Promise<SBR> => {
+export const updateMasterMainCountry = async (id: string, data: MasterMainLandmarkDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterMainLandmarkDTO>(ENDPOINTS.update(id), data);
 };
 

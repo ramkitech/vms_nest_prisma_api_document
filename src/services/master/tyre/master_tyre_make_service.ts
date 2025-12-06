@@ -24,39 +24,44 @@ import { MasterTyreModel } from '../../../services/master/tyre/master_tyre_model
 const URL = 'master/tyre/make';
 
 const ENDPOINTS = {
+  // MasterTyreMake APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Master Tyre Make Interface
+// MasterTyreMake Interface
 export interface MasterTyreMake extends Record<string, unknown> {
   // Primary Fields
   tyre_make_id: string;
-  tyre_make: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  tyre_make: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  MasterTyreModel: MasterTyreModel[];
-  // FleetTyreInventory: FleetTyreInventory[];
+  // Child - Master
+  MasterTyreModel?: MasterTyreModel[];
+  // Child - Fleet
+  // FleetTyreInventory?: FleetTyreInventory[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    MasterTyreModel: number;
-    FleetTyreInventory: number;
+    MasterTyreModel?: number;
+    FleetTyreInventory?: number;
   };
 }
 
@@ -76,15 +81,15 @@ export const MasterTyreMakeQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterTyreMakeQueryDTO = z.infer<typeof MasterTyreMakeQuerySchema>;
 
-// Convert existing data to a payload structure
+// Convert MasterTyreMake Data to API Payload
 export const toMasterTyreMakePayload = (row: MasterTyreMake): MasterTyreMakeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  tyre_make: row.tyre_make,
+  organisation_id: row.organisation_id || '',
+  tyre_make: row.tyre_make || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterTyreMake Payload
 export const newMasterTyreMakePayload = (): MasterTyreMakeDTO => ({
   organisation_id: '',
   tyre_make: '',
@@ -92,7 +97,7 @@ export const newMasterTyreMakePayload = (): MasterTyreMakeDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterTyreMake APIs
 export const findMasterTyreMakes = async (data: MasterTyreMakeQueryDTO): Promise<FBR<MasterTyreMake[]>> => {
   return apiPost<FBR<MasterTyreMake[]>, MasterTyreMakeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -109,7 +114,7 @@ export const deleteMasterTyreMake = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterTyreMakeCache = async (organisation_id: string): Promise<FBR<MasterTyreMake[]>> => {
   return apiGet<FBR<MasterTyreMake[]>>(ENDPOINTS.cache(organisation_id));
 };

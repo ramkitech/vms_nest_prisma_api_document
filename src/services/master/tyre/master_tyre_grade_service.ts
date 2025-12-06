@@ -23,36 +23,40 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/tyre/grade';
 
 const ENDPOINTS = {
+  // MasterTyreGrade APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
-// Master Tyre Grade Interface
+// MasterTyreGrade Interface
 export interface MasterTyreGrade extends Record<string, unknown> {
   // Primary Fields
   tyre_grade_id: string;
-  tyre_grade: string; // Min: 1, Max: 100
-  description?: string; // Optional, Max: 300
+  tyre_grade: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  // Relations - Child
-  // FleetTyreInventory: FleetTyreInventory[];
+   // Relations - Child
+  // Child - Fleet
+  // FleetTyreInventory?: FleetTyreInventory[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    FleetTyreInventory: number;
+    FleetTyreInventory?: number;
   };
 }
 
@@ -74,15 +78,16 @@ export type MasterTyreGradeQueryDTO = z.infer<
   typeof MasterTyreGradeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterTyreGrade Data to API Payload
 export const toMasterTyreGradePayload = (row: MasterTyreGrade): MasterTyreGradeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  tyre_grade: row.tyre_grade,
+  organisation_id: row.organisation_id || '',
+
+  tyre_grade: row.tyre_grade || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterTyreGrade Payload
 export const newMasterTyreGradePayload = (): MasterTyreGradeDTO => ({
   organisation_id: '',
   tyre_grade: '',
@@ -90,7 +95,7 @@ export const newMasterTyreGradePayload = (): MasterTyreGradeDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterTyreGrade APIs
 export const findMasterTyreGrades = async (data: MasterTyreGradeQueryDTO): Promise<FBR<MasterTyreGrade[]>> => {
   return apiPost<FBR<MasterTyreGrade[]>, MasterTyreGradeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -107,7 +112,7 @@ export const deleteMasterTyreGrade = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterTyreGradeCache = async (organisation_id: string): Promise<FBR<MasterTyreGrade[]>> => {
   return apiGet<FBR<MasterTyreGrade[]>>(ENDPOINTS.cache(organisation_id));
 };

@@ -23,10 +23,13 @@ import { MasterVehicle } from '../../main/vehicle/master_vehicle_service';
 const URL = 'master/vehicle/fuel_removal_reason';
 
 const ENDPOINTS = {
+  // MasterVehicleFuelRemovalReason APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
@@ -36,25 +39,17 @@ const ENDPOINTS = {
 export interface MasterVehicleFuelRemovalReason extends Record<string, unknown> {
   // Primary Fields
   fuel_removal_reason_id: string;
-  removal_reason: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  removal_reason: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-  // FleetFuelRemovals: FleetFuelRemovals[];
-
-  // Count
-  _count?: {
-    FleetFuelRemovals: number;
-  };
 }
 
 // ✅ MasterVehicleFuelRemovalReason Create/Update Schema
@@ -81,15 +76,16 @@ export type MasterVehicleFuelRemovalReasonQueryDTO = z.infer<
   typeof MasterVehicleFuelRemovalReasonQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleFuelRemovalReason Data to API Payload
 export const toMasterVehicleFuelRemovalReasonPayload = (row: MasterVehicleFuelRemovalReason): MasterVehicleFuelRemovalReasonDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  removal_reason: row.removal_reason,
+  organisation_id: row.organisation_id || '',
+
+  removal_reason: row.removal_reason || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleFuelRemovalReason Payload
 export const newMasterVehicleFuelRemovalReasonPayload = (): MasterVehicleFuelRemovalReasonDTO => ({
   organisation_id: '',
   removal_reason: '',
@@ -97,7 +93,7 @@ export const newMasterVehicleFuelRemovalReasonPayload = (): MasterVehicleFuelRem
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleFuelRemovalReason APIs
 export const findMasterVehicleFuelRemovalReasons = async (data: MasterVehicleFuelRemovalReasonQueryDTO): Promise<FBR<MasterVehicleFuelRemovalReason[]>> => {
   return apiPost<FBR<MasterVehicleFuelRemovalReason[]>, MasterVehicleFuelRemovalReasonQueryDTO>(ENDPOINTS.find, data);
 };
@@ -114,7 +110,7 @@ export const deleteMasterVehicleFuelRemovalReason = async (id: string): Promise<
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleFuelRemovalReasonCache = async (organisation_id: string): Promise<FBR<MasterVehicleFuelRemovalReason[]>> => {
   return apiGet<FBR<MasterVehicleFuelRemovalReason[]>>(ENDPOINTS.cache(organisation_id));
 };

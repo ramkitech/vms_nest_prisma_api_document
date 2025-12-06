@@ -18,43 +18,37 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/ownership_type';
 
 const ENDPOINTS = {
+  // MasterVehicleOwnershipType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Vehicle Ownership Type Interface
+// MasterVehicleOwnershipType Interface
 export interface MasterVehicleOwnershipType extends Record<string, unknown> {
   // Primary Fields
   vehicle_ownership_type_id: string;
-  ownership_type: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  ownership_type: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicle: number;
-  };
 }
 
 // ✅ MasterVehicleOwnershipType Create/Update Schema
@@ -79,15 +73,16 @@ export type MasterVehicleOwnershipTypeQueryDTO = z.infer<
   typeof MasterVehicleOwnershipTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleOwnershipType Data to API Payload
 export const toMasterVehicleOwnershipTypePayload = (row: MasterVehicleOwnershipType): MasterVehicleOwnershipTypeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  ownership_type: row.ownership_type,
+  organisation_id: row.organisation_id || '',
+
+  ownership_type: row.ownership_type || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleOwnershipType Payload
 export const newMasterVehicleOwnershipTypePayload = (): MasterVehicleOwnershipTypeDTO => ({
   organisation_id: '',
   ownership_type: '',
@@ -95,7 +90,7 @@ export const newMasterVehicleOwnershipTypePayload = (): MasterVehicleOwnershipTy
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleOwnershipType APIs
 export const findMasterVehicleOwnershipTypes = async (data: MasterVehicleOwnershipTypeQueryDTO): Promise<FBR<MasterVehicleOwnershipType[]>> => {
   return apiPost<FBR<MasterVehicleOwnershipType[]>, MasterVehicleOwnershipTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -112,7 +107,7 @@ export const deleteMasterVehicleOwnershipType = async (id: string): Promise<SBR>
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleOwnershipTypeCache = async (organisation_id: string): Promise<FBR<MasterVehicleOwnershipType[]>> => {
   return apiGet<FBR<MasterVehicleOwnershipType[]>>(ENDPOINTS.cache(organisation_id));
 };

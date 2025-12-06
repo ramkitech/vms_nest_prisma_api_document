@@ -19,49 +19,41 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 import { MasterVehicleMake } from '../../../services/master/vehicle/master_vehicle_make_service';
-import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
-import { MasterVehicleSubModel } from '../../../services/master/vehicle/master_vehicle_sub_model_service';
 
 const URL = 'master/vehicle/model';
 
 const ENDPOINTS = {
+  // MasterVehicleModel APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string, vehicle_make_id: string = ''): string => `${URL}/cache/${organisation_id}?vehicle_make_id=${vehicle_make_id}`,
   cache_count: (organisation_id: string, vehicle_make_id: string = ''): string => `${URL}/cache_count/${organisation_id}?vehicle_make_id=${vehicle_make_id}`,
   cache_child: (organisation_id: string, vehicle_make_id: string = ''): string => `${URL}/cache_child/${organisation_id}?vehicle_make_id=${vehicle_make_id}`,
 };
 
-// Vehicle Model Interface
+// VehicleModel Interface
 export interface MasterVehicleModel extends Record<string, unknown> {
   // Primary Fields
   vehicle_model_id: string;
-  vehicle_model: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  vehicle_model: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  vehicle_make_id: string;
-  MasterVehicleMake: MasterVehicleMake;
-
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  // Relations - Child
-  MasterVehicleSubModel: MasterVehicleSubModel[];
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicleSubModel: number;
-    MasterVehicle: number;
-  };
+  vehicle_make_id: string;
+  MasterVehicleMake: MasterVehicleMake;
+  vehicle_make?: string;
 }
 
 // ✅ MasterVehicleModel Create/Update Schema
@@ -84,16 +76,17 @@ export type MasterVehicleModelQueryDTO = z.infer<
   typeof MasterVehicleModelQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleModel Data to API Payload
 export const toMasterVehicleModelPayload = (row: MasterVehicleModel): MasterVehicleModelDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  vehicle_make_id: row.vehicle_make_id,
-  vehicle_model: row.vehicle_model,
+  organisation_id: row.organisation_id || '',
+  vehicle_make_id: row.vehicle_make_id || '',
+
+  vehicle_model: row.vehicle_model || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleModel Payload
 export const newMasterVehicleModelPayload = (): MasterVehicleModelDTO => ({
   organisation_id: '',
   vehicle_make_id: '',
@@ -102,7 +95,7 @@ export const newMasterVehicleModelPayload = (): MasterVehicleModelDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleModel APIs
 export const findMasterVehicleModels = async (data: MasterVehicleModelQueryDTO): Promise<FBR<MasterVehicleModel[]>> => {
   return apiPost<FBR<MasterVehicleModel[]>, MasterVehicleModelQueryDTO>(ENDPOINTS.find, data);
 };
@@ -119,7 +112,7 @@ export const deleteMasterVehicleModel = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleModelCache = async (organisation_id: string, vehicle_make_id?: string): Promise<FBR<MasterVehicleModel[]>> => {
   return apiGet<FBR<MasterVehicleModel[]>>(ENDPOINTS.cache(organisation_id, vehicle_make_id));
 };

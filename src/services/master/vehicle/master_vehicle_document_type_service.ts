@@ -18,15 +18,18 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { MasterVehicle } from '../../main/vehicle/master_vehicle_service';
+import { VehicleDocument } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/vehicle_document_type';
 
 const ENDPOINTS = {
+  // MasterVehicleDocumentType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
@@ -34,24 +37,25 @@ const ENDPOINTS = {
 export interface MasterVehicleDocumentType extends Record<string, unknown> {
   // Primary Fields
   document_type_id: string;
-  document_type: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  document_type: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  // VehicleDocument: VehicleDocument[];
+  // Child - Main
+  VehicleDocument?: VehicleDocument[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    VehicleDocument: number;
+    VehicleDocument?: number;
   };
 }
 
@@ -75,15 +79,16 @@ export type MasterVehicleDocumentTypeQueryDTO = z.infer<
   typeof MasterVehicleDocumentTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleDocumentType Data to API Payload
 export const toMasterVehicleDocumentTypePayload = (row: MasterVehicleDocumentType): MasterVehicleDocumentTypeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  document_type: row.document_type,
+  organisation_id: row.organisation_id || '',
+
+  document_type: row.document_type || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleDocumentType Payload
 export const newMasterVehicleDocumentTypePayload = (): MasterVehicleDocumentTypeDTO => ({
   organisation_id: '',
   document_type: '',
@@ -91,7 +96,7 @@ export const newMasterVehicleDocumentTypePayload = (): MasterVehicleDocumentType
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleDocumentType APIs
 export const findMasterVehicleDocumentTypes = async (data: MasterVehicleDocumentTypeQueryDTO): Promise<FBR<MasterVehicleDocumentType[]>> => {
   return apiPost<FBR<MasterVehicleDocumentType[]>, MasterVehicleDocumentTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -108,7 +113,7 @@ export const deleteMasterVehicleDocumentType = async (id: string): Promise<SBR> 
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleDocumentTypeCache = async (organisation_id: string): Promise<FBR<MasterVehicleDocumentType[]>> => {
   return apiGet<FBR<MasterVehicleDocumentType[]>>(ENDPOINTS.cache(organisation_id));
 };

@@ -23,36 +23,40 @@ import { User } from '../../../services/main/users/user_service';
 const URL = 'master/user/status';
 
 const ENDPOINTS = {
+  // MasterUserStatus APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
-// User Status Interface
+// UserStatus Interface
 export interface MasterUserStatus extends Record<string, unknown> {
   // Primary Fields
   user_status_id: string;
-  user_status: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  user_status: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  User: User[];
+  // Child - User
+  User?: User[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    User: number;
+    User?: number;
   };
 }
 
@@ -74,15 +78,15 @@ export type MasterUserStatusQueryDTO = z.infer<
   typeof MasterUserStatusQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterUserStatus Data to API Payload
 export const toMasterUserStatusPayload = (row: MasterUserStatus): MasterUserStatusDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  user_status: row.user_status,
+  organisation_id: row.organisation_id || '',
+  user_status: row.user_status || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterUserStatus Payload
 export const newMasterUserStatusPayload = (): MasterUserStatusDTO => ({
   organisation_id: '',
   user_status: '',
@@ -90,7 +94,7 @@ export const newMasterUserStatusPayload = (): MasterUserStatusDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterUserStatus APIs
 export const findMasterUserStatuses = async (data: MasterUserStatusQueryDTO): Promise<FBR<MasterUserStatus[]>> => {
   return apiPost<FBR<MasterUserStatus[]>, MasterUserStatusQueryDTO>(ENDPOINTS.find, data);
 };
@@ -107,7 +111,7 @@ export const deleteMasterUserStatus = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterUserStatusCache = async (organisation_id: string): Promise<FBR<MasterUserStatus[]>> => {
   return apiGet<FBR<MasterUserStatus[]>>(ENDPOINTS.cache(organisation_id));
 };

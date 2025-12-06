@@ -21,19 +21,22 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/main/industry';
 
 const ENDPOINTS = {
+  // MasterMainIndustry APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: `${URL}/cache`,
 };
 
-// Master Main Industry Interface
+// MasterMainIndustry Interface
 export interface MasterMainIndustry extends Record<string, unknown> {
   // Primary Fields
   industry_id: string;
-  industry_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  industry_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
@@ -41,11 +44,11 @@ export interface MasterMainIndustry extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Child
-  UserOrganisation: UserOrganisation[];
+  UserOrganisation?: UserOrganisation[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    UserOrganisation: number;
+    UserOrganisation?: number;
   };
 }
 
@@ -65,21 +68,21 @@ export type MasterMainIndustryQueryDTO = z.infer<
   typeof MasterMainIndustryQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainIndustry Data to API Payload
 export const toMasterMainIndustryPayload = (row: MasterMainIndustry): MasterMainIndustryDTO => ({
-  industry_name: row.industry_name,
-  description: row.description ?? '',
-  status: row.status,
+  industry_name: row.industry_name || '',
+  description: row.description || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainIndustry Payload
 export const newMasterMainIndustryPayload = (): MasterMainIndustryDTO => ({
   industry_name: '',
   description: '',
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainIndustry APIs
 export const findMasterMainIndustrys = async (data: MasterMainIndustryQueryDTO): Promise<FBR<MasterMainIndustry[]>> => {
   return apiPost<FBR<MasterMainIndustry[]>, MasterMainIndustryQueryDTO>(ENDPOINTS.find, data);
 };
@@ -96,7 +99,7 @@ export const deleteMasterMainIndustry = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainIndustryCache = async (): Promise<FBR<MasterMainIndustry[]>> => {
   return apiGet<FBR<MasterMainIndustry[]>>(ENDPOINTS.cache);
 };

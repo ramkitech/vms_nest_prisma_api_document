@@ -19,26 +19,31 @@ import { MasterMainCurrency } from '../../../services/master/main/master_main_cu
 import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
 import { MasterMainState } from '../../../services/master/main/master_main_state_service';
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-//import { MasterMainLandMark } from "@api/services/main/master_main_land_mark_service";
+import { MasterFuelCompany } from '../expense/master_fuel_company_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
+import { MasterDevice } from 'src/services/main/devices/master_device_service';
 
 const URL = 'master/main/country';
 
 const ENDPOINTS = {
+  // MasterMainCountry APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: `${URL}/cache`,
   cache_child: `${URL}/cache_child`,
 };
 
-// Master Main Country Interface
+// MasterMainCountry Interface
 export interface MasterMainCountry extends Record<string, unknown> {
   // Primary Fields
   country_id: string;
-  country_name: string; // Min: 3, Max: 100
-  country_code: string; // Min: 2, Max: 10
-  country_mobile_code: string; // Min: 2, Max: 10
+  country_name: string;
+  country_code: string;
+  country_mobile_code: string;
 
   // Metadata
   status: Status;
@@ -46,19 +51,30 @@ export interface MasterMainCountry extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Child
-  MasterMainCurrency: MasterMainCurrency[];
-  MasterMainTimeZone: MasterMainTimeZone[];
-  MasterMainState: MasterMainState[];
-  UserOrganisation: UserOrganisation[];
-  //MasterMainLandMark: MasterMainLandMark[];
+  // Child - User
+  UserOrganisation?: UserOrganisation[];
+  // Relations - Child
+  MasterMainState?: MasterMainState[];
+  MasterMainCurrency?: MasterMainCurrency[];
+  MasterMainTimeZone?: MasterMainTimeZone[];
+  // MasterMainLandMark?: MasterMainLandMark[]
+  MasterFuelCompany?: MasterFuelCompany[];
+  // Child - Main
+  MasterVehicle?: MasterVehicle[];
+  MasterDevice?: MasterDevice[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    MasterMainCurrency: number;
-    MasterMainTimeZone: number;
-    MasterMainState: number;
-    UserOrganisation: number;
-    MasterMainLandMark: number;
+    UserOrganisation?: number;
+
+    MasterMainState?: number;
+    MasterMainCurrency?: number;
+    MasterMainTimeZone?: number;
+    MasterMainLandMark?: number;
+    MasterFuelCompany?: number;
+
+    MasterVehicle?: number;
+    MasterDevice?: number;
   };
 }
 
@@ -79,15 +95,15 @@ export type MasterMainCountryQueryDTO = z.infer<
   typeof MasterMainCountryQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainCountry Data to API Payload
 export const toMasterMainCountryPayload = (row: MasterMainCountry): MasterMainCountryDTO => ({
-  country_name: row.country_name,
-  country_code: row.country_code,
-  country_mobile_code: row.country_mobile_code,
-  status: row.status,
+  country_name: row.country_name || '',
+  country_code: row.country_code || '',
+  country_mobile_code: row.country_mobile_code || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainCountry Payload
 export const newMasterMainCountryPayload = (): MasterMainCountryDTO => ({
   country_name: '',
   country_code: '',
@@ -95,7 +111,7 @@ export const newMasterMainCountryPayload = (): MasterMainCountryDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainCountry APIs
 export const findMasterMainCountries = async (data: MasterMainCountryQueryDTO): Promise<FBR<MasterMainCountry[]>> => {
   return apiPost<FBR<MasterMainCountry[]>, MasterMainCountryQueryDTO>(ENDPOINTS.find, data);
 };
@@ -112,7 +128,7 @@ export const deleteMasterMainCountry = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterMainCountryCache = async (): Promise<FBR<MasterMainCountry[]>> => {
   return apiGet<FBR<MasterMainCountry[]>>(ENDPOINTS.cache);
 };

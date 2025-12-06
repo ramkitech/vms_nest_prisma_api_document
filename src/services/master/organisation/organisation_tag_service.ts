@@ -23,38 +23,33 @@ import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_ser
 const URL = 'master/organisation/tag';
 
 const ENDPOINTS = {
+  // OrganisationTag APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Organisation Tag Interface
+// OrganisationTag Interface
 export interface OrganisationTag extends Record<string, unknown> {
   // Primary Fields
   organisation_tag_id: string;
-  tag_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  tag_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
-  UserOrganisation: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicle: number;
-  };
+  UserOrganisation?: UserOrganisation;
 }
 
 // ✅ OrganisationTag Create/Update Schema
@@ -75,15 +70,15 @@ export type OrganisationTagQueryDTO = z.infer<
   typeof OrganisationTagQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert OrganisationTag Data to API Payload
 export const toOrganisationTagPayload = (row: OrganisationTag): OrganisationTagDTO => ({
-  organisation_id: row.organisation_id,
-  tag_name: row.tag_name,
+  organisation_id: row.organisation_id || '',
+  tag_name: row.tag_name || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New OrganisationTag Payload
 export const newOrganisationTagPayload = (): OrganisationTagDTO => ({
   organisation_id: '',
   tag_name: '',
@@ -91,7 +86,7 @@ export const newOrganisationTagPayload = (): OrganisationTagDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// OrganisationTag APIs
 export const findOrganisationTags = async (data: OrganisationTagQueryDTO): Promise<FBR<OrganisationTag[]>> => {
   return apiPost<FBR<OrganisationTag[]>, OrganisationTagQueryDTO>(ENDPOINTS.find, data);
 };
@@ -108,7 +103,7 @@ export const deleteOrganisationTag = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getOrganisationTagCache = async (organisation_id: string): Promise<FBR<OrganisationTag[]>> => {
   return apiGet<FBR<OrganisationTag[]>>(ENDPOINTS.cache(organisation_id));
 };

@@ -15,18 +15,20 @@ import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 // Enums
 import { Status } from '../../../core/Enums';
 
-// URL and Endpoints
 const URL = 'master/main/eway_bill_provider';
 
 const ENDPOINTS = {
+  // MasterMainEwayBillProvider APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: `${URL}/cache`,
 };
 
-// Master Main EWay Bill Provider Interface
+// MasterMainEWayBillProvider Interface
 export interface MasterMainEwayBillProvider extends Record<string, unknown> {
   // Primary Fields
   e_way_bill_provider_id: string;
@@ -37,6 +39,15 @@ export interface MasterMainEwayBillProvider extends Record<string, unknown> {
   status: Status;
   added_date_time: string;
   modified_date_time: string;
+
+  // Relations - Child
+  // Child - Main
+  // EWayBillDetails?: EWayBillDetails[];
+
+  // Relations - Child Count
+  _count?: {
+    EWayBillDetails?: number;
+  };
 }
 
 // ✅ MasterMainEwayBillProvider Create/Update Schema
@@ -57,21 +68,21 @@ export type MasterMainEwayBillProviderQueryDTO = z.infer<
   typeof MasterMainEwayBillProviderQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterMainEwayBillProvider Data to API Payload
 export const toMasterMainEwayBillProviderPayload = (row: MasterMainEwayBillProvider): MasterMainEwayBillProviderDTO => ({
-  provider_name: row.provider_name,
-  provider_code: row.provider_code ?? '',
-  status: row.status,
+  provider_name: row.provider_name || '',
+  provider_code: row.provider_code || '',
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterMainEwayBillProvider Payload
 export const newMasterMainEwayBillProviderPayload = (): MasterMainEwayBillProviderDTO => ({
   provider_name: '',
   provider_code: '',
   status: Status.Active,
 });
 
-// API Methods
+// MasterMainEwayBillProvider APIs
 export const findMasterMainEwayBillProviders = async (data: MasterMainEwayBillProviderQueryDTO): Promise<FBR<MasterMainEwayBillProvider[]>> => {
   return apiPost<FBR<MasterMainEwayBillProvider[]>, MasterMainEwayBillProviderQueryDTO>(ENDPOINTS.find, data);
 };
@@ -88,7 +99,7 @@ export const deleteMasterMainEwayBillProvider = async (id: string): Promise<SBR>
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+//  Cache APIs
 export const getMasterMainEwayBillProviderCache = async (): Promise<FBR<MasterMainEwayBillProvider[]>> => {
   return apiGet<FBR<MasterMainEwayBillProvider[]>>(ENDPOINTS.cache);
 };

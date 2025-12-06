@@ -18,46 +18,37 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { MasterVehicleModel } from '../../../services/master/vehicle/master_vehicle_model_service';
-import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/make';
 
 const ENDPOINTS = {
+  // MasterVehicleMake APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Vehicle Make Interface
+// MasterVehicleMake Interface
 export interface MasterVehicleMake extends Record<string, unknown> {
   // Primary Fields
   vehicle_make_id: string;
-  vehicle_make: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  vehicle_make: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicleModel: MasterVehicleModel[];
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicleModel: number;
-    MasterVehicle: number;
-  };
 }
 
 // MasterVehicleMake Create/Update Schema
@@ -78,15 +69,15 @@ export type MasterVehicleMakeQueryDTO = z.infer<
   typeof MasterVehicleMakeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleMake Data to API Payload
 export const toMasterVehicleMakePayload = (row: MasterVehicleMake): MasterVehicleMakeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  vehicle_make: row.vehicle_make,
+  organisation_id: row.organisation_id || '',
+  vehicle_make: row.vehicle_make || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleMake Payload
 export const newMasterVehicleMakePayload = (): MasterVehicleMakeDTO => ({
   organisation_id: '',
   vehicle_make: '',
@@ -94,7 +85,7 @@ export const newMasterVehicleMakePayload = (): MasterVehicleMakeDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleMake APIs
 export const findMasterVehicleMakes = async (data: MasterVehicleMakeQueryDTO): Promise<FBR<MasterVehicleMake[]>> => {
   return apiPost<FBR<MasterVehicleMake[]>, MasterVehicleMakeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -112,7 +103,7 @@ export const deleteMasterVehicleMake = async (id: string): Promise<SBR> => {
 };
 
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleMakeCache = async (organisation_id: string): Promise<FBR<MasterVehicleMake[]>> => {
   return apiGet<FBR<MasterVehicleMake[]>>(ENDPOINTS.cache(organisation_id));
 };

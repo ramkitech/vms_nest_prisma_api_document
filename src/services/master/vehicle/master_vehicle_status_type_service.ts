@@ -18,43 +18,37 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/status_type';
 
 const ENDPOINTS = {
+  // MasterVehicleStatusType APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// Vehicle Status Type Interface
+// MasterVehicleStatusType Interface
 export interface MasterVehicleStatusType extends Record<string, unknown> {
   // Primary Fields
   vehicle_status_type_id: string;
-  status_type: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+  status_type: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
-
-  // Relations - Child
-  MasterVehicle: MasterVehicle[];
-
-  // Count
-  _count?: {
-    MasterVehicle: number;
-  };
 }
 
 // ✅ MasterVehicleStatusType Create/Update Schema
@@ -77,15 +71,15 @@ export type MasterVehicleStatusTypeQueryDTO = z.infer<
   typeof MasterVehicleStatusTypeQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert MasterVehicleStatusType Data to API Payload
 export const toMasterVehicleStatusTypePayload = (row: MasterVehicleStatusType): MasterVehicleStatusTypeDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  status_type: row.status_type,
+  organisation_id: row.organisation_id || '',
+  status_type: row.status_type || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterVehicleStatusType Payload
 export const newMasterVehicleStatusTypePayload = (): MasterVehicleStatusTypeDTO => ({
   organisation_id: '',
   status_type: '',
@@ -93,7 +87,7 @@ export const newMasterVehicleStatusTypePayload = (): MasterVehicleStatusTypeDTO 
   status: Status.Active,
 });
 
-// API Methods
+// MasterVehicleStatusType APIs
 export const findMasterVehicleStatusTypes = async (data: MasterVehicleStatusTypeQueryDTO): Promise<FBR<MasterVehicleStatusType[]>> => {
   return apiPost<FBR<MasterVehicleStatusType[]>, MasterVehicleStatusTypeQueryDTO>(ENDPOINTS.find, data);
 };
@@ -110,7 +104,7 @@ export const deleteMasterVehicleStatusType = async (id: string): Promise<SBR> =>
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterVehicleStatusTypeCache = async (organisation_id: string): Promise<FBR<MasterVehicleStatusType[]>> => {
   return apiGet<FBR<MasterVehicleStatusType[]>>(ENDPOINTS.cache(organisation_id));
 };

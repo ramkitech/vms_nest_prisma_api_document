@@ -23,37 +23,41 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 const URL = 'master/spare_part/unit';
 
 const ENDPOINTS = {
+  // MasterSparePartUnit APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
-// Spare Part Unit Interface
+// SparePartUnit Interface
 export interface MasterSparePartUnit extends Record<string, unknown> {
   // Primary Fields
   spare_part_unit_id: string;
-  unit_name: string; // Min: 3, Max: 50
-  unit_code: string; // Min: 2, Max: 10
-  description?: string; // Optional, Max: 300
+  unit_name: string;
+  unit_code: string;
+  description?: string;
 
   // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  organisation_id?: string;
+  // Relations - Parent
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
-  //FleetSpareParts: FleetSpareParts[];
+  // Child - Fleet
+  //FleetSpareParts?: FleetSpareParts[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    FleetSpareParts: number;
+    FleetSpareParts?: number;
   };
 }
 
@@ -74,16 +78,16 @@ export const SparePartUnitQuerySchema = BaseQuerySchema.extend({
 });
 export type SparePartUnitQueryDTO = z.infer<typeof SparePartUnitQuerySchema>;
 
-// Convert existing data to a payload structure
+// Convert MasterSparePartUnit Data to API Payload
 export const toMasterSparePartUnitPayload = (row: MasterSparePartUnit): MasterSparePartUnitDTO => ({
-  organisation_id: row.organisation_id ?? '',
-  unit_name: row.unit_name,
-  unit_code: row.unit_code,
+  organisation_id: row.organisation_id || '',
+  unit_name: row.unit_name || '',
+  unit_code: row.unit_code || '',
   description: row.description || '',
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterSparePartUnit Payload
 export const newMasterSparePartUnitPayload = (): MasterSparePartUnitDTO => ({
   organisation_id: '',
   unit_name: '',
@@ -92,7 +96,7 @@ export const newMasterSparePartUnitPayload = (): MasterSparePartUnitDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// MasterSparePartUnit APIs
 export const findMasterSparePartUnits = async (data: SparePartUnitQueryDTO): Promise<FBR<MasterSparePartUnit[]>> => {
   return apiPost<FBR<MasterSparePartUnit[]>, SparePartUnitQueryDTO>(ENDPOINTS.find, data);
 };
@@ -109,7 +113,7 @@ export const deleteMasterSparePartUnit = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// API Cache Methods
+// Cache APIs
 export const getMasterSparePartUnitCache = async (organisation_id: string): Promise<FBR<MasterSparePartUnit[]>> => {
   return apiGet<FBR<MasterSparePartUnit[]>>(ENDPOINTS.cache(organisation_id));
 };
