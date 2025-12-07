@@ -130,8 +130,8 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
 export interface FleetVendorFuelStationSimple extends Record<string, unknown> {
     vendor_id: string;
     fuel_station_id: string;
-    station_name?: string;
-    station_code?: string;
+    fuel_station_name?: string;
+    fuel_station_code?: string;
 };
 
 // FleetVendorFuelStation Create/Update Schema
@@ -142,7 +142,7 @@ export const FleetVendorFuelStationSchema = z.object({
 
     // Basic Info
     fuel_station_name: stringMandatory('Fuel Station Name', 3, 100),
-    fuel_station_code: stringOptional('FuelStation Code', 0, 100),
+    fuel_station_code: stringOptional('Fuel Station Code', 0, 100),
     is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
     is_preferred_station: enumMandatory('Is Preferred Station', YesNo, YesNo.No),
 
@@ -281,7 +281,6 @@ export const newFleetVendorFuelStationPayload = (): FleetVendorFuelStationDTO =>
 
     station_notes: '',
     station_feedback: '',
-
 
     operating_hours: '',
     is_24x7: YesNo.No,

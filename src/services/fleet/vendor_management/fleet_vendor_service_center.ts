@@ -134,8 +134,8 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
 export interface FleetVendorServiceCenterSimple extends Record<string, unknown> {
     vendor_id: string;
     service_center_id: string;
-    center_name?: string;
-    center_code?: string;
+    service_center_name?: string;
+    service_center_code?: string;
 };
 
 // FleetVendorServiceCenter Create/Update Schema
@@ -144,7 +144,7 @@ export const FleetVendorServiceCenterSchema = z.object({
     vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
 
     // Basic Info
-    service_center_name: stringMandatory('ServiceCenter Name', 3, 100),
+    service_center_name: stringMandatory('Service Center Name', 3, 100),
     service_center_code: stringOptional('Service Center Code', 0, 100),
     is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
     oem_authorised: enumMandatory('OEM Authorised', YesNo, YesNo.No),
