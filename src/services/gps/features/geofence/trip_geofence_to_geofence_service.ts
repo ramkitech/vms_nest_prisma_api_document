@@ -24,34 +24,41 @@ import { UserOrganisation } from '../../../../services/main/users/user_organisat
 import { MasterVehicle } from '../../../../services/main/vehicle/master_vehicle_service';
 import { MasterDriver } from '../../../../services/main/drivers/master_driver_service';
 
-// URL and Endpoints
 const URL = 'gps/features/trip_geofence_to_geofence';
 
 const ENDPOINTS = {
+  // TripGeofenceToGeofence APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// Interface
+// TripGeofenceToGeofence Interface
 export interface TripGeofenceToGeofence extends Record<string, unknown> {
   trip_geofence_to_geofence_id: string;
 
   from_geofence_exit_date_time: string;
   to_geofence_enter_date_time: string;
   duration_seconds: number;
+  duration_seconds_f?: string;
 
+  // trip analytics
   travel_duration_seconds?: number;
+  travel_duration_seconds_f?: string;
   stopped_duration_seconds?: number;
+  stopped_duration_seconds_f?: string;
   distance_meters?: number;
+  distance_km_f?: string;
   max_speed?: number;
   avg_speed?: number;
 
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -71,12 +78,6 @@ export interface TripGeofenceToGeofence extends Record<string, unknown> {
   to_geofence_id: string;
   ToGeofence?: TripGeofenceToGeofence;
   to_geofence_details?: string;
-
-  // processed fields
-  duration_seconds_f?: string;
-  travel_duration_seconds_f?: string;
-  stopped_duration_seconds_f?: string;
-  distance_km_f?: string;
 }
 
 // ✅ TripGeofenceToGeofence Create/Update Schema
@@ -120,25 +121,28 @@ export type TripGeofenceToGeofenceQueryDTO = z.infer<
   typeof TripGeofenceToGeofenceQuerySchema
 >;
 
-// Payload Converters
+// Convert TripGeofenceToGeofence Data to API Payload
 export const toTripGeofenceToGeofencePayload = (data: TripGeofenceToGeofence): TripGeofenceToGeofenceDTO => ({
-  organisation_id: data.organisation_id,
-  vehicle_id: data.vehicle_id,
+  organisation_id: data.organisation_id || '',
+  vehicle_id: data.vehicle_id || '',
   driver_id: data.driver_id || '',
-  from_geofence_id: data.from_geofence_id,
-  to_geofence_id: data.to_geofence_id,
-  from_geofence_exit_date_time: data.from_geofence_exit_date_time,
-  to_geofence_enter_date_time: data.to_geofence_enter_date_time,
-  duration_seconds: data.duration_seconds,
+  from_geofence_id: data.from_geofence_id || '',
+  to_geofence_id: data.to_geofence_id || '',
+  from_geofence_exit_date_time: data.from_geofence_exit_date_time || '',
+  to_geofence_enter_date_time: data.to_geofence_enter_date_time || '',
+
+  duration_seconds: data.duration_seconds || 0,
   travel_duration_seconds: data.travel_duration_seconds || 0,
   stopped_duration_seconds: data.stopped_duration_seconds || 0,
   distance_meters: data.distance_meters,
   max_speed: data.max_speed || 0,
   avg_speed: data.avg_speed || 0,
-  status: data.status,
-  time_zone_id: '',
+
+  status: data.status || Status.Active,
+  time_zone_id: '', // Needs to be provided manually
 });
 
+// Create New TripGeofenceToGeofence Payload
 export const newTripGeofenceToGeofencePayload = (): TripGeofenceToGeofenceDTO => ({
   organisation_id: '',
   vehicle_id: '',
@@ -154,10 +158,10 @@ export const newTripGeofenceToGeofencePayload = (): TripGeofenceToGeofenceDTO =>
   max_speed: 0,
   avg_speed: 0,
   status: Status.Active,
-  time_zone_id: '',
+  time_zone_id: '', // Needs to be provided manually
 });
 
-// API Methods
+// TripGeofenceToGeofence APIs
 export const findTripGeofenceToGeofence = async (data: TripGeofenceToGeofenceQueryDTO): Promise<FBR<TripGeofenceToGeofence[]>> => {
   return apiPost<FBR<TripGeofenceToGeofence[]>, TripGeofenceToGeofenceQueryDTO>(ENDPOINTS.find, data);
 };

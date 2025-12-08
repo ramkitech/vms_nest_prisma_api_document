@@ -19,7 +19,7 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, LinkStatus, LinkType, ShareChannel, } from '../../../core/Enums';
+import { Status, LinkStatus, ShareChannel, } from '../../../core/Enums';
 
 // Other Models
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
@@ -28,6 +28,7 @@ import { UserOrganisation } from '../../main/users/user_organisation_service';
 const URL = 'gps/features/gps_live_track_share_link';
 
 const ENDPOINTS = {
+  // GPSLiveTrackShareLink APIs
   find: `${URL}/search`,
   create_notification: `${URL}/create_notification`,
   create: URL,
@@ -38,11 +39,7 @@ const ENDPOINTS = {
 
 // GPSLiveTrackShareLink Interface
 export interface GPSLiveTrackShareLink extends Record<string, unknown> {
-
   gps_live_track_share_link_id: string;
-
-  // Primary Fields
-  link_type: LinkType;
 
   expiry_date_time: string;
   link_status: LinkStatus;
@@ -52,7 +49,7 @@ export interface GPSLiveTrackShareLink extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -62,9 +59,10 @@ export interface GPSLiveTrackShareLink extends Record<string, unknown> {
   vehicle_type?: string;
 
   // Relations - Child
+  // Child - GPS
   GPSLiveTrackShareLinkNotifications?: GPSLiveTrackShareLinkNotification[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
     GPSLiveTrackShareLinkNotification?: number;
   };
@@ -72,7 +70,6 @@ export interface GPSLiveTrackShareLink extends Record<string, unknown> {
 
 // GPSLiveTrackShareLinkNotification Interface
 export interface GPSLiveTrackShareLinkNotification extends Record<string, unknown> {
-
   gps_live_track_share_link_notification_id: string;
 
   // Primary Fields
@@ -86,19 +83,12 @@ export interface GPSLiveTrackShareLinkNotification extends Record<string, unknow
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   gps_live_track_share_link_id: string;
   GPSLiveTrackShareLink?: GPSLiveTrackShareLink;
-
-  // Relations - Child
-
-  // Count
-  _count?: {
-
-  };
 }
 
 // ✅ GPSLiveTrackShareLinkNotification Create/Update Schema
@@ -164,16 +154,18 @@ export type GPSLiveTrackShareLinkQueryDTO = z.infer<
   typeof GPSLiveTrackShareLinkQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert GPSLiveTrackShareLink Data to API Payload
 export const toGPSLiveTrackShareLinkPayload = (data: GPSLiveTrackShareLink): GPSLiveTrackShareLinkDTO => ({
-  organisation_id: data.organisation_id,
-  vehicle_id: data.vehicle_id,
+  organisation_id: data.organisation_id || '',
+  vehicle_id: data.vehicle_id || '',
+
   expire_milliseconds: 0,
-  link_status: data.link_status,
-  status: data.status,
+
+  link_status: data.link_status || LinkStatus.Active,
+  status: data.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New GPSLiveTrackShareLink Payload
 export const newGPSLiveTrackShareLinkPayload = (): GPSLiveTrackShareLinkDTO => ({
   organisation_id: '',
   vehicle_id: '',
@@ -182,7 +174,7 @@ export const newGPSLiveTrackShareLinkPayload = (): GPSLiveTrackShareLinkDTO => (
   status: Status.Active,
 });
 
-// API Methods
+// GPSLiveTrackShareLink APIs
 export const findGPSLiveTrackShareLink = async (data: GPSLiveTrackShareLinkQueryDTO): Promise<FBR<GPSLiveTrackShareLink[]>> => {
   return apiPost<FBR<GPSLiveTrackShareLink[]>, GPSLiveTrackShareLinkQueryDTO>(ENDPOINTS.find, data);
 };

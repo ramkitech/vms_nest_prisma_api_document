@@ -25,28 +25,31 @@ import { MasterDriver } from '../../../../services/main/drivers/master_driver_se
 import { GPSGeofence } from './gps_geofence_service';
 import { GPSGeofenceTransaction } from '../../../../services/gps/features/geofence/gps_geofence_transaction_service';
 
-// URL and Endpoints
 const URL = 'gps/features/gps_geofence_transaction_summary';
 
 const ENDPOINTS = {
+  // GPSGeofenceTransactionSummary APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// 6. Model Interface
+// GPSGeofenceTransactionSummary Interface
 export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
   gps_geofence_transaction_summary_id: string;
 
   geofence_enter_date_time: string;
   geofence_exit_date_time?: string;
   duration_seconds?: number;
+  duration_seconds_f?: string;
 
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -68,9 +71,6 @@ export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
 
   exit_gps_geofence_transaction_id?: string;
   ExitGPSGeofenceTransaction?: GPSGeofenceTransaction;
-
-  // processed fields
-  duration_seconds_f?: string;
 }
 
 // ✅ GPSGeofenceTransaction Summary Create/Update Schema
@@ -109,21 +109,24 @@ export type GPSGeofenceTransactionSummaryQueryDTO = z.infer<
   typeof GPSGeofenceTransactionSummaryQuerySchema
 >;
 
-// Payload Conversions
+// Convert GPSGeofenceTransactionSummary Data to API Payload
 export const toGPSGeofenceTransactionSummaryPayload = (data: GPSGeofenceTransactionSummary): GPSGeofenceTransactionSummaryDTO => ({
-  organisation_id: data.organisation_id,
-  vehicle_id: data.vehicle_id,
+  organisation_id: data.organisation_id || '',
+  vehicle_id: data.vehicle_id || '',
   driver_id: data.driver_id || '',
-  gps_geofence_id: data.gps_geofence_id,
-  enter_gps_geofence_transaction_id: data.enter_gps_geofence_transaction_id,
+  gps_geofence_id: data.gps_geofence_id || '',
+  enter_gps_geofence_transaction_id: data.enter_gps_geofence_transaction_id || '',
   exit_gps_geofence_transaction_id: data.exit_gps_geofence_transaction_id || '',
-  geofence_enter_date_time: data.geofence_enter_date_time,
+
+  geofence_enter_date_time: data.geofence_enter_date_time || '',
   geofence_exit_date_time: data.geofence_exit_date_time || '',
   duration_seconds: data.duration_seconds || 0,
-  status: data.status,
-  time_zone_id: '',
+
+  status: data.status || Status.Active,
+  time_zone_id: '', // Needs to be provided manually
 });
 
+// Create New GPSGeofenceTransactionSummary Payload
 export const newGPSGeofenceTransactionSummaryPayload = (): GPSGeofenceTransactionSummaryDTO => ({
   organisation_id: '',
   vehicle_id: '',
@@ -135,10 +138,10 @@ export const newGPSGeofenceTransactionSummaryPayload = (): GPSGeofenceTransactio
   geofence_exit_date_time: '',
   duration_seconds: 0,
   status: Status.Active,
-  time_zone_id: '',
+  time_zone_id: '', // Needs to be provided manually
 });
 
-// API Methods
+// GPSGeofenceTransactionSummary APIs
 export const findGPSGeofenceTransactionSummary = async (data: GPSGeofenceTransactionSummaryQueryDTO): Promise<FBR<GPSGeofenceTransactionSummary[]>> => {
   return apiPost<FBR<GPSGeofenceTransactionSummary[]>, GPSGeofenceTransactionSummaryQueryDTO>(ENDPOINTS.find, data);
 };

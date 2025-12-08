@@ -23,6 +23,10 @@ import { User } from './user_service';
 const URL = 'user/admin';
 
 const ENDPOINTS = {
+  // AWS S3 PRESIGNED
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+
+  // UserAdmin APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
@@ -32,9 +36,7 @@ const ENDPOINTS = {
   delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
 
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
-
-  // Cache
+  // Cache APIs
   cache: `${URL}/cache`,
 };
 
@@ -59,18 +61,18 @@ export interface UserAdmin extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Child
-  Ticket: Ticket[];
-  UserAdminLoginPush: UserAdminLoginPush[];
+  Ticket?: Ticket[]
+  UserAdminLoginPush?: UserAdminLoginPush[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    Ticket: number;
-    UserAdminLoginPush: number;
+    Ticket?: number;
+    UserAdminLoginPush?: number;
   };
 }
 
+// UserAdminLoginPush Interface
 export interface UserAdminLoginPush extends Record<string, unknown> {
-
   admin_login_push_id: string;
 
   fcm_token: string;
@@ -92,9 +94,9 @@ export interface UserAdminLoginPush extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
-  user_id: string;
-  User?: User;
+  // Relations - Parent
+  admin_id: string;
+  UserAdmin?: UserAdmin;
 }
 
 // ✅ UserAdmin Create/Update Schema
@@ -144,43 +146,49 @@ export const UserAdminQuerySchema = BaseQuerySchema.extend({
 });
 export type UserAdminQueryDTO = z.infer<typeof UserAdminQuerySchema>;
 
-// Convert existing data to a payload structure
-export const toUserAdminPayload = (admin: UserAdmin): UserAdminDTO => ({
-  admin_name: admin.admin_name,
-  email: admin.email,
-  password: admin.password || '',
-  mobile: admin.mobile || '',
-  admin_role: admin.admin_role,
-  admin_image_url: admin.admin_image_url || '',
-  admin_image_key: admin.admin_image_key || '',
-  admin_image_name: admin.admin_image_name || '',
-  status: admin.status,
+// Convert UserAdmin Data to API Payload
+export const toUserAdminPayload = (row: UserAdmin): UserAdminDTO => ({
+  admin_name: row.admin_name || '',
+  email: row.email || '',
+  password: row.password || '',
+  mobile: row.mobile || '',
+  admin_role: row.admin_role || AdminRole.MasterAdmin,
+  admin_image_url: row.admin_image_url || '',
+  admin_image_key: row.admin_image_key || '',
+  admin_image_name: row.admin_image_name || '',
+  status: row.status || Status.Active,
 });
 
-// Convert existing data to a payload structure
-export const toUserAdminProfilePayload = (admin: UserAdmin): UserAdminProfileDTO => ({
-  admin_name: admin.admin_name,
-  email: admin.email,
-  mobile: admin.mobile || '',
-  admin_image_url: admin.admin_image_url || '',
-  admin_image_key: admin.admin_image_key || '',
-  admin_image_name: admin.admin_image_name || '',
+// Convert UserAdminProfile Data to API Payload
+export const toUserAdminProfilePayload = (row: UserAdmin): UserAdminProfileDTO => ({
+  admin_name: row.admin_name || '',
+  email: row.email || '',
+  mobile: row.mobile || '',
+  admin_image_url: row.admin_image_url || '',
+  admin_image_key: row.admin_image_key || '',
+  admin_image_name: row.admin_image_name || '',
 });
 
-// Generate a new payload with default values
+// Create New UserAdmin Payload
 export const newUserAdminPayload = (): UserAdminDTO => ({
   admin_name: '',
   email: '',
   password: '',
   mobile: '',
-  admin_role: AdminRole.Admin,
+  admin_role: AdminRole.MasterAdmin,
   admin_image_url: '',
   admin_image_key: '',
   admin_image_name: '',
   status: Status.Active,
 });
 
-// API Methods
+
+// AWS S3 PRESIGNED
+export const get_admin_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(file_name));
+};
+
+// AMasterAdmin APIs
 export const findUserAdmin = async (data: UserAdminQueryDTO): Promise<FBR<UserAdmin[]>> => {
   return apiPost<FBR<UserAdmin[]>, UserAdminQueryDTO>(ENDPOINTS.find, data);
 };
@@ -209,12 +217,7 @@ export const updateUserAdminProfile = async (id: string, data: UserAdminProfileD
   return apiPatch<SBR, UserAdminProfileDTO>(ENDPOINTS.update_profile(id), data);
 };
 
-// Presigned URL Fetch
-export const get_admin_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(file_name));
-};
-
-// API Cache Methods
+// Cache APIs
 export const getAdminUserCache = async (): Promise<FBR<UserAdmin[]>> => {
   return apiGet<FBR<UserAdmin[]>>(ENDPOINTS.cache);
 };

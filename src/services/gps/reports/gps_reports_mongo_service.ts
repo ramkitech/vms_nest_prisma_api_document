@@ -32,7 +32,6 @@ import { DashboardSummaryReport } from './gps_models/DashboardSummaryReport';
 import { KilometerMonthly } from './gps_models/KilometerMonthly';
 import { GpsAlert } from './gps_models/GpsAlert';
 
-// 2. URL and Endpoints
 const URL = 'gps/reports';
 
 const ENDPOINTS = {

@@ -27,6 +27,7 @@ import { UserOrganisation } from '../../main/users/user_organisation_service';
 const URL = 'gps/features/gps_track_history_share_link';
 
 const ENDPOINTS = {
+  // GPSTrackHistoryShareLink APIs
   find: `${URL}/search`,
   create_notification: `${URL}/create_notification`,
   create: URL,
@@ -36,7 +37,6 @@ const ENDPOINTS = {
 
 // GPSTrackHistoryShareLink Interface
 export interface GPSTrackHistoryShareLink extends Record<string, unknown> {
-
   gps_track_history_share_link_id: string;
 
   // Primary Fields
@@ -49,7 +49,7 @@ export interface GPSTrackHistoryShareLink extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -61,7 +61,7 @@ export interface GPSTrackHistoryShareLink extends Record<string, unknown> {
   // Relations - Child
   GPSTrackHistoryShareLinkNotification?: GPSTrackHistoryShareLinkNotification[];
 
-  // Count
+  // Relations - Child Count
   _count?: {
     GPSTrackHistoryShareLinkNotification?: number;
   };
@@ -69,7 +69,6 @@ export interface GPSTrackHistoryShareLink extends Record<string, unknown> {
 
 // GPSTrackHistoryShareLinkNotification Interface
 export interface GPSTrackHistoryShareLinkNotification extends Record<string, unknown> {
-
   gps_track_history_share_link_notification_id: string;
 
   // Primary Fields
@@ -83,19 +82,12 @@ export interface GPSTrackHistoryShareLinkNotification extends Record<string, unk
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   gps_track_history_share_link_id: string;
   GPSTrackHistoryShareLink?: GPSTrackHistoryShareLink;
-
-  // Relations - Child
-
-  // Count
-  _count?: {
-
-  };
 }
 
 // ✅ GPSTrackHistoryShareLinkNotification Create/Update Schema
@@ -167,18 +159,19 @@ export type GPSTrackHistoryShareLinkQueryDTO = z.infer<
   typeof GPSTrackHistoryShareLinkQuerySchema
 >;
 
-// Convert existing data to a payload structure
+// Convert GPSTrackHistoryShareLink Data to API Payload
 export const toGPSTrackHistoryShareLinkPayload = (data: GPSTrackHistoryShareLink): GPSTrackHistoryShareLinkDTO => ({
-  organisation_id: data.organisation_id,
-  vehicle_id: data.vehicle_id,
-  from_date_time: data.from_date_time,
-  to_date_time: data.to_date_time,
-  link_status: data.link_status,
-  status: data.status,
+  organisation_id: data.organisation_id || '',
+  vehicle_id: data.vehicle_id || '',
+  from_date_time: data.from_date_time || '',
+  to_date_time: data.to_date_time || '',
+
+  link_status: data.link_status || TrackHistoryLinkStatus.Active,
+  status: data.status || Status.Active,
   time_zone_id: '', // Needs to be provided manually
 });
 
-// Generate a new payload with default values
+// Create New GPSTrackHistoryShareLink Payload
 export const newGPSTrackHistoryShareLinkPayload = (): GPSTrackHistoryShareLinkDTO => ({
   organisation_id: '',
   vehicle_id: '',
@@ -189,7 +182,7 @@ export const newGPSTrackHistoryShareLinkPayload = (): GPSTrackHistoryShareLinkDT
   time_zone_id: '', // Needs to be provided manually
 });
 
-// API Methods
+// GPSTrackHistoryShareLink APIs
 export const findGPSTrackHistoryShareLink = async (data: GPSTrackHistoryShareLinkQueryDTO): Promise<FBR<GPSTrackHistoryShareLink[]>> => {
   return apiPost<FBR<GPSTrackHistoryShareLink[]>, GPSTrackHistoryShareLinkQueryDTO>(ENDPOINTS.find, data);
 };

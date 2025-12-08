@@ -23,27 +23,30 @@ import { UserOrganisation } from '../../../../services/main/users/user_organisat
 import { MasterVehicle } from '../../../../services/main/vehicle/master_vehicle_service';
 import { MasterDriver } from '../../../../services/main/drivers/master_driver_service';
 import { GPSGeofence } from './gps_geofence_service';
+import { GPSGeofenceTransactionSummary } from './gps_geofence_transaction_summary_service';
 
-// URL and Endpoints
 const URL = 'gps/features/gps_geofence_transaction';
 
 const ENDPOINTS = {
+  // GPSGeofenceTransaction APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// Model Interface
+// GPSGeofenceTransaction Interface
 export interface GPSGeofenceTransaction extends Record<string, unknown> {
   gps_geofence_transaction_id: string;
   geofence_status_type: GeofenceStatusType;
   geofence_time: string;
 
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -59,6 +62,17 @@ export interface GPSGeofenceTransaction extends Record<string, unknown> {
   gps_geofence_id: string;
   GPSGeofenceData?: GPSGeofence;
   geofence_details?: string;
+
+  // Relations - Child
+  // Child - GPS
+  EnterGPSGeofenceTransaction?: GPSGeofenceTransactionSummary[]
+  ExitGPSGeofenceTransaction?: GPSGeofenceTransactionSummary[]
+
+  // Relations - Child Count
+  _count?: {
+    EnterGPSGeofenceTransaction?: number;
+    ExitGPSGeofenceTransaction?: number;
+  };
 }
 
 // ✅ GPSGeofenceTransaction Create/Update Schema
@@ -100,30 +114,35 @@ export type GPSGeofenceTransactionQueryDTO = z.infer<
   typeof GPSGeofenceTransactionQuerySchema
 >;
 
-// Payload Conversions
+// Convert GPSGeofenceTransaction Data to API Payload
 export const toGPSGeofenceTransactionPayload = (data: GPSGeofenceTransaction): GPSGeofenceTransactionDTO => ({
-  organisation_id: data.organisation_id,
-  vehicle_id: data.vehicle_id,
-  gps_geofence_id: data.gps_geofence_id,
+  organisation_id: data.organisation_id || '',
+  vehicle_id: data.vehicle_id || '',
+  gps_geofence_id: data.gps_geofence_id || '',
   driver_id: data.driver_id || '',
-  geofence_status_type: data.geofence_status_type,
-  geofence_time: data.geofence_time,
-  status: data.status,
-  time_zone_id: '',
+
+  geofence_status_type: data.geofence_status_type || GeofenceStatusType.Enter,
+  geofence_time: data.geofence_time || '',
+
+  status: data.status || Status.Active,
+  time_zone_id: '', // Needs to be provided manually
 });
 
+// Create New GPSGeofenceTransaction Payload
 export const newGPSGeofenceTransactionPayload = (): GPSGeofenceTransactionDTO => ({
   organisation_id: '',
   vehicle_id: '',
   gps_geofence_id: '',
   driver_id: '',
+
   geofence_status_type: GeofenceStatusType.Enter,
-  geofence_time: new Date().toISOString(),
+  geofence_time: '',
+
   status: Status.Active,
-  time_zone_id: '',
+  time_zone_id: '', // Needs to be provided manually
 });
 
-// API Methods
+// GPSGeofenceTransaction APIs
 export const findGPSGeofenceTransaction = async (data: GPSGeofenceTransactionQueryDTO): Promise<FBR<GPSGeofenceTransaction[]>> => {
   return apiPost<FBR<GPSGeofenceTransaction[]>, GPSGeofenceTransactionQueryDTO>(ENDPOINTS.find, data);
 };

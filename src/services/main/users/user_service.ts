@@ -27,9 +27,28 @@ import { MasterMainDateFormat } from '../../../services/master/main/master_main_
 import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
 import { MasterVehicle } from '../vehicle/master_vehicle_service';
 
+import { BookMark } from 'src/services/account/bookmark_service';
+import { OrganisationNotificationPreferenceUserLink } from 'src/services/account/notification_preferences.service';
+import { Ticket } from 'src/services/account/ticket_service';
+
+import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
+import { FleetFuelRefill } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
+import { FleetFuelRemoval } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
+import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
+import { FleetInspection } from 'src/services/fleet/inspection_management/fleet_inspection_management_service';
+import { FleetInspectionSchedule } from 'src/services/fleet/inspection_management/fleet_inspection_schedule_service';
+import { FleetIssueManagement } from 'src/services/fleet/issue_management/issue_management_service';
+import { FleetServiceManagement } from 'src/services/fleet/service_management/fleet_service_management_service';
+import { FleetServiceSchedule } from 'src/services/fleet/service_management/fleet_service_schedule_service';
+import { FleetVendorDocument, FleetVendorReview } from 'src/services/fleet/vendor_management/fleet_vendor_service';
+
 const URL = 'user/user';
 
 const ENDPOINTS = {
+  // AWS S3 PRESIGNED
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+
+  // User APIs
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
@@ -39,12 +58,9 @@ const ENDPOINTS = {
   delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
 
-  // Cache
+  // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
   cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
-
-  // Presigned URL for file uploads
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 
   // Default Settings
   update_default_language: (id: string): string => `${URL}/default_language/${id}`,
@@ -79,7 +95,7 @@ export interface User extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id?: string;
   UserOrganisation?: UserOrganisation;
 
@@ -94,25 +110,116 @@ export interface User extends Record<string, unknown> {
   language_id?: string;
   MasterMainLanguage?: MasterMainLanguage;
 
-  date_format_id?: string;
-  MasterMainDateFormat?: MasterMainDateFormat;
-
   time_zone_id?: string;
   MasterMainTimeZone?: MasterMainTimeZone;
 
-  // Relations - Child
-  UserVehicleLink: UserVehicleLink[];
-  UserLoginPush: UserLoginPush[];
+  date_format_id?: string;
+  MasterMainDateFormat?: MasterMainDateFormat;
 
-  // Count
+  // Relations - Child
+
+  // Child - Fleet
+  FleetVendorDocument?: FleetVendorDocument[]
+  FleetVendorReview?: FleetVendorReview[]
+
+  FleetFuelRefill?: FleetFuelRefill[]
+  FleetFuelRemoval?: FleetFuelRemoval[]
+
+  InspectionSchedule?: FleetInspectionSchedule[]
+  InspectorUser?: FleetInspection[]
+  ApprovedUser?: FleetInspection[]
+
+  IncidentManagement?: FleetIncidentManagement[]
+
+  IssueManagement?: FleetIssueManagement[]
+
+  FleetServiceManagement?: FleetServiceManagement[]
+
+  // FleetWorkshop?: FleetWorkshop[]
+
+  // AssignedUser?: FleetServiceJobCard[]
+  // RatingUser?: FleetServiceJobCard[]
+  FleetServiceSchedule?: FleetServiceSchedule[]
+
+  // FleetTripParty?: FleetTripParty[]
+  // FleetTripPartyGroup?: FleetTripPartyGroup[]
+
+  // FleetSparePartsUsage?: FleetSparePartsUsage[]
+  // FleetSparePartsPurchaseOrders?: FleetSparePartsPurchaseOrders[]
+
+  // FleetTyreInspectionSchedule?: FleetTyreInspectionSchedule[]
+  // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[]
+  // FleetTyreInspection?: FleetTyreInspection[]
+
+  // Child - GPS
+  FleetFuelDailySummary?: FleetFuelDailySummary[]
+
+  // GpsLockRelayLog?: GPSLockRelayLog[]
+  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
+
+  // Child - Account
+  Ticket?: Ticket[]
+  BookMark?: BookMark[]
+  // FasttagDetails?: FasttagDetails[]
+  // EWayBillDetails?: EWayBillDetails[]
+  UserLoginPush?: UserLoginPush[]
+  UserVehicleLink?: UserVehicleLink[]
+  OrganisationNotificationPreferenceUserLink?: OrganisationNotificationPreferenceUserLink[]
+
+  // Relations - Child Count
   _count?: {
-    UserVehicleLink: number;
-    UserLoginPush: number;
+    // Child - Fleet
+    FleetVendorDocument?: number;
+    FleetVendorReview?: number;
+
+    FleetFuelRefill?: number;
+    FleetFuelRemoval?: number;
+
+    InspectionSchedule?: number;
+    InspectorUser?: number;
+    ApprovedUser?: number;
+
+    IncidentManagement?: number;
+
+    IssueManagement?: number;
+
+    FleetServiceManagement?: number;
+
+    // FleetWorkshop?: FleetWorkshop[]
+
+    // AssignedUser?: FleetServiceJobCard[]
+    // RatingUser?: FleetServiceJobCard[]
+    FleetServiceSchedule?: number;
+
+    // FleetTripParty?: FleetTripParty[]
+    // FleetTripPartyGroup?: FleetTripPartyGroup[]
+
+    // FleetSparePartsUsage?: FleetSparePartsUsage[]
+    // FleetSparePartsPurchaseOrders?: FleetSparePartsPurchaseOrders[]
+
+    // FleetTyreInspectionSchedule?: FleetTyreInspectionSchedule[]
+    // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[]
+    // FleetTyreInspection?: FleetTyreInspection[]
+
+    // Child - GPS
+    FleetFuelDailySummary?: number;
+
+    // GpsLockRelayLog?: GPSLockRelayLog[]
+    // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
+
+    // Child - Account
+    Ticket?: number;
+    BookMark?: number;
+    // FasttagDetails?: FasttagDetails[]
+    // EWayBillDetails?: EWayBillDetails[]
+    UserLoginPush?: number;
+    UserVehicleLink?: number;
+    OrganisationNotificationPreferenceUserLink?: number;
   };
 }
 
+// UserVehicleLink Interface
 export interface UserVehicleLink extends Record<string, unknown> {
-
   user_vehicle_id: string;
 
   // Metadata
@@ -120,18 +227,19 @@ export interface UserVehicleLink extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
+  user_id: string;
+  User?: User;
+  User_details?: string;
+
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
-
-  user_id: string;
-  User?: User;
 }
 
+// UserLoginPush Interface
 export interface UserLoginPush extends Record<string, unknown> {
-
   user_login_push_id: string;
 
   fcm_token: string;
@@ -153,12 +261,13 @@ export interface UserLoginPush extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   user_id: string;
   User?: User;
+  User_details?: string;
 }
 
 // ✅ User Create/Update Schema
@@ -248,7 +357,50 @@ export type UserDefaultDateFormatDTO = z.infer<
   typeof UserDefaultDateFormatSchema
 >;
 
-// Generate a new payload with default values
+// Convert User Data to API Payload
+export const toUserPayload = (row: User): UserDTO => ({
+  first_name: row.first_name || '',
+  last_name: row.last_name || '',
+  email: row.email || '',
+  mobile: row.mobile || '',
+  username: row.username || '',
+  password: row.password || '',
+
+  is_root_user: row.is_root_user || YesNo.Yes,
+  can_login: row.can_login || YesNo.Yes,
+  all_vehicles: row.all_vehicles || YesNo.Yes,
+
+  user_image_url: row.user_image_url || '',
+  user_image_key: row.user_image_key || '',
+  user_image_name: row.user_image_name || '',
+
+  organisation_id: row.organisation_id || '',
+  user_role_id: row.user_role_id || '',
+  user_status_id: row.user_status_id || '',
+  language_id: row.language_id || '',
+  date_format_id: row.date_format_id || '',
+  time_zone_id: row.time_zone_id || '',
+
+  status: row.status || Status.Active,
+
+  vehicle_ids:
+    row.UserVehicleLink?.map((v) => v.vehicle_id) || [],
+});
+
+// Convert UserProfile Data to API Payload
+export const toUserProfilePayload = (data: User): UserProfileDTO => ({
+  first_name: data.first_name || '',
+  last_name: data.last_name || '',
+  email: data.email || '',
+  mobile: data.mobile || '',
+  username: data.username || '',
+
+  user_image_url: data.user_image_url || '',
+  user_image_key: data.user_image_key || '',
+  user_image_name: data.user_image_name || '',
+});
+
+// Create New User Payload
 export const newUserPayload = (): UserDTO => ({
   first_name: '',
   last_name: '',
@@ -257,8 +409,8 @@ export const newUserPayload = (): UserDTO => ({
   mobile: '',
   password: '',
 
-  can_login: YesNo.No,
-  is_root_user: YesNo.No,
+  can_login: YesNo.Yes,
+  is_root_user: YesNo.Yes,
   all_vehicles: YesNo.Yes,
   vehicle_ids: [],
 
@@ -276,50 +428,12 @@ export const newUserPayload = (): UserDTO => ({
   status: Status.Active
 });
 
-// Convert existing data to a payload structure
-export const toUserPayload = (data: User): UserDTO => ({
-  first_name: data.first_name,
-  last_name: data.last_name || '',
-  email: data.email,
-  mobile: data.mobile || '',
-  username: data.username || '',
-  password: data.password || '',
+// AWS S3 PRESIGNED
+export const get_user_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
+};
 
-  can_login: data.can_login,
-  is_root_user: data.is_root_user,
-  all_vehicles: data.all_vehicles,
-
-  user_image_url: data.user_image_url || '',
-  user_image_key: data.user_image_key || '',
-  user_image_name: data.user_image_name || '',
-
-  organisation_id: data.organisation_id || '',
-  user_role_id: data.user_role_id || '',
-  user_status_id: data.user_status_id || '',
-  language_id: data.language_id || '',
-  date_format_id: data.date_format_id || '',
-  time_zone_id: data.time_zone_id || '',
-
-  status: data.status,
-
-  vehicle_ids:
-    data.UserVehicleLink?.map((v) => v.vehicle_id) || [],
-});
-
-// Convert existing data to a payload structure
-export const toUserProfilePayload = (data: User): UserProfileDTO => ({
-  first_name: data.first_name,
-  last_name: data.last_name || '',
-  email: data.email,
-  mobile: data.mobile || '',
-  username: data.username || '',
-
-  user_image_url: data.user_image_url || '',
-  user_image_key: data.user_image_key || '',
-  user_image_name: data.user_image_name || '',
-});
-
-// API Methods
+// User APIs
 export const findUser = async (data: UserQueryDTO): Promise<FBR<User[]>> => {
   return apiPost<FBR<User[]>, UserQueryDTO>(ENDPOINTS.find, data);
 };
@@ -348,7 +462,7 @@ export const updateUserProfile = async (id: string, data: UserProfileDTO): Promi
   return apiPatch<SBR, UserProfileDTO>(ENDPOINTS.update_profile(id), data);
 };
 
-// API Cache Methods
+// Cache APIs
 export const getUserCache = async (organisation_id: string): Promise<FBR<User[]>> => {
   return apiGet<FBR<User[]>>(ENDPOINTS.cache(organisation_id));
 };
@@ -357,22 +471,15 @@ export const getUserCacheSimple = async (organisation_id: string): Promise<FBR<U
   return apiGet<FBR<User[]>>(ENDPOINTS.cache_simple(organisation_id));
 };
 
-// Generate presigned URL for file uploads
-export const get_user_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
-};
-
 // Update Default Language
 export const updateUserDefaultLanguage = async (id: string, data: UserDefaultLanguageDTO): Promise<SBR> => {
   return apiPatch<SBR, UserDefaultLanguageDTO>(ENDPOINTS.update_default_language(id), data);
 };
 
-// Update Default Language
 export const updateUserDefaultTimezone = async (id: string, data: UserDefaultTimeZoneDTO): Promise<SBR> => {
   return apiPatch<SBR, UserDefaultTimeZoneDTO>(ENDPOINTS.update_default_timezone(id), data);
 };
 
-// Update Default Language
 export const updateUserDefaultDateformat = async (id: string, data: UserDefaultDateFormatDTO): Promise<SBR> => {
   return apiPatch<SBR, UserDefaultDateFormatDTO>(ENDPOINTS.update_default_date_format(id), data);
 };

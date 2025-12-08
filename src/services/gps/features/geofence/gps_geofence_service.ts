@@ -24,18 +24,22 @@ import { Status, GeofenceType, GeofencePurposeType } from '../../../../core/Enum
 
 // Other Models
 import { UserOrganisation } from '../../../main/users/user_organisation_service';
+import { OrganisationNotificationPreferenceGeofenceLink } from 'src/services/account/notification_preferences.service';
+import { GPSGeofenceTransaction } from './gps_geofence_transaction_service';
+import { GPSGeofenceTransactionSummary } from './gps_geofence_transaction_summary_service';
+import { TripGeofenceToGeofence } from './trip_geofence_to_geofence_service';
 
-// URL and Endpoints
 const URL = 'gps/features/gps_geofence';
 
 const ENDPOINTS = {
+  // GPSGeofence APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// Model Interface
+// GPSGeofence Interface
 export interface GPSGeofence extends Record<string, unknown> {
   gps_geofence_id: string;
 
@@ -69,9 +73,26 @@ export interface GPSGeofence extends Record<string, unknown> {
 
   geofence_details?: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  // Child - GPS
+  GPSGeofenceTransaction?: GPSGeofenceTransaction[]
+  GPSGeofenceTransactionSummary?: GPSGeofenceTransactionSummary[]
+  FromGeofence?: TripGeofenceToGeofence[]
+  ToGeofence?: TripGeofenceToGeofence[]
+  OrganisationNotificationPreferenceGeofenceLink?: OrganisationNotificationPreferenceGeofenceLink[]
+
+  // Relations - Child Count
+  _count?: {
+    GPSGeofenceTransaction?: number;
+    GPSGeofenceTransactionSummary?: number;
+    FromGeofence?: number;
+    ToGeofence?: number;
+    OrganisationNotificationPreferenceGeofenceLink?: number;
+  };
 }
 
 export interface GPSGeofencePolilineData {
@@ -149,37 +170,36 @@ export const GPSGeofenceQuerySchema = BaseQuerySchema.extend({
 });
 export type GPSGeofenceQueryDTO = z.infer<typeof GPSGeofenceQuerySchema>;
 
-// Payload Conversions
-export const toGPSGeofencePayload = (
-  data: GPSGeofence
-): GPSGeofenceDTO => ({
-  organisation_id: data.organisation_id,
-  geofence_name: data.geofence_name,
-  geofence_description: data.geofence_description ?? '',
-  geofence_purpose_type: data.geofence_purpose_type,
+// Convert GPSGeofence Data to API Payload
+export const toGPSGeofencePayload = (row: GPSGeofence): GPSGeofenceDTO => ({
+  organisation_id: row.organisation_id || '',
+  geofence_name: row.geofence_name || '',
+  geofence_description: row.geofence_description || '',
+  geofence_purpose_type: row.geofence_purpose_type || GeofencePurposeType.TripSourceLocation,
 
-  geofence_type: data.geofence_type,
-  radius_m: data.radius_m,
-  radius_km: data.radius_km,
-  latitude: data.latitude,
-  longitude: data.longitude,
-  poliline_data: data.poliline_data ?? [],
+  geofence_type: row.geofence_type || GeofenceType.Circle,
+  radius_m: row.radius_m || 0,
+  radius_km: row.radius_km || 0,
+  latitude: row.latitude || 0,
+  longitude: row.longitude || 0,
+  poliline_data: row.poliline_data || [],
 
-  address_line1: data.address_line1 ?? '',
-  address_line2: data.address_line2 ?? '',
-  locality_landmark: data.locality_landmark ?? '',
-  neighborhood: data.neighborhood ?? '',
-  town_city: data.town_city ?? '',
-  district_county: data.district_county ?? '',
-  state_province_region: data.state_province_region ?? '',
-  postal_code: data.postal_code ?? '',
-  country: data.country ?? '',
-  country_code: data.country_code ?? '',
-  google_location: data.google_location ?? '',
+  address_line1: row.address_line1 || '',
+  address_line2: row.address_line2 || '',
+  locality_landmark: row.locality_landmark || '',
+  neighborhood: row.neighborhood || '',
+  town_city: row.town_city || '',
+  district_county: row.district_county || '',
+  state_province_region: row.state_province_region || '',
+  postal_code: row.postal_code || '',
+  country: row.country || '',
+  country_code: row.country_code || '',
+  google_location: row.google_location || '',
 
-  status: data.status,
+  status: row.status || Status.Active,
 });
 
+// Create New GPSGeofence Payload
 export const newGPSGeofencePayload = (): GPSGeofenceDTO => ({
   organisation_id: '',
   geofence_name: '',
@@ -209,7 +229,7 @@ export const newGPSGeofencePayload = (): GPSGeofenceDTO => ({
   status: Status.Active,
 });
 
-// API Methods
+// GPSGeofence APIs
 export const findGPSGeofence = async (data: GPSGeofenceQueryDTO): Promise<FBR<GPSGeofence[]>> => {
   return apiPost<FBR<GPSGeofence[]>, GPSGeofenceQueryDTO>(ENDPOINTS.find, data);
 };

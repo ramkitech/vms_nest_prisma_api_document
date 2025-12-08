@@ -24,19 +24,20 @@ import { MasterMainSimProvider } from '../../../services/master/main/master_main
 const URL = 'main/master_sim';
 
 const ENDPOINTS = {
+  // MaterSim APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// Master Sim Interface
+// MasterSim Interface
 export interface MasterSim extends Record<string, unknown> {
   // Primary Fields
   sim_id: string;
-  sim_number: string; // Max: 50
-  sim_imei: string; // Max: 50
-  sim_serial_number: string; // Max: 50
+  sim_number: string;
+  sim_imei: string;
+  sim_serial_number: string;
   sim_status: SimStatus;
   billing_status: BillingStatus;
 
@@ -45,27 +46,18 @@ export interface MasterSim extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations - Device
+  // Relations - Parent
   device_id?: string;
   MasterDevice?: MasterDevice;
+  device_identifier?: string;
   device_sim_link_date?: string;
   AssignRemoveSimHistory: AssignRemoveSimHistory[];
 
-  // Relations - Dummy
-  Dummy_MasterDevice: MasterDevice[];
-
-  // Relations - Sim Provider
   sim_provider_id: string;
-  MasterMainSimProvider: MasterMainSimProvider;
-
-  // Count
-  _count?: {
-    AssignRemoveSimHistory: number;
-    Dummy_MasterDevice: number;
-  };
+  MasterMainSimProvider?: MasterMainSimProvider;
 }
 
-// Assign Remove Sim History Interface
+// AssignRemoveSimHistory Interface
 export interface AssignRemoveSimHistory extends Record<string, unknown> {
   // Primary Fields
   history_id: string;
@@ -79,12 +71,13 @@ export interface AssignRemoveSimHistory extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   sim_id: string;
-  MasterSim: MasterSim;
+  MasterSim?: MasterSim;
 
   device_id: string;
-  MasterDevice: MasterDevice;
+  MasterDevice?: MasterDevice;
+  device_identifier?: string;
 }
 
 // ✅ Master Sim Create/Update Schema
@@ -120,18 +113,18 @@ export const MasterSimQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterSimQueryDTO = z.infer<typeof MasterSimQuerySchema>;
 
-// Convert existing data to a payload structure
+// Convert MasterSim Data to API Payload
 export const toMasterSimPayload = (sim: MasterSim): MasterSimDTO => ({
-  sim_provider_id: sim.sim_provider_id,
-  sim_number: sim.sim_number,
-  sim_imei: sim.sim_imei,
-  sim_serial_number: sim.sim_serial_number,
-  sim_status: sim.sim_status,
-  billing_status: sim.billing_status,
-  status: sim.status,
+  sim_provider_id: sim.sim_provider_id || '',
+  sim_number: sim.sim_number || '',
+  sim_imei: sim.sim_imei || '',
+  sim_serial_number: sim.sim_serial_number || '',
+  sim_status: sim.sim_status || SimStatus.New,
+  billing_status: sim.billing_status || BillingStatus.New,
+  status: sim.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterSim Payload
 export const newMasterSimPayload = (): MasterSimDTO => ({
   sim_provider_id: '', // required select
   sim_number: '',
@@ -142,10 +135,8 @@ export const newMasterSimPayload = (): MasterSimDTO => ({
   status: Status.Active,
 });
 
-// API Methods
-export const findMasterSims = async (
-  data: MasterSimQueryDTO
-): Promise<FBR<MasterSim[]>> => {
+// AMasterSim APIs
+export const findMasterSims = async (data: MasterSimQueryDTO): Promise<FBR<MasterSim[]>> => {
   return apiPost<FBR<MasterSim[]>, MasterSimQueryDTO>(ENDPOINTS.find, data);
 };
 
@@ -153,10 +144,7 @@ export const createMasterSim = async (data: MasterSimDTO): Promise<SBR> => {
   return apiPost<SBR, MasterSimDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterSim = async (
-  id: string,
-  data: MasterSimDTO
-): Promise<SBR> => {
+export const updateMasterSim = async (id: string, data: MasterSimDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterSimDTO>(ENDPOINTS.update(id), data);
 };
 

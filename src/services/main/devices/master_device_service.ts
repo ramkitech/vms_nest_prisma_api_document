@@ -36,31 +36,34 @@ import {
 } from '../../../services/main/sims/master_sim_service';
 import { MasterMainCountry } from '../../../services/master/main/master_main_country_service';
 import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
+import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
+import { FleetFuelRefill } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
+import { FleetFuelRemoval } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
 
-// URL & Endpoints
 const URL = 'main/master_device';
 
 const ENDPOINTS = {
+  // MasterDevice APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
-  // ✅ Vehicle Device Link Management
+  // VehicleDeviceLinkManagement APIs
   DEVICE_SIM_LINK: `${URL}/device_sim_link`,
   DEVICE_SIM_UNLINK: `${URL}/device_sim_unlink`,
-  DEVICE_SIM_LINK_HISTORY_BY_SIM: `${URL}/device_sim_link_history_by_sim/:id`,
-  DEVICE_SIM_LINK_HISTORY_BY_DEVICE: `${URL}/device_sim_link_history_by_device/:id`,
+  DEVICE_SIM_LINK_HISTORY_BY_SIM: (id: string): string => `${URL}/device_sim_link_history_by_sim/${id}`,
+  DEVICE_SIM_LINK_HISTORY_BY_DEVICE: (id: string): string => `${URL}/device_sim_link_history_by_device/${id}`,
 };
 
-// Master Device Interface
+// MasterDevice Interface
 export interface MasterDevice extends Record<string, unknown> {
   // Primary Fields
   device_id: string;
   serial_no: number;
-  device_identifier: string; // Max: 100
-  device_note_1: string; // Max: 100
-  device_note_2: string; // Max: 100
+  device_identifier: string;
+  device_note_1: string;
+  device_note_2: string;
 
   // Metadata
   status: Status;
@@ -86,8 +89,8 @@ export interface MasterDevice extends Record<string, unknown> {
   device_gps_source: GPSSource;
 
   // Database Details
-  db_instance: string; // Max: 200
-  db_group: string; // Max: 200
+  db_instance: string;
+  db_group: string;
 
   // Images
   device_image_url?: string;
@@ -97,7 +100,7 @@ export interface MasterDevice extends Record<string, unknown> {
   sim_image_url?: string;
   sim_image_key?: string;
 
-  // Relations
+  // Relations - Parent
   device_manufacturer_id?: string;
   MasterDeviceManufacturer?: MasterDeviceManufacturer;
 
@@ -116,32 +119,29 @@ export interface MasterDevice extends Record<string, unknown> {
   time_zone_id?: string;
   MasterMainTimeZone?: MasterMainTimeZone;
 
-  // Relations - Dummy
-  Dummy_MasterVehicle: MasterVehicle[];
-  Dummy_MasterSim: MasterSim[];
-
   // Relations - Child
-  // GPSFuelVehicleRemoval: GPSFuelVehicleRemoval[];
-  // GPSFuelVehicleDailySummary: GPSFuelVehicleDailySummary[];
-  // GPSLockDigitalDoorLog: GPSLockDigitalDoorLog[];
-  // GPSLockRelayLog: GPSLockRelayLog[];
-  // GPSFuelVehicleRefill: GPSFuelVehicleRefill[];
+  // Child - Main
+  // MasterDeviceFile?: MasterDeviceFile[]
+  // Child - Fleet
+  FleetFuelRefill?: FleetFuelRefill[]
+  FleetFuelRemoval?: FleetFuelRemoval[]
+  FleetFuelDailySummary?: FleetFuelDailySummary[]
+  // Child - GPS
+  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
+  // GPSLockRelayLog?: GPSLockRelayLog[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
-    AssignRemoveSimHistory?: number;
-    AssignRemoveDeviceHistory?: number;
-    GPSFuelVehicleRemoval?: number;
-    GPSFuelVehicleDailySummary?: number;
+    MasterDeviceFile?: number;
+    FleetFuelRefill?: number;
+    FleetFuelRemoval?: number;
+    FleetFuelDailySummary?: number;
     GPSLockDigitalDoorLog?: number;
     GPSLockRelayLog?: number;
-    GPSFuelVehicleRefill?: number;
-    Dummy_MasterVehicle?: number;
-    Dummy_MasterSim?: number;
   };
 }
 
-// Assign Remove Device History Interface
+// AssignRemoveDeviceHistory Interface
 export interface AssignRemoveDeviceHistory extends Record<string, unknown> {
   // Primary Fields
   history_id: string;
@@ -206,50 +206,38 @@ export const DeviceSimLinkSchema = z.object({
 });
 export type DeviceSimLinkDTO = z.infer<typeof DeviceSimLinkSchema>;
 
-// Convert existing data to a payload structure
-export const toMasterDevicePayload = (
-  device: MasterDevice
-): MasterDeviceDTO => ({
-  device_manufacturer_id: device.device_manufacturer_id ?? '',
-  device_model_id: device.device_model_id ?? '',
-  device_identifier: device.device_identifier,
-  device_note_1: device.device_note_1 ?? '',
-  device_note_2: device.device_note_2 ?? '',
-  device_gps_source: device.device_gps_source,
-  status: device.status,
+// Convert MasterDevice Data to API Payload
+export const toMasterDevicePayload = (row: MasterDevice): MasterDeviceDTO => ({
+  device_manufacturer_id: row.device_manufacturer_id || '',
+  device_model_id: row.device_model_id || '',
+  device_identifier: row.device_identifier || '',
+  device_note_1: row.device_note_1 || '',
+  device_note_2: row.device_note_2 || '',
+  device_gps_source: row.device_gps_source || GPSSource.NoDevice,
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
+// Create New MasterDevice Payload
 export const newMasterDevicePayload = (): MasterDeviceDTO => ({
   device_manufacturer_id: '',
   device_model_id: '',
   device_identifier: '',
   device_note_1: '',
   device_note_2: '',
-  device_gps_source: GPSSource.Traccar,
+  device_gps_source: GPSSource.NoDevice,
   status: Status.Active,
 });
 
-// API Methods
-export const findMasterDevices = async (
-  data: MasterDeviceQueryDTO
-): Promise<FBR<MasterDevice[]>> => {
-  return apiPost<FBR<MasterDevice[]>, MasterDeviceQueryDTO>(
-    ENDPOINTS.find,
-    data
-  );
+// AMasterDevice APIs
+export const findMasterDevices = async (data: MasterDeviceQueryDTO): Promise<FBR<MasterDevice[]>> => {
+  return apiPost<FBR<MasterDevice[]>, MasterDeviceQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createMasterDevice = async (
-  data: MasterDeviceDTO
-): Promise<SBR> => {
+export const createMasterDevice = async (data: MasterDeviceDTO): Promise<SBR> => {
   return apiPost<SBR, MasterDeviceDTO>(ENDPOINTS.create, data);
 };
 
-export const updateMasterDevice = async (
-  id: string,
-  data: MasterDeviceDTO
-): Promise<SBR> => {
+export const updateMasterDevice = async (id: string, data: MasterDeviceDTO): Promise<SBR> => {
   return apiPatch<SBR, MasterDeviceDTO>(ENDPOINTS.update(id), data);
 };
 
@@ -257,38 +245,24 @@ export const deleteMasterDevice = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// ✅ Device Sim Link Management
+// DeviceSimLinkManagement APIs
 
-// 🔗 Link Sim to Device
-export const device_sim_link = async (
-  payload: DeviceSimLinkDTO
-): Promise<SBR> => {
+// Link Sim to Device
+export const device_sim_link = async (payload: DeviceSimLinkDTO): Promise<SBR> => {
   return apiPost<SBR, DeviceSimLinkDTO>(ENDPOINTS.DEVICE_SIM_LINK, payload);
 };
 
-// 🔗 Unlink Sim from Device
-export const device_sim_unlink = async (
-  payload: DeviceSimLinkDTO
-): Promise<SBR> => {
+// Unlink Sim from Device
+export const device_sim_unlink = async (payload: DeviceSimLinkDTO): Promise<SBR> => {
   return apiPost<SBR, DeviceSimLinkDTO>(ENDPOINTS.DEVICE_SIM_UNLINK, payload);
 };
 
-// 📜 Get Device Sim Link History by Device
-export const get_device_sim_link_history_by_sim = async (
-  id: string,
-  params: BaseQueryDTO
-): Promise<FBR<AssignRemoveSimHistory[]>> => {
-  return apiGet<FBR<AssignRemoveSimHistory[]>>(
-    ENDPOINTS.DEVICE_SIM_LINK_HISTORY_BY_SIM.replace(':id', id), params
-  );
+// Get Device Sim Link History by Device
+export const get_device_sim_link_history_by_sim = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveSimHistory[]>> => {
+  return apiGet<FBR<AssignRemoveSimHistory[]>>(ENDPOINTS.DEVICE_SIM_LINK_HISTORY_BY_SIM(id), params);
 };
 
-// 📜 Get Device Sim Link History by Sim
-export const get_device_sim_link_history_by_device = async (
-  id: string,
-  params: BaseQueryDTO
-): Promise<FBR<AssignRemoveSimHistory[]>> => {
-  return apiGet<FBR<AssignRemoveSimHistory[]>>(
-    ENDPOINTS.DEVICE_SIM_LINK_HISTORY_BY_DEVICE.replace(':id', id), params
-  );
+// Get Device Sim Link History by Sim
+export const get_device_sim_link_history_by_device = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveSimHistory[]>> => {
+  return apiGet<FBR<AssignRemoveSimHistory[]>>(ENDPOINTS.DEVICE_SIM_LINK_HISTORY_BY_DEVICE(id), params);
 };

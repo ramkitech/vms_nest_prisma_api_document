@@ -74,68 +74,85 @@ import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicl
 import { MasterVehicleDocumentType } from 'src/services/master/vehicle/master_vehicle_document_type_service';
 
 import { FleetVendor } from 'src/services/fleet/vendor_management/fleet_vendor_service';
+import { OrganisationNotificationPreferenceVehicleLink } from 'src/services/account/notification_preferences.service';
+import { OrganisationReportPreferenceVehicleLink, OrganisationReportAutomationMailVehicleLink } from 'src/services/account/report_preferences.service';
+import { MasterFixedSchedule } from 'src/services/fleet/bus_mangement/master_route';
+import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
+import { FleetFuelRefill } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
+import { FleetFuelRemoval } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
+import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
+import { FleetInspection } from 'src/services/fleet/inspection_management/fleet_inspection_management_service';
+import { FleetInspectionScheduleVehicleLink } from 'src/services/fleet/inspection_management/fleet_inspection_schedule_service';
+import { FleetIssueManagement } from 'src/services/fleet/issue_management/issue_management_service';
+import { FleetServiceManagement, FleetServiceReminder } from 'src/services/fleet/service_management/fleet_service_management_service';
+import { FleetServiceScheduleVehicleLink } from 'src/services/fleet/service_management/fleet_service_schedule_service';
+import { GPSGeofenceTransaction } from 'src/services/gps/features/geofence/gps_geofence_transaction_service';
+import { GPSGeofenceTransactionSummary } from 'src/services/gps/features/geofence/gps_geofence_transaction_summary_service';
+import { TripGeofenceToGeofence } from 'src/services/gps/features/geofence/trip_geofence_to_geofence_service';
+import { GPSLiveTrackShareLink } from 'src/services/gps/features/gps_live_track_share_link_service';
+import { GPSTrackHistoryShareLink } from 'src/services/gps/features/gps_track_history_share_link_service';
+import { UserVehicleLink } from '../users/user_service';
 
 // ✅ URL and Endpoints
 const URL = 'main/master_vehicle';
 
 const ENDPOINTS = {
-
   // AWS S3 PRESIGNED
   vehicle_file_presigned_url: `${URL}/vehicle_file_presigned_url`,
   device_file_presigned_url: `${URL}/device_file_presigned_url`,
   vehicle_document_file_presigned_url: `${URL}/vehicle_document_file_presigned_url`,
   calibration_file_presigned_url: `${URL}/calibration_file_presigned_url`,
 
-  // File
+  // File Uploads
   create_file_vehicle: `${URL}/create_file_vehicle`,
-  remove_file_vehicle: `${URL}/remove_file_vehicle/:id`,
+  remove_file_vehicle: (id: string): string => `${URL}/remove_file_vehicle${id}`,
   create_file_device: `${URL}/create_file_device`,
-  remove_file_device: `${URL}/remove_file_device/:id`,
+  remove_file_device: (id: string): string => `${URL}/remove_file_device/${id}`,
   create_file_vehicle_document: `${URL}/create_file_vehicle_document`,
-  remove_file_vehicle_document: `${URL}/remove_file_vehicle_document/:id`,
+  remove_file_vehicle_document: (id: string): string => `${URL}/remove_file_vehicle_document/${id}`,
   update_calibration_file: `${URL}/update_calibration_file`,
-  delete_calibration_file: `${URL}/delete_calibration_file/:id`,
+  delete_calibration_file: (id: string): string => `${URL}/delete_calibration_file/${id}`,
 
-  // Vehicle CRED
+  // MasterVehicle APIs
   find: `${URL}/search`,
   find_live_dashboard: `${URL}/live_dashboard/search`,
   find_gps_details: `${URL}/gps_details/search`,
   create: `${URL}`,
-  update: `${URL}/:id`,
+  update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
   // API Updates
-  update_details_gps_sensor: `${URL}/gps_sensor_details/:id`,
-  update_details_trip: `${URL}/trip_details/:id`,
-  update_details_body: `${URL}/body_details/:id`,
-  update_details_life_cycle: `${URL}/life_cycle_details/:id`,
-  update_details_purchase: `${URL}/purchase_details/:id`,
+  update_details_gps_sensor: (id: string): string => `${URL}/gps_sensor_details/${id}`,
+  update_details_trip: (id: string): string => `${URL}/trip_details/${id}`,
+  update_details_body: (id: string): string => `${URL}/body_details/${id}`,
+  update_details_life_cycle: (id: string): string => `${URL}/life_cycle_details/${id}`,
+  update_details_purchase: (id: string): string => `${URL}/purchase_details/${id}`,
 
   // API Vehicle Driver Link
   vehicle_driver_link: `${URL}/vehicle_driver_link`,
   vehicle_driver_unlink: `${URL}/vehicle_driver_unlink`,
-  find_vehicle_driver_link_history_by_vehicle: `${URL}/vehicle_driver_link_history_by_vehicle/:id`,
-  find_vehicle_driver_link_history_by_driver: `${URL}/vehicle_driver_link_history_by_driver/:id`,
+  find_vehicle_driver_link_history_by_vehicle: (id: string): string => `${URL}/vehicle_driver_link_history_by_vehicle/${id}`,
+  find_vehicle_driver_link_history_by_driver: (id: string): string => `${URL}/vehicle_driver_link_history_by_driver/${id}`,
 
   // API Vehicle Device Link
   vehicle_device_link: `${URL}/vehicle_device_link`,
   vehicle_device_unlink: `${URL}/vehicle_device_unlink`,
-  vehicle_device_link_history_by_vehicle: `${URL}/vehicle_device_link_history_by_vehicle/:id`,
-  vehicle_device_link_history_by_device: `${URL}/vehicle_device_link_history_by_device/:id`,
+  vehicle_device_link_history_by_vehicle: (id: string): string => `${URL}/vehicle_device_link_history_by_vehicle/${id}`,
+  vehicle_device_link_history_by_device: (id: string): string => `${URL}/vehicle_device_link_history_by_device/${id}`,
 
-  // Vehicle Document
+  // VehicleDocument APIs
   create_document: `${URL}/document`,
   find_document: `${URL}/find_document/search`,
-  update_document: `${URL}/vehicle_document/:id`,
-  remove_document: `${URL}/vehicle_document/:id`,
+  update_document: (id: string): string => `${URL}/vehicle_document/${id}`,
+  remove_document: (id: string): string => `${URL}/vehicle_document/${id}`,
 
-  // Vehicle Document Expiry
+  // VehicleDocumentExpiry APIs
   create_document_expiry: `${URL}/vehicle_document_expiry`,
   find_document_expiry: `${URL}/vehicle_document_expiry/search`,
-  update_document_expiry: `${URL}/vehicle_document_expiry/:id`,
-  remove_document_expiry: `${URL}/vehicle_document_expiry/:id`,
+  update_document_expiry: (id: string): string => `${URL}/vehicle_document_expiry/${id}`,
+  remove_document_expiry: (id: string): string => `${URL}/vehicle_document_expiry/${id}`,
 
-  // Cache Endpoints By organisation_id
+  // Cache APIs
   find_cache: `${URL}/cache/:organisation_id`,
   find_cache_simple: `${URL}/cache_simple/:organisation_id`,
   find_cache_parent: `${URL}/cache_parent/:organisation_id`,
@@ -143,9 +160,9 @@ const ENDPOINTS = {
   find_cache_dropdown_live_data: `${URL}/cache_dropdown_live_data/:organisation_id`,
 };
 
-// 🚀 Vehicle Interface
+// MasterVehicle Interface
 export interface MasterVehicle extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   vehicle_id: string;
   vehicle_number: string;
   vehicle_name?: string;
@@ -163,12 +180,10 @@ export interface MasterVehicle extends Record<string, unknown> {
   is_gps_active: YesNo;
   is_trip_active: YesNo;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
-
-  // ✅ Relations
 
   // Relations - Driver
   is_driver_assigned: YesNo;
@@ -179,7 +194,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   assign_driver_date_f?: string;
   AssignRemoveDriverHistory?: AssignRemoveDriverHistory[];
 
-  // ✅ Relations - Device
+  // Relations - Device
   is_device_installed: YesNo;
   device_gps_source?: GPSSource;
   device_id?: string;
@@ -193,13 +208,13 @@ export interface MasterVehicle extends Record<string, unknown> {
   time_zone_id?: string;
   MasterMainTimeZone?: MasterMainTimeZone;
 
-  // ✅ Relations - Odometer
+  // Relations - Odometer
   odometer_reading?: number;
   odometer_last_change_date?: string;
   odometer_last_change_date_f?: string;
   VehicleOdometerHistory?: VehicleOdometerHistory[];
 
-  // ✅ Relations - One to One
+  // Relations - One to One
   vehicle_details_gps_id?: string;
   VehicleDetailGPS?: VehicleDetailGPS;
 
@@ -293,30 +308,119 @@ export interface MasterVehicle extends Record<string, unknown> {
   vehicle_passenger_capacity?: number;
   standing_passenger_capacity?: number;
 
-  // ✅ Relations - Child
+  // Relations - Child
+  // Child - Main
   VehicleDocument?: VehicleDocument[]
-  VehicleDocumentFile?: VehicleDocumentFile[]
-  VehicleDocumentExpiry?: VehicleDocumentExpiry[]
   MasterVehicleFile?: MasterVehicleFile[]
-  VehicleOrganisationGroupLink?: VehicleOrganisationGroupLink[];
+  VehicleDocumentExpiry?: VehicleDocumentExpiry[]
 
-  // ✅ Count of child relations
+  // Child - Master
+  VehicleOrganisationGroupLink?: VehicleOrganisationGroupLink[]
+
+  // Child - Fleet
+  FleetFuelRefill?: FleetFuelRefill[]
+  FleetFuelRemoval?: FleetFuelRemoval[]
+
+  FleetInspection?: FleetInspection[]
+  FleetInspectionScheduleVehicleLink?: FleetInspectionScheduleVehicleLink[]
+
+  VehicleIncident?: FleetIncidentManagement[]
+
+  VehicleIssues?: FleetIssueManagement[]
+
+  FleetServiceManagement?: FleetServiceManagement[]
+  FleetServiceScheduleVehicleLink?: FleetServiceScheduleVehicleLink[]
+  FleetServiceReminder?: FleetServiceReminder[]
+  // FleetServiceJobCard?: FleetServiceJobCard[]
+
+  // FleetTyreUsageHistory?: FleetTyreUsageHistory[]
+  // FleetTyreInspectionScheduleVehicle?: FleetTyreInspectionScheduleVehicle[]
+  // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[]
+  // FleetTyreInspection?: FleetTyreInspection[]
+  // FleetTyreDamageRepair?: FleetTyreDamageRepair[]
+  // FleetTyreRotation?: FleetTyreRotation[]
+  // FleetTyreRotationDetails?: FleetTyreRotationDetails[]
+
+  MasterFixedSchedule?: MasterFixedSchedule[]
+  // FixedScheduleDayRun?: FixedScheduleDayRun[]
+
+  // Child - GPS
+  // GpsLockRelayLog?: GPSLockRelayLog[]
+  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
+  TripGeofenceToGeofence?: TripGeofenceToGeofence[]
+  GPSGeofenceTransaction?: GPSGeofenceTransaction[]
+  FleetFuelDailySummary?: FleetFuelDailySummary[]
+  GPSLiveTrackShareLink?: GPSLiveTrackShareLink[]
+  GPSTrackHistoryShareLink?: GPSTrackHistoryShareLink[]
+  GPSGeofenceTransactionSummary?: GPSGeofenceTransactionSummary[]
+
+  // Child - Trip
+  // Trip?: Trip[]
+
+  // Child - Account
+  UserVehicleLink?: UserVehicleLink[]
+  OrganisationNotificationPreferenceVehicleLink?: OrganisationNotificationPreferenceVehicleLink[]
+  OrganisationReportPreferenceVehicleLink?: OrganisationReportPreferenceVehicleLink[]
+  OrganisationReportAutomationMailVehicleLink?: OrganisationReportAutomationMailVehicleLink[]
+
+  // Relations - Child Count
   _count?: {
     VehicleDocument?: number;
-    VehicleDocumentFile?: number;
-    VehicleDocumentExpiry?: number;
     MasterVehicleFile?: number;
+    VehicleDocumentExpiry?: number;
+
+    // Child - Master
     VehicleOrganisationGroupLink?: number;
 
-    AssignRemoveDriverHistory?: number;
-    AssignRemoveDeviceHistory?: number;
-    VehicleOdometerHistory?: number;
+    // Child - Fleet
+    FleetFuelRefill?: number;
+    FleetFuelRemoval?: number;
+
+    FleetInspection?: number;
+    FleetInspectionScheduleVehicleLink?: number;
+
+    VehicleIncident?: number;
+
+    VehicleIssues?: number;
+
+    FleetServiceManagement?: number;
+    FleetServiceScheduleVehicleLink?: number;
+    FleetServiceReminder?: number;
+    // FleetServiceJobCard?: FleetServiceJobCard[]
+
+    // FleetTyreUsageHistory?: FleetTyreUsageHistory[]
+    // FleetTyreInspectionScheduleVehicle?: FleetTyreInspectionScheduleVehicle[]
+    // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[]
+    // FleetTyreInspection?: FleetTyreInspection[]
+    // FleetTyreDamageRepair?: FleetTyreDamageRepair[]
+    // FleetTyreRotation?: FleetTyreRotation[]
+    // FleetTyreRotationDetails?: FleetTyreRotationDetails[]
+
+    MasterFixedSchedule?: number;
+    // FixedScheduleDayRun?: FixedScheduleDayRun[]
+
+    // Child - GPS
+    // GpsLockRelayLog?: GPSLockRelayLog[]
+    // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
+    TripGeofenceToGeofence?: number;
+    GPSGeofenceTransaction?: number;
+    FleetFuelDailySummary?: number;
+    GPSLiveTrackShareLink?: number;
+    GPSTrackHistoryShareLink?: number;
+    GPSGeofenceTransactionSummary?: number;
+
+    // Child - Trip
+    // Trip?: Trip[]
+
+    // Child - Account
+    UserVehicleLink?: number;
+    OrganisationNotificationPreferenceVehicleLink?: number;
+    OrganisationReportPreferenceVehicleLink?: number;
   };
 }
 
 // MasterVehicleDropdown Interface
 export interface MasterVehicleDropdown extends Record<string, unknown> {
-
   v_id: string;
   vn: string;
   vt: string;
@@ -354,25 +458,26 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
 
   latitude: number;
   longitude: number;
-
 }
 
-// ✅ MasterVehicleFile Interface
+// MasterVehicleFile Interface
 export interface MasterVehicleFile extends BaseCommonFile {
   // Primary Fields
   vehicle_file_id: string;
 
-  // ✅ Relations - Parent
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 }
 
 // VehicleDetailGPS Interface
 export interface VehicleDetailGPS extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   vehicle_details_gps_id: string;
 
   // GPS Input Source
@@ -562,25 +667,24 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   is_live?: boolean;
   is_recent?: boolean;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations - One To One
+  // Relations - Parent
   vehicle_id?: string;
   Vehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   landmark_id?: string;
-  //MasterMainLandMark?: MasterMainLandMark;
-
-  // ✅ Child Count
-  _count?: object;
+  // MasterMainLandMark?: MasterMainLandMark;
 }
 
 // VehicleDetailTrip Interface
 export interface VehicleDetailTrip extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   vehicle_details_trip_id: string;
   trip_name?: string;
   trip_no?: string;
@@ -596,24 +700,21 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
   trip_notes_2?: string;
   trip_notes_3?: string;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations - One To One
+  // Relations - Parent
   vehicle_id?: string;
   Vehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
-
-  // ✅ Child Count
-  _count?: object;
 }
 
 // VehicleDetailBody Interface
 export interface VehicleDetailBody extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   vehicle_details_body_id: string;
   vehicle_body_details?: string;
   vehicle_height?: number;
@@ -654,7 +755,7 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   cargo_tie_down_hooks_count?: number;
   is_custom_body_built: YesNo;
 
-  // 🛞 Wheel & Suspension
+  // Wheel & Suspension
   number_of_axles?: number;
   axle_configuration?: string;
   has_dual_rear_wheels: YesNo;
@@ -668,7 +769,7 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   steering_type: SteeringType
   wheel_drive_type: WheelDriveType;
 
-  // 🛡️ Safety Features
+  // Safety Features
   has_abs: YesNo;
   has_airbags: YesNo;
   has_speed_limiter: YesNo;
@@ -684,12 +785,12 @@ export interface VehicleDetailBody extends Record<string, unknown> {
   has_dashcam: YesNo;
   has_emergency_exit: YesNo;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations - One To One
+  // Relations - Parent
   vehicle_id?: string;
   Vehicle?: MasterVehicle;
   vehicle_number?: string;
@@ -698,7 +799,7 @@ export interface VehicleDetailBody extends Record<string, unknown> {
 
 // VehicleDetailLifeCycle Interface
 export interface VehicleDetailLifeCycle extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   vehicle_details_life_cycle_id: string;
 
   // Lifecycle Start
@@ -723,12 +824,12 @@ export interface VehicleDetailLifeCycle extends Record<string, unknown> {
   life_expiry_message?: string;
   life_expiry_note?: string;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations - One To One
+  // Relations - One To One
   vehicle_id?: string;
   Vehicle?: MasterVehicle;
   vehicle_number?: string;
@@ -737,7 +838,7 @@ export interface VehicleDetailLifeCycle extends Record<string, unknown> {
 
 // VehicleDetailPurchase Interface
 export interface VehicleDetailPurchase extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   vehicle_details_purchase_id: string;
 
   purchase_date?: string;
@@ -776,12 +877,12 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   warranty_exchange_date?: string;
   warranty_exchange_date_f?: string;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   vehicle_id?: string;
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
@@ -789,17 +890,20 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
 
   purchase_vendor_id?: string;
   PurchaseVendor?: FleetVendor;
+  purchase_vendor_name?: string;
 
   loan_lender_id?: string;
   LoanLender?: FleetVendor;
+  loan_lender_name?: string;
 
   lease_vendor_id?: string;
   LeaseVendor?: FleetVendor;
+  lease_vendor_name?: string;
 }
 
 // VehicleDocument Interface
 export interface VehicleDocument extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   vehicle_document_id: string;
   sub_vehicle_document_id: number;
   vehicle_document_code?: string;
@@ -822,12 +926,12 @@ export interface VehicleDocument extends Record<string, unknown> {
   document_details_4?: string;
   document_notes?: string;
 
-  // ✅ Metadata
+  //  Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -848,10 +952,10 @@ export interface VehicleDocument extends Record<string, unknown> {
   VehicleDocumentFile?: VehicleDocumentFile[];
   VehicleDocumentExpiry?: VehicleDocumentExpiry[];
 
-  // ✅ Child Count
+  // Relations - Child Count
   _count?: {
-    VehicleDocumentFile: number;
-    VehicleDocumentExpiry: number;
+    VehicleDocumentFile?: number;
+    VehicleDocumentExpiry?: number;
   };
 }
 
@@ -860,7 +964,7 @@ export interface VehicleDocumentFile extends BaseCommonFile {
   // Primary Fields
   vehicle_document_file_id: string;
 
-  // ✅ Relations - Parent
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -870,17 +974,17 @@ export interface VehicleDocumentFile extends BaseCommonFile {
 
 // VehicleDocumentExpiry Interface
 export interface VehicleDocumentExpiry extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   document_expiry_id: string;
 
   expiry_type: ExpiryType;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -895,19 +999,19 @@ export interface VehicleDocumentExpiry extends Record<string, unknown> {
 
 // VehicleOdometerHistory Interface
 export interface VehicleOdometerHistory extends Record<string, unknown> {
-  // ✅ Primary Fields
+  // Primary Fields
   vehicle_odometer_history_id: string;
   odometer_reading: number;
   odometer_date: string;
   odometer_date_f?: string;
   odometer_source: OdometerSource;
 
-  // ✅ Metadata
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  // ✅ Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
@@ -1544,22 +1648,20 @@ export const VehicleGPSQuerySchema = BaseQuerySchema.extend({
 });
 export type VehicleGPSQueryDTO = z.infer<typeof VehicleGPSQuerySchema>;
 
-// ✅ Convert Form Data to API Payload
+// Convert Vehicle Data to API Payload
 export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
-  organisation_id: row.organisation_id,
+  organisation_id: row.organisation_id || '',
 
-  vehicle_number: row.vehicle_number,
+  vehicle_number: row.vehicle_number || '',
   vehicle_name: row.vehicle_name || '',
 
   engine_number: row.engine_number || '',
   chassis_number: row.chassis_number || '',
   vehicle_make_year: row.vehicle_make_year || 0,
 
-  is_fleet_active: row.is_fleet_active,
-  is_gps_active: row.is_gps_active,
-  is_trip_active: row.is_trip_active,
-
-  status: row.status,
+  is_fleet_active: row.is_fleet_active || YesNo.No,
+  is_gps_active: row.is_gps_active || YesNo.No,
+  is_trip_active: row.is_trip_active || YesNo.No,
 
   organisation_sub_company_id: row.organisation_sub_company_id || '',
   organisation_branch_id: row.organisation_branch_id || '',
@@ -1592,9 +1694,10 @@ export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
   vehicle_passenger_capacity: row.vehicle_passenger_capacity || 0,
   standing_passenger_capacity: row.standing_passenger_capacity || 0,
 
+  status: row.status || Status.Active,
 
   MasterVehicleFileSchema: row.MasterVehicleFile?.map((file) => ({
-    vehicle_file_id: file.vehicle_file_id ?? '',
+    vehicle_file_id: file.vehicle_file_id || '',
 
     usage_type: file.usage_type,
 
@@ -1603,8 +1706,8 @@ export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
     file_key: file.file_key || '',
     file_name: file.file_name || '',
     file_description: file.file_description || '',
-    file_size: file.file_size ?? 0,
-    file_metadata: file.file_metadata ?? {},
+    file_size: file.file_size || 0,
+    file_metadata: file.file_metadata || {},
 
     status: file.status,
     added_date_time: file.added_date_time,
@@ -1615,7 +1718,7 @@ export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
   })) ?? [],
 });
 
-// ✅ Convert API Response to Frontend Data
+// Create New Vehicle Payload
 export const newVehiclePayload = (): VehicleDTO => ({
   organisation_id: '',
 
@@ -1626,9 +1729,7 @@ export const newVehiclePayload = (): VehicleDTO => ({
   chassis_number: '',
   vehicle_make_year: 0,
 
-  status: Status.Active,
-
-  is_fleet_active: YesNo.Yes,
+  is_fleet_active: YesNo.No,
   is_gps_active: YesNo.No,
   is_trip_active: YesNo.No,
 
@@ -1662,10 +1763,12 @@ export const newVehiclePayload = (): VehicleDTO => ({
   vehicle_passenger_capacity: 0,
   standing_passenger_capacity: 0,
 
+  status: Status.Active,
+
   MasterVehicleFileSchema: [],
 });
 
-// ✅ Convert Vehicle Detail GPS Main to API Payload
+// Convert VehicleDetailGPS Data to API Payload
 export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): VehicleDetailGPSSensorDTO => ({
   temperature: vehicleGPS?.temperature || YesNo.No,
   duel_temperature: vehicleGPS?.duel_temperature || YesNo.No,
@@ -1689,7 +1792,7 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   fuel_mapping: vehicleGPS?.fuel_mapping || {},
 });
 
-// ✅ Convert VehicleDetailTrip Data to API Payload
+// Convert VehicleDetailTrip Data to API Payload
 export const toVehicleDetailsTripPayload = (trip?: VehicleDetailTrip): VehicleDetailTripDTO => ({
   trip_name: trip?.trip_name || '',
   trip_no: trip?.trip_no || '',
@@ -1706,7 +1809,7 @@ export const toVehicleDetailsTripPayload = (trip?: VehicleDetailTrip): VehicleDe
   status: trip ? trip.status : Status.Active,
 });
 
-// ✅ Convert VehicleDetailBody Data to API Payload
+// Convert VehicleDetailBody Data to API Payload
 export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): VehicleDetailBodyDTO => ({
   // 📦 Body & Dimension (Common)
   vehicle_body_details: vehicleBody?.vehicle_body_details || '',
@@ -1782,7 +1885,7 @@ export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): Ve
   status: vehicleBody ? vehicleBody?.status : Status.Active,
 });
 
-// ✅ Convert VehicleDetailLifeCycle Data to API Payload
+// Convert VehicleDetailLifeCycle Data to API Payload
 export const toVehicleDetailLifeCyclePayload = (vehicleLifeCycle?: VehicleDetailLifeCycle): VehicleDetailLifeCycleDto => ({
   // Lifecycle Start
   service_start_date: vehicleLifeCycle?.service_start_date || '',
@@ -1806,7 +1909,7 @@ export const toVehicleDetailLifeCyclePayload = (vehicleLifeCycle?: VehicleDetail
   status: vehicleLifeCycle ? vehicleLifeCycle.status : Status.Active,
 });
 
-// ✅ Convert Vehicle Detail Purchase Data to API Payload
+// Convert VehicleDetailPurchase Data to API Payload
 export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPurchase): VehicleDetailPurchaseDTO => ({
   // Basic Purchase Info
   purchase_date: vehiclePurchase?.purchase_date || '',
@@ -1848,12 +1951,12 @@ export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPu
   lease_vendor_id: vehiclePurchase?.lease_vendor_id || '',
 });
 
-// ✅ Convert Form Data to API Payload
+// Convert VehicleDocument Data to API Payload
 export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentDTO => ({
-  organisation_id: row.organisation_id,
-  vehicle_id: row.vehicle_id,
+  organisation_id: row.organisation_id || '',
+  vehicle_id: row.vehicle_id || '',
   vendor_id: row.vendor_id || '',
-  document_type_id: row.document_type_id,
+  document_type_id: row.document_type_id || '',
 
   vehicle_document_code: row.vehicle_document_code || '',
 
@@ -1872,7 +1975,7 @@ export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentD
   document_details_4: row.document_details_4 || '',
   document_notes: row.document_notes || '',
 
-  status: Status.Active,
+  status: row.status || Status.Active,
 
   time_zone_id: '', // Needs to be provided manually
 
@@ -1898,7 +2001,7 @@ export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentD
   })) ?? [],
 });
 
-// ✅ Convert API Response to Frontend Data
+// Create New VehicleDocument Payload
 export const newVehicleDocumentPayload = (): VehicleDocumentDTO => ({
 
   organisation_id: '',
@@ -1930,18 +2033,18 @@ export const newVehicleDocumentPayload = (): VehicleDocumentDTO => ({
   VehicleDocumentFileSchema: []
 });
 
-// ✅ Convert Form Data to API Payload
+// Convert VehicleDocumentExpiry Data to API Payload
 export const toVehicleDocumentExpiryPayload = (row: VehicleDocumentExpiry): VehicleDocumentExpiryDTO => ({
-  organisation_id: row.organisation_id,
-  vehicle_id: row.vehicle_id,
-  vehicle_document_id: row.vehicle_document_id,
+  organisation_id: row.organisation_id || '',
+  vehicle_id: row.vehicle_id || '',
+  vehicle_document_id: row.vehicle_document_id || '',
 
   expiry_type: row.expiry_type || ExpiryType.Expiring,
 
-  status: row.status,
+  status: row.status || Status.Active,
 });
 
-// ✅ Convert API Response to Frontend Data
+// Create New VehicleDocumentExpiry Payload
 export const newVehicleDocumentExpiryPayload = (): VehicleDocumentExpiryDTO => ({
   organisation_id: '',
 
@@ -1953,7 +2056,6 @@ export const newVehicleDocumentExpiryPayload = (): VehicleDocumentExpiryDTO => (
   status: Status.Active,
 });
 
-// ✅ API Methods
 
 // AWS S3 PRESIGNED
 export const get_vehicle_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
@@ -1968,13 +2070,13 @@ export const get_vehicle_document_file_presigned_url = async (data: FilePresigne
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_document_file_presigned_url, data);
 };
 
-// File
+// File Uploads
 export const createFileVehicle = async (payload: MasterVehicleFileDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleFileDTO>(ENDPOINTS.create_file_vehicle, payload);
 };
 
 export const remove_file_vehicle = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle.replace(':id', id));
+  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle(id));
 };
 
 export const create_file_device = async (payload: MasterDeviceFileDTO): Promise<SBR> => {
@@ -1982,7 +2084,7 @@ export const create_file_device = async (payload: MasterDeviceFileDTO): Promise<
 };
 
 export const remove_file_device = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file_device.replace(':id', id));
+  return apiDelete<SBR>(ENDPOINTS.remove_file_device(id));
 };
 
 export const create_file_vehicle_document = async (payload: VehicleDocumentFileDTO): Promise<SBR> => {
@@ -1990,7 +2092,7 @@ export const create_file_vehicle_document = async (payload: VehicleDocumentFileD
 };
 
 export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document.replace(':id', id));
+  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document(id));
 };
 
 export const update_calibration_file = async (payload: CalibrationFileDTO): Promise<SBR> => {
@@ -1998,10 +2100,10 @@ export const update_calibration_file = async (payload: CalibrationFileDTO): Prom
 };
 
 export const delete_calibration_file = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_calibration_file.replace(':id', id));
+  return apiDelete<SBR>(ENDPOINTS.delete_calibration_file(id));
 };
 
-// Vehicle CRED
+// Vehicle APIs
 export const findVehicles = async (payload: VehicleQueryDTO): Promise<FBR<MasterVehicle[]>> => {
   return apiPost<FBR<MasterVehicle[]>, VehicleQueryDTO>(ENDPOINTS.find, payload);
 };
@@ -2019,7 +2121,7 @@ export const createVehicle = async (payload: VehicleDTO): Promise<SBR> => {
 };
 
 export const updateVehicle = async (id: string, payload: VehicleDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDTO>(ENDPOINTS.update.replace(':id', id), payload);
+  return apiPatch<SBR, VehicleDTO>(ENDPOINTS.update(id), payload);
 };
 
 export const deleteVehicle = async (id: string): Promise<SBR> => {
@@ -2028,23 +2130,23 @@ export const deleteVehicle = async (id: string): Promise<SBR> => {
 
 // API Updates
 export const updateDetailsGpsSensor = async (id: string, payload: VehicleDetailGPSSensorDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailGPSSensorDTO>(ENDPOINTS.update_details_gps_sensor.replace(':id', id), payload);
+  return apiPatch<SBR, VehicleDetailGPSSensorDTO>(ENDPOINTS.update_details_gps_sensor(id), payload);
 };
 
 export const updateDetailsTrip = async (id: string, payload: VehicleDetailTripDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailTripDTO>(ENDPOINTS.update_details_trip.replace(':id', id), payload);
+  return apiPatch<SBR, VehicleDetailTripDTO>(ENDPOINTS.update_details_trip(id), payload);
 };
 
 export const updateVehicleBodyDetails = async (id: string, payload: VehicleDetailBodyDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailBodyDTO>(ENDPOINTS.update_details_body.replace(':id', id), payload);
+  return apiPatch<SBR, VehicleDetailBodyDTO>(ENDPOINTS.update_details_body(id), payload);
 };
 
 export const updateVehicleLifeCycleDetails = async (id: string, payload: VehicleDetailLifeCycleDto): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailLifeCycleDto>(ENDPOINTS.update_details_life_cycle.replace(':id', id), payload);
+  return apiPatch<SBR, VehicleDetailLifeCycleDto>(ENDPOINTS.update_details_life_cycle(id), payload);
 };
 
 export const updateVehiclePurchaseDetails = async (id: string, payload: VehicleDetailPurchaseDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailPurchaseDTO>(ENDPOINTS.update_details_purchase.replace(':id', id), payload);
+  return apiPatch<SBR, VehicleDetailPurchaseDTO>(ENDPOINTS.update_details_purchase(id), payload);
 };
 
 // API Vehicle Driver Link
@@ -2057,11 +2159,11 @@ export const unlinkDriverFromVehicle = async (payload: VehicleDriverLinkDTO): Pr
 };
 
 export const getDriverLinkHistoryByVehicle = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDriverHistory[]>> => {
-  return apiGet<FBR<AssignRemoveDriverHistory[]>>(ENDPOINTS.find_vehicle_driver_link_history_by_vehicle.replace(':id', id), params);
+  return apiGet<FBR<AssignRemoveDriverHistory[]>>(ENDPOINTS.find_vehicle_driver_link_history_by_vehicle(id), params);
 };
 
 export const getDriverLinkHistoryByDriver = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDriverHistory[]>> => {
-  return apiGet<FBR<AssignRemoveDriverHistory[]>>(ENDPOINTS.find_vehicle_driver_link_history_by_driver.replace(':id', id), params);
+  return apiGet<FBR<AssignRemoveDriverHistory[]>>(ENDPOINTS.find_vehicle_driver_link_history_by_driver(id), params);
 };
 
 // API Vehicle Device Link
@@ -2074,14 +2176,14 @@ export const unlinkDeviceFromVehicle = async (payload: VehicleDeviceUnlinkDTO): 
 };
 
 export const getDeviceLinkHistoryByVehicle = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDeviceHistory[]>> => {
-  return apiGet<FBR<AssignRemoveDeviceHistory[]>>(ENDPOINTS.vehicle_device_link_history_by_vehicle.replace(':id', id), params);
+  return apiGet<FBR<AssignRemoveDeviceHistory[]>>(ENDPOINTS.vehicle_device_link_history_by_vehicle(id), params);
 };
 
 export const getDeviceLinkHistoryByDevice = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDeviceHistory[]>> => {
-  return apiGet<FBR<AssignRemoveDeviceHistory[]>>(ENDPOINTS.vehicle_device_link_history_by_device.replace(':id', id), params);
+  return apiGet<FBR<AssignRemoveDeviceHistory[]>>(ENDPOINTS.vehicle_device_link_history_by_device(id), params);
 };
 
-// Vehicle Document
+// VehicleDocument APIs
 export const createVehicleDocument = async (payload: VehicleDocumentDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDocumentDTO>(ENDPOINTS.create_document, payload);
 };
@@ -2091,14 +2193,14 @@ export const findVehicleDocument = async (payload: VehicleDocumentQueryDTO): Pro
 };
 
 export const updateVehicleDocument = async (id: string, payload: VehicleDocumentDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDocumentDTO>(ENDPOINTS.update_document.replace(':id', id), payload);
+  return apiPatch<SBR, VehicleDocumentDTO>(ENDPOINTS.update_document(id), payload);
 };
 
 export const removeVehicleDocument = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_document.replace(':id', id));
+  return apiDelete<SBR>(ENDPOINTS.remove_document(id));
 };
 
-// Vehicle Document Expiry
+// VehicleDocumentExpiry APIs
 export const createVehicleDocumentExpiry = async (payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
   return apiPost<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.create_document_expiry, payload);
 };
@@ -2108,14 +2210,14 @@ export const findVehicleDocumentExpiry = async (payload: VehicleDocumentExpiryQu
 };
 
 export const updateVehicleDocumentExpiry = async (id: string, payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.update_document_expiry.replace(':id', id), payload);
+  return apiPatch<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.update_document_expiry(id), payload);
 };
 
 export const removeVehicleDocumentExpiry = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_document_expiry.replace(':id', id));
+  return apiDelete<SBR>(ENDPOINTS.remove_document_expiry(id));
 };
 
-// Cache Endpoints By organisation_id
+// Cache APIs
 export const getVehicleCache = async (organisationId: string): Promise<FBR<MasterVehicle[]>> => {
   return apiGet<FBR<MasterVehicle[]>>(ENDPOINTS.find_cache.replace(':organisation_id', organisationId));
 };
