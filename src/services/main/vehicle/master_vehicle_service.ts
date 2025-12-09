@@ -623,6 +623,29 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   ll?: string;
   ld?: number;
 
+  // OBD details
+  obd_battery?: string,
+  obd_gear?: string,
+  obd_coolant_temp?: string,
+  obd_ad_def_temp?: string,
+  obd_ad_def_level?: string,
+  obd_engine_oil_level?: string,
+  obd_engine_oil_temp?: string,
+  obd_engine_oil_pressure?: string,
+  obd_fuel_level?: string,
+  obd_inst_fuel_economy?: string,
+
+  obd_battery_f?: string,
+  obd_gear_f?: string,
+  obd_coolant_temp_f?: string,
+  obd_ad_def_temp_f?: string,
+  obd_ad_def_level_f?: string,
+  obd_engine_oil_level_f?: string,
+  obd_engine_oil_temp_f?: string,
+  obd_engine_oil_pressure_f?: string,
+  obd_fuel_level_f?: string,
+  obd_inst_fuel_economy_f?: string,
+
   // Kilometer Analytics
   km_last_24?: number;
   t_s_last_24_moving_on?: number;
