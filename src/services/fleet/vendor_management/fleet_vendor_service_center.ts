@@ -126,6 +126,8 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
     // Relations - Child Count
     _count?: {
         FleetServiceManagement?: number;
+        FleetServiceManagement_ThisMonth?: number;
+        FleetServiceManagement_ThisYear?: number;
         FleetServiceJobCard?: number;
     };
 }
