@@ -186,11 +186,11 @@ export interface MasterDriverFile extends BaseCommonFile {
   driver_file_id: string;
 
   // Relations - Parent
-  organisation_id: String;
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  ticket_id: String;
-  Ticket?: Ticket;
+  driver_id: string;
+  MasterDriver?: MasterDriver;
 }
 
 // AssignRemoveDriverHistory Interface
@@ -407,22 +407,26 @@ export const toDriverProfilePayload = (row: MasterDriver): MasterDriverProfileDT
   driver_image_key: row.driver_image_key || '',
   driver_image_name: row.driver_image_name || '',
 
-  MasterDriverFileSchema: [],
+  MasterDriverFileSchema: row.MasterDriverFile?.map((file) => ({
+    driver_file_id: file.driver_file_id || '',
 
-  // MasterDriverFileSchema: row?.MasterDriverFile?.map((file) => ({
-  //   organisation_id: file.organisation_id ?? '',
-  //   driver_id: file.driver_id ?? '',
-  //   driver_file_id: file.driver_file_id ?? '',
-  //   usage_type: file.usage_type,
-  //   file_type: file.file_type,
-  //   file_url: file.file_url || '',
-  //   file_key: file.file_key || '',
-  //   file_name: file.file_name || '',
-  //   file_description: file.file_description || '',
-  //   file_size: file.file_size ?? 0,
-  //   file_metadata: file.file_metadata ?? {},
-  //   status: file.status,
-  // })) ?? [],
+    usage_type: file.usage_type,
+
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size || 0,
+    file_metadata: file.file_metadata || {},
+
+    status: file.status,
+    added_date_time: file.added_date_time,
+    modified_date_time: file.modified_date_time,
+
+    organisation_id: file.organisation_id ?? '',
+    driver_id: file.driver_id ?? '',
+  })) ?? []
 });
 
 // Create New MasterDriver Payload
