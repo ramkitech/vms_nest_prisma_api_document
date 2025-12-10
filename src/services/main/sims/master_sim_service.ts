@@ -55,6 +55,11 @@ export interface MasterSim extends Record<string, unknown> {
 
   sim_provider_id: string;
   MasterMainSimProvider?: MasterMainSimProvider;
+
+  // // Relations - Child Count
+  _count?: {
+    AssignRemoveSimHistory?: number;
+  }
 }
 
 // AssignRemoveSimHistory Interface

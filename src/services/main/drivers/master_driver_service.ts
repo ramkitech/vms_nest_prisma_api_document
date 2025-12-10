@@ -39,7 +39,6 @@ import { FleetServiceManagement } from 'src/services/fleet/service_management/fl
 import { GPSGeofenceTransaction } from 'src/services/gps/features/geofence/gps_geofence_transaction_service';
 import { GPSGeofenceTransactionSummary } from 'src/services/gps/features/geofence/gps_geofence_transaction_summary_service';
 import { TripGeofenceToGeofence } from 'src/services/gps/features/geofence/trip_geofence_to_geofence_service';
-import { Ticket } from 'src/services/account/ticket_service';
 
 const URL = 'main/master_driver';
 
