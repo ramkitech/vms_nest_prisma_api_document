@@ -1,6 +1,6 @@
 // Imports
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, BaseCommonFile } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -121,7 +121,7 @@ export interface MasterDevice extends Record<string, unknown> {
 
   // Relations - Child
   // Child - Main
-  // MasterDeviceFile?: MasterDeviceFile[]
+  MasterDeviceFile?: MasterDeviceFile[]
   // Child - Fleet
   FleetFuelRefill?: FleetFuelRefill[]
   FleetFuelRemoval?: FleetFuelRemoval[]
@@ -132,6 +132,8 @@ export interface MasterDevice extends Record<string, unknown> {
 
   // Relations - Child Count
   _count?: {
+    AssignRemoveSimHistory?: number;
+    AssignRemoveDeviceHistory?: number;
     MasterDeviceFile?: number;
     FleetFuelRefill?: number;
     FleetFuelRemoval?: number;
@@ -161,6 +163,16 @@ export interface AssignRemoveDeviceHistory extends Record<string, unknown> {
 
   device_id: string;
   MasterDevice?: MasterDevice;
+}
+
+// MasterDeviceFile Interface
+export interface MasterDeviceFile extends BaseCommonFile {
+  // Primary Fields
+  device_file_id: string;
+  // Parent
+  device_id: string;
+  // Organisation Id
+  organisation_id: string;
 }
 
 // ✅ Device Create/Update Schema
