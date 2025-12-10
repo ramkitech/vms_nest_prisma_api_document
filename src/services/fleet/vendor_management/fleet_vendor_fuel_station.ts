@@ -20,7 +20,7 @@ import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 import { Status, YesNo } from '../../../core/Enums';
 
 // Other Models
-import { MasterMainLandmark } from 'src/services/master/main/master_main_landmark_service';
+import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
 import { FleetVendor } from './fleet_vendor_service';
 import { MasterFuelCompany } from 'src/services/master/expense/master_fuel_company_service';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -95,7 +95,7 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     google_location?: string;
 
     landmark_id?: string;
-    MasterMainLandMark?: MasterMainLandmark;
+    MasterMainLandMark?: MasterMainLandMark;
     landmark_location?: string;
     landmark_distance?: number;
 

@@ -27,7 +27,7 @@ import { Status, YesNo, FleetVendorAddressLabel, FileType } from '../../../core/
 // Other Models
 import { MasterVendorType } from 'src/services/master/expense/master_vendor_type_service';
 import { MasterVendorTag } from 'src/services/master/expense/master_vendor_tag_service';
-import { MasterMainLandmark } from 'src/services/master/main/master_main_landmark_service';
+import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
 import { User } from 'src/services/main/users/user_service';
 import { MasterVendorDocumentType } from 'src/services/master/expense/master_vendor_document_type_service';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -241,7 +241,7 @@ export interface FleetVendorAddress extends Record<string, unknown> {
     google_location?: string;
 
     landmark_id?: string;
-    MasterMainLandMark?: MasterMainLandmark;
+    MasterMainLandMark?: MasterMainLandMark;
     landmark_location?: string;
     landmark_distance?: number;
 

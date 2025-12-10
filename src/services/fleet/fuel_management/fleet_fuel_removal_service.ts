@@ -30,7 +30,7 @@ import { User } from 'src/services/main/users/user_service';
 import { MasterVehicle } from '../../main/vehicle/master_vehicle_service';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import { MasterDevice } from 'src/services/main/devices/master_device_service';
-import { MasterMainLandmark } from 'src/services/master/main/master_main_landmark_service';
+import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
 import { MasterVehicleFuelType } from 'src/services/master/vehicle/master_vehicle_fuel_type_service';
 import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicle_fuel_unit_service';
 import { MasterVehicleFuelRemovalReason } from 'src/services/master/vehicle/master_vehicle_fuel_removal_reason_service';
@@ -97,7 +97,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   google_location?: string;
 
   landmark_id?: string;
-  MasterMainLandmark?: MasterMainLandmark;
+  MasterMainLandmark?: MasterMainLandMark;
   landmark_location?: string;
   landmark_distance?: number;
 

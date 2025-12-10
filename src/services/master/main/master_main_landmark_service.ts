@@ -39,8 +39,8 @@ const ENDPOINTS = {
   delete: (id: string): string => `${URL}/${id}`,
 };
 
-// MasterMainLandmark Interface
-export interface MasterMainLandmark extends Record<string, unknown> {
+// MasterMainLandMark Interface
+export interface MasterMainLandMark extends Record<string, unknown> {
   // Primary Fields
   landmark_id: string;
   landmark_name: string;
@@ -129,7 +129,7 @@ export type MasterMainLandmarkQueryDTO = z.infer<
 >;
 
 // Convert MasterMainLandmark Data to API Payload
-export const toMasterMainLandmarkPayload = (row: MasterMainLandmark): MasterMainLandmarkDTO => ({
+export const toMasterMainLandmarkPayload = (row: MasterMainLandMark): MasterMainLandmarkDTO => ({
   country_id: row.country_id || '',
   state_id: row.state_id || '',
 
@@ -160,8 +160,8 @@ export const newMasterMainLandmarkPayload = (): MasterMainLandmarkDTO => ({
 });
 
 // MasterMainLandmark APIs
-export const findMasterMainCountries = async (data: MasterMainLandmarkQueryDTO): Promise<FBR<MasterMainLandmark[]>> => {
-  return apiPost<FBR<MasterMainLandmark[]>, MasterMainLandmarkQueryDTO>(ENDPOINTS.find, data);
+export const findMasterMainCountries = async (data: MasterMainLandmarkQueryDTO): Promise<FBR<MasterMainLandMark[]>> => {
+  return apiPost<FBR<MasterMainLandMark[]>, MasterMainLandmarkQueryDTO>(ENDPOINTS.find, data);
 };
 
 export const createMasterMainCountry = async (data: MasterMainLandmarkDTO): Promise<SBR> => {

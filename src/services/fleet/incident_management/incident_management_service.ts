@@ -17,6 +17,7 @@ import {
     single_select_optional,
     doubleOptional,
     doubleOptionalLatLng,
+    dateOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
@@ -35,6 +36,7 @@ import { MasterFleetIncidentStatus } from 'src/services/master/fleet/master_flee
 import { MasterFleetIncidentType } from 'src/services/master/fleet/master_fleet_incident_type_service';
 import { MasterExpenseName } from 'src/services/master/expense/master_expense_name_service';
 import { FleetIssueManagement } from '../issue_management/issue_management_service';
+import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
 
 const URL = 'fleet/incident_management/incidents';
 
@@ -84,6 +86,11 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
     longitude?: number;
     google_location?: string;
 
+    landmark_id?: string;
+    MasterMainLandMark?: MasterMainLandMark;
+    landmark_location?: string;
+    landmark_distance?: number;
+
     // Insurance Details
     insurance_cover: YesNo;
     insurance_claimed: YesNo;
@@ -119,6 +126,7 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
 
     user_id: string;
     User?: User;
+    user_details?: string;
 
     vehicle_id: string;
     MasterVehicle?: MasterVehicle;
@@ -399,7 +407,7 @@ export const FleetIncidentManagementCostSchema = z.object({
     vehicle_incident_id: single_select_mandatory('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
     expense_name_id: single_select_mandatory('MasterExpenseName'), // ✅ Single-Selection -> MasterExpenseName
 
-    incident_cost_date: dateMandatory('Incident Cost Date'),
+    incident_cost_date: dateOptional('Incident Cost Date'),
     incident_cost_amount: doubleOptional('Incident Cost Amount'),
     incident_cost_description: stringOptional(
         'Incident Cost Description',

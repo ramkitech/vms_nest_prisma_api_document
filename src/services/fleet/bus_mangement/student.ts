@@ -43,6 +43,7 @@ import { MasterStream } from 'src/services/master/bus/master_stream_service';
 import { MasterYear } from 'src/services/master/bus/master_year_service';
 import { MasterRelationship } from 'src/services/master/bus/master_relationship_service';
 import { MasterRouteStudent } from './master_route';
+import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
 
 const URL = 'student';
 
@@ -208,6 +209,11 @@ export interface StudentAddress extends Record<string, unknown> {
     latitude?: number;
     longitude?: number;
     google_location?: string;
+
+    landmark_id?: string;
+    MasterMainLandMark?: MasterMainLandMark;
+    landmark_location?: string;
+    landmark_distance?: number;
 
     bus_stop_id?: string;
     stop_name?: string;
