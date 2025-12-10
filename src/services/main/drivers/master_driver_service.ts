@@ -159,6 +159,8 @@ export interface MasterDriver extends Record<string, unknown> {
 
   // // Relations - Child Count
   _count?: {
+    AssignRemoveDriverHistory?: number;
+
     DriverLoginPush?: number;
     MasterDriverFile?: number;
 

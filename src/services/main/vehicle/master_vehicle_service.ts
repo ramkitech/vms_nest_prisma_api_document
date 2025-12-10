@@ -365,6 +365,11 @@ export interface MasterVehicle extends Record<string, unknown> {
 
   // Relations - Child Count
   _count?: {
+
+    AssignRemoveDriverHistory?: number;
+    AssignRemoveDeviceHistory?: number;
+    VehicleOdometerHistory?: number;
+    
     VehicleDocument?: number;
     MasterVehicleFile?: number;
     VehicleDocumentExpiry?: number;
