@@ -51,19 +51,19 @@ export interface MasterMainSimProvider extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainSimProvider Create/Update Schema
+// MasterMainSimProvider Create/Update Schema
 export const MasterMainSimProviderSchema = z.object({
   provider_name: stringMandatory('Provider Name', 1, 100),
-  country_notes: stringOptional('Country Notes', 1, 200),
+  country_notes: stringOptional('Country Notes', 0, 200),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainSimProviderDTO = z.infer<
   typeof MasterMainSimProviderSchema
 >;
 
-// ✅ MasterMainSimProvider Query Schema
+// MasterMainSimProvider Query Schema
 export const MasterMainSimProviderQuerySchema = BaseQuerySchema.extend({
-  sim_provider_ids: multi_select_optional('Sim Provider'), // ✅ Multi-selection -> MasterMainSimProvider
+  sim_provider_ids: multi_select_optional('MasterMainSimProvider'), // Multi-selection -> MasterMainSimProvider
 });
 export type MasterMainSimProviderQueryDTO = z.infer<
   typeof MasterMainSimProviderQuerySchema
