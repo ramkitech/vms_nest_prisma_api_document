@@ -59,19 +59,19 @@ export interface MasterTripPartyType extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterTripPartyType Create/Update Schema
+// MasterTripPartyType Create/Update Schema
 export const MasterTripPartyTypeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   party_type: stringMandatory('Party Type', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTripPartyTypeDTO = z.infer<typeof MasterTripPartyTypeSchema>;
 
-// ✅ MasterTripPartyType Query Schema
+// MasterTripPartyType Query Schema
 export const MasterTripPartyTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  party_type_ids: multi_select_optional('MasterTripPartyType'), // ✅ Multi-selection -> MasterTripPartyType
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  party_type_ids: multi_select_optional('MasterTripPartyType'), // Multi-selection -> MasterTripPartyType
 });
 export type MasterTripPartyTypeQueryDTO = z.infer<
   typeof MasterTripPartyTypeQuerySchema

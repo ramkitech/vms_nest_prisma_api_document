@@ -51,9 +51,9 @@ export interface MasterVehicleOwnershipType extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ MasterVehicleOwnershipType Create/Update Schema
+// MasterVehicleOwnershipType Create/Update Schema
 export const MasterVehicleOwnershipTypeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   ownership_type: stringMandatory('Ownership Type', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -62,12 +62,12 @@ export type MasterVehicleOwnershipTypeDTO = z.infer<
   typeof MasterVehicleOwnershipTypeSchema
 >;
 
-// ✅ MasterVehicleOwnershipType Query Schema
+// MasterVehicleOwnershipType Query Schema
 export const MasterVehicleOwnershipTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   vehicle_ownership_type_ids: multi_select_optional(
     'MasterVehicleOwnershipType',
-  ), // ✅ Multi-selection -> MasterVehicleOwnershipType
+  ), // Multi-selection -> MasterVehicleOwnershipType
 });
 export type MasterVehicleOwnershipTypeQueryDTO = z.infer<
   typeof MasterVehicleOwnershipTypeQuerySchema

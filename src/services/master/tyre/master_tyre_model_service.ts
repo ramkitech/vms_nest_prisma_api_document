@@ -64,21 +64,21 @@ export interface MasterTyreModel extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterTyreModel Create/Update Schema
+// MasterTyreModel Create/Update Schema
 export const MasterTyreModelSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  tyre_make_id: single_select_mandatory('MasterTyreMake'), // ✅ Single-Selection -> MasterTyreMake
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  tyre_make_id: single_select_mandatory('MasterTyreMake'), // Single-Selection -> MasterTyreMake
   tyre_model: stringMandatory('Tyre Model', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTyreModelDTO = z.infer<typeof MasterTyreModelSchema>;
 
-// ✅ MasterTyreModel Query Schema
+// MasterTyreModel Query Schema
 export const MasterTyreModelQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  tyre_make_ids: multi_select_optional('MasterTyreMake'), // ✅ Multi-selection -> MasterTyreMake
-  tyre_model_ids: multi_select_optional('MasterTyreModel'), // ✅ Multi-selection -> MasterTyreModel
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  tyre_make_ids: multi_select_optional('MasterTyreMake'), // Multi-selection -> MasterTyreMake
+  tyre_model_ids: multi_select_optional('MasterTyreModel'), // Multi-selection -> MasterTyreModel
 });
 export type MasterTyreModelQueryDTO = z.infer<
   typeof MasterTyreModelQuerySchema

@@ -65,19 +65,19 @@ export interface MasterTyreMake extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterTyreMake Create/Update Schema
+// MasterTyreMake Create/Update Schema
 export const MasterTyreMakeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   tyre_make: stringMandatory('Tyre Make', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTyreMakeDTO = z.infer<typeof MasterTyreMakeSchema>;
 
-// ✅ MasterTyreMake Query Schema
+// MasterTyreMake Query Schema
 export const MasterTyreMakeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  tyre_make_ids: multi_select_optional('MasterTyreMake'), // ✅ Multi-selection -> MasterTyreMake
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  tyre_make_ids: multi_select_optional('MasterTyreMake'), // Multi-selection -> MasterTyreMake
 });
 export type MasterTyreMakeQueryDTO = z.infer<typeof MasterTyreMakeQuerySchema>;
 

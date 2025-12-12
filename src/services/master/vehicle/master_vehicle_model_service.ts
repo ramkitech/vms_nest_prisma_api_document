@@ -10,6 +10,7 @@ import {
   multi_select_optional,
   single_select_mandatory,
   stringOptional,
+  stringUUIDMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -56,25 +57,30 @@ export interface MasterVehicleModel extends Record<string, unknown> {
   vehicle_make?: string;
 }
 
-// ✅ MasterVehicleModel Create/Update Schema
+// MasterVehicleModel Create/Update Schema
 export const MasterVehicleModelSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_make_id: single_select_mandatory('Vehicle Make'), // ✅ Single-Selection -> MasterVehicleMake
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_make_id: single_select_mandatory('Vehicle Make'), // Single-Selection -> MasterVehicleMake
   vehicle_model: stringMandatory('Vehicle Model', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleModelDTO = z.infer<typeof MasterVehicleModelSchema>;
 
-// ✅ MasterVehicleModel Query Schema
+// MasterVehicleModel Query Schema
 export const MasterVehicleModelQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // ✅ Multi-Selection -> MasterVehicleMake
-  vehicle_model_ids: multi_select_optional('MasterVehicleModel'), // ✅ Multi-Selection -> MasterVehicleModel
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // Multi-Selection -> MasterVehicleMake
+  vehicle_model_ids: multi_select_optional('MasterVehicleModel'), // Multi-Selection -> MasterVehicleModel
 });
 export type MasterVehicleModelQueryDTO = z.infer<
   typeof MasterVehicleModelQuerySchema
 >;
+
+export const FindCacheSchema = z.object({
+  vehicle_make_id: stringUUIDMandatory('vehicle_make_id'),
+});
+export type FindCacheDTO = z.infer<typeof FindCacheSchema>;
 
 // Convert MasterVehicleModel Data to API Payload
 export const toMasterVehicleModelPayload = (row: MasterVehicleModel): MasterVehicleModelDTO => ({

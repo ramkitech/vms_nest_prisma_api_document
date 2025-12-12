@@ -51,9 +51,9 @@ export interface MasterVehicleFuelType extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ MasterVehicleFuelType Create/Update Schema
+// MasterVehicleFuelType Create/Update Schema
 export const MasterVehicleFuelTypeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   fuel_type: stringMandatory('Fuel Type', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -62,10 +62,10 @@ export type MasterVehicleFuelTypeDTO = z.infer<
   typeof MasterVehicleFuelTypeSchema
 >;
 
-// ✅ MasterVehicleFuelType Query Schema
+// MasterVehicleFuelType Query Schema
 export const MasterVehicleFuelTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // ✅ Multi-selection -> MasterVehicleFuelType
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // Multi-selection -> MasterVehicleFuelType
 });
 export type MasterVehicleFuelTypeQueryDTO = z.infer<
   typeof MasterVehicleFuelTypeQuerySchema

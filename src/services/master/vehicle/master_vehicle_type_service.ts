@@ -51,19 +51,19 @@ export interface MasterVehicleType extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ MasterVehicleType Create/Update Schema
+// MasterVehicleType Create/Update Schema
 export const MasterVehicleTypeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   vehicle_type: stringMandatory('Vehicle Type', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleTypeDTO = z.infer<typeof MasterVehicleTypeSchema>;
 
-// ✅ MasterVehicleType Query Schema
+// MasterVehicleType Query Schema
 export const MasterVehicleTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_type_ids: multi_select_optional('MasterVehicleType'), // ✅ Multi-selection -> MasterVehicleType
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_type_ids: multi_select_optional('MasterVehicleType'), // Multi-selection -> MasterVehicleType
 });
 export type MasterVehicleTypeQueryDTO = z.infer<
   typeof MasterVehicleTypeQuerySchema

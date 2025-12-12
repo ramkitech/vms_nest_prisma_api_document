@@ -60,19 +60,19 @@ export interface MasterUserRole extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterUserRole Create/Update Schema
+// MasterUserRole Create/Update Schema
 export const MasterUserRoleSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   user_role: stringMandatory('User Role', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterUserRoleDTO = z.infer<typeof MasterUserRoleSchema>;
 
-// ✅ MasterUserRole Query Schema
+// MasterUserRole Query Schema
 export const MasterUserRoleQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  user_role_ids: multi_select_optional('MasterUserRole'), // ✅ Multi-selection -> MasterUserRole
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  user_role_ids: multi_select_optional('MasterUserRole'), // Multi-selection -> MasterUserRole
 });
 export type MasterUserRoleQueryDTO = z.infer<typeof MasterUserRoleQuerySchema>;
 

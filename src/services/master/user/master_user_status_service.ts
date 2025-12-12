@@ -60,19 +60,19 @@ export interface MasterUserStatus extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterUserStatus Create/Update Schema
+// MasterUserStatus Create/Update Schema
 export const MasterUserStatusSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   user_status: stringMandatory('User Status', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterUserStatusDTO = z.infer<typeof MasterUserStatusSchema>;
 
-// ✅ MasterUserStatus Query Schema
+// MasterUserStatus Query Schema
 export const MasterUserStatusQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  user_status_ids: multi_select_optional('MasterUserStatus'), // ✅ Multi-selection -> MasterUserStatus
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  user_status_ids: multi_select_optional('MasterUserStatus'), // Multi-selection -> MasterUserStatus
 });
 export type MasterUserStatusQueryDTO = z.infer<
   typeof MasterUserStatusQuerySchema

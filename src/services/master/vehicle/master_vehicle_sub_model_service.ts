@@ -10,6 +10,7 @@ import {
   single_select_mandatory,
   multi_select_optional,
   stringOptional,
+  stringUUIDMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -56,11 +57,10 @@ export interface MasterVehicleSubModel extends Record<string, unknown> {
   vehicle_model?: string;
 }
 
-// ✅ MasterVehicleSubModel Create/Update Schema
+// MasterVehicleSubModel Create/Update Schema
 export const MasterVehicleSubModelSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_make_id: single_select_mandatory('MasterVehicleMake'), // ✅ Single-Selection -> MasterVehicleMake
-  vehicle_model_id: single_select_mandatory('MasterVehicleModel'), // ✅ Single-Selection -> MasterVehicleModel
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_model_id: single_select_mandatory('MasterVehicleModel'), // Single-Selection -> MasterVehicleModel
   vehicle_sub_model: stringMandatory('Vehicle Sub Model', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -69,21 +69,25 @@ export type MasterVehicleSubModelDTO = z.infer<
   typeof MasterVehicleSubModelSchema
 >;
 
-// ✅ MasterVehicleSubModel Query Schema
+// MasterVehicleSubModel Query Schema
 export const MasterVehicleSubModelQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // ✅ Multi-Selection -> MasterVehicleMake
-  vehicle_model_ids: multi_select_optional('MasterVehicleModel'), // ✅ Multi-Selection -> MasterVehicleModel
-  vehicle_sub_model_ids: multi_select_optional('MasterVehicleSubModel'), // ✅ Multi-Selection -> MasterVehicleSubModel
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // Multi-Selection -> MasterVehicleMake
+  vehicle_model_ids: multi_select_optional('MasterVehicleModel'), // Multi-Selection -> MasterVehicleModel
+  vehicle_sub_model_ids: multi_select_optional('MasterVehicleSubModel'), // Multi-Selection -> MasterVehicleSubModel
 });
 export type MasterVehicleSubModelQueryDTO = z.infer<
   typeof MasterVehicleSubModelQuerySchema
 >;
 
+export const FindCacheSchema = z.object({
+  vehicle_model_id: stringUUIDMandatory('vehicle_model_id'),
+});
+export type FindCacheDTO = z.infer<typeof FindCacheSchema>;
+
 // Convert MasterVehicleSubModel Data to API Payload
 export const toMasterVehicleSubModelPayload = (row: MasterVehicleSubModel): MasterVehicleSubModelDTO => ({
   organisation_id: row.organisation_id || '',
-  vehicle_make_id: row.MasterVehicleModel?.vehicle_make_id || '',
   vehicle_model_id: row.vehicle_model_id || '', 
 
   vehicle_sub_model: row.vehicle_sub_model || '',
@@ -94,7 +98,6 @@ export const toMasterVehicleSubModelPayload = (row: MasterVehicleSubModel): Mast
 // Create New MasterVehicleSubModel Payload
 export const newMasterVehicleSubModelPayload = (): MasterVehicleSubModelDTO => ({
   organisation_id: '',
-  vehicle_make_id: '',
   vehicle_model_id: '',
   vehicle_sub_model: '',
   description: '',

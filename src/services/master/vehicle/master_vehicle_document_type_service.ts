@@ -59,9 +59,9 @@ export interface MasterVehicleDocumentType extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterVehicleDocumentType Create/Update Schema
+// MasterVehicleDocumentType Create/Update Schema
 export const MasterVehicleDocumentTypeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   document_type: stringMandatory('Document Type', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -70,10 +70,10 @@ export type MasterVehicleDocumentTypeDTO = z.infer<
   typeof MasterVehicleDocumentTypeSchema
 >;
 
-// ✅ MasterVehicleDocumentType Query Schema
+// MasterVehicleDocumentType Query Schema
 export const MasterVehicleDocumentTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  document_type_ids: multi_select_optional('MasterVehicleDocumentType'), // ✅ Multi-selection -> MasterVehicleDocumentType
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  document_type_ids: multi_select_optional('MasterVehicleDocumentType'), // Multi-selection -> MasterVehicleDocumentType
 });
 export type MasterVehicleDocumentTypeQueryDTO = z.infer<
   typeof MasterVehicleDocumentTypeQuerySchema

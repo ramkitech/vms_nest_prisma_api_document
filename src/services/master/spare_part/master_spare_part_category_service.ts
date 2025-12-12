@@ -66,9 +66,9 @@ export interface MasterSparePartCategory extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterSparePartCategory Create/Update Schema
+// MasterSparePartCategory Create/Update Schema
 export const MasterSparePartCategorySchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   category_name: stringMandatory('Category Name', 3, 50),
   category_code: stringMandatory('Category Code', 2, 10),
   description: stringOptional('Description', 0, 300),
@@ -78,10 +78,10 @@ export type MasterSparePartCategoryDTO = z.infer<
   typeof MasterSparePartCategorySchema
 >;
 
-// ✅ MasterSparePartCategory Query Schema
+// MasterSparePartCategory Query Schema
 export const SparePartCategoryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  spare_part_category_ids: multi_select_optional('MasterSparePartCategory'), // ✅ Multi-selection -> MasterSparePartCategory
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  spare_part_category_ids: multi_select_optional('MasterSparePartCategory'), // Multi-selection -> MasterSparePartCategory
 });
 export type SparePartCategoryQueryDTO = z.infer<
   typeof SparePartCategoryQuerySchema

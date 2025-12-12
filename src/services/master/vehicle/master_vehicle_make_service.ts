@@ -53,7 +53,7 @@ export interface MasterVehicleMake extends Record<string, unknown> {
 
 // MasterVehicleMake Create/Update Schema
 export const MasterVehicleMakeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   vehicle_make: stringMandatory('Vehicle Make', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -62,8 +62,8 @@ export type MasterVehicleMakeDTO = z.infer<typeof MasterVehicleMakeSchema>;
 
 // MasterVehicleMake Query Schema
 export const MasterVehicleMakeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-Selection -> UserOrganisation
-  vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // ✅ Multi-Selection -> MasterVehicleMake
+  organisation_ids: multi_select_optional('Organisation'), // Multi-Selection -> UserOrganisation
+  vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // Multi-Selection -> MasterVehicleMake
 });
 export type MasterVehicleMakeQueryDTO = z.infer<
   typeof MasterVehicleMakeQuerySchema

@@ -52,9 +52,9 @@ export interface MasterVehicleFuelRemovalReason extends Record<string, unknown> 
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ MasterVehicleFuelRemovalReason Create/Update Schema
+// MasterVehicleFuelRemovalReason Create/Update Schema
 export const MasterVehicleFuelRemovalReasonSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   removal_reason: stringMandatory('Removal Reason', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -63,13 +63,13 @@ export type MasterVehicleFuelRemovalReasonDTO = z.infer<
   typeof MasterVehicleFuelRemovalReasonSchema
 >;
 
-// ✅ MasterVehicleFuelRemovalReason Query Schema
+// MasterVehicleFuelRemovalReason Query Schema
 export const MasterVehicleFuelRemovalReasonQuerySchema = BaseQuerySchema.extend(
   {
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
     fuel_removal_reason_ids: multi_select_optional(
       'MasterVehicleFuelRemovalReason',
-    ), // ✅ Multi-selection -> MasterVehicleFuelRemovalReason
+    ), // Multi-selection -> MasterVehicleFuelRemovalReason
   },
 );
 export type MasterVehicleFuelRemovalReasonQueryDTO = z.infer<

@@ -60,19 +60,19 @@ export interface MasterTyreGrade extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterTyreGrade Create/Update Schema
+// MasterTyreGrade Create/Update Schema
 export const MasterTyreGradeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   tyre_grade: stringMandatory('Tyre Grade', 1, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTyreGradeDTO = z.infer<typeof MasterTyreGradeSchema>;
 
-// ✅ MasterTyreGrade Query Schema
+// MasterTyreGrade Query Schema
 export const MasterTyreGradeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  tyre_grade_ids: multi_select_optional('MasterTyreGrade'), // ✅ Multi-selection -> MasterTyreGrade
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  tyre_grade_ids: multi_select_optional('MasterTyreGrade'), // Multi-selection -> MasterTyreGrade
 });
 export type MasterTyreGradeQueryDTO = z.infer<
   typeof MasterTyreGradeQuerySchema

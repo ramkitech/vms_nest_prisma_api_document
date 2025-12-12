@@ -61,9 +61,9 @@ export interface MasterSparePartUnit extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterSparePartUnit Create/Update Schema
+// MasterSparePartUnit Create/Update Schema
 export const MasterSparePartUnitSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   unit_name: stringMandatory('Unit Name', 3, 50),
   unit_code: stringMandatory('Unit Code', 2, 10),
   description: stringOptional('Description', 0, 300),
@@ -71,13 +71,12 @@ export const MasterSparePartUnitSchema = z.object({
 });
 export type MasterSparePartUnitDTO = z.infer<typeof MasterSparePartUnitSchema>;
 
-// ✅ MasterSparePartUnit Query Schema
+// MasterSparePartUnit Query Schema
 export const SparePartUnitQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  spare_part_unit_ids: multi_select_optional('MasterSparePartUnit'), // ✅ Multi-selection -> MasterSparePartUnit
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  spare_part_unit_ids: multi_select_optional('MasterSparePartUnit'), // Multi-selection -> MasterSparePartUnit
 });
 export type SparePartUnitQueryDTO = z.infer<typeof SparePartUnitQuerySchema>;
-
 // Convert MasterSparePartUnit Data to API Payload
 export const toMasterSparePartUnitPayload = (row: MasterSparePartUnit): MasterSparePartUnitDTO => ({
   organisation_id: row.organisation_id || '',

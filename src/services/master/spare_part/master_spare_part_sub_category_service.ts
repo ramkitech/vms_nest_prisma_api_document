@@ -10,6 +10,7 @@ import {
   multi_select_optional,
   enumMandatory,
   stringOptional,
+  stringUUIDMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -65,10 +66,10 @@ export interface MasterSparePartSubCategory extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterSparePartSubCategory Create/Update Schema
+// MasterSparePartSubCategory Create/Update Schema
 export const MasterSparePartSubCategorySchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  spare_part_category_id: single_select_mandatory('MasterSparePartCategory'), // ✅ Single-Selection -> MasterSparePartCategory
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  spare_part_category_id: single_select_mandatory('MasterSparePartCategory'), // Single-Selection -> MasterSparePartCategory
   sub_category_name: stringMandatory('Sub Category Name', 3, 50),
   sub_category_code: stringMandatory('Sub Category Code', 2, 10),
   description: stringOptional('Description', 0, 300),
@@ -78,17 +79,22 @@ export type MasterSparePartSubCategoryDTO = z.infer<
   typeof MasterSparePartSubCategorySchema
 >;
 
-// ✅ MasterSparePartSubCategory Query Schema
+// MasterSparePartSubCategory Query Schema
 export const SparePartSubCategoryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  spare_part_category_ids: multi_select_optional('MasterSparePartCategory'), // ✅ Multi-selection -> MasterSparePartCategory
   spare_part_sub_category_ids: multi_select_optional(
     'MasterSparePartSubCategory',
-  ), // ✅ Multi-selection -> MasterSparePartSubCategory
+  ), // Multi-selection -> MasterSparePartSubCategory
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  spare_part_category_ids: multi_select_optional('MasterSparePartCategory'), // Multi-selection -> MasterSparePartCategory
 });
 export type SparePartSubCategoryQueryDTO = z.infer<
   typeof SparePartSubCategoryQuerySchema
 >;
+
+export const FindCacheSchema = z.object({
+  spare_part_category_id: stringUUIDMandatory('spare_part_category_id'),
+});
+export type FindCacheDTO = z.infer<typeof FindCacheSchema>;
 
 // Convert MasterSparePartSubCategory Data to API Payload
 export const toMasterSparePartSubCategoryPayload = (row: MasterSparePartSubCategory): MasterSparePartSubCategoryDTO => ({

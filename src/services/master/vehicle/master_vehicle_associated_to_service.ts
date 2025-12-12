@@ -51,9 +51,9 @@ export interface MasterVehicleAssociatedTo extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ MasterVehicleAssociatedTo Create/Update Schema
+// MasterVehicleAssociatedTo Create/Update Schema
 export const MasterVehicleAssociatedToSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   associated_to: stringMandatory('Associated To', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -62,10 +62,10 @@ export type MasterVehicleAssociatedToDTO = z.infer<
   typeof MasterVehicleAssociatedToSchema
 >;
 
-// ✅ MasterVehicleAssociatedTo Query Schema
+// MasterVehicleAssociatedTo Query Schema
 export const MasterVehicleAssociatedToQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_associated_to_ids: multi_select_optional('MasterVehicleAssociatedTo'), // ✅ Multi-selection -> MasterVehicleAssociatedTo
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_associated_to_ids: multi_select_optional('MasterVehicleAssociatedTo'), // Multi-selection -> MasterVehicleAssociatedTo
 });
 export type MasterVehicleAssociatedToQueryDTO = z.infer<
   typeof MasterVehicleAssociatedToQuerySchema
