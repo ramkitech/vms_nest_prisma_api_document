@@ -10,6 +10,7 @@ import {
   enumMandatory,
   single_select_mandatory,
   multi_select_optional,
+  stringUUIDMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -65,9 +66,9 @@ export interface MasterDeviceModel extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterDeviceModel Create/Update Schema
+// MasterDeviceModel Create/Update Schema
 export const MasterDeviceModelSchema = z.object({
-  device_manufacturer_id: single_select_mandatory('MasterDeviceManufacturer'), // ✅ Single-Selection -> MasterDeviceManufacturer
+  device_manufacturer_id: single_select_mandatory('MasterDeviceManufacturer'), // Single-Selection -> MasterDeviceManufacturer
   device_model_name: stringMandatory('Device Model Name', 3, 100),
   device_model_code: stringOptional('Device Model Code', 0, 100),
   description: stringOptional('Description', 0, 300),
@@ -75,14 +76,19 @@ export const MasterDeviceModelSchema = z.object({
 });
 export type MasterDeviceModelDTO = z.infer<typeof MasterDeviceModelSchema>;
 
-// ✅ MasterDeviceModel Query Schema
+// MasterDeviceModel Query Schema
 export const MasterDeviceModelQuerySchema = BaseQuerySchema.extend({
-  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // ✅ Multi-Selection -> MasterDeviceManufacturer
-  device_model_ids: multi_select_optional('MasterDeviceModel'), // ✅ Multi-Selection -> MasterDeviceModel
+  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // Multi-Selection -> MasterDeviceManufacturer
+  device_model_ids: multi_select_optional('MasterDeviceModel'), // Multi-Selection -> MasterDeviceModel
 });
 export type MasterDeviceModelQueryDTO = z.infer<
   typeof MasterDeviceModelQuerySchema
 >;
+
+export const FindCacheSchema = z.object({
+  device_manufacturer_id: stringUUIDMandatory('device_manufacturer_id'),
+});
+export type FindCacheDTO = z.infer<typeof FindCacheSchema>;
 
 // Convert MasterDeviceModel Data to API Payload
 export const toMasterDeviceModelPayload = (row: MasterDeviceModel): MasterDeviceModelDTO => ({

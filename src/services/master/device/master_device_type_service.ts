@@ -66,10 +66,10 @@ export interface MasterDeviceType extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterDeviceType Create/Update Schema
+// MasterDeviceType Create/Update Schema
 export const MasterDeviceTypeSchema = z.object({
-  device_manufacturer_id: single_select_mandatory('MasterDeviceManufacturer'), // ✅ Single-Selection -> MasterDeviceManufacturer
-  device_model_id: single_select_mandatory('MasterDeviceModel'), // ✅ Single-Selection -> MasterDeviceModel
+  device_manufacturer_id: single_select_mandatory('MasterDeviceManufacturer'), // Single-Selection -> MasterDeviceManufacturer
+  device_model_id: single_select_mandatory('MasterDeviceModel'), // Single-Selection -> MasterDeviceModel
   device_type_name: stringMandatory('Device Type Name', 3, 100),
   device_type_code: stringOptional('Device Type Code', 0, 100),
   description: stringOptional('Description', 0, 300),
@@ -77,11 +77,11 @@ export const MasterDeviceTypeSchema = z.object({
 });
 export type MasterDeviceTypeDTO = z.infer<typeof MasterDeviceTypeSchema>;
 
-// ✅ MasterDeviceType Query Schema
+// MasterDeviceType Query Schema
 export const MasterDeviceTypeQuerySchema = BaseQuerySchema.extend({
-  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // ✅ Multi-Selection -> MasterDeviceManufacturer
-  device_model_ids: multi_select_optional('MasterDeviceModel'), // ✅ Multi-Selection -> MasterDeviceModel
-  device_type_ids: multi_select_optional('MasterDeviceType'), // ✅ Multi-Selection -> MasterDeviceType
+  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // Multi-Selection -> MasterDeviceManufacturer
+  device_model_ids: multi_select_optional('MasterDeviceModel'), // Multi-Selection -> MasterDeviceModel
+  device_type_ids: multi_select_optional('MasterDeviceType'), // Multi-Selection -> MasterDeviceType
 });
 export type MasterDeviceTypeQueryDTO = z.infer<
   typeof MasterDeviceTypeQuerySchema

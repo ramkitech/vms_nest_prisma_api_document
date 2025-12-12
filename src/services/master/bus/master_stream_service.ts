@@ -60,19 +60,19 @@ export interface MasterStream extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterStream Create/Update Schema
+// MasterStream Create/Update Schema
 export const MasterStreamSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   stream_name: stringMandatory('Stream Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterStreamDTO = z.infer<typeof MasterStreamSchema>;
 
-// ✅ MasterStream Query Schema
+// MasterStream Query Schema
 export const MasterStreamQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  stream_ids: multi_select_optional('MasterStream'), // ✅ Multi-selection -> MasterStream
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  stream_ids: multi_select_optional('MasterStream'), // Multi-selection -> MasterStream
 });
 export type MasterStreamQueryDTO = z.infer<typeof MasterStreamQuerySchema>;
 

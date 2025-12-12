@@ -60,19 +60,19 @@ export interface MasterYear extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterYear Create/Update Schema
+// MasterYear Create/Update Schema
 export const MasterYearSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   year_name: stringMandatory('Year Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterYearDTO = z.infer<typeof MasterYearSchema>;
 
-// ✅ MasterYear Query Schema
+// MasterYear Query Schema
 export const MasterYearQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  year_ids: multi_select_optional('MasterYear'), // ✅ Multi-selection -> MasterYear
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  year_ids: multi_select_optional('MasterYear'), // Multi-selection -> MasterYear
 });
 export type MasterYearQueryDTO = z.infer<typeof MasterYearQuerySchema>;
 

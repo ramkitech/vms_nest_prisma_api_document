@@ -61,19 +61,19 @@ export interface MasterSemester extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterSemester Create/Update Schema
+// MasterSemester Create/Update Schema
 export const MasterSemesterSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   semester_name: stringMandatory('Semester Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterSemesterDTO = z.infer<typeof MasterSemesterSchema>;
 
-// ✅ MasterSemester Query Schema
+// MasterSemester Query Schema
 export const MasterSemesterQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  semester_ids: multi_select_optional('MasterSemester'), // ✅ Multi-selection -> MasterSemester
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  semester_ids: multi_select_optional('MasterSemester'), // Multi-selection -> MasterSemester
 });
 export type MasterSemesterQueryDTO = z.infer<typeof MasterSemesterQuerySchema>;
 

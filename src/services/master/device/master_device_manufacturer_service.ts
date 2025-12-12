@@ -62,7 +62,7 @@ export interface MasterDeviceManufacturer extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterDeviceManufacturer Create/Update Schema
+// MasterDeviceManufacturer Create/Update Schema
 export const MasterDeviceManufacturerSchema = z.object({
   device_manufacturer_name: stringMandatory('Device Manufacturer Name', 3, 100),
   device_manufacturer_code: stringOptional('Device Manufacturer Code', 0, 100),
@@ -73,9 +73,9 @@ export type MasterDeviceManufacturerDTO = z.infer<
   typeof MasterDeviceManufacturerSchema
 >;
 
-// ✅ MasterDeviceManufacturer Query Schema
+// MasterDeviceManufacturer Query Schema
 export const MasterDeviceManufacturerQuerySchema = BaseQuerySchema.extend({
-  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // ✅ Multi-selection -> MasterDeviceManufacturer
+  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // Multi-selection -> MasterDeviceManufacturer
 });
 export type MasterDeviceManufacturerQueryDTO = z.infer<
   typeof MasterDeviceManufacturerQuerySchema

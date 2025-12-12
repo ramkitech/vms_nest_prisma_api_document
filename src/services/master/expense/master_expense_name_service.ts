@@ -61,9 +61,9 @@ export interface MasterExpenseName extends Record<string, unknown> {
   };
 }
 
-// ✅  MasterExpenseName Create/Update Schema
+//  MasterExpenseName Create/Update Schema
 export const MasterExpenseNameSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   expense_name: stringMandatory('Expense Name', 3, 100),
   expense_category: enumMandatory(
     'Expense Category',
@@ -75,11 +75,11 @@ export const MasterExpenseNameSchema = z.object({
 });
 export type MasterExpenseNameDTO = z.infer<typeof MasterExpenseNameSchema>;
 
-// ✅  MasterExpenseName Query Schema
+//  MasterExpenseName Query Schema
 export const MasterExpenseNameQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  expense_name_ids: multi_select_optional('MasterExpenseName'), // ✅ Multi-Selection -> MasterExpenseName
-  expense_category: enumArrayOptional('Expense Category', ExpenseCategory), // ✅ Multi-Selection -> ExpenseCategory
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  expense_name_ids: multi_select_optional('MasterExpenseName'), // Multi-Selection -> MasterExpenseName
+  expense_category: enumArrayOptional('Expense Category', ExpenseCategory), // Multi-Selection -> ExpenseCategory
 });
 export type MasterExpenseNameQueryDTO = z.infer<
   typeof MasterExpenseNameQuerySchema

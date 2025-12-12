@@ -18,7 +18,6 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { User } from '../../main/users/user_service';
 import { Student } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/program';
@@ -61,19 +60,19 @@ export interface MasterProgram extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterProgram Create/Update Schema
+// MasterProgram Create/Update Schema
 export const MasterProgramSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   program_name: stringMandatory('Program Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterProgramDTO = z.infer<typeof MasterProgramSchema>;
 
-// ✅ MasterProgram Query Schema
+// MasterProgram Query Schema
 export const MasterProgramQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  program_ids: multi_select_optional('MasterProgram'), // ✅ Multi-selection -> MasterProgram
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  program_ids: multi_select_optional('MasterProgram'), // Multi-selection -> MasterProgram
 });
 export type MasterProgramQueryDTO = z.infer<typeof MasterProgramQuerySchema>;
 

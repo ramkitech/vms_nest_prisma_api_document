@@ -61,19 +61,19 @@ export interface MasterRelationship extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterRelationship Create/Update Schema
+// MasterRelationship Create/Update Schema
 export const MasterRelationshipSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   relationship_name: stringMandatory('RelationShip Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterRelationshipDTO = z.infer<typeof MasterRelationshipSchema>;
 
-// ✅ MasterRelationship Query Schema
+// MasterRelationship Query Schema
 export const MasterRelationshipQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  relationship_ids: multi_select_optional('MasterRelationship'), // ✅ Multi-selection -> MasterRelationship
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  relationship_ids: multi_select_optional('MasterRelationship'), // Multi-selection -> MasterRelationship
 });
 export type MasterRelationshipQueryDTO = z.infer<
   typeof MasterRelationshipQuerySchema

@@ -51,9 +51,9 @@ export interface MasterVendorDocumentType extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ MasterVendorDocumentType Create/Update Schema
+// MasterVendorDocumentType Create/Update Schema
 export const MasterVendorDocumentTypeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   document_type: stringMandatory('Document Type', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -62,10 +62,10 @@ export type MasterVendorDocumentTypeDTO = z.infer<
   typeof MasterVendorDocumentTypeSchema
 >;
 
-// ✅ MasterVendorDocumentType Query Schema
+// MasterVendorDocumentType Query Schema
 export const MasterVendorDocumentTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  document_type_ids: multi_select_optional('MasterVendorDocumentType'), // ✅ Multi-Selection -> MasterVendorDocumentType
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  document_type_ids: multi_select_optional('MasterVendorDocumentType'), // Multi-Selection -> MasterVendorDocumentType
 });
 export type MasterVendorDocumentTypeQueryDTO = z.infer<
   typeof MasterVendorDocumentTypeQuerySchema

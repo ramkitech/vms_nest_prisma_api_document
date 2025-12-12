@@ -52,19 +52,19 @@ export interface MasterExpenseType extends Record<string, unknown> {
   _count?: object;
 }
 
-// ✅ MasterExpenseType Create/Update Schema
+// MasterExpenseType Create/Update Schema
 export const MasterExpenseTypeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   expense_type_name: stringMandatory('Expense Type Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterExpenseTypeDTO = z.infer<typeof MasterExpenseTypeSchema>;
 
-// ✅ MasterExpenseType Query Schema
+// MasterExpenseType Query Schema
 export const MasterExpenseTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  expense_type_ids: multi_select_optional('MasterExpenseType'), // ✅ Multi-Selection -> MasterExpenseType
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  expense_type_ids: multi_select_optional('MasterExpenseType'), // Multi-Selection -> MasterExpenseType
 });
 export type MasterExpenseTypeQueryDTO = z.infer<
   typeof MasterExpenseTypeQuerySchema

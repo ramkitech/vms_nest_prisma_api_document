@@ -63,7 +63,7 @@ export interface MasterClass extends Record<string, unknown> {
 
 // MasterClass Create/Update Schema
 export const MasterClassSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   class_name: stringMandatory('Class Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -72,8 +72,8 @@ export type MasterClassDTO = z.infer<typeof MasterClassSchema>;
 
 // MasterClass Query Schema
 export const MasterClassQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  class_ids: multi_select_optional('MasterClass'), // ✅ Multi-selection -> MasterClass
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  class_ids: multi_select_optional('MasterClass'), // Multi-selection -> MasterClass
 });
 export type MasterClassQueryDTO = z.infer<typeof MasterClassQuerySchema>;
 

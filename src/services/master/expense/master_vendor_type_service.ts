@@ -49,19 +49,19 @@ export interface MasterVendorType extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ MasterVendorType Create/Update Schema
+// MasterVendorType Create/Update Schema
 export const MasterVendorTypeSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   vendor_type: stringMandatory('Vendor Type', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVendorTypeDTO = z.infer<typeof MasterVendorTypeSchema>;
 
-// ✅ MasterVendorType Query Schema
+// MasterVendorType Query Schema
 export const MasterVendorTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vendor_type_ids: multi_select_optional('MasterVendorType'), // ✅ Multi-selection -> MasterVendorType
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vendor_type_ids: multi_select_optional('MasterVendorType'), // Multi-selection -> MasterVendorType
 });
 export type MasterVendorTypeQueryDTO = z.infer<
   typeof MasterVendorTypeQuerySchema

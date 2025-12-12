@@ -60,19 +60,19 @@ export interface MasterSection extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterSection Create/Update Schema
+// MasterSection Create/Update Schema
 export const MasterSectionSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   section_name: stringMandatory('Section Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterSectionDTO = z.infer<typeof MasterSectionSchema>;
 
-// ✅ MasterSection Query Schema
+// MasterSection Query Schema
 export const MasterSectionQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  section_ids: multi_select_optional('MasterSection'), // ✅ Multi-selection -> MasterSection
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  section_ids: multi_select_optional('MasterSection'), // Multi-selection -> MasterSection
 });
 export type MasterSectionQueryDTO = z.infer<typeof MasterSectionQuerySchema>;
 
