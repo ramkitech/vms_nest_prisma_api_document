@@ -81,21 +81,21 @@ export interface VehicleOrganisationGroupLink extends Record<string, unknown> {
   vehicle_type?: string;
 }
 
-// ✅ OrganisationGroup Create/Update Schema
+// OrganisationGroup Create/Update Schema
 export const OrganisationGroupSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   group_name: stringMandatory('Group Name', 3, 100),
   description: stringOptional('Description', 0, 300),
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationGroupDTO = z.infer<typeof OrganisationGroupSchema>;
 
-// ✅ OrganisationGroup Query Schema
+// OrganisationGroup Query Schema
 export const OrganisationGroupQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_group_ids: multi_select_optional('OrganisationGroup'), // ✅ Multi-selection -> OrganisationGroup
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_group_ids: multi_select_optional('OrganisationGroup'), // Multi-selection -> OrganisationGroup
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
 });
 export type OrganisationGroupQueryDTO = z.infer<
   typeof OrganisationGroupQuerySchema

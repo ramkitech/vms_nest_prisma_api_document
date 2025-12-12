@@ -62,9 +62,9 @@ export interface OrganisationBranch extends Record<string, unknown> {
   };
 }
 
-// ✅ OrganisationBranch Create/Update Schema
+// OrganisationBranch Create/Update Schema
 export const OrganisationBranchSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   branch_name: stringMandatory('Branch Name', 3, 100),
   branch_city: stringMandatory('Branch City', 3, 100),
   branch_address: stringMandatory('Branch Address', 3, 100),
@@ -73,10 +73,10 @@ export const OrganisationBranchSchema = z.object({
 });
 export type OrganisationBranchDTO = z.infer<typeof OrganisationBranchSchema>;
 
-// ✅ OrganisationBranch Query Schema
+// OrganisationBranch Query Schema
 export const OrganisationBranchQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
 });
 export type OrganisationBranchQueryDTO = z.infer<
   typeof OrganisationBranchQuerySchema

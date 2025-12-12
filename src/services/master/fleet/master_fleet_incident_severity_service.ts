@@ -59,9 +59,9 @@ export interface MasterFleetIncidentSeverity extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterFleetIncidentSeverity Create/Update Schema
+// MasterFleetIncidentSeverity Create/Update Schema
 export const MasterFleetIncidentSeveritySchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   fleet_incident_severity: stringMandatory('Fleet Incident Severity', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -70,12 +70,12 @@ export type MasterFleetIncidentSeverityDTO = z.infer<
   typeof MasterFleetIncidentSeveritySchema
 >;
 
-// ✅ MasterFleetIncidentSeverity Query Schema
+// MasterFleetIncidentSeverity Query Schema
 export const MasterFleetIncidentSeverityQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   fleet_incident_severity_ids: multi_select_optional(
     'MasterFleetIncidentSeverity',
-  ), // ✅ Multi-selection -> MasterFleetIncidentSeverity
+  ), // Multi-selection -> MasterFleetIncidentSeverity
 });
 export type MasterFleetIncidentSeverityQueryDTO = z.infer<
   typeof MasterFleetIncidentSeverityQuerySchema

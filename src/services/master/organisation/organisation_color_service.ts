@@ -52,9 +52,9 @@ export interface OrganisationColor extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ OrganisationColor Create/Update Schema
+// OrganisationColor Create/Update Schema
 export const OrganisationColorSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   color_name: stringMandatory('Color Name', 3, 100),
   color_code: stringMandatory('Color Code', 3, 100),
   description: stringOptional('Description', 0, 300),
@@ -62,10 +62,10 @@ export const OrganisationColorSchema = z.object({
 });
 export type OrganisationColorDTO = z.infer<typeof OrganisationColorSchema>;
 
-// ✅ OrganisationColor Query Schema
+// OrganisationColor Query Schema
 export const OrganisationColorQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_color_ids: multi_select_optional('OrganisationColor'), // ✅ Multi-selection -> OrganisationColor
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_color_ids: multi_select_optional('OrganisationColor'), // Multi-selection -> OrganisationColor
 });
 export type OrganisationColorQueryDTO = z.infer<
   typeof OrganisationColorQuerySchema

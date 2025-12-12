@@ -1,6 +1,6 @@
 // Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, BR, AWSPresignedUrl } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -23,11 +23,17 @@ import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_ser
 const URL = 'master/organisation/sub_company';
 
 const ENDPOINTS = {
+  // AWS S3 PRESIGNED
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+
   // OrganisationSubCompany APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
+  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
 
   // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
@@ -45,6 +51,7 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
 
   logo_key?: string;
   logo_url?: string;
+  logo_name?: string;
 
   // Metadata
   status: Status;
@@ -56,26 +63,39 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ OrganisationSubCompany Create/Update Schema
+// OrganisationSubCompany Create/Update Schema
 export const OrganisationSubCompanySchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   sub_company_name: stringMandatory('Sub Company Name', 3, 100),
   sub_company_GSTIN: stringMandatory('Sub Company GSTIN', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  logo_url: stringOptional('Logo URL', 0, 300),
+  logo_key: stringOptional('Logo Key', 0, 300),
+  logo_name: stringOptional('Logo Name', 0, 300),
+
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationSubCompanyDTO = z.infer<
   typeof OrganisationSubCompanySchema
 >;
 
-// ✅ OrganisationSubCompany Query Schema
+// OrganisationSubCompany Query Schema
 export const OrganisationSubCompanyQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // ✅ Multi-selection -> OrganisationSubCompany
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // Multi-selection -> OrganisationSubCompany
 });
 export type OrganisationSubCompanyQueryDTO = z.infer<
   typeof OrganisationSubCompanyQuerySchema
 >;
+
+// OrganisationSubCompany Logo Schema
+export const SubCompanyLogoSchema = z.object({
+  logo_url: stringMandatory('User Image URL', 0, 300),
+  logo_key: stringMandatory('User Image Key', 0, 300),
+  logo_name: stringMandatory('User Image Name', 0, 300),
+});
+export type SubCompanyLogoDTO = z.infer<typeof SubCompanyLogoSchema>;
 
 // Convert OrganisationSubCompany Data to API Payload
 export const toOrganisationSubCompanyPayload = (row: OrganisationSubCompany): OrganisationSubCompanyDTO => ({
@@ -83,6 +103,9 @@ export const toOrganisationSubCompanyPayload = (row: OrganisationSubCompany): Or
   sub_company_name: row.sub_company_name || '',
   sub_company_GSTIN: row.sub_company_GSTIN || '',
   description: row.description || '',
+  logo_url: row.logo_url || '',
+  logo_key: row.logo_key || '', 
+  logo_name: row.logo_name || '',
   status: row.status || Status.Active,
 });
 
@@ -92,8 +115,18 @@ export const newOrganisationSubCompanyPayload = (): OrganisationSubCompanyDTO =>
   sub_company_name: '',
   sub_company_GSTIN: '',
   description: '',
+
+  logo_url: '',
+  logo_key: '', 
+  logo_name: '',
+
   status: Status.Active,
 });
+
+// AWS S3 PRESIGNED
+export const get_user_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
+};
 
 // OrganisationSubCompany APIs
 export const findOrganisationSubCompanyies = async (data: OrganisationSubCompanyQueryDTO): Promise<FBR<OrganisationSubCompany[]>> => {
@@ -110,6 +143,14 @@ export const updateOrganisationSubCompany = async (id: string, data: Organisatio
 
 export const deleteOrganisationSubCompany = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+export const updateSubCompanyLogo = async (id: string, data: SubCompanyLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, SubCompanyLogoDTO>(ENDPOINTS.update_logo(id), data);
+};
+
+export const deleteSubCompanyLogo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
 // Cache APIs

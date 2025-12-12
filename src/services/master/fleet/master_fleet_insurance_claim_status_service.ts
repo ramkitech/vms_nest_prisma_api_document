@@ -61,9 +61,9 @@ export interface MasterFleetInsuranceClaimStatus
   };
 }
 
-// ✅ MasterFleetInsuranceClaimStatus Create/Update Schema
+// MasterFleetInsuranceClaimStatus Create/Update Schema
 export const MasterFleetInsuranceClaimStatusSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   fleet_insurance_claim_status: stringMandatory(
     'Fleet Insurance Claim Status',
     3,
@@ -76,13 +76,13 @@ export type MasterFleetInsuranceClaimStatusDTO = z.infer<
   typeof MasterFleetInsuranceClaimStatusSchema
 >;
 
-// ✅ MasterFleetInsuranceClaimStatus Query Schema
+// MasterFleetInsuranceClaimStatus Query Schema
 export const MasterFleetInsuranceClaimStatusQuerySchema =
   BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
     fleet_insurance_claim_status_ids: multi_select_optional(
       'MasterFleetInsuranceClaimStatus',
-    ), // ✅ Multi-selection -> MasterFleetInsuranceClaimStatus
+    ), // Multi-selection -> MasterFleetInsuranceClaimStatus
   });
 export type MasterFleetInsuranceClaimStatusQueryDTO = z.infer<
   typeof MasterFleetInsuranceClaimStatusQuerySchema

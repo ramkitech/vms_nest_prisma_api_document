@@ -61,9 +61,9 @@ export interface MasterFleetServiceTask extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterFleetServiceTask Create/Update Schema
+// MasterFleetServiceTask Create/Update Schema
 export const MasterFleetServiceTaskSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   fleet_service_task: stringMandatory('Fleet Service Task', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -72,10 +72,10 @@ export type MasterFleetServiceTaskDTO = z.infer<
   typeof MasterFleetServiceTaskSchema
 >;
 
-// ✅ MasterFleetServiceTask Query Schema
+// MasterFleetServiceTask Query Schema
 export const MasterFleetServiceTaskQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  fleet_service_task_ids: multi_select_optional('MasterFleetServiceTask'), // ✅ Multi-selection -> MasterFleetServiceTask
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  fleet_service_task_ids: multi_select_optional('MasterFleetServiceTask'), // Multi-selection -> MasterFleetServiceTask
 });
 export type MasterFleetServiceTaskQueryDTO = z.infer<
   typeof MasterFleetServiceTaskQuerySchema

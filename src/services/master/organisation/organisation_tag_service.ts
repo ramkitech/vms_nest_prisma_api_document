@@ -52,19 +52,19 @@ export interface OrganisationTag extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
 }
 
-// ✅ OrganisationTag Create/Update Schema
+// OrganisationTag Create/Update Schema
 export const OrganisationTagSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   tag_name: stringMandatory('Tag Name', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationTagDTO = z.infer<typeof OrganisationTagSchema>;
 
-// ✅ OrganisationTag Query Schema
+// OrganisationTag Query Schema
 export const OrganisationTagQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_tag_ids: multi_select_optional('OrganisationTag'), // ✅ Multi-selection -> OrganisationTag
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_tag_ids: multi_select_optional('OrganisationTag'), // Multi-selection -> OrganisationTag
 });
 export type OrganisationTagQueryDTO = z.infer<
   typeof OrganisationTagQuerySchema

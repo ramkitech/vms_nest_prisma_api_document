@@ -59,9 +59,9 @@ export interface MasterFleetIncidentStatus extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterFleetIncidentStatus Create/Update Schema
+// MasterFleetIncidentStatus Create/Update Schema
 export const MasterFleetIncidentStatusSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   fleet_incident_status: stringMandatory('Fleet Incident Status', 3, 100),
   description: stringOptional('Description', 0, 300),
   status: enumMandatory('Status', Status, Status.Active),
@@ -70,10 +70,10 @@ export type MasterFleetIncidentStatusDTO = z.infer<
   typeof MasterFleetIncidentStatusSchema
 >;
 
-// ✅ MasterFleetIncidentStatus Query Schema
+// MasterFleetIncidentStatus Query Schema
 export const MasterFleetIncidentStatusQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  fleet_incident_status_ids: multi_select_optional('MasterFleetIncidentStatus'), // ✅ Multi-selection -> MasterFleetIncidentStatus
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  fleet_incident_status_ids: multi_select_optional('MasterFleetIncidentStatus'), // Multi-selection -> MasterFleetIncidentStatus
 });
 export type MasterFleetIncidentStatusQueryDTO = z.infer<
   typeof MasterFleetIncidentStatusQuerySchema

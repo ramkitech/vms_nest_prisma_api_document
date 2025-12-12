@@ -1,6 +1,6 @@
 // Imports
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -24,11 +24,17 @@ import { FleetVendorFuelStation } from 'src/services/fleet/vendor_management/fle
 const URL = 'master/expense/fuel_company';
 
 const ENDPOINTS = {
+   // AWS S3 PRESIGNED
+  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+
   // MasterFuelCompany APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
+  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
 
   // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
@@ -44,6 +50,7 @@ export interface MasterFuelCompany extends Record<string, unknown> {
   // Logo
   logo_url: string;
   logo_key: string;
+  logo_name: string;
 
   // Metadata
   status: Status;
@@ -67,36 +74,52 @@ export interface MasterFuelCompany extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterFuelCompany Create/Update Schema
+// MasterFuelCompany Create/Update Schema
 export const MasterFuelCompanySchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
+
   company_name: stringMandatory('Company Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
   logo_url: stringOptional('Logo URL', 0, 300),
   logo_key: stringOptional('Logo Key', 0, 300),
+  logo_name: stringOptional('Logo Name', 0, 300),
+
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterFuelCompanyDTO = z.infer<typeof MasterFuelCompanySchema>;
 
-// ✅ MasterFuelCompany Query Schema
+// MasterFuelCompany Query Schema
 export const MasterFuelCompanyQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-Selection -> MasterMainCountry
-  fuel_company_ids: multi_select_optional('MasterFuelCompany'), // ✅ Multi-Selection -> MasterFuelCompany
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  country_ids: multi_select_optional('MasterMainCountry'), // Multi-Selection -> MasterMainCountry
+  fuel_company_ids: multi_select_optional('MasterFuelCompany'), // Multi-Selection -> MasterFuelCompany
 });
 export type MasterFuelCompanyQueryDTO = z.infer<
   typeof MasterFuelCompanyQuerySchema
 >;
+
+// MasterFuelCompany Logo Schema
+export const FuelCompanyLogoSchema = z.object({
+  logo_url: stringMandatory('User Image URL', 0, 300),
+  logo_key: stringMandatory('User Image Key', 0, 300),
+  logo_name: stringMandatory('User Image Name', 0, 300),
+});
+export type FuelCompanyLogoDTO = z.infer<typeof FuelCompanyLogoSchema>;
 
 // Convert MasterFuelCompany Data to API Payload
 export const toMasterFuelCompanyPayload = (row: MasterFuelCompany): MasterFuelCompanyDTO => ({
   organisation_id: row.organisation_id || '',
   country_id: row.country_id || '',
   company_name: row.company_name || '',
+  description: row.description || '',
+
+
   logo_url: '',
   logo_key: '',
-  description: row.description || '',
+  logo_name: '',
+
   status: row.status || Status.Active,
 });
 
@@ -106,10 +129,19 @@ export const newMasterFuelCompanyPayload = (): MasterFuelCompanyDTO => ({
   country_id: '',
   company_name: '',
   description: '',
+
   logo_url: '',
   logo_key: '',
+  logo_name: '',
+
   status: Status.Active,
+
 });
+
+// AWS S3 PRESIGNED
+export const get_user_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
+};
 
 // MasterFuelCompany APIs
 export const findMasterFuelCompanys = async (data: MasterFuelCompanyQueryDTO): Promise<FBR<MasterFuelCompany[]>> => {
@@ -126,6 +158,14 @@ export const updateMasterFuelCompany = async (id: string, data: MasterFuelCompan
 
 export const deleteMasterFuelCompany = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+export const updateFuelCompanyLogo = async (id: string, data: FuelCompanyLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, FuelCompanyLogoDTO>(ENDPOINTS.update_logo(id), data);
+};
+
+export const deleteSubCompanyLogo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
 // Cache APIs
