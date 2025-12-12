@@ -63,19 +63,19 @@ export interface MasterMainState extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainState Create/Update Schema
+// MasterMainState Create/Update Schema
 export const MasterMainStateSchema = z.object({
-  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
+  country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
   state_name: stringMandatory('State Name', 3, 100),
   state_code: stringOptional('State Code', 0, 10),
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainStateDTO = z.infer<typeof MasterMainStateSchema>;
 
-// ✅ MasterMainState Query Schema
+// MasterMainState Query Schema
 export const MasterMainStateQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-selection -> MasterMainCountry
-  state_ids: multi_select_optional('MasterMainState'), // ✅ Multi-selection -> MasterMainState
+  country_ids: multi_select_optional('MasterMainCountry'), // Multi-selection -> MasterMainCountry
+  state_ids: multi_select_optional('MasterMainState'), // Multi-selection -> MasterMainState
 });
 export type MasterMainStateQueryDTO = z.infer<
   typeof MasterMainStateQuerySchema

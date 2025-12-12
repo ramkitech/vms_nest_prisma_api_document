@@ -55,7 +55,7 @@ export interface MasterMainDateFormat extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainDateFormat Create/Update Schema
+// MasterMainDateFormat Create/Update Schema
 export const MasterMainDateFormatSchema = z.object({
   date_format_date: stringMandatory('Date Format Date', 3, 50),
   date_format_time: stringMandatory('Date Format Time', 3, 50),
@@ -65,9 +65,9 @@ export type MasterMainDateFormatDTO = z.infer<
   typeof MasterMainDateFormatSchema
 >;
 
-// ✅ MasterMainDateFormat Query Schema
+// MasterMainDateFormat Query Schema
 export const MasterMainDateFormatQuerySchema = BaseQuerySchema.extend({
-  date_format_ids: multi_select_optional('Date Format'), // ✅ Multi-selection -> MasterMainDateFormat
+  date_format_ids: multi_select_optional('Date Format'), // Multi-selection -> MasterMainDateFormat
 });
 export type MasterMainDateFormatQueryDTO = z.infer<
   typeof MasterMainDateFormatQuerySchema

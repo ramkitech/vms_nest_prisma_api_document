@@ -50,7 +50,7 @@ export interface MasterMainEwayBillProvider extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainEwayBillProvider Create/Update Schema
+// MasterMainEwayBillProvider Create/Update Schema
 export const MasterMainEwayBillProviderSchema = z.object({
   provider_name: stringMandatory('Provider Name', 3, 100),
   provider_code: stringOptional('Provider Code', 0, 10),
@@ -60,9 +60,9 @@ export type MasterMainEwayBillProviderDTO = z.infer<
   typeof MasterMainEwayBillProviderSchema
 >;
 
-// ✅ MasterMainEwayBillProvider Query Schema
+// MasterMainEwayBillProvider Query Schema
 export const MasterMainEwayBillProviderQuerySchema = BaseQuerySchema.extend({
-  e_way_bill_provider_ids: multi_select_optional('MasterMainEWayBillProvider'), // ✅ Multi-selection -> MasterMainEWayBillProvider
+  e_way_bill_provider_ids: multi_select_optional('MasterMainEWayBillProvider'), // Multi-selection -> MasterMainEWayBillProvider
 });
 export type MasterMainEwayBillProviderQueryDTO = z.infer<
   typeof MasterMainEwayBillProviderQuerySchema

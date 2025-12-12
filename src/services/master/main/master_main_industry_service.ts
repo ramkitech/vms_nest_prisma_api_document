@@ -52,7 +52,7 @@ export interface MasterMainIndustry extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainIndustry Create/Update Schema
+// MasterMainIndustry Create/Update Schema
 export const MasterMainIndustrySchema = z.object({
   industry_name: stringMandatory('Industry Name', 3, 100),
   description: stringOptional('Industry Description', 0, 300),
@@ -60,9 +60,9 @@ export const MasterMainIndustrySchema = z.object({
 });
 export type MasterMainIndustryDTO = z.infer<typeof MasterMainIndustrySchema>;
 
-// ✅ MasterMainIndustry Query Schema
+// MasterMainIndustry Query Schema
 export const MasterMainIndustryQuerySchema = BaseQuerySchema.extend({
-  industry_ids: multi_select_optional('MasterMainIndustry'), // ✅ Multi-Selection -> MasterMainIndustry
+  industry_ids: multi_select_optional('MasterMainIndustry'), // Multi-Selection -> MasterMainIndustry
 });
 export type MasterMainIndustryQueryDTO = z.infer<
   typeof MasterMainIndustryQuerySchema

@@ -52,7 +52,7 @@ export interface MasterMainUnitDistance extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainUnitDistance Create/Update Schema
+// MasterMainUnitDistance Create/Update Schema
 export const MasterMainUnitDistanceSchema = z.object({
   unit_name: stringMandatory('Unit Name', 1, 50),
   unit_code: stringMandatory('Unit Code', 1, 10),
@@ -62,9 +62,9 @@ export type MasterMainUnitDistanceDTO = z.infer<
   typeof MasterMainUnitDistanceSchema
 >;
 
-// ✅ MasterMainUnitDistance Query Schema
+// MasterMainUnitDistance Query Schema
 export const MasterMainUnitDistanceQuerySchema = BaseQuerySchema.extend({
-  unit_ids: multi_select_optional('Unit Distance'), // ✅ Multi-selection -> MasterMainUnitDistance
+  unit_ids: multi_select_optional('Unit Distance'), // Multi-selection -> MasterMainUnitDistance
 });
 export type MasterMainUnitDistanceQueryDTO = z.infer<
   typeof MasterMainUnitDistanceQuerySchema

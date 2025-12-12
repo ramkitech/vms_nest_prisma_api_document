@@ -50,7 +50,7 @@ export interface MasterMainFasttagBank extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainFasttagBank Create/Update Schema
+// MasterMainFasttagBank Create/Update Schema
 export const MasterMainFasttagBankSchema = z.object({
   bank_name: stringMandatory('Bank Name', 3, 100),
   bank_code: stringOptional('Bank Code', 0, 10),
@@ -60,9 +60,9 @@ export type MasterMainFasttagBankDTO = z.infer<
   typeof MasterMainFasttagBankSchema
 >;
 
-// ✅ MasterMainFasttagBank Query Schema
+// MasterMainFasttagBank Query Schema
 export const MasterMainFasttagBankQuerySchema = BaseQuerySchema.extend({
-  fasttag_bank_ids: multi_select_optional('MasterMainFasttagBank'), // ✅ Multi-selection -> MasterMainFasttagBank
+  fasttag_bank_ids: multi_select_optional('MasterMainFasttagBank'), // Multi-selection -> MasterMainFasttagBank
 });
 export type MasterMainFasttagBankQueryDTO = z.infer<
   typeof MasterMainFasttagBankQuerySchema

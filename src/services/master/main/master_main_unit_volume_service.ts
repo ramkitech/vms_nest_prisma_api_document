@@ -52,7 +52,7 @@ export interface MasterMainUnitVolume extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainUnitVolume Create/Update Schema
+// MasterMainUnitVolume Create/Update Schema
 export const MasterMainUnitVolumeSchema = z.object({
   unit_name: stringMandatory('Unit Name', 1, 50),
   unit_code: stringMandatory('Unit Code', 1, 10),
@@ -62,9 +62,9 @@ export type MasterMainUnitVolumeDTO = z.infer<
   typeof MasterMainUnitVolumeSchema
 >;
 
-// ✅ MasterMainUnitVolume Query Schema
+// MasterMainUnitVolume Query Schema
 export const MasterMainUnitVolumeQuerySchema = BaseQuerySchema.extend({
-  unit_ids: multi_select_optional('Unit Volume'), // ✅ Multi-selection -> MasterMainUnitVolume
+  unit_ids: multi_select_optional('Unit Volume'), // Multi-selection -> MasterMainUnitVolume
 });
 export type MasterMainUnitVolumeQueryDTO = z.infer<
   typeof MasterMainUnitVolumeQuerySchema

@@ -55,7 +55,7 @@ export interface MasterMainLanguage extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainLanguage Create/Update Schema
+// MasterMainLanguage Create/Update Schema
 export const MasterMainLanguageSchema = z.object({
   language_name: stringMandatory('Language Name', 3, 50),
   language_code: stringMandatory('Language Code', 2, 10),
@@ -63,9 +63,9 @@ export const MasterMainLanguageSchema = z.object({
 });
 export type MasterMainLanguageDTO = z.infer<typeof MasterMainLanguageSchema>;
 
-// ✅ MasterMainLanguage Query Schema
+// MasterMainLanguage Query Schema
 export const MasterMainLanguageQuerySchema = BaseQuerySchema.extend({
-  language_ids: multi_select_optional('Language'), // ✅ Multi-selection -> MasterMainLanguage
+  language_ids: multi_select_optional('Language'), // Multi-selection -> MasterMainLanguage
 });
 export type MasterMainLanguageQueryDTO = z.infer<
   typeof MasterMainLanguageQuerySchema

@@ -59,9 +59,9 @@ export interface MasterMainCurrency extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainCurrency Create/Update Schema
+// MasterMainCurrency Create/Update Schema
 export const MasterMainCurrencySchema = z.object({
-  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
+  country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
   currency_name: stringMandatory('Currency Name', 3, 100),
   currency_symbol: stringOptional('Currency Symbol', 0, 10),
   currency_code: stringMandatory('Currency Code', 2, 10),
@@ -69,10 +69,10 @@ export const MasterMainCurrencySchema = z.object({
 });
 export type MasterMainCurrencyDTO = z.infer<typeof MasterMainCurrencySchema>;
 
-// ✅ MasterMainCurrency Query Schema
+// MasterMainCurrency Query Schema
 export const MasterMainCurrencyQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-selection -> MasterMainCountry
-  currency_ids: multi_select_optional('MasterMainCurrency'), // ✅ Multi-selection -> MasterMainCurrency
+  country_ids: multi_select_optional('MasterMainCountry'), // Multi-selection -> MasterMainCountry
+  currency_ids: multi_select_optional('MasterMainCurrency'), // Multi-selection -> MasterMainCurrency
 });
 export type MasterMainCurrencyQueryDTO = z.infer<
   typeof MasterMainCurrencyQuerySchema

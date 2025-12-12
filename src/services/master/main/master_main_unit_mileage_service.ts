@@ -52,7 +52,7 @@ export interface MasterMainUnitMileage extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainUnitMileage Create/Update Schema
+// MasterMainUnitMileage Create/Update Schema
 export const MasterMainUnitMileageSchema = z.object({
   unit_name: stringMandatory('Unit Name', 1, 50),
   unit_code: stringMandatory('Unit Code', 1, 10),
@@ -62,9 +62,9 @@ export type MasterMainUnitMileageDTO = z.infer<
   typeof MasterMainUnitMileageSchema
 >;
 
-// ✅ MasterMainUnitMileage Query Schema
+// MasterMainUnitMileage Query Schema
 export const MasterMainUnitMileageQuerySchema = BaseQuerySchema.extend({
-  unit_ids: multi_select_optional('Unit Mileage'), // ✅ Multi-selection -> MasterMainUnitMileage
+  unit_ids: multi_select_optional('Unit Mileage'), // Multi-selection -> MasterMainUnitMileage
 });
 export type MasterMainUnitMileageQueryDTO = z.infer<
   typeof MasterMainUnitMileageQuerySchema

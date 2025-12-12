@@ -78,7 +78,7 @@ export interface MasterMainCountry extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainCountry Create/Update Schema
+// MasterMainCountry Create/Update Schema
 export const MasterMainCountrySchema = z.object({
   country_name: stringMandatory('Country Name', 3, 100),
   country_code: stringMandatory('Country Code', 1, 10),
@@ -87,9 +87,9 @@ export const MasterMainCountrySchema = z.object({
 });
 export type MasterMainCountryDTO = z.infer<typeof MasterMainCountrySchema>;
 
-// ✅ MasterMainCountry Query Schema
+// MasterMainCountry Query Schema
 export const MasterMainCountryQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('Country'), // ✅ Multi-selection -> MasterMainCountry
+  country_ids: multi_select_optional('Country'), // Multi-selection -> MasterMainCountry
 });
 export type MasterMainCountryQueryDTO = z.infer<
   typeof MasterMainCountryQuerySchema

@@ -74,11 +74,11 @@ export interface MasterMainTimeZone extends Record<string, unknown> {
   };
 }
 
-// ✅ MasterMainTimeZone Create/Update Schema
+// MasterMainTimeZone Create/Update Schema
 export const MasterMainTimeZoneSchema = z.object({
-  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
-  time_zone_identifier: stringMandatory('Time Zone Identifier', 2, 100),
+  country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
   time_zone_code: stringMandatory('Time Zone Code', 2, 50),
+  time_zone_identifier: stringMandatory('Time Zone Identifier', 2, 100),
   time_zone_abbrevation: stringMandatory('Time Zone Abbreviation', 2, 100),
   time_zone_offset: stringMandatory('Time Zone Offset', 2, 100),
   time_zone_offset_seconds: numberMandatory(
@@ -90,10 +90,10 @@ export const MasterMainTimeZoneSchema = z.object({
 });
 export type MasterMainTimeZoneDTO = z.infer<typeof MasterMainTimeZoneSchema>;
 
-// ✅ MasterMainTimeZone Query Schema
+// MasterMainTimeZone Query Schema
 export const MasterMainTimeZoneQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-selection -> MasterMainCountry
-  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // ✅ Multi-selection -> MasterMainTimeZone
+  country_ids: multi_select_optional('MasterMainCountry'), // Multi-selection -> MasterMainCountry
+  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // Multi-selection -> MasterMainTimeZone
 });
 export type MasterMainTimeZoneQueryDTO = z.infer<
   typeof MasterMainTimeZoneQuerySchema
