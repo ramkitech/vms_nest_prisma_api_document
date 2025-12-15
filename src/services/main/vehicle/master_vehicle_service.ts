@@ -369,7 +369,7 @@ export interface MasterVehicle extends Record<string, unknown> {
     AssignRemoveDriverHistory?: number;
     AssignRemoveDeviceHistory?: number;
     VehicleOdometerHistory?: number;
-    
+
     VehicleDocument?: number;
     MasterVehicleFile?: number;
     VehicleDocumentExpiry?: number;
@@ -467,7 +467,7 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
 
 // MasterVehicleFile Interface
 export interface MasterVehicleFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   vehicle_file_id: string;
 
   // Relations - Parent
@@ -478,6 +478,8 @@ export interface MasterVehicleFile extends BaseCommonFile {
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
+
+  // Usage Type -> Number Plate, Front Image, Full Image, Side Image
 }
 
 // VehicleDetailGPS Interface
@@ -989,7 +991,7 @@ export interface VehicleDocument extends Record<string, unknown> {
 
 // VehicleDocumentFile Interface
 export interface VehicleDocumentFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   vehicle_document_file_id: string;
 
   // Relations - Parent
@@ -998,6 +1000,8 @@ export interface VehicleDocumentFile extends BaseCommonFile {
 
   vehicle_document_id: string;
   VehicleDocument?: VehicleDocument;
+
+  // Usage Type -> Document Images, Document PDF
 }
 
 // VehicleDocumentExpiry Interface

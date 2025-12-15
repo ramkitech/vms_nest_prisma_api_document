@@ -167,12 +167,18 @@ export interface AssignRemoveDeviceHistory extends Record<string, unknown> {
 
 // MasterDeviceFile Interface
 export interface MasterDeviceFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   device_file_id: string;
+
+  // Relations - Parent
+  organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
   // Parent
   device_id: string;
-  // Organisation Id
-  organisation_id: string;
+  MasterDevice?: MasterDevice;
+
+  // Usage Type -> Device Image, Vehicle Image, Sim Image
 }
 
 // ✅ Device Create/Update Schema

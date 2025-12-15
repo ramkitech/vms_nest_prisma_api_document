@@ -196,15 +196,17 @@ export interface FleetIncidentManagementCost extends Record<string, unknown> {
 
 // FleetIncidentManagementFile Interface
 export interface FleetIncidentManagementFile extends BaseCommonFile {
-    // Primary Fields
+    // Primary Field
     fleet_incident_management_file_id: string;
 
-    // ✅ Relations - Parent
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
     vehicle_incident_id: string;
     FleetIncidentManagement?: FleetIncidentManagement;
+
+    // Usage Type -> Incident Images, Incident Videos, Incident Documents
 }
 
 export interface IncidentDashboard {

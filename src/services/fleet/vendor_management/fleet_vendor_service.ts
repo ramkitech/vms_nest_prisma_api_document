@@ -399,7 +399,7 @@ export interface FleetVendorDocument extends Record<string, unknown> {
 
 // FleetVendorDocumentFile Interface
 export interface FleetVendorDocumentFile extends BaseCommonFile {
-    // Primary Fields
+    // Primary Field
     fleet_vendor_document_file_id: string;
 
     // Relations - Parent
@@ -408,6 +408,8 @@ export interface FleetVendorDocumentFile extends BaseCommonFile {
 
     fleet_vendor_document_id: string;
     FleetVendorDocument?: FleetVendorDocument;
+
+    // Usage Type -> GST Registration Certificate, Certificate Of Incorporation, Udyam Registration, Professional Tax Registration
 }
 
 

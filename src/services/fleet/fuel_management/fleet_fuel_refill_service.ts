@@ -173,7 +173,7 @@ export interface FleetFuelRefill extends Record<string, unknown> {
 
 // FleetFuelRefillFile Interface
 export interface FleetFuelRefillFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   fleet_fuel_refill_file_id: string;
 
   // Relations - Parent
@@ -182,6 +182,8 @@ export interface FleetFuelRefillFile extends BaseCommonFile {
 
   fleet_fuel_refill_id: string;
   FleetFuelRefill?: FleetFuelRefill;
+
+  // Usage Type -> Odometer Image, Fuel Bill, Fuel Tank Image, Refill Recording Video
 }
 
 // FleetFuelRefillFile Schema

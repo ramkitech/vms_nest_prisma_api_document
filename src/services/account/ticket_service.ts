@@ -72,14 +72,19 @@ export interface Ticket extends Record<string, unknown> {
   };
 }
 
-// Ticket File Interface
+// TicketFile Interface
 export interface TicketFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   ticket_file_id: string;
-  // Parent
-  ticket_id: string;
-  // Organisation Id
+
+  // Relations - Parent
   organisation_id: string;
+  UserOrganisation?: UserOrganisation;
+
+  ticket_id: string;
+  Ticket?: Ticket;
+
+  // Usage Type -> Issue Image, Issue Video
 }
 
 // ✅ Ticket File Schema

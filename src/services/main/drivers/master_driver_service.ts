@@ -179,9 +179,9 @@ export interface MasterDriver extends Record<string, unknown> {
   };
 }
 
-// TicketFile Interface
+// MasterDriverFile Interface
 export interface MasterDriverFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   driver_file_id: string;
 
   // Relations - Parent
@@ -190,6 +190,8 @@ export interface MasterDriverFile extends BaseCommonFile {
 
   driver_id: string;
   MasterDriver?: MasterDriver;
+
+  // Usage Type -> Aadhaar Front Image, Aadhaar Back Image,  Pan Image, License Front Image, License Back Image
 }
 
 // AssignRemoveDriverHistory Interface

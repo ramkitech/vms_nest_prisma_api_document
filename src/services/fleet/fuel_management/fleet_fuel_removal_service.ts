@@ -146,7 +146,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
 
 // FleetFuelRemovalFile Interface
 export interface FleetFuelRemovalFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   fleet_fuel_removal_file_id: string;
 
   // Relations - Parent
@@ -155,6 +155,8 @@ export interface FleetFuelRemovalFile extends BaseCommonFile {
 
   fleet_fuel_removal_id: string;
   FleetFuelRemoval?: FleetFuelRemoval;
+
+  // Usage Type -> Odometer Image, Fuel Tank Image, Removal Recording Video
 }
 
 // FleetFuelRemovalFile Schema

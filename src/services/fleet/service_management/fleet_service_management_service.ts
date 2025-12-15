@@ -187,7 +187,7 @@ export interface FleetServiceManagementTask extends Record<string, unknown> {
 
 // ✅ FleetServiceManagementFile Interface
 export interface FleetServiceManagementFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   fleet_service_management_file_id: string;
 
   // Relations - Parent
@@ -196,6 +196,8 @@ export interface FleetServiceManagementFile extends BaseCommonFile {
 
   service_management_id: string;
   FleetServiceManagement?: FleetServiceManagement;
+
+  // Usage Type -> Sevice Receipt, Payment Receipt, Job Card, Parts Image/Video, Service Video, Odometer Image, Fuel Level Image
 }
 
 // FleetServiceReminder Interface

@@ -170,7 +170,7 @@ export interface FleetIssueManagementComment extends Record<string, unknown> {
 
 // FleetIssueManagementFile Interface
 export interface FleetIssueManagementFile extends BaseCommonFile {
-    // Primary Fields
+    // Primary Field
     fleet_issue_management_file_id: string;
 
     // Relations - Parent
@@ -179,6 +179,8 @@ export interface FleetIssueManagementFile extends BaseCommonFile {
 
     vehicle_issue_id: string;
     FleetIssueManagement?: FleetIssueManagement;
+
+    // Usage Type -> Issue Images, Issue Videos, Issue Documents
 }
 
 export interface IssueDashboard {

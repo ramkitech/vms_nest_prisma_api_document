@@ -120,7 +120,7 @@ export interface FleetInspection extends Record<string, unknown> {
 
 // FleetInspectionFile Interface
 export interface FleetInspectionFile extends BaseCommonFile {
-  // Primary Fields
+  // Primary Field
   fleet_inspection_file_id: string;
 
   // Relations - Parent
@@ -129,6 +129,8 @@ export interface FleetInspectionFile extends BaseCommonFile {
 
   inspection_id: string;
   FleetInspection?: FleetInspection;
+
+  // Usage Type -> Inspection Images, Inspection Videos, Inspection Documents
 }
 
 // FleetInspectionFile Schema
