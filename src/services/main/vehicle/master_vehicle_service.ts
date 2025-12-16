@@ -2107,7 +2107,7 @@ export const get_calibration_file_presigned_url = async (data: FilePresignedUrlD
 };
 
 // File Uploads
-export const createFileVehicle = async (payload: MasterVehicleFileDTO): Promise<SBR> => {
+export const create_file_vehicle = async (payload: MasterVehicleFileDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleFileDTO>(ENDPOINTS.create_file_vehicle, payload);
 };
 
@@ -2127,7 +2127,7 @@ export const create_file_vehicle_document = async (payload: VehicleDocumentFileD
   return apiPost<SBR, VehicleDocumentFileDTO>(ENDPOINTS.create_file_vehicle_document, payload);
 };
 
-export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
+export const remove_file_vehicle_document = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document(id));
 };
 
