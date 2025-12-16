@@ -101,7 +101,7 @@ const ENDPOINTS = {
   vehicle_file_presigned_url: `${URL}/vehicle_file_presigned_url`,
   device_file_presigned_url: `${URL}/device_file_presigned_url`,
   vehicle_document_file_presigned_url: `${URL}/vehicle_document_file_presigned_url`,
-  calibration_file_presigned_url: `${URL}/calibration_file_presigned_url`,
+  calibration_file_presigned_url: (fileName: string): string => `${URL}/calibration_file_presigned_url/${fileName}`,
 
   // File Uploads
   create_file_vehicle: `${URL}/create_file_vehicle`,
@@ -1222,6 +1222,10 @@ export const VehicleDeviceLinkSchema = z.object({
   camera_extra_count: numberOptional('Camera Extra Count'),
   fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
 
+  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
+  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
+  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
+
   MasterDeviceFileSchema: nestedArrayOfObjectsOptional(
     'MasterDeviceFileSchema',
     MasterDeviceFileSchema,
@@ -1272,6 +1276,10 @@ export const VehicleDetailGPSSensorSchema = z.object({
   is_front_cam: enumOptional('Is Front Cam', YesNo, YesNo.No),
   camera_extra_count: numberOptional('Camera Extra Count'),
   fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
+
+  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
+  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
+  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
 });
 export type VehicleDetailGPSSensorDTO = z.infer<
   typeof VehicleDetailGPSSensorSchema
@@ -1822,6 +1830,10 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   is_front_cam: vehicleGPS?.is_front_cam || YesNo.No,
   camera_extra_count: vehicleGPS?.camera_extra_count || 0,
   fuel_mapping: vehicleGPS?.fuel_mapping || {},
+
+  calibration_file_url: vehicleGPS?.calibration_file_url || '',
+  calibration_file_key: vehicleGPS?.calibration_file_key || '',
+  calibration_file_name: vehicleGPS?.calibration_file_name || '',
 });
 
 // Convert VehicleDetailTrip Data to API Payload
@@ -2102,8 +2114,8 @@ export const get_vehicle_document_file_presigned_url = async (data: FilePresigne
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_document_file_presigned_url, data);
 };
 
-export const get_calibration_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.calibration_file_presigned_url, data);
+export const get_calibration_file_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.calibration_file_presigned_url(file_name));
 };
 
 // File Uploads
