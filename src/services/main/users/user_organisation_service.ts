@@ -121,14 +121,15 @@ const ENDPOINTS = {
   // AWS S3 PRESIGNED
   presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
 
+  // File Uploads
+  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
+  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
+
   // UserOrganisation APIs
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-
-  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
-  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
 
   // Cache APIs
   cache: (): string => `${URL}/cache`,

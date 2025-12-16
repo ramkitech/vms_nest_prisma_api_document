@@ -110,7 +110,7 @@ const ENDPOINTS = {
   remove_file_device: (id: string): string => `${URL}/remove_file_device/${id}`,
   create_file_vehicle_document: `${URL}/create_file_vehicle_document`,
   remove_file_vehicle_document: (id: string): string => `${URL}/remove_file_vehicle_document/${id}`,
-  update_calibration_file: `${URL}/update_calibration_file`,
+  update_calibration_file: (id: string): string => `${URL}/update_calibration_file/${id}`,
   delete_calibration_file: (id: string): string => `${URL}/delete_calibration_file/${id}`,
 
   // MasterVehicle APIs
@@ -2102,6 +2102,10 @@ export const get_vehicle_document_file_presigned_url = async (data: FilePresigne
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_document_file_presigned_url, data);
 };
 
+export const get_calibration_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.calibration_file_presigned_url, data);
+};
+
 // File Uploads
 export const createFileVehicle = async (payload: MasterVehicleFileDTO): Promise<SBR> => {
   return apiPost<SBR, MasterVehicleFileDTO>(ENDPOINTS.create_file_vehicle, payload);
@@ -2127,8 +2131,8 @@ export const removeFileVehicleDocument = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document(id));
 };
 
-export const update_calibration_file = async (payload: CalibrationFileDTO): Promise<SBR> => {
-  return apiPost<SBR, CalibrationFileDTO>(ENDPOINTS.update_calibration_file, payload);
+export const update_calibration_file = async (id: string, data: CalibrationFileDTO): Promise<SBR> => {
+  return apiPatch<SBR, CalibrationFileDTO>(ENDPOINTS.update_calibration_file(id), data);
 };
 
 export const delete_calibration_file = async (id: string): Promise<SBR> => {
