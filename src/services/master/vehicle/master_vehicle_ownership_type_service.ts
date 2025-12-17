@@ -52,6 +52,7 @@ export interface MasterVehicleOwnershipType extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   MasterVehicle?: MasterVehicle[];
@@ -108,7 +109,7 @@ export const newMasterVehicleOwnershipTypePayload = (): MasterVehicleOwnershipTy
 
   ownership_type: '',
   description: '',
-  
+
   status: Status.Active,
 });
 

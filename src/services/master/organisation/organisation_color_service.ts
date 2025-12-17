@@ -54,6 +54,7 @@ export interface OrganisationColor extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   MasterVehicle?: MasterVehicle[];

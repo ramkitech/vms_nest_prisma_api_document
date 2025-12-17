@@ -51,6 +51,7 @@ export interface MasterVehicleFuelUnit extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 }
 
 // MasterVehicleFuelUnit Create/Update Schema

@@ -55,6 +55,7 @@ export interface MasterVehicleSubModel extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_make_id?: string;
   MasterVehicleMake?: MasterVehicleMake;
