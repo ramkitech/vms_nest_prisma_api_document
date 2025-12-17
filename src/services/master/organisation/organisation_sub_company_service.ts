@@ -18,11 +18,8 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-<<<<<<< HEAD
-=======
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
->>>>>>> 2366660b18ce3d8a52f262589e9fb88061469313
 
 const URL = 'master/organisation/sub_company';
 
