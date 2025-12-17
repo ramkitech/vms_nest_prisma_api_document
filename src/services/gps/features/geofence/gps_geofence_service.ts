@@ -41,8 +41,10 @@ const ENDPOINTS = {
 
 // GPSGeofence Interface
 export interface GPSGeofence extends Record<string, unknown> {
+  // Primary Fields
   gps_geofence_id: string;
 
+  // Main Field Details
   geofence_name: string;
   geofence_purpose_type: GeofencePurposeType;
   geofence_description?: string;
@@ -54,6 +56,7 @@ export interface GPSGeofence extends Record<string, unknown> {
   longitude?: number;
   poliline_data?: GPSGeofencePolilineData[];
 
+  // Address
   address_line1?: string;
   address_line2?: string;
   locality_landmark?: string;
@@ -67,15 +70,18 @@ export interface GPSGeofence extends Record<string, unknown> {
 
   google_location?: string;
 
+  // Join data
+  geofence_details?: string;
+
+  // Metadata
   status: Status;
   added_date_time: string;
   modified_date_time: string;
 
-  geofence_details?: string;
-
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - GPS
@@ -100,7 +106,7 @@ export interface GPSGeofencePolilineData {
   longitude: number;
 }
 
-// ✅ GPSGeofenceSchema Poliline Data Create/Update Schema
+// GPSGeofenceSchema Poliline Data Create/Update Schema
 export const GPSGeofencePolilineDataSchema = z.object({
   latitude: doubleMandatoryLatLng('latitude'),
   longitude: doubleMandatoryLatLng('longitude'),
@@ -109,10 +115,12 @@ export type GPSGeofencePolilineDataDTO = z.infer<
   typeof GPSGeofencePolilineDataSchema
 >;
 
-// ✅ GPSGeofenceSchema Create/Update Schema
+// GPSGeofenceSchema Create/Update Schema
 export const GPSGeofenceSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'),
 
+  // Main Field Details
   geofence_name: stringMandatory('Geofence Name', 3, 100),
   geofence_purpose_type: enumMandatory(
     'Geofence Purpuse Type',
@@ -136,6 +144,7 @@ export const GPSGeofenceSchema = z.object({
     [],
   ),
 
+  // Address Details
   address_line1: stringOptional('Address Line 1', 0, 150),
   address_line2: stringOptional('Address Line 2', 0, 150),
   locality_landmark: stringOptional('Locality / Landmark', 0, 150),
@@ -149,13 +158,20 @@ export const GPSGeofenceSchema = z.object({
 
   google_location: stringOptional('Google Location', 0, 100),
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type GPSGeofenceDTO = z.infer<typeof GPSGeofenceSchema>;
 
-// ✅ GPS Geofence Data Query Schema
+// GPS Geofence Data Query Schema
 export const GPSGeofenceQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
+  // Self Table
+  gps_geofence_ids: multi_select_optional('GPSGeofence'), // Multi-selection -> GPSGeofence
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+
+  // Enums
   geofence_purpose_type: enumArrayOptional(
     'Geofence Purpose Type',
     GeofencePurposeType,
@@ -166,13 +182,13 @@ export const GPSGeofenceQuerySchema = BaseQuerySchema.extend({
     GeofenceType,
     getAllEnums(GeofenceType),
   ),
-  gps_geofence_ids: multi_select_optional('GPSGeofence'), // ✅ Multi-selection -> GPSGeofence
 });
 export type GPSGeofenceQueryDTO = z.infer<typeof GPSGeofenceQuerySchema>;
 
 // Convert GPSGeofence Data to API Payload
 export const toGPSGeofencePayload = (row: GPSGeofence): GPSGeofenceDTO => ({
   organisation_id: row.organisation_id || '',
+
   geofence_name: row.geofence_name || '',
   geofence_description: row.geofence_description || '',
   geofence_purpose_type: row.geofence_purpose_type || GeofencePurposeType.TripSourceLocation,
@@ -202,6 +218,7 @@ export const toGPSGeofencePayload = (row: GPSGeofence): GPSGeofenceDTO => ({
 // Create New GPSGeofence Payload
 export const newGPSGeofencePayload = (): GPSGeofenceDTO => ({
   organisation_id: '',
+  
   geofence_name: '',
   geofence_purpose_type: GeofencePurposeType.TripSourceLocation,
   geofence_description: '',

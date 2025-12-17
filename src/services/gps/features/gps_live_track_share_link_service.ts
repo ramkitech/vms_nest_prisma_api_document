@@ -39,8 +39,10 @@ const ENDPOINTS = {
 
 // GPSLiveTrackShareLink Interface
 export interface GPSLiveTrackShareLink extends Record<string, unknown> {
+  // Primary Fields
   gps_live_track_share_link_id: string;
 
+  // Main Field Details
   expiry_date_time: string;
   link_status: LinkStatus;
 
@@ -52,6 +54,7 @@ export interface GPSLiveTrackShareLink extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -70,9 +73,10 @@ export interface GPSLiveTrackShareLink extends Record<string, unknown> {
 
 // GPSLiveTrackShareLinkNotification Interface
 export interface GPSLiveTrackShareLinkNotification extends Record<string, unknown> {
+  // Primary Fields
   gps_live_track_share_link_notification_id: string;
 
-  // Primary Fields
+  // Main Field Details
   share_channels: ShareChannel[];
   mobile_numbers?: string;
   email_ids?: string;
@@ -91,10 +95,10 @@ export interface GPSLiveTrackShareLinkNotification extends Record<string, unknow
   GPSLiveTrackShareLink?: GPSLiveTrackShareLink;
 }
 
-// ✅ GPSLiveTrackShareLinkNotification Create/Update Schema
+// GPSLiveTrackShareLinkNotification Create/Update Schema
 export const GPSLiveTrackShareLinkNotificationSchema = z.object({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  gps_live_track_share_link_id: single_select_optional('GPSLiveTrackShareLink'), // ✅ Single-Selection -> GPSLiveTrackShareLink
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  gps_live_track_share_link_id: single_select_optional('GPSLiveTrackShareLink'), // Single-Selection -> GPSLiveTrackShareLink
   share_channels: enumArrayMandatory(
     'Share Channels',
     ShareChannel,
@@ -109,7 +113,7 @@ export type GPSLiveTrackShareLinkNotificationDTO = z.infer<
   typeof GPSLiveTrackShareLinkNotificationSchema
 >;
 
-// ✅ GPSLiveTrackShareLink Create Schema
+// GPSLiveTrackShareLink Create Schema
 export const GPSLiveTrackShareLinkSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('Vehicle ID'),
@@ -123,7 +127,7 @@ export type GPSLiveTrackShareLinkDTO = z.infer<
   typeof GPSLiveTrackShareLinkSchema
 >;
 
-// ✅ GPSLiveTrackShareLink Update Time Schema
+// GPSLiveTrackShareLink Update Time Schema
 export const GPSLiveTrackShareLinkUpdateExpiryTimeSchema = z.object({
   expire_milliseconds: numberMandatory('Expire Milliseconds'),
 });
@@ -131,7 +135,7 @@ export type GPSLiveTrackShareLinkUpdateExpiryTimeDTO = z.infer<
   typeof GPSLiveTrackShareLinkUpdateExpiryTimeSchema
 >;
 
-// ✅ GPSLiveTrackShareLink Update Link Status Schema
+// GPSLiveTrackShareLink Update Link Status Schema
 export const GPSLiveTrackShareLinkUpdateLinkStatusSchema = z.object({
   link_status: enumMandatory('Link Status', LinkStatus, LinkStatus.Active),
 });
@@ -139,16 +143,16 @@ export type GPSLiveTrackShareLinkUpdateLinkStatusDTO = z.infer<
   typeof GPSLiveTrackShareLinkUpdateLinkStatusSchema
 >;
 
-// ✅ GPSLiveTrackShareLink Query Schema
+// GPSLiveTrackShareLink Query Schema
 export const GPSLiveTrackShareLinkQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
   link_status: enumArrayOptional(
     'Link Status',
     LinkStatus,
     getAllEnums(LinkStatus),
   ),
-  gps_live_track_share_link_ids: multi_select_optional('GPSLiveTrackShareLink'), // ✅ Multi-selection -> GPSLiveTrackShareLink
+  gps_live_track_share_link_ids: multi_select_optional('GPSLiveTrackShareLink'), // Multi-selection -> GPSLiveTrackShareLink
 });
 export type GPSLiveTrackShareLinkQueryDTO = z.infer<
   typeof GPSLiveTrackShareLinkQuerySchema
@@ -169,8 +173,10 @@ export const toGPSLiveTrackShareLinkPayload = (data: GPSLiveTrackShareLink): GPS
 export const newGPSLiveTrackShareLinkPayload = (): GPSLiveTrackShareLinkDTO => ({
   organisation_id: '',
   vehicle_id: '',
+
   expire_milliseconds: 0,
   link_status: LinkStatus.Active,
+  
   status: Status.Active,
 });
 

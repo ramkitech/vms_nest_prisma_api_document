@@ -75,6 +75,12 @@ export interface User extends Record<string, unknown> {
   // Primary Fields
   user_id: string;
 
+  // Profile Image/Logo
+  user_image_url?: string;
+  user_image_key?: string;
+  user_image_name?: string;
+
+  // Main Field Details
   first_name: string;
   last_name?: string;
   email: string;
@@ -82,15 +88,11 @@ export interface User extends Record<string, unknown> {
   mobile?: string;
   password?: string;
 
-  can_login: YesNo;
   is_root_user: YesNo;
+  can_login: YesNo;
   all_vehicles: YesNo;
 
   user_details?: string;
-
-  user_image_url?: string;
-  user_image_key?: string;
-  user_image_name?: string;
 
   // Metadata
   status: Status;
@@ -100,6 +102,7 @@ export interface User extends Record<string, unknown> {
   // Relations - Parent
   organisation_id?: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   user_role_id?: string;
   MasterUserRole?: MasterUserRole;
@@ -111,12 +114,18 @@ export interface User extends Record<string, unknown> {
 
   language_id?: string;
   MasterMainLanguage?: MasterMainLanguage;
+  language_name?: string;
+  language_code?: string;
 
   time_zone_id?: string;
   MasterMainTimeZone?: MasterMainTimeZone;
+  time_zone_code?: string;
+  time_zone_identifier?: string;
 
   date_format_id?: string;
   MasterMainDateFormat?: MasterMainDateFormat;
+  date_format_date?: string;
+  date_format_time?: string;
 
   // Relations - Child
 
@@ -222,6 +231,7 @@ export interface User extends Record<string, unknown> {
 
 // UserVehicleLink Interface
 export interface UserVehicleLink extends Record<string, unknown> {
+  // Primary Fields
   user_vehicle_id: string;
 
   // Metadata
@@ -242,8 +252,10 @@ export interface UserVehicleLink extends Record<string, unknown> {
 
 // UserLoginPush Interface
 export interface UserLoginPush extends Record<string, unknown> {
+  // Primary Fields
   user_login_push_id: string;
 
+  // Main Field Details
   fcm_token: string;
 
   platform: LoginFrom;
@@ -272,8 +284,22 @@ export interface UserLoginPush extends Record<string, unknown> {
   User_details?: string;
 }
 
-// ✅ User Create/Update Schema
+// User Create/Update Schema
 export const UserSchema = z.object({
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_role_id: single_select_optional('MasterUserRole'), // Single-Selection -> MasterUserRole
+  user_status_id: single_select_optional('MasterUserStatus'), // Single-Selection -> MasterUserStatus
+  language_id: single_select_optional('MasterMainLanguage'), // Single-Selection -> MasterMainLanguage
+  time_zone_id: single_select_optional('MasterMainTimeZone'), // Single-Selection -> MasterMainTimeZone
+  date_format_id: single_select_optional('MasterMainDateFormat'), // Single-Selection -> MasterMainDateFormat
+
+  // Profile Image/Logo
+  user_image_url: stringOptional('User Image URL', 0, 300),
+  user_image_key: stringOptional('User Image Key', 0, 300),
+  user_image_name: stringOptional('User Image Name', 0, 300),
+
+  // Main Field Details
   first_name: stringMandatory('First Name', 2, 100),
   last_name: stringOptional('Last Name', 0, 100),
   email: stringMandatory('Email', 3, 100),
@@ -286,74 +312,71 @@ export const UserSchema = z.object({
   all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.No),
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
 
-  user_image_url: stringOptional('User Image URL', 0, 300),
-  user_image_key: stringOptional('User Image Key', 0, 300),
-  user_image_name: stringOptional('User Image Name', 0, 300),
-
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  user_role_id: single_select_optional('MasterUserRole'), // ✅ Single-Selection -> MasterUserRole
-  user_status_id: single_select_optional('MasterUserStatus'), // ✅ Single-Selection -> MasterUserStatus
-  language_id: single_select_optional('MasterMainLanguage'), // ✅ Single-Selection -> MasterMainLanguage
-  time_zone_id: single_select_optional('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
-  date_format_id: single_select_optional('MasterMainDateFormat'), // ✅ Single-Selection -> MasterMainDateFormat
-
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type UserDTO = z.infer<typeof UserSchema>;
 
-// ✅ User Query Schema
+// User Query Schema
 export const UserQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  user_role_ids: multi_select_optional('MasterUserRole'), // ✅ Multi-Selection -> MasterUserRole
-  user_status_ids: multi_select_optional('MasterUserStatus'), // ✅ Multi-Selection -> MasterUserStatus
-  language_ids: multi_select_optional('MasterMainLanguage'), // ✅ Multi-Selection -> MasterMainLanguage
-  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // ✅ Multi-Selection -> MasterMainTimeZone
-  date_format_ids: multi_select_optional('MasterMainDateFormat'), // ✅ Multi-Selection -> MasterMainDateFormat
-  user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
+  // Self Table
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
 
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_role_ids: multi_select_optional('MasterUserRole'), // Multi-Selection -> MasterUserRole
+  user_status_ids: multi_select_optional('MasterUserStatus'), // Multi-Selection -> MasterUserStatus
+  language_ids: multi_select_optional('MasterMainLanguage'), // Multi-Selection -> MasterMainLanguage
+  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // Multi-Selection -> MasterMainTimeZone
+  date_format_ids: multi_select_optional('MasterMainDateFormat'), // Multi-Selection -> MasterMainDateFormat
+
+  // Enums
   can_login: enumArrayOptional('Can Login', YesNo),
   is_root_user: enumArrayOptional('Is Root User', YesNo),
   all_vehicles: enumArrayOptional('All Vehicles', YesNo),
 });
 export type UserQueryDTO = z.infer<typeof UserQuerySchema>;
 
-// ✅ User Logo Schema
+// User Logo Schema
 export const UserLogoSchema = z.object({
+  // Profile Image/Logo
   user_image_url: stringMandatory('User Image URL', 0, 300),
   user_image_key: stringMandatory('User Image Key', 0, 300),
   user_image_name: stringMandatory('User Image Name', 0, 300),
 });
 export type UserLogoDTO = z.infer<typeof UserLogoSchema>;
 
-// ✅ User Update Profile Schema
+// User Update Profile Schema
 export const UserProfileSchema = z.object({
+  // Profile Image/Logo
+  user_image_url: stringOptional('User Image URL', 0, 300),
+  user_image_key: stringOptional('User Image Key', 0, 300),
+  user_image_name: stringOptional('User Image Name', 0, 300),
+
+  // Main Field Details
   first_name: stringMandatory('First Name', 2, 100),
   last_name: stringOptional('Last Name', 0, 100),
   email: stringMandatory('Email', 3, 100),
   username: stringOptional('Mobile', 0, 100),
   mobile: stringOptional('Mobile', 0, 20),
-
-  user_image_url: stringOptional('User Image URL', 0, 300),
-  user_image_key: stringOptional('User Image Key', 0, 300),
-  user_image_name: stringOptional('User Image Name', 0, 300),
 });
 export type UserProfileDTO = z.infer<typeof UserProfileSchema>;
 
-// ✅ Update UserDefaultLanguageSchema
+// Update UserDefaultLanguageSchema
 export const UserDefaultLanguageSchema = z.object({
-  language_id: single_select_optional('MasterMainLanguage'), // ✅ Single-Selection -> MasterMainLanguage
+  language_id: single_select_optional('MasterMainLanguage'), // Single-Selection -> MasterMainLanguage
 });
 export type UserDefaultLanguageDTO = z.infer<typeof UserDefaultLanguageSchema>;
 
-// ✅ Update UserDefaultTimeZoneSchema
+// Update UserDefaultTimeZoneSchema
 export const UserDefaultTimeZoneSchema = z.object({
-  time_zone_id: single_select_optional('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
+  time_zone_id: single_select_optional('MasterMainTimeZone'), // Single-Selection -> MasterMainTimeZone
 });
 export type UserDefaultTimeZoneDTO = z.infer<typeof UserDefaultTimeZoneSchema>;
 
-// ✅ Update UserDefaultDateFormatSchema
+// Update UserDefaultDateFormatSchema
 export const UserDefaultDateFormatSchema = z.object({
-  date_format_id: single_select_optional('MasterMainDateFormat'), // ✅ Single-Selection -> MasterMainDateFormat
+  date_format_id: single_select_optional('MasterMainDateFormat'), // Single-Selection -> MasterMainDateFormat
 });
 export type UserDefaultDateFormatDTO = z.infer<
   typeof UserDefaultDateFormatSchema

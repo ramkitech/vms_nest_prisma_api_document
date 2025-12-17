@@ -92,6 +92,7 @@ import { TripGeofenceToGeofence } from 'src/services/gps/features/geofence/trip_
 import { GPSLiveTrackShareLink } from 'src/services/gps/features/gps_live_track_share_link_service';
 import { GPSTrackHistoryShareLink } from 'src/services/gps/features/gps_track_history_share_link_service';
 import { UserVehicleLink } from '../users/user_service';
+import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
 
 const URL = 'main/master_vehicle';
 
@@ -163,6 +164,8 @@ const ENDPOINTS = {
 export interface MasterVehicle extends Record<string, unknown> {
   // Primary Fields
   vehicle_id: string;
+
+  // Main Field Details
   vehicle_number: string;
   vehicle_name?: string;
 
@@ -202,10 +205,15 @@ export interface MasterVehicle extends Record<string, unknown> {
   assign_device_date?: string;
   assign_device_date_f?: string;
   AssignRemoveDeviceHistory?: AssignRemoveDeviceHistory[];
+
   country_id?: string;
   MasterMainCountry?: MasterMainCountry;
+  country_name?: string;
+
   time_zone_id?: string;
   MasterMainTimeZone?: MasterMainTimeZone;
+  time_zone_code?: string;
+  time_zone_identifier?: string;
 
   // Relations - Odometer
   odometer_reading?: number;
@@ -232,6 +240,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   // Relations - Organisation
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   organisation_sub_company_id?: string;
   OrganisationSubCompany?: OrganisationSubCompany;
@@ -252,7 +261,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   tag_name?: string;
 
   // Relations - MasterVehicle
-  vehicle_type_id: string;
+  vehicle_type_id?: string;
   MasterVehicleType?: MasterVehicleType;
   vehicle_type?: string;
 
@@ -297,7 +306,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   SecondaryMasterVehicleFuelUnit?: MasterVehicleFuelUnit;
   secondary_fuel_unit?: string;
 
-  fuel_tank_type?: FuelTankType;
+  fuel_tank_type: FuelTankType;
   fuel_tank_size?: number;
   fuel_tank_1_size?: number;
   fuel_tank_2_size?: number;
@@ -481,6 +490,7 @@ export interface MasterVehicleFile extends BaseCommonFile {
   // Usage Type -> Number Plate, Front Image, Full Image, Side Image
 }
 
+// VehicleDetailGPS Interface
 export interface VehicleDetailGPS extends Record<string, unknown> {
   // Primary Fields
   vehicle_details_gps_id: string;
@@ -706,20 +716,22 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - One To One
   vehicle_id?: string;
   MasterVehicle?: MasterVehicle; // Prisma relation field name
   vehicle_number?: string;
   vehicle_type?: string;
 
   landmark_id?: string;
-  // MasterMainLandMark?: MasterMainLandMark; // add if you expose it
+  MasterMainLandMark?: MasterMainLandMark; // add if you expose it
 }
 
 // VehicleDetailTrip Interface
 export interface VehicleDetailTrip extends Record<string, unknown> {
   // Primary Fields
   vehicle_details_trip_id: string;
+
+  // Main Field Details
   trip_name?: string;
   trip_no?: string;
   eway_bill_number?: string;
@@ -741,7 +753,7 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
 
   // Relations - Parent
   vehicle_id?: string;
-  Vehicle?: MasterVehicle;
+  MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
 }
@@ -750,6 +762,8 @@ export interface VehicleDetailTrip extends Record<string, unknown> {
 export interface VehicleDetailBody extends Record<string, unknown> {
   // Primary Fields
   vehicle_details_body_id: string;
+
+  // Main Field Details
   vehicle_body_details?: string;
   vehicle_height?: number;
   vehicle_width?: number;
@@ -826,7 +840,7 @@ export interface VehicleDetailBody extends Record<string, unknown> {
 
   // Relations - Parent
   vehicle_id?: string;
-  Vehicle?: MasterVehicle;
+  MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
 }
@@ -865,7 +879,7 @@ export interface VehicleDetailLifeCycle extends Record<string, unknown> {
 
   // Relations - One To One
   vehicle_id?: string;
-  Vehicle?: MasterVehicle;
+  MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
 }
@@ -875,6 +889,7 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   // Primary Fields
   vehicle_details_purchase_id: string;
 
+  // Main Field Details
   purchase_date?: string;
   purchase_date_f?: string;
   purchase_notes?: string;
@@ -917,11 +932,6 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  vehicle_id?: string;
-  MasterVehicle?: MasterVehicle;
-  vehicle_number?: string;
-  vehicle_type?: string;
-
   purchase_vendor_id?: string;
   PurchaseVendor?: FleetVendor;
   purchase_vendor_name?: string;
@@ -933,6 +943,12 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   lease_vendor_id?: string;
   LeaseVendor?: FleetVendor;
   lease_vendor_name?: string;
+
+  // Relations - One To One
+  vehicle_id?: string;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 }
 
 // VehicleDocument Interface
@@ -968,6 +984,7 @@ export interface VehicleDocument extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -1013,6 +1030,7 @@ export interface VehicleDocumentExpiry extends Record<string, unknown> {
   // Primary Fields
   document_expiry_id: string;
 
+  // Main Field Details
   expiry_type: ExpiryType;
 
   // Metadata
@@ -1037,6 +1055,8 @@ export interface VehicleDocumentExpiry extends Record<string, unknown> {
 export interface VehicleOdometerHistory extends Record<string, unknown> {
   // Primary Fields
   vehicle_odometer_history_id: string;
+
+  // Main Field Details
   odometer_reading: number;
   odometer_date: string;
   odometer_date_f?: string;
@@ -1057,25 +1077,65 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
   vehicle_type?: string;
 }
 
-// ✅ MasterVehicleFile Schema
+// MasterVehicleFile Schema
 export const MasterVehicleFileSchema = BaseFileSchema.extend({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_id: single_select_optional('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_id: single_select_optional('MasterVehicle'), // Single-Selection -> MasterVehicle
 });
 export type MasterVehicleFileDTO = z.infer<typeof MasterVehicleFileSchema>;
 
-// ✅ CalibrationFile Schema
+// CalibrationFile Schema
 export const CalibrationFileSchema = z.object({
+  // Profile Image/Logo
   calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
   calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
   calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
 });
 export type CalibrationFileDTO = z.infer<typeof CalibrationFileSchema>;
 
-// ✅ Vehicle Create/Update Schema
+// Vehicle Create/Update Schema
 export const VehicleSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
 
+  organisation_sub_company_id: single_select_optional(
+    'Organisation Sub Company ID',
+  ), // Single-Selection -> OrganisationSubCompany
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+  organisation_tag_id: single_select_optional('OrganisationTag'), // Single-Selection -> OrganisationTag
+  organisation_color_id: single_select_optional('OrganisationColor'), // Single-Selection -> OrganisationColor
+  organisation_group_ids: multi_select_optional('OrganisationGroup'), // Multi selection -> OrganisationGroup
+
+  vehicle_type_id: single_select_mandatory('MasterVehicleType'), // Single-Selection -> MasterVehicleType
+  vehicle_make_id: single_select_optional('MasterVehicleMake'), // Single-Selection -> MasterVehicleMake
+  vehicle_model_id: single_select_optional('MasterVehicleModel'), // Single-Selection -> MasterVehicleModel
+  vehicle_sub_model_id: single_select_optional('MasterVehicleSubModel'), // Single-Selection -> MasterVehicleSubModel
+  vehicle_status_type_id: single_select_optional('MasterVehicleStatusType'), // Single-Selection -> MasterVehicleStatusType
+  vehicle_ownership_type_id: single_select_optional(
+    'MasterVehicleOwnershipType',
+  ), // Single-Selection -> MasterVehicleOwnershipType
+  vehicle_associated_to_id: single_select_optional('MasterVehicleAssociatedTo'), // Single-Selection -> MasterVehicleAssociatedTo
+
+  // Fuel
+  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'), // Single-Selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // Single-Selection -> MasterVehicleFuelUnit
+  secondary_vehicle_fuel_type_id: single_select_optional(
+    'Vehicle Secondary Fuel Type ID',
+  ), // Single-Selection -> MasterVehicleFuelType
+  secondary_vehicle_fuel_unit_id: single_select_optional(
+    'Vehicle Secondary Fuel Unit ID',
+  ), // Single-Selection -> MasterVehicleFuelUnit
+  fuel_tank_type: enumOptional(
+    'Fuel Tank Type',
+    FuelTankType,
+    FuelTankType.SingleTank,
+  ),
+  fuel_tank_size: numberOptional('Fuel Tank Quantity'),
+  fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
+  fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
+  fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
+
+  // Main Field Details
   vehicle_number: stringMandatory('Vehicle Number', 2, 50),
   vehicle_name: stringOptional('Vehicle Name', 0, 50),
   odometer_reading: numberOptional('Odometer Reading'),
@@ -1088,49 +1148,14 @@ export const VehicleSchema = z.object({
   is_gps_active: enumMandatory('Is GPS Active', YesNo, YesNo.No),
   is_trip_active: enumMandatory('Is Trip Active', YesNo, YesNo.No),
 
-  status: enumMandatory('Status', Status, Status.Active),
-
-  organisation_sub_company_id: single_select_optional(
-    'Organisation Sub Company ID',
-  ), // ✅ Single-Selection -> OrganisationSubCompany
-  organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
-  organisation_tag_id: single_select_optional('OrganisationTag'), // ✅ Single-Selection -> OrganisationTag
-  organisation_color_id: single_select_optional('OrganisationColor'), // ✅ Single-Selection -> OrganisationColor
-  organisation_group_ids: multi_select_optional('OrganisationGroup'), // Multi selection -> OrganisationGroup
-
-  vehicle_type_id: single_select_mandatory('MasterVehicleType'), // ✅ Single-Selection -> MasterVehicleType
-  vehicle_make_id: single_select_optional('MasterVehicleMake'), // ✅ Single-Selection -> MasterVehicleMake
-  vehicle_model_id: single_select_optional('MasterVehicleModel'), // ✅ Single-Selection -> MasterVehicleModel
-  vehicle_sub_model_id: single_select_optional('MasterVehicleSubModel'), // ✅ Single-Selection -> MasterVehicleSubModel
-  vehicle_status_type_id: single_select_optional('MasterVehicleStatusType'), // ✅ Single-Selection -> MasterVehicleStatusType
-  vehicle_ownership_type_id: single_select_optional(
-    'MasterVehicleOwnershipType',
-  ), // ✅ Single-Selection -> MasterVehicleOwnershipType
-  vehicle_associated_to_id: single_select_optional('MasterVehicleAssociatedTo'), // ✅ Single-Selection -> MasterVehicleAssociatedTo
-
-  // Fuel
-  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'), // ✅ Single-Selection -> MasterVehicleFuelType
-  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
-  secondary_vehicle_fuel_type_id: single_select_optional(
-    'Vehicle Secondary Fuel Type ID',
-  ), // ✅ Single-Selection -> MasterVehicleFuelType
-  secondary_vehicle_fuel_unit_id: single_select_optional(
-    'Vehicle Secondary Fuel Unit ID',
-  ), // ✅ Single-Selection -> MasterVehicleFuelUnit
-  fuel_tank_type: enumOptional(
-    'Fuel Tank Type',
-    FuelTankType,
-    FuelTankType.SingleTank,
-  ),
-  fuel_tank_size: numberOptional('Fuel Tank Quantity'),
-  fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
-  fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
-  fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
-
   // Bus Seats
   vehicle_passenger_capacity: numberOptional('Vehicle Passenger Capacity'),
   standing_passenger_capacity: numberOptional('Standing Passenger Capacity'),
 
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
+
+  // Additional Files
   MasterVehicleFileSchema: nestedArrayOfObjectsOptional(
     'MasterVehicleFileSchema',
     MasterVehicleFileSchema,
@@ -1139,10 +1164,31 @@ export const VehicleSchema = z.object({
 });
 export type VehicleDTO = z.infer<typeof VehicleSchema>;
 
-// ✅ Vehicle Create/Update Schema
+// Vehicle Create/Update Schema
 export const VehicleBulkSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
 
+  vehicle_type_id: single_select_mandatory('MasterVehicleType'), // Single-Selection -> MasterVehicleType
+
+  device_manufacturer_id: single_select_optional('MasterDeviceManufacturer'), // Single-Selection -> MasterDeviceManufacturer
+  device_model_id: single_select_optional('MasterDeviceModel'), // Single-Selection -> MasterDeviceModel
+  device_type_id: single_select_optional('MasterDeviceType'), // Single-Selection -> MasterDeviceType
+
+  country_id: single_select_optional('MasterMainCountry'), // Single-Selection -> MasterMainCountry
+  time_zone_id: single_select_optional('MasterMainTimeZone'), // Single-Selection -> MasterMainTimeZone
+
+  fuel_tank_type: enumOptional(
+    'Fuel Tank Type',
+    FuelTankType,
+    FuelTankType.SingleTank,
+  ),
+  fuel_tank_size: numberOptional('Fuel Tank Quantity'),
+  fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
+  fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
+  fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
+
+  // Main Field Details
   vehicle_number: stringMandatory('Vehicle Number', 2, 50),
   vehicle_name: stringOptional('Vehicle Name', 0, 50),
   odometer_reading: numberOptional('Odometer Reading'),
@@ -1155,52 +1201,36 @@ export const VehicleBulkSchema = z.object({
   is_gps_active: enumMandatory('Is GPS Active', YesNo, YesNo.No),
   is_trip_active: enumMandatory('Is Trip Active', YesNo, YesNo.No),
 
-  status: enumMandatory('Status', Status, Status.Active),
-
-  vehicle_type_id: single_select_mandatory('MasterVehicleType'), // ✅ Single-Selection -> MasterVehicleType
-
-  device_manufacturer_id: single_select_optional('MasterDeviceManufacturer'), // ✅ Single-Selection -> MasterDeviceManufacturer
-  device_model_id: single_select_optional('MasterDeviceModel'), // ✅ Single-Selection -> MasterDeviceModel
-  device_type_id: single_select_optional('MasterDeviceType'), // ✅ Single-Selection -> MasterDeviceType
-
-  country_id: single_select_optional('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
-  time_zone_id: single_select_optional('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
-
-  fuel_tank_type: enumOptional(
-    'Fuel Tank Type',
-    FuelTankType,
-    FuelTankType.SingleTank,
-  ),
-  fuel_tank_size: numberOptional('Fuel Tank Quantity'),
-  fuel_tank_1_size: numberOptional('Tank 1 Fuel Quantity'),
-  fuel_tank_2_size: numberOptional('Tank 2 Fuel Quantity'),
-  fuel_tank_total_size: numberOptional('Fuel Tank Full Quantity'),
-
   // Bus Seats
   vehicle_passenger_capacity: numberOptional('Vehicle Passenger Capacity'),
   standing_passenger_capacity: numberOptional('Standing Passenger Capacity'),
+
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type VehicleBulkDTO = z.infer<typeof VehicleBulkSchema>;
 
-// ✅ MasterDeviceFile Schema -> DeviceImage/VehicleImage/SimImage/Other
+// MasterDeviceFile Schema -> DeviceImage/VehicleImage/SimImage/Other
 export const MasterDeviceFileSchema = BaseFileSchema.extend({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  device_id: single_select_optional('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  device_id: single_select_optional('MasterVehicle'), // Single-Selection -> MasterVehicle
 });
 export type MasterDeviceFileDTO = z.infer<typeof MasterDeviceFileSchema>;
 
-// ✅ Vehicle Device Link Schema
+// Vehicle Device Link Schema
 export const VehicleDeviceLinkSchema = z.object({
-  device_id: single_select_mandatory('MasterDevice'), // ✅ Single-Selection -> MasterDevice
-  device_manufacturer_id: single_select_mandatory('MasterDeviceManufacturer'), // ✅ Single-Selection -> MasterDeviceManufacturer
-  device_model_id: single_select_mandatory('MasterDeviceModel'), // ✅ Single-Selection -> MasterDeviceModel
-  device_type_id: single_select_mandatory('MasterDeviceType'), // ✅ Single-Selection -> MasterDeviceType
+  // Relations - Parent
+  device_id: single_select_mandatory('MasterDevice'), // Single-Selection -> MasterDevice
+  device_manufacturer_id: single_select_mandatory('MasterDeviceManufacturer'), // Single-Selection -> MasterDeviceManufacturer
+  device_model_id: single_select_mandatory('MasterDeviceModel'), // Single-Selection -> MasterDeviceModel
+  device_type_id: single_select_mandatory('MasterDeviceType'), // Single-Selection -> MasterDeviceType
 
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
-  time_zone_id: single_select_mandatory('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'), // Single-Selection -> MasterMainTimeZone
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
 
+  // Main Field Details
   temperature: enumOptional('Temperature', YesNo, YesNo.No),
   duel_temperature: enumOptional('Dual Temperature', YesNo, YesNo.No),
   fuel: enumOptional('Fuel', YesNo, YesNo.No),
@@ -1226,10 +1256,7 @@ export const VehicleDeviceLinkSchema = z.object({
   camera_extra_count: numberOptional('Camera Extra Count'),
   fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
 
-  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
-  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
-  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
-
+  // Metadata
   MasterDeviceFileSchema: nestedArrayOfObjectsOptional(
     'MasterDeviceFileSchema',
     MasterDeviceFileSchema,
@@ -1238,24 +1265,27 @@ export const VehicleDeviceLinkSchema = z.object({
 });
 export type VehicleDeviceLinkDTO = z.infer<typeof VehicleDeviceLinkSchema>;
 
-// ✅ Vehicle Device Unlink Schema
+// Vehicle Device Unlink Schema
 export const VehicleDeviceUnlinkSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-  device_id: single_select_mandatory('MasterDevice'), // ✅ Single-Selection -> MasterDevice
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+  device_id: single_select_mandatory('MasterDevice'), // Single-Selection -> MasterDevice
 });
 export type VehicleDeviceUnlinkDTO = z.infer<typeof VehicleDeviceUnlinkSchema>;
 
-// ✅ Vehicle Driver Link Schema
+// Vehicle Driver Link Schema
 export const VehicleDriverLinkSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-  driver_id: single_select_mandatory('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+  driver_id: single_select_mandatory('MasterDriver'), // Single-Selection -> MasterDriver
 });
 export type VehicleDriverLinkDTO = z.infer<typeof VehicleDriverLinkSchema>;
 
-// ✅ VehicleDetailGPSSensor Schema
+// VehicleDetailGPSSensor Schema
 export const VehicleDetailGPSSensorSchema = z.object({
+  // Main Field Details
   temperature: enumOptional('Temperature', YesNo, YesNo.No),
   duel_temperature: enumOptional('Dual Temperature', YesNo, YesNo.No),
   fuel: enumOptional('Fuel', YesNo, YesNo.No),
@@ -1280,17 +1310,14 @@ export const VehicleDetailGPSSensorSchema = z.object({
   is_front_cam: enumOptional('Is Front Cam', YesNo, YesNo.No),
   camera_extra_count: numberOptional('Camera Extra Count'),
   fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
-
-  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
-  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
-  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
 });
 export type VehicleDetailGPSSensorDTO = z.infer<
   typeof VehicleDetailGPSSensorSchema
 >;
 
-// ✅ VehicleDetailTrip Schema
+// VehicleDetailTrip Schema
 export const VehicleDetailTripSchema = z.object({
+  // Main Field Details
   trip_name: stringOptional('Trip Name', 0, 100),
   trip_no: stringOptional('Trip Name', 0, 100),
   eway_bill_number: stringOptional('E-Way Bill Number', 0, 100),
@@ -1303,11 +1330,12 @@ export const VehicleDetailTripSchema = z.object({
   trip_notes_2: stringOptional('Trip Notes 2', 0, 200),
   trip_notes_3: stringOptional('Trip Notes 3', 0, 200),
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type VehicleDetailTripDTO = z.infer<typeof VehicleDetailTripSchema>;
 
-// ✅ VehicleDetailBody Schema
+// VehicleDetailBody Schema
 export const VehicleDetailBodySchema = z.object({
   // 📦 Body & Dimension (Common)
   vehicle_body_details: stringOptional('Vehicle Body Details', 0, 300),
@@ -1440,7 +1468,7 @@ export const VehicleDetailBodySchema = z.object({
 });
 export type VehicleDetailBodyDTO = z.infer<typeof VehicleDetailBodySchema>;
 
-// ✅ VehicleDetailLifeCycle Schema
+// VehicleDetailLifeCycle Schema
 export const VehicleDetailLifeCycleSchema = z.object({
   // Lifecycle Start
   service_start_date: dateOptional('Service Start Date'),
@@ -1479,7 +1507,7 @@ export type VehicleDetailLifeCycleDto = z.infer<
   typeof VehicleDetailLifeCycleSchema
 >;
 
-// ✅ VehicleDetailPurchase Schema
+// VehicleDetailPurchase Schema
 export const VehicleDetailPurchaseSchema = z.object({
   // Basic Purchase Info
   purchase_date: dateOptional('Purchase Date'),
@@ -1539,23 +1567,24 @@ export type VehicleDetailPurchaseDTO = z.infer<
   typeof VehicleDetailPurchaseSchema
 >;
 
-// ✅ VehicleDocumentFile Schema
+// VehicleDocumentFile Schema
 export const VehicleDocumentFileSchema = BaseFileSchema.extend({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_document_id: single_select_optional('VehicleDocument'), // ✅ Single-Selection -> VehicleDocument
+  // Relations - Parent
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_document_id: single_select_optional('VehicleDocument'), // Single-Selection -> VehicleDocument
 });
-export type VehicleDocumentFileDTO = z.infer<
-  typeof VehicleDocumentFileSchema
->;
+export type VehicleDocumentFileDTO = z.infer<typeof VehicleDocumentFileSchema>;
 
-// ✅ VehicleDocument Schema
+// VehicleDocument Schema
 export const VehicleDocumentSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
 
-  document_type_id: single_select_mandatory('MasterVehicleDocumentType'), // ✅ Single-Selection -> MasterVehicleDocumentType
-  vendor_id: single_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+  document_type_id: single_select_mandatory('MasterVehicleDocumentType'), // Single-Selection -> MasterVehicleDocumentType
+  vendor_id: single_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
 
+  // Main Field Details
   vehicle_document_code: stringOptional('vehicle Document Code', 0, 50),
   document_number: stringOptional('vehicle Document Code', 0, 100),
   document_authorized_name: stringOptional('vehicle Document Code', 0, 100),
@@ -1579,6 +1608,7 @@ export const VehicleDocumentSchema = z.object({
   document_details_4: stringOptional('Document Details 4', 0, 200),
   document_notes: stringOptional('Document Notes', 0, 2000),
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
@@ -1591,38 +1621,49 @@ export const VehicleDocumentSchema = z.object({
 });
 export type VehicleDocumentDTO = z.infer<typeof VehicleDocumentSchema>;
 
-// ✅ VehicleDocument Query Schema
+// VehicleDocument Query Schema
 export const VehicleDocumentQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
-  document_type_ids: multi_select_optional('MasterVehicleDocumentType'), // ✅ Multi-Selection -> MasterVehicleDocumentType
-  vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
-  vehicle_document_ids: multi_select_optional('VehicleDocument'), // ✅ Multi-Selection -> VehicleDocument
+  // Self Table
+  vehicle_document_ids: multi_select_optional('VehicleDocument'), // Multi-Selection -> VehicleDocument
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+  document_type_ids: multi_select_optional('MasterVehicleDocumentType'), // Multi-Selection -> MasterVehicleDocumentType
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
 });
 export type VehicleDocumentQueryDTO = z.infer<
   typeof VehicleDocumentQuerySchema
 >;
 
-// ✅ VehicleDocumentExpiry Schema
+// VehicleDocumentExpiry Schema
 export const VehicleDocumentExpirySchema = z.object({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_id: single_select_optional('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-  vehicle_document_id: single_select_optional('VehicleDocument'), // ✅ Single-Selection -> VehicleDocument
+  // Relations - Parent
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_id: single_select_optional('MasterVehicle'), // Single-Selection -> MasterVehicle
+  vehicle_document_id: single_select_optional('VehicleDocument'), // Single-Selection -> VehicleDocument
+
+  // Main Field Details
   expiry_type: enumMandatory('Expiry Type', ExpiryType, ExpiryType.Expiring),
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type VehicleDocumentExpiryDTO = z.infer<
   typeof VehicleDocumentExpirySchema
 >;
 
-// ✅ VehicleDocumentExpiry Query Schema
+// VehicleDocumentExpiry Query Schema
 export const VehicleDocumentExpiryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  vehicle_document_ids: multi_select_optional('VehicleDocument'), // ✅ Multi-selection -> VehicleDocument
-  document_expiry_ids: multi_select_optional('VehicleDocumentExpiry'), // ✅ Multi-selection -> VehicleDocumentExpiry
+  // Self Table
+  document_expiry_ids: multi_select_optional('VehicleDocumentExpiry'), // Multi-selection -> VehicleDocumentExpiry
 
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  vehicle_document_ids: multi_select_optional('VehicleDocument'), // Multi-selection -> VehicleDocument
+
+  // Main Field Details
   expiry_type: enumArrayOptional(
     'Expiry Type',
     ExpiryType,
@@ -1633,43 +1674,43 @@ export type VehicleDocumentExpiryQueryDTO = z.infer<
   typeof VehicleDocumentExpiryQuerySchema
 >;
 
-// ✅ Vehicle Query Schema
+// Vehicle Query Schema
 export const VehicleQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
 
   is_driver_assigned: enumArrayOptional(
     'Is Device Installed',
     YesNo,
     getAllEnums(YesNo),
   ),
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
 
   is_device_installed: enumArrayOptional(
     'Is Device Installed',
     YesNo,
     getAllEnums(YesNo),
   ),
-  device_ids: multi_select_optional('MasterDevice'), // ✅ Multi-Selection -> MasterDevice
+  device_ids: multi_select_optional('MasterDevice'), // Multi-Selection -> MasterDevice
 
-  organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // ✅ Multi-Selection -> OrganisationSubCompany
-  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-Selection -> OrganisationBranch
-  organisation_tag_ids: multi_select_optional('OrganisationTag'), // ✅ Multi-Selection -> OrganisationTag
-  organisation_color_ids: multi_select_optional('OrganisationColor'), // ✅ Multi-Selection -> OrganisationColor
+  organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // Multi-Selection -> OrganisationSubCompany
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
+  organisation_tag_ids: multi_select_optional('OrganisationTag'), // Multi-Selection -> OrganisationTag
+  organisation_color_ids: multi_select_optional('OrganisationColor'), // Multi-Selection -> OrganisationColor
 
-  vehicle_type_ids: multi_select_optional('MasterVehicleType'), // ✅ Multi-Selection -> MasterVehicleType
-  vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // ✅ Multi-Selection -> MasterVehicleMake
-  vehicle_model_ids: multi_select_optional('MasterVehicleModel'), // ✅ Multi-Selection -> MasterVehicleModel
-  vehicle_sub_model_ids: multi_select_optional('MasterVehicleSubModel'), // ✅ Multi-Selection -> MasterVehicleSubModel
-  vehicle_status_type_ids: multi_select_optional('MasterVehicleStatusType'), // ✅ Multi-Selection -> MasterVehicleStatusType
+  vehicle_type_ids: multi_select_optional('MasterVehicleType'), // Multi-Selection -> MasterVehicleType
+  vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // Multi-Selection -> MasterVehicleMake
+  vehicle_model_ids: multi_select_optional('MasterVehicleModel'), // Multi-Selection -> MasterVehicleModel
+  vehicle_sub_model_ids: multi_select_optional('MasterVehicleSubModel'), // Multi-Selection -> MasterVehicleSubModel
+  vehicle_status_type_ids: multi_select_optional('MasterVehicleStatusType'), // Multi-Selection -> MasterVehicleStatusType
   vehicle_ownership_type_ids: multi_select_optional(
     'MasterVehicleOwnershipType',
-  ), // ✅ Multi-Selection -> MasterVehicleOwnershipType
-  vehicle_associated_to_ids: multi_select_optional('MasterVehicleAssociatedTo'), // ✅ Multi-Selection -> MasterVehicleAssociatedTo
+  ), // Multi-Selection -> MasterVehicleOwnershipType
+  vehicle_associated_to_ids: multi_select_optional('MasterVehicleAssociatedTo'), // Multi-Selection -> MasterVehicleAssociatedTo
 
-  vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // ✅ Multi-Selection -> MasterVehicleFuelType
-  vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // ✅ Multi-Selection -> MasterVehicleFuelUnit
+  vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // Multi-Selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // Multi-Selection -> MasterVehicleFuelUnit
 
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
 
   gps_vehicle_category: enumOptional(
     'GPS Vehicle Category',
@@ -1679,15 +1720,15 @@ export const VehicleQuerySchema = BaseQuerySchema.extend({
 });
 export type VehicleQueryDTO = z.infer<typeof VehicleQuerySchema>;
 
-// ✅ Simple Find Query Schema
+// Simple Find Query Schema
 export const SimpleFindQuerySchema = BaseQuerySchema.extend({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
 });
 export type SimpleFindQueryDTO = z.infer<typeof SimpleFindQuerySchema>;
 
-// ✅ Vehicle GPS Query Schema
+// Vehicle GPS Query Schema
 export const VehicleGPSQuerySchema = BaseQuerySchema.extend({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   vehicle_id: single_select_mandatory('MasterVehicle'), // Single-selection -> MasterVehicle
 });
 export type VehicleGPSQueryDTO = z.infer<typeof VehicleGPSQuerySchema>;
@@ -1833,11 +1874,8 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   is_rear_cam: vehicleGPS?.is_rear_cam || YesNo.No,
   is_front_cam: vehicleGPS?.is_front_cam || YesNo.No,
   camera_extra_count: vehicleGPS?.camera_extra_count || 0,
-  fuel_mapping: vehicleGPS?.fuel_mapping || {},
 
-  calibration_file_url: vehicleGPS?.calibration_file_url || '',
-  calibration_file_key: vehicleGPS?.calibration_file_key || '',
-  calibration_file_name: vehicleGPS?.calibration_file_name || '',
+  fuel_mapping: vehicleGPS?.fuel_mapping || {},
 });
 
 // Convert VehicleDetailTrip Data to API Payload
@@ -2024,7 +2062,6 @@ export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentD
   document_notes: row.document_notes || '',
 
   status: row.status || Status.Active,
-
   time_zone_id: '', // Needs to be provided manually
 
   VehicleDocumentFileSchema: row.VehicleDocumentFile?.map((file) => ({
@@ -2075,7 +2112,6 @@ export const newVehicleDocumentPayload = (): VehicleDocumentDTO => ({
   document_notes: '',
 
   status: Status.Active,
-
   time_zone_id: '', // Needs to be provided manually
 
   VehicleDocumentFileSchema: []

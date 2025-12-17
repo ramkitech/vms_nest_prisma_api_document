@@ -18,7 +18,6 @@ import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 import { Status, AdminRole, LoginFrom } from '../../../core/Enums';
 import { Ticket } from 'src/services/account/ticket_service';
 
-// URL and Endpoints
 const URL = 'user/admin';
 
 const ENDPOINTS = {
@@ -46,15 +45,17 @@ export interface UserAdmin extends Record<string, unknown> {
   // Primary Fields
   admin_id: string;
 
+  // Profile Image/Logo
+  admin_image_url?: string;
+  admin_image_key?: string;
+  admin_image_name?: string;
+
+  // Main Field Details
   admin_name: string;
   email: string;
   password?: string;
   mobile?: string;
   admin_role: AdminRole;
-
-  admin_image_url?: string;
-  admin_image_key?: string;
-  admin_image_name?: string;
 
   // Metadata
   status: Status;
@@ -74,8 +75,10 @@ export interface UserAdmin extends Record<string, unknown> {
 
 // UserAdminLoginPush Interface
 export interface UserAdminLoginPush extends Record<string, unknown> {
+  // Primary Fields
   admin_login_push_id: string;
 
+  // Main Field Details
   fcm_token: string;
 
   platform: LoginFrom;
@@ -100,45 +103,54 @@ export interface UserAdminLoginPush extends Record<string, unknown> {
   UserAdmin?: UserAdmin;
 }
 
-// ✅ UserAdmin Create/Update Schema
+// UserAdmin Create/Update Schema
 export const UserAdminSchema = z.object({
+  // Profile Image/Logo
+  admin_image_url: stringOptional('Admin Image URL', 0, 300),
+  admin_image_key: stringOptional('Admin Image Key', 0, 300),
+  admin_image_name: stringOptional('Admin Image Name', 0, 300),
+
+  // Main Field Details
   admin_name: stringMandatory('Admin Name', 3, 100),
   email: stringMandatory('Email', 3, 100),
   password: stringOptional('Password', 0, 20),
   mobile: stringOptional('Password', 0, 20),
   admin_role: enumMandatory('Admin Role', AdminRole, AdminRole.MasterAdmin),
 
-  admin_image_url: stringOptional('Admin Image URL', 0, 300),
-  admin_image_key: stringOptional('Admin Image Key', 0, 300),
-  admin_image_name: stringOptional('Admin Image Name', 0, 300),
-
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type UserAdminDTO = z.infer<typeof UserAdminSchema>;
 
-// ✅ UserAdmin Logo Schema
+// UserAdmin Logo Schema
 export const UserAdminLogoSchema = z.object({
+  // Profile Image/Logo
   admin_image_url: stringMandatory('Admin Image URL', 0, 300),
   admin_image_key: stringMandatory('Admin Image Key', 0, 300),
   admin_image_name: stringMandatory('Admin Image Name', 0, 300),
 });
 export type UserAdminLogoDTO = z.infer<typeof UserAdminLogoSchema>;
 
-// ✅ UserAdmin Update Profile Schema
+// UserAdmin Update Profile Schema
 export const UserAdminProfileSchema = z.object({
-  admin_name: stringMandatory('Admin Name', 3, 100),
-  email: stringMandatory('Email', 3, 100),
-  mobile: stringOptional('Password', 0, 20),
-
+  // Profile Image/Logo
   admin_image_url: stringOptional('Admin Image URL', 0, 300),
   admin_image_key: stringOptional('Admin Image Key', 0, 300),
   admin_image_name: stringOptional('Admin Image Name', 0, 300),
+
+  // Main Field Details
+  admin_name: stringMandatory('Admin Name', 3, 100),
+  email: stringMandatory('Email', 3, 100),
+  mobile: stringOptional('Password', 0, 20),
 });
 export type UserAdminProfileDTO = z.infer<typeof UserAdminProfileSchema>;
 
-// ✅ UserAdmin Query Schema
+// UserAdmin Query Schema
 export const UserAdminQuerySchema = BaseQuerySchema.extend({
-  admin_ids: multi_select_optional('UserAdmin'), // ✅ Multi-Selection -> UserAdmin
+  // Self Table
+  admin_ids: multi_select_optional('UserAdmin'), // Multi-Selection -> UserAdmin
+
+  // Enums
   admin_role: enumArrayOptional(
     'Admin Role',
     AdminRole,
@@ -147,24 +159,12 @@ export const UserAdminQuerySchema = BaseQuerySchema.extend({
 });
 export type UserAdminQueryDTO = z.infer<typeof UserAdminQuerySchema>;
 
-// Convert UserAdmin Data to API Payload
-export const toUserAdminPayload = (row: UserAdmin): UserAdminDTO => ({
-  admin_name: row.admin_name || '',
-  email: row.email || '',
-  password: row.password || '',
-  mobile: row.mobile || '',
-  admin_role: row.admin_role || AdminRole.MasterAdmin,
-  admin_image_url: row.admin_image_url || '',
-  admin_image_key: row.admin_image_key || '',
-  admin_image_name: row.admin_image_name || '',
-  status: row.status || Status.Active,
-});
-
 // Convert UserAdminProfile Data to API Payload
 export const toUserAdminProfilePayload = (row: UserAdmin): UserAdminProfileDTO => ({
   admin_name: row.admin_name || '',
   email: row.email || '',
   mobile: row.mobile || '',
+
   admin_image_url: row.admin_image_url || '',
   admin_image_key: row.admin_image_key || '',
   admin_image_name: row.admin_image_name || '',
@@ -177,9 +177,11 @@ export const newUserAdminPayload = (): UserAdminDTO => ({
   password: '',
   mobile: '',
   admin_role: AdminRole.MasterAdmin,
+
   admin_image_url: '',
   admin_image_key: '',
   admin_image_name: '',
+  
   status: Status.Active,
 });
 

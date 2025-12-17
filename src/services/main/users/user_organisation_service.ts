@@ -114,6 +114,7 @@ import { MasterVehicleOwnershipType } from 'src/services/master/vehicle/master_v
 import { MasterVehicleStatusType } from 'src/services/master/vehicle/master_vehicle_status_type_service';
 import { MasterVehicleSubModel } from 'src/services/master/vehicle/master_vehicle_sub_model_service';
 import { MasterVehicleType } from 'src/services/master/vehicle/master_vehicle_type_service';
+import { MasterMainUnitDistance } from 'src/services/master/main/master_main_unit_distance_service';
 
 const URL = 'user/organisation';
 
@@ -140,6 +141,13 @@ const ENDPOINTS = {
 export interface UserOrganisation extends Record<string, unknown> {
   // Primary Fields
   organisation_id: string;
+
+  // Profile Image/Logo
+  logo_url?: string;
+  logo_key?: string;
+  logo_name?: string;
+
+  // Main Field Details
   organisation_name: string;
   organisation_email?: string;
   organisation_mobile?: string;
@@ -149,12 +157,9 @@ export interface UserOrganisation extends Record<string, unknown> {
 
   fleet_size: FleetSize;
 
+  // Database Details
   db_instance: string;
   db_group: string;
-
-  logo_url?: string;
-  logo_key?: string;
-  logo_name?: string;
 
   company_cin?: string;
   company_tin_gstin?: string;
@@ -171,7 +176,7 @@ export interface UserOrganisation extends Record<string, unknown> {
   billing_country?: string;
   billing_country_code?: string;
 
-  // Company Address
+  // Organisation Address
   address_line1?: string;
   address_line2?: string;
   locality_landmark?: string;
@@ -191,33 +196,51 @@ export interface UserOrganisation extends Record<string, unknown> {
   // Relations - Parent
   industry_id: string;
   MasterMainIndustry?: MasterMainIndustry;
+  industry_name?: string;
 
   country_id: string;
   MasterMainCountry?: MasterMainCountry;
+  country_name?: string;
 
   state_id?: string;
   MasterMainState?: MasterMainState;
+  state_name?: string;
+  state_code?: string;
 
   currency_id?: string;
   MasterMainCurrency?: MasterMainCurrency;
+  currency_name?: string;
+  currency_code?: string;
 
   language_id?: string;
   MasterMainLanguage?: MasterMainLanguage;
+  language_name?: string;
+  language_code?: string;
 
   time_zone_id?: string;
   MasterMainTimeZone?: MasterMainTimeZone;
+  time_zone_code?: string;
+  time_zone_identifier?: string;
 
   date_format_id?: string;
   MasterMainDateFormat?: MasterMainDateFormat;
+  date_format_date?: string;
+  date_format_time?: string;
 
   distance_unit_id?: string;
-  UserOrganisation?: UserOrganisation;
+  MasterMainUnitDistance?: MasterMainUnitDistance;
+  distance_unit_name?: string;
+  distance_unit_code?: string;
 
   mileage_unit_id?: string;
   MasterMainUnitMileage?: MasterMainUnitMileage;
+  mileage_unit_name?: string;
+  mileage_unit_code?: string;
 
   volume_unit_id?: string;
   MasterMainUnitVolume?: MasterMainUnitVolume;
+  volume_unit_name?: string;
+  volume_unit_code?: string;
 
   // Relations - Child
   // Child - Main
@@ -592,6 +615,7 @@ export interface UserOrganisation extends Record<string, unknown> {
 };
 
 
+// UserOrganisationSimple Interface
 export interface UserOrganisationSimple extends Record<string, unknown> {
   o_id: string;
   o_name: string;
@@ -610,8 +634,26 @@ export interface UserOrganisationSimple extends Record<string, unknown> {
   tz_id: string;
 }
 
-// ✅ UserOrganisation Create/Update Schema
+// UserOrganisation Create/Update Schema
 export const UserOrganisationSchema = z.object({
+  // Relations - Parent
+  industry_id: single_select_mandatory('MasterMainIndustry'), // Single-Selection -> MasterMainIndustry
+  country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
+  state_id: single_select_optional('MasterMainState'), // Single-Selection -> MasterMainState
+  currency_id: single_select_optional('MasterMainCurrency'), // Single-Selection -> MasterMainCurrency
+  language_id: single_select_optional('MasterMainLanguage'), // Single-Selection -> MasterMainLanguage
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'), // Single-Selection -> MasterMainTimeZone
+  date_format_id: single_select_optional('MasterMainDateFormat'), // Single-Selection -> MasterMainDateFormat
+  distance_unit_id: single_select_optional('MasterMainUnitDistance'), // Single-Selection -> MasterMainUnitDistance
+  mileage_unit_id: single_select_optional('MasterMainUnitMileage'), // Single-Selection -> MasterMainUnitMileage
+  volume_unit_id: single_select_optional('MasterMainUnitVolume'), // Single-Selection -> MasterMainUnitVolume
+
+  // Profile Image/Logo
+  logo_url: stringOptional('Logo URL', 0, 300),
+  logo_key: stringOptional('Logo Key', 0, 300),
+  logo_name: stringOptional('Logo Name', 0, 300),
+
+  // Relations - Parent
   organisation_name: stringMandatory('Organisation Name', 3, 100),
   organisation_email: stringOptional('Organisation Email', 0, 100),
   organisation_mobile: stringOptional('Organisation Mobile', 0, 20),
@@ -624,10 +666,6 @@ export const UserOrganisationSchema = z.object({
     FleetSize,
     FleetSize.Fleet_1_to_50_Vehicles,
   ),
-
-  logo_url: stringOptional('Logo URL', 0, 300),
-  logo_key: stringOptional('Logo Key', 0, 300),
-  logo_name: stringOptional('Logo Name', 0, 300),
 
   company_cin: stringOptional('Company CIN', 0, 50),
   company_tin_gstin: stringOptional('Company TIN/GSTIN', 0, 50),
@@ -664,43 +702,39 @@ export const UserOrganisationSchema = z.object({
   country: stringOptional('Country', 0, 100),
   country_code: stringOptional('Country Code', 0, 5),
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
-
-  industry_id: single_select_mandatory('MasterMainIndustry'), // ✅ Single-Selection -> MasterMainIndustry
-  country_id: single_select_mandatory('MasterMainCountry'), // ✅ Single-Selection -> MasterMainCountry
-  state_id: single_select_optional('MasterMainState'), // ✅ Single-Selection -> MasterMainState
-  currency_id: single_select_optional('MasterMainCurrency'), // ✅ Single-Selection -> MasterMainCurrency
-  language_id: single_select_optional('MasterMainLanguage'), // ✅ Single-Selection -> MasterMainLanguage
-  time_zone_id: single_select_mandatory('MasterMainTimeZone'), // ✅ Single-Selection -> MasterMainTimeZone
-  date_format_id: single_select_optional('MasterMainDateFormat'), // ✅ Single-Selection -> MasterMainDateFormat
-  distance_unit_id: single_select_optional('MasterMainUnitDistance'), // ✅ Single-Selection -> MasterMainUnitDistance
-  mileage_unit_id: single_select_optional('MasterMainUnitMileage'), // ✅ Single-Selection -> MasterMainUnitMileage
-  volume_unit_id: single_select_optional('MasterMainUnitVolume'), // ✅ Single-Selection -> MasterMainUnitVolume
 });
 export type UserOrganisationDTO = z.infer<typeof UserOrganisationSchema>;
 
-// ✅ UserOrganisation Query Schema
+// UserOrganisation Query Schema
 export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
-  industry_ids: multi_select_optional('MasterMainIndustry'), // ✅ Multi-Selection -> MasterMainIndustry
-  country_ids: multi_select_optional('MasterMainCountry'), // ✅ Multi-Selection -> MasterMainCountry
-  state_ids: multi_select_optional('MasterMainState'), // ✅ Multi-Selection -> MasterMainState
-  currency_ids: multi_select_optional('MasterMainCurrency'), // ✅ Multi-Selection -> MasterMainCurrency
-  language_ids: multi_select_optional('MasterMainLanguage'), // ✅ Multi-Selection -> MasterMainLanguage
-  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // ✅ Multi-Selection -> MasterMainTimeZone
-  date_format_ids: multi_select_optional('MasterMainDateFormat'), // ✅ Multi-Selection -> MasterMainDateFormat
+  // Self Table
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+
+  // Relations - Parent
+  industry_ids: multi_select_optional('MasterMainIndustry'), // Multi-Selection -> MasterMainIndustry
+  country_ids: multi_select_optional('MasterMainCountry'), // Multi-Selection -> MasterMainCountry
+  state_ids: multi_select_optional('MasterMainState'), // Multi-Selection -> MasterMainState
+  currency_ids: multi_select_optional('MasterMainCurrency'), // Multi-Selection -> MasterMainCurrency
+  language_ids: multi_select_optional('MasterMainLanguage'), // Multi-Selection -> MasterMainLanguage
+  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // Multi-Selection -> MasterMainTimeZone
+  date_format_ids: multi_select_optional('MasterMainDateFormat'), // Multi-Selection -> MasterMainDateFormat
+
+  // Enums
   fleet_size: enumArrayOptional(
     'Fleet Size',
     FleetSize,
     getAllEnums(FleetSize),
   ),
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
 });
 export type UserOrganisationQueryDTO = z.infer<
   typeof UserOrganisationQuerySchema
 >;
 
-// ✅ UserOrganisation Logo Schema
+// UserOrganisation Logo Schema
 export const UserOrganisationLogoSchema = z.object({
+  // Profile Image/Logo
   logo_url: stringMandatory('Logo URL', 0, 300),
   logo_key: stringMandatory('Logo Key', 0, 300),
   logo_name: stringMandatory('Logo Name', 0, 300),

@@ -37,8 +37,10 @@ const ENDPOINTS = {
 
 // GPSGeofenceTransactionSummary Interface
 export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
+  // Primary Fields
   gps_geofence_transaction_summary_id: string;
 
+  // Main Field Details
   geofence_enter_date_time: string;
   geofence_exit_date_time?: string;
   duration_seconds?: number;
@@ -73,7 +75,7 @@ export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
   ExitGPSGeofenceTransaction?: GPSGeofenceTransaction;
 }
 
-// ✅ GPSGeofenceTransaction Summary Create/Update Schema
+// GPSGeofenceTransaction Summary Create/Update Schema
 export const GPSGeofenceTransactionSummarySchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
@@ -96,12 +98,12 @@ export type GPSGeofenceTransactionSummaryDTO = z.infer<
   typeof GPSGeofenceTransactionSummarySchema
 >;
 
-// ✅ GPSGeofenceTransaction Summary Query Schema
+// GPSGeofenceTransaction Summary Query Schema
 export const GPSGeofenceTransactionSummaryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
-  gps_geofence_ids: multi_select_optional('Gps Geofence IDs'), // ✅ Multi-selection -> Gps Geofence
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
+  gps_geofence_ids: multi_select_optional('Gps Geofence IDs'), // Multi-selection -> Gps Geofence
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
@@ -134,9 +136,11 @@ export const newGPSGeofenceTransactionSummaryPayload = (): GPSGeofenceTransactio
   gps_geofence_id: '',
   enter_gps_geofence_transaction_id: '',
   exit_gps_geofence_transaction_id: '',
+
   geofence_enter_date_time: '',
   geofence_exit_date_time: '',
   duration_seconds: 0,
+  
   status: Status.Active,
   time_zone_id: '', // Needs to be provided manually
 });

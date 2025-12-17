@@ -36,8 +36,10 @@ const ENDPOINTS = {
 
 // TripGeofenceToGeofence Interface
 export interface TripGeofenceToGeofence extends Record<string, unknown> {
+  // Primary Fields
   trip_geofence_to_geofence_id: string;
 
+  // Main Field Details
   from_geofence_exit_date_time: string;
   to_geofence_enter_date_time: string;
   duration_seconds: number;
@@ -80,7 +82,7 @@ export interface TripGeofenceToGeofence extends Record<string, unknown> {
   to_geofence_details?: string;
 }
 
-// ✅ TripGeofenceToGeofence Create/Update Schema
+// TripGeofenceToGeofence Create/Update Schema
 export const TripGeofenceToGeofenceSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
@@ -107,13 +109,13 @@ export type TripGeofenceToGeofenceDTO = z.infer<
   typeof TripGeofenceToGeofenceSchema
 >;
 
-// ✅ TripGeofenceToGeofence Query Schema
+// TripGeofenceToGeofence Query Schema
 export const TripGeofenceToGeofenceQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
-  from_geofence_ids: multi_select_optional('From Geofence IDs'), // ✅ Multi-selection -> From Geofence
-  to_geofence_ids: multi_select_optional('To Geofence IDs'), // ✅ Multi-selection -> To Geofence
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
+  from_geofence_ids: multi_select_optional('From Geofence IDs'), // Multi-selection -> From Geofence
+  to_geofence_ids: multi_select_optional('To Geofence IDs'), // Multi-selection -> To Geofence
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
@@ -151,12 +153,14 @@ export const newTripGeofenceToGeofencePayload = (): TripGeofenceToGeofenceDTO =>
   to_geofence_id: '',
   from_geofence_exit_date_time: '',
   to_geofence_enter_date_time: '',
+
   duration_seconds: 0,
   travel_duration_seconds: 0,
   stopped_duration_seconds: 0,
   distance_meters: 0,
   max_speed: 0,
   avg_speed: 0,
+  
   status: Status.Active,
   time_zone_id: '', // Needs to be provided manually
 });

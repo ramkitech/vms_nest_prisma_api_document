@@ -73,6 +73,13 @@ const ENDPOINTS = {
 export interface MasterDriver extends Record<string, unknown> {
   // Primary Fields
   driver_id: string;
+
+  // Profile Image/Logo
+  driver_image_url?: string;
+  driver_image_key?: string;
+  driver_image_name?: string;
+
+  // Main Field Details
   driver_code?: string;
   driver_first_name: string;
   driver_last_name?: string;
@@ -87,11 +94,6 @@ export interface MasterDriver extends Record<string, unknown> {
   password?: string;
   can_login: YesNo;
   driver_type: DriverType;
-
-  // Image Fields
-  driver_image_url?: string;
-  driver_image_key?: string;
-  driver_image_name?: string;
 
   // Metadata
   status: Status;
@@ -111,6 +113,7 @@ export interface MasterDriver extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   organisation_sub_company_id?: string;
   OrganisationSubCompany?: OrganisationSubCompany;
@@ -119,7 +122,7 @@ export interface MasterDriver extends Record<string, unknown> {
   organisation_branch_id?: string;
   OrganisationBranch?: OrganisationBranch;
   branch_name?: string;
-  branch_code?: string;
+  branch_city?: string;
 
   organisation_color_id?: string;
   OrganisationColor?: OrganisationColor;
@@ -193,6 +196,7 @@ export interface MasterDriverFile extends BaseCommonFile {
 
   driver_id: string;
   MasterDriver?: MasterDriver;
+  driver_details?: string;
 
   // Usage Type -> Aadhaar Front Image, Aadhaar Back Image,  Pan Image, License Front Image, License Back Image
 }
@@ -201,6 +205,8 @@ export interface MasterDriverFile extends BaseCommonFile {
 export interface AssignRemoveDriverHistory extends Record<string, unknown> {
   // Primary Fields
   history_id: string;
+
+  // Main Field Details
   assign_date?: string;
   assign_date_f?: string;
   remove_date?: string;
@@ -224,12 +230,14 @@ export interface AssignRemoveDriverHistory extends Record<string, unknown> {
 
 // DriverLoginPush Interface
 export interface DriverLoginPush extends Record<string, unknown> {
+  // Primary Fields
   driver_login_push_id: string;
 
+  // Main Field Details
   fcm_token: string;
 
   platform: LoginFrom;
-  MasterDriver_agent?: string;
+  user_agent?: string;
   ip_address?: string;
 
   device_id?: string;
@@ -254,21 +262,29 @@ export interface DriverLoginPush extends Record<string, unknown> {
   driver_details?: string;
 }
 
-// ✅ MasterDriver File Schema
+// MasterDriver File Schema
 export const MasterDriverFileSchema = BaseFileSchema.extend({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+  // Relations - Parent
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
 });
 export type MasterDriverFileDTO = z.infer<typeof MasterDriverFileSchema>;
 
-// ✅ MasterDriver Create/Update Schema
+// MasterDriver Create/Update Schema
 export const MasterDriverSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  organisation_sub_company_id: single_select_optional('OrganisationSubCompany'), // ✅ Single-Selection -> OrganisationSubCompany
-  organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
-  organisation_color_id: single_select_optional('OrganisationColor'), // ✅ Single-Selection -> OrganisationColor
-  organisation_tag_id: single_select_optional('OrganisationTag'), // ✅ Single-Selection -> OrganisationTag
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  organisation_sub_company_id: single_select_optional('OrganisationSubCompany'), // Single-Selection -> OrganisationSubCompany
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+  organisation_color_id: single_select_optional('OrganisationColor'), // Single-Selection -> OrganisationColor
+  organisation_tag_id: single_select_optional('OrganisationTag'), // Single-Selection -> OrganisationTag
 
+  // Profile Image/Logo
+  driver_image_url: stringOptional('Driver Image URL', 0, 300),
+  driver_image_key: stringOptional('Driver Image Key', 0, 300),
+  driver_image_name: stringOptional('Driver Image Name', 0, 300),
+
+  // Main Field Details
   driver_code: stringOptional('Driver Code', 0, 50),
   driver_first_name: stringMandatory('Driver First Name', 3, 100),
   driver_last_name: stringOptional('Driver Last Name', 0, 100),
@@ -282,12 +298,10 @@ export const MasterDriverSchema = z.object({
   can_login: enumMandatory('Can Login', YesNo, YesNo.No),
   driver_type: enumMandatory('Driver Type', DriverType, DriverType.Driver),
 
-  driver_image_url: stringOptional('Driver Image URL', 0, 300),
-  driver_image_key: stringOptional('Driver Image Key', 0, 300),
-  driver_image_name: stringOptional('Driver Image Name', 0, 300),
-
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 
+  // Additional Files
   MasterDriverFileSchema: nestedArrayOfObjectsOptional(
     'MasterDriverFileSchema',
     MasterDriverFileSchema,
@@ -296,15 +310,20 @@ export const MasterDriverSchema = z.object({
 });
 export type MasterDriverDTO = z.infer<typeof MasterDriverSchema>;
 
-// ✅ MasterDriver Query Schema
+// MasterDriver Query Schema
 export const MasterDriverQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // ✅ Multi-Selection -> OrganisationSubCompany
-  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-Selection -> OrganisationBranch
-  organisation_color_ids: multi_select_optional('OrganisationColor'), // ✅ Multi-Selection -> OrganisationColor
-  organisation_tag_ids: multi_select_optional('OrganisationTag'), // ✅ Multi-Selection -> OrganisationTag
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
+  // Self Table
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // Multi-Selection -> OrganisationSubCompany
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
+  organisation_color_ids: multi_select_optional('OrganisationColor'), // Multi-Selection -> OrganisationColor
+  organisation_tag_ids: multi_select_optional('OrganisationTag'), // Multi-Selection -> OrganisationTag
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+
+  // Enums
   can_login: enumArrayOptional('Can Login', YesNo, getAllEnums(YesNo)),
   driver_type: enumArrayOptional(
     'Driver Type',
@@ -319,16 +338,23 @@ export const MasterDriverQuerySchema = BaseQuerySchema.extend({
 });
 export type MasterDriverQueryDTO = z.infer<typeof MasterDriverQuerySchema>;
 
-// ✅ MasterDriver Logo Schema
+// MasterDriver Logo Schema
 export const MasterDriverLogoSchema = z.object({
+  // Profile Image/Logo
   driver_image_url: stringMandatory('Driver Image URL', 0, 300),
   driver_image_key: stringMandatory('Driver Image Key', 0, 300),
   driver_image_name: stringMandatory('Driver Image Name', 0, 300),
 });
 export type MasterDriverLogoDTO = z.infer<typeof MasterDriverLogoSchema>;
 
-// ✅ MasterDriver Update Profile Schema
+// MasterDriver Update Profile Schema
 export const MasterDriverProfileSchema = z.object({
+  // Profile Image/Logo
+  driver_image_url: stringOptional('Driver Image URL', 0, 300),
+  driver_image_key: stringOptional('Driver Image Key', 0, 300),
+  driver_image_name: stringOptional('Driver Image Name', 0, 300),
+
+  // Main Field Details
   driver_code: stringOptional('Driver Code', 0, 50),
   driver_first_name: stringMandatory('Driver First Name', 3, 100),
   driver_last_name: stringOptional('Driver Last Name', 0, 100),
@@ -338,10 +364,7 @@ export const MasterDriverProfileSchema = z.object({
   driver_pan: stringOptional('Driver PAN', 0, 10),
   driver_aadhaar: stringOptional('Driver Aadhaar', 0, 12),
 
-  driver_image_url: stringOptional('Driver Image URL', 0, 300),
-  driver_image_key: stringOptional('Driver Image Key', 0, 300),
-  driver_image_name: stringOptional('Driver Image Name', 0, 300),
-
+  // Additional Files
   MasterDriverFileSchema: nestedArrayOfObjectsOptional(
     'MasterDriverFileSchema',
     MasterDriverFileSchema,
@@ -369,13 +392,13 @@ export const toDriverPayload = (row: MasterDriver): MasterDriverDTO => ({
   driver_image_key: row.driver_image_key || '',
   driver_image_name: row.driver_image_name || '',
 
-  status: row?.status || Status.Active,
-
   organisation_id: row.organisation_id || '',
   organisation_sub_company_id: row.organisation_sub_company_id || '',
   organisation_branch_id: row.organisation_branch_id || '',
   organisation_color_id: row.organisation_color_id || '',
   organisation_tag_id: row.organisation_tag_id || '',
+
+  status: row?.status || Status.Active,
 
   MasterDriverFileSchema: [],
   // MasterDriverFileSchema: row.MasterDriverFile?.map((file) => ({
@@ -452,7 +475,6 @@ export const newDriverPayload = (): MasterDriverDTO => ({
   driver_image_key: '',
   driver_image_name: '',
 
-  status: Status.Active,
   organisation_id: '',
   organisation_sub_company_id: '',
   organisation_branch_id: '',
@@ -460,6 +482,8 @@ export const newDriverPayload = (): MasterDriverDTO => ({
   organisation_tag_id: '',
 
   MasterDriverFileSchema: [],
+
+  status: Status.Active,
 });
 
 // AWS S3 PRESIGNED
@@ -473,11 +497,11 @@ export const get_master_driver_file_presigned_url = async (data: FilePresignedUr
 
 // File Uploads
 export const update_master_driver_logo = async (id: string, data: MasterDriverLogoDTO): Promise<SBR> => {
-    return apiPatch<SBR, MasterDriverLogoDTO>(ENDPOINTS.update_master_driver_logo(id), data);
+  return apiPatch<SBR, MasterDriverLogoDTO>(ENDPOINTS.update_master_driver_logo(id), data);
 };
 
 export const delete_master_driver_logo = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.delete_master_driver_logo(id));
+  return apiDelete<SBR>(ENDPOINTS.delete_master_driver_logo(id));
 };
 
 export const create_master_driver_file = async (data: MasterDriverFileDTO): Promise<SBR> => {

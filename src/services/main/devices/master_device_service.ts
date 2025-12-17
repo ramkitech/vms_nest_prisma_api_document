@@ -61,6 +61,8 @@ export interface MasterDevice extends Record<string, unknown> {
   // Primary Fields
   device_id: string;
   serial_no: number;
+
+  // Main Field Details
   device_identifier: string;
   device_note_1: string;
   device_note_2: string;
@@ -82,6 +84,8 @@ export interface MasterDevice extends Record<string, unknown> {
   is_device_used: DeviceStatus;
   vehicle_id?: string;
   MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
   assign_device_date?: string;
   assign_device_date_f?: string;
   AssignRemoveDeviceHistory: AssignRemoveDeviceHistory[];
@@ -91,14 +95,6 @@ export interface MasterDevice extends Record<string, unknown> {
   // Database Details
   db_instance: string;
   db_group: string;
-
-  // Images
-  device_image_url?: string;
-  device_image_key?: string;
-  vehicle_image_url?: string;
-  vehicle_image_key?: string;
-  sim_image_url?: string;
-  sim_image_key?: string;
 
   // Relations - Parent
   device_manufacturer_id?: string;
@@ -115,9 +111,12 @@ export interface MasterDevice extends Record<string, unknown> {
 
   country_id?: string;
   MasterMainCountry?: MasterMainCountry;
+  country_name?: string;
 
   time_zone_id?: string;
   MasterMainTimeZone?: MasterMainTimeZone;
+  time_zone_code?: string;
+  time_zone_identifier?: string;
 
   // Relations - Child
   // Child - Main
@@ -147,6 +146,8 @@ export interface MasterDevice extends Record<string, unknown> {
 export interface AssignRemoveDeviceHistory extends Record<string, unknown> {
   // Primary Fields
   history_id: string;
+
+  // Main Field Details
   assign_date?: string;
   assign_date_f?: string;
   remove_date?: string;
@@ -159,10 +160,13 @@ export interface AssignRemoveDeviceHistory extends Record<string, unknown> {
 
   // Relations
   vehicle_id: string;
-  Vehicle?: MasterVehicle;
+  MasterVehicle?: MasterVehicle;
+  vehicle_number?: string;
+  vehicle_type?: string;
 
   device_id: string;
   MasterDevice?: MasterDevice;
+  device_identifier?: string;
 }
 
 // MasterDeviceFile Interface
@@ -177,50 +181,62 @@ export interface MasterDeviceFile extends BaseCommonFile {
   // Parent
   device_id: string;
   MasterDevice?: MasterDevice;
+  device_identifier?: string;
 
   // Usage Type -> Device Image, Vehicle Image, Sim Image
 }
 
-// ✅ Device Create/Update Schema
+// MasterDevice Create/Update Schema
 export const MasterDeviceSchema = z.object({
-  device_manufacturer_id: single_select_mandatory('Device Manufacturer'), // ✅ Single-selection -> MasterDeviceManufacturer
-  device_model_id: single_select_mandatory('Device Model'), // ✅ Single-selection -> MasterDeviceModel
+  // Relations - Parent
+  device_manufacturer_id: single_select_mandatory('Device Manufacturer'), // Single-Selection -> MasterDeviceManufacturer
+  device_model_id: single_select_mandatory('MasterDeviceModel'), // Single-Selection -> MasterDeviceModel
+
+  // Main Field Details
   device_gps_source: enumMandatory('Status', GPSSource, GPSSource.Traccar),
   device_identifier: stringMandatory('Device Identifier', 2, 100),
   device_note_1: stringOptional('Device Note 1', 0, 100),
   device_note_2: stringOptional('Device Identifier', 0, 100),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterDeviceDTO = z.infer<typeof MasterDeviceSchema>;
 
-// ✅ Device Query Schema
+// MasterDevice Query Schema
 export const MasterDeviceQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('User Organisation'), // ✅ Multi-selection -> UserOrganisation
-  country_ids: multi_select_optional('Master Country'), // ✅ Multi-selection -> MasterMainCountry
-  time_zone_ids: multi_select_optional('Master Time Zone'), // ✅ Multi-selection -> MasterMainTimeZone
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  device_manufacturer_ids: multi_select_optional('Device Manufacturer'), // ✅ Multi-selection -> MasterDeviceManufacturer
-  device_model_ids: multi_select_optional('Device Model'), // ✅ Multi-selection -> MasterDeviceModel
-  device_type_ids: multi_select_optional('Device Type'), // ✅ Multi-selection -> MasterDeviceType
-  device_ids: multi_select_optional('Device'), // ✅ Multi-selection -> MasterDevice
+  // Self Table
+  device_ids: multi_select_optional('MasterDevice'), // Multi-Selection -> MasterDevice
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  country_ids: multi_select_optional('MasterMainCountry'), // Multi-Selection -> MasterMainCountry
+  time_zone_ids: multi_select_optional('MasterMainTimeZone'), // Multi-Selection -> MasterMainTimeZone
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // Multi-Selection -> MasterDeviceManufacturer
+  device_model_ids: multi_select_optional('MasterDeviceModel'), // Multi-Selection -> MasterDeviceModel
+  device_type_ids: multi_select_optional('MasterDeviceType'), // Multi-Selection -> MasterDeviceType
+
+  // Enums
   is_device_used: enumArrayOptional(
     'Is Device Used',
     DeviceStatus,
-    getAllEnums(DeviceStatus)
+    getAllEnums(DeviceStatus),
   ),
   is_sim_linked: enumArrayOptional('Is Sim Linked', YesNo, getAllEnums(YesNo)),
   device_gps_source: enumArrayOptional(
     'Device GPS Source',
     GPSSource,
-    getAllEnums(GPSSource)
+    getAllEnums(GPSSource),
   ),
 });
 export type MasterDeviceQueryDTO = z.infer<typeof MasterDeviceQuerySchema>;
 
-// ✅ Device Sim Link Schema
+// MasterDevice Sim Link Schema
 export const DeviceSimLinkSchema = z.object({
-  device_id: single_select_mandatory('Device ID'), // Single selection -> MasterDevice
-  sim_id: single_select_mandatory('Sim ID'), // Single selection -> MasterSim
+  // Relations - Parent
+  device_id: single_select_mandatory('MasterDevice'), // Single-Selection -> MasterDevice
+  sim_id: single_select_mandatory('MasterSim'), // Single-Selection -> MasterSim
 });
 export type DeviceSimLinkDTO = z.infer<typeof DeviceSimLinkSchema>;
 
@@ -228,10 +244,12 @@ export type DeviceSimLinkDTO = z.infer<typeof DeviceSimLinkSchema>;
 export const toMasterDevicePayload = (row: MasterDevice): MasterDeviceDTO => ({
   device_manufacturer_id: row.device_manufacturer_id || '',
   device_model_id: row.device_model_id || '',
+
   device_identifier: row.device_identifier || '',
   device_note_1: row.device_note_1 || '',
   device_note_2: row.device_note_2 || '',
   device_gps_source: row.device_gps_source || GPSSource.NoDevice,
+
   status: row.status || Status.Active,
 });
 
@@ -239,14 +257,16 @@ export const toMasterDevicePayload = (row: MasterDevice): MasterDeviceDTO => ({
 export const newMasterDevicePayload = (): MasterDeviceDTO => ({
   device_manufacturer_id: '',
   device_model_id: '',
+
   device_identifier: '',
   device_note_1: '',
   device_note_2: '',
   device_gps_source: GPSSource.NoDevice,
+
   status: Status.Active,
 });
 
-// AMasterDevice APIs
+// MasterDevice APIs
 export const findMasterDevices = async (data: MasterDeviceQueryDTO): Promise<FBR<MasterDevice[]>> => {
   return apiPost<FBR<MasterDevice[]>, MasterDeviceQueryDTO>(ENDPOINTS.find, data);
 };

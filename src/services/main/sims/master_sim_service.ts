@@ -35,6 +35,8 @@ const ENDPOINTS = {
 export interface MasterSim extends Record<string, unknown> {
   // Primary Fields
   sim_id: string;
+
+  // Main Field Details
   sim_number: string;
   sim_imei: string;
   sim_serial_number: string;
@@ -55,6 +57,7 @@ export interface MasterSim extends Record<string, unknown> {
 
   sim_provider_id: string;
   MasterMainSimProvider?: MasterMainSimProvider;
+  provider_name?: string;
 
   // // Relations - Child Count
   _count?: {
@@ -66,6 +69,8 @@ export interface MasterSim extends Record<string, unknown> {
 export interface AssignRemoveSimHistory extends Record<string, unknown> {
   // Primary Fields
   history_id: string;
+
+  // Main Field Details
   device_sim_link_date?: string;
   device_sim_link_date_f?: string;
   device_sim_unlink_date?: string;
@@ -85,9 +90,12 @@ export interface AssignRemoveSimHistory extends Record<string, unknown> {
   device_identifier?: string;
 }
 
-// ✅ Master Sim Create/Update Schema
+// MasterSim Create/Update Schema
 export const MasterSimSchema = z.object({
-  sim_provider_id: single_select_mandatory('Sim Provider ID'), // ✅ Single-selection -> MasterMainSimProvider
+  // Relations - Parent
+  sim_provider_id: single_select_mandatory('MasterMainSimProvider'), // Single-Selection -> MasterMainSimProvider
+
+  // Main Field Details
   sim_number: stringMandatory('Sim Number', 3, 50),
   sim_imei: stringMandatory('Sim IMEI', 3, 50),
   sim_serial_number: stringMandatory('Sim Serial Number', 3, 50),
@@ -95,25 +103,32 @@ export const MasterSimSchema = z.object({
   billing_status: enumMandatory(
     'Billing Status',
     BillingStatus,
-    BillingStatus.New
+    BillingStatus.New,
   ),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterSimDTO = z.infer<typeof MasterSimSchema>;
 
-// ✅ Master Sim Query Schema
+// MasterSim Query Schema
 export const MasterSimQuerySchema = BaseQuerySchema.extend({
-  sim_provider_ids: multi_select_optional('Sim Provider IDs'), // ✅ Multi-selection -> MasterMainSimProvider
-  sim_ids: multi_select_optional('Sim IDs'), // ✅ Multi-selection -> MasterSim
+  // Self Table
+  sim_ids: multi_select_optional('MasterSim'), // Multi-selection -> MasterSim
+
+  // Relations - Parent
+  sim_provider_ids: multi_select_optional('MasterMainSimProvider'), // Multi-selection -> MasterMainSimProvider
+
+  // Enums
   sim_status: enumArrayOptional(
     'Sim Status',
     SimStatus,
-    getAllEnums(SimStatus)
+    getAllEnums(SimStatus),
   ),
   billing_status: enumArrayOptional(
     'Billing Status',
     BillingStatus,
-    getAllEnums(BillingStatus)
+    getAllEnums(BillingStatus),
   ),
 });
 export type MasterSimQueryDTO = z.infer<typeof MasterSimQuerySchema>;
@@ -121,22 +136,26 @@ export type MasterSimQueryDTO = z.infer<typeof MasterSimQuerySchema>;
 // Convert MasterSim Data to API Payload
 export const toMasterSimPayload = (sim: MasterSim): MasterSimDTO => ({
   sim_provider_id: sim.sim_provider_id || '',
+
   sim_number: sim.sim_number || '',
   sim_imei: sim.sim_imei || '',
   sim_serial_number: sim.sim_serial_number || '',
   sim_status: sim.sim_status || SimStatus.New,
   billing_status: sim.billing_status || BillingStatus.New,
+
   status: sim.status || Status.Active,
 });
 
 // Create New MasterSim Payload
 export const newMasterSimPayload = (): MasterSimDTO => ({
   sim_provider_id: '', // required select
+
   sim_number: '',
   sim_imei: '',
   sim_serial_number: '',
   sim_status: SimStatus.New,
   billing_status: BillingStatus.New,
+
   status: Status.Active,
 });
 

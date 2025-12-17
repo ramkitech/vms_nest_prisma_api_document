@@ -37,7 +37,10 @@ const ENDPOINTS = {
 
 // GPSGeofenceTransaction Interface
 export interface GPSGeofenceTransaction extends Record<string, unknown> {
+  // Primary Fields
   gps_geofence_transaction_id: string;
+
+  // Main Field Details
   geofence_status_type: GeofenceStatusType;
   geofence_time: string;
 
@@ -75,7 +78,7 @@ export interface GPSGeofenceTransaction extends Record<string, unknown> {
   };
 }
 
-// ✅ GPSGeofenceTransaction Create/Update Schema
+// GPSGeofenceTransaction Create/Update Schema
 export const GPSGeofenceTransactionSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('Master Vehicle ID'),
@@ -95,12 +98,12 @@ export type GPSGeofenceTransactionDTO = z.infer<
   typeof GPSGeofenceTransactionSchema
 >;
 
-// ✅ GPSGeofenceTransaction Query Schema
+// GPSGeofenceTransaction Query Schema
 export const GPSGeofenceTransactionQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
-  gps_geofence_ids: multi_select_optional('Gps Geofence IDs'), // ✅ Multi-selection -> Gps Geofence
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
+  gps_geofence_ids: multi_select_optional('Gps Geofence IDs'), // Multi-selection -> Gps Geofence
   geofence_status_type: enumArrayOptional(
     'Geofence Status Type',
     GeofenceStatusType,
