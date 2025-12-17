@@ -46,7 +46,11 @@ const URL = 'user/user';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+  user_image_presigned_url: (fileName: string): string => `${URL}/user_image_presigned_url/${fileName}`,
+
+  // File Uploads
+  update_user_image: (id: string): string => `${URL}/update_user_image/${id}`,
+  delete_user_image: (id: string): string => `${URL}/delete_user_image/${id}`,
 
   // User APIs
   find: `${URL}/search`,
@@ -54,8 +58,6 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
-  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
-  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
 
   // Cache APIs
@@ -429,8 +431,17 @@ export const newUserPayload = (): UserDTO => ({
 });
 
 // AWS S3 PRESIGNED
-export const get_user_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
+export const get_user_image_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.user_image_presigned_url(fileName));
+};
+
+// File Uploads
+export const update_user_image = async (id: string, data: UserLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserLogoDTO>(ENDPOINTS.update_user_image(id), data);
+};
+
+export const delete_user_image = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_user_image(id));
 };
 
 // User APIs
@@ -448,14 +459,6 @@ export const updateUser = async (id: string, data: UserDTO): Promise<SBR> => {
 
 export const deleteUser = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-export const updateUserLogo = async (id: string, data: UserLogoDTO): Promise<SBR> => {
-  return apiPatch<SBR, UserLogoDTO>(ENDPOINTS.update_logo(id), data);
-};
-
-export const deleteUserLogo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
 export const updateUserProfile = async (id: string, data: UserProfileDTO): Promise<SBR> => {

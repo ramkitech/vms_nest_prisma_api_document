@@ -25,16 +25,17 @@ const URL = 'master/expense/fuel_company';
 
 const ENDPOINTS = {
    // AWS S3 PRESIGNED
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+  master_fuel_company_presigned_url: (fileName: string): string => `${URL}/master_fuel_company_presigned_url/${fileName}`,
+
+  // File Uploads
+  update_master_fuel_company_logo: (id: string): string => `${URL}/update_master_fuel_company_logo/${id}`,
+  delete_master_fuel_company_logo: (id: string): string => `${URL}/delete_master_fuel_company_logo/${id}`,
 
   // MasterFuelCompany APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-
-  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
-  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
 
   // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
@@ -139,8 +140,17 @@ export const newMasterFuelCompanyPayload = (): MasterFuelCompanyDTO => ({
 });
 
 // AWS S3 PRESIGNED
-export const get_user_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
+export const get_master_fuel_company_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.master_fuel_company_presigned_url(fileName));
+};
+
+// File Uploads
+export const update_master_fuel_company_logo = async (id: string, data: FuelCompanyLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, FuelCompanyLogoDTO>(ENDPOINTS.update_master_fuel_company_logo(id), data);
+};
+
+export const delete_master_fuel_company_logo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_master_fuel_company_logo(id));
 };
 
 // MasterFuelCompany APIs
@@ -158,14 +168,6 @@ export const updateMasterFuelCompany = async (id: string, data: MasterFuelCompan
 
 export const deleteMasterFuelCompany = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-export const updateFuelCompanyLogo = async (id: string, data: FuelCompanyLogoDTO): Promise<SBR> => {
-  return apiPatch<SBR, FuelCompanyLogoDTO>(ENDPOINTS.update_logo(id), data);
-};
-
-export const deleteSubCompanyLogo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
 // Cache APIs

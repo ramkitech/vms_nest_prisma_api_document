@@ -18,22 +18,22 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/organisation/sub_company';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+  organisation_sub_company_logo_presigned_url: (fileName: string): string => `${URL}/organisation_sub_company_logo_presigned_url/${fileName}`,
+
+  // File Uploads
+  update_organisation_sub_company_logo: (id: string): string => `${URL}/update_organisation_sub_company_logo/${id}`,
+  delete_organisation_sub_company_logo: (id: string): string => `${URL}/delete_organisation_sub_company_logo/${id}`,
 
   // OrganisationSubCompany APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-
-  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
-  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
 
   // Cache APIs
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
@@ -124,8 +124,17 @@ export const newOrganisationSubCompanyPayload = (): OrganisationSubCompanyDTO =>
 });
 
 // AWS S3 PRESIGNED
-export const get_user_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
+export const get_organisation_sub_company_logo_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.organisation_sub_company_logo_presigned_url(fileName));
+};
+
+// File Uploads
+export const update_organisation_sub_company_logo = async (id: string, data: SubCompanyLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, SubCompanyLogoDTO>(ENDPOINTS.update_organisation_sub_company_logo(id), data);
+};
+
+export const delete_organisation_sub_company_logo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_organisation_sub_company_logo(id));
 };
 
 // OrganisationSubCompany APIs
@@ -143,14 +152,6 @@ export const updateOrganisationSubCompany = async (id: string, data: Organisatio
 
 export const deleteOrganisationSubCompany = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-export const updateSubCompanyLogo = async (id: string, data: SubCompanyLogoDTO): Promise<SBR> => {
-  return apiPatch<SBR, SubCompanyLogoDTO>(ENDPOINTS.update_logo(id), data);
-};
-
-export const deleteSubCompanyLogo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
 // Cache APIs

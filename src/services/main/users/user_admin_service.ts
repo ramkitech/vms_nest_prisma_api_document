@@ -17,14 +17,17 @@ import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 // Enums
 import { Status, AdminRole, LoginFrom } from '../../../core/Enums';
 import { Ticket } from 'src/services/account/ticket_service';
-import { User } from './user_service';
 
 // URL and Endpoints
 const URL = 'user/admin';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+  admin_image_presigned_url: (fileName: string): string => `${URL}/admin_image_presigned_url/${fileName}`,
+
+  // File Uploads
+  update_admin_image: (id: string): string => `${URL}/update_admin_image/${id}`,
+  delete_admin_image: (id: string): string => `${URL}/delete_admin_image/${id}`,
 
   // UserAdmin APIs
   find: `${URL}/search`,
@@ -32,8 +35,6 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
-  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
-  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
 
   // Cache APIs
@@ -182,10 +183,18 @@ export const newUserAdminPayload = (): UserAdminDTO => ({
   status: Status.Active,
 });
 
-
 // AWS S3 PRESIGNED
-export const get_admin_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(file_name));
+export const get_admin_image_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.admin_image_presigned_url(file_name));
+};
+
+// File Uploads
+export const update_admin_image = async (id: string, data: UserAdminLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserAdminLogoDTO>(ENDPOINTS.update_admin_image(id), data);
+};
+
+export const delete_admin_image = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_admin_image(id));
 };
 
 // AMasterAdmin APIs
@@ -203,14 +212,6 @@ export const updateUserAdmin = async (id: string, data: UserAdminDTO): Promise<S
 
 export const deleteUserAdmin = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-export const updateUserAdminLogo = async (id: string, data: UserAdminLogoDTO): Promise<SBR> => {
-  return apiPatch<SBR, UserAdminLogoDTO>(ENDPOINTS.update_logo(id), data);
-};
-
-export const deleteUserAdminLogo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
 export const updateUserAdminProfile = async (id: string, data: UserAdminProfileDTO): Promise<SBR> => {

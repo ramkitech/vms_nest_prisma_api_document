@@ -93,7 +93,6 @@ import { GPSLiveTrackShareLink } from 'src/services/gps/features/gps_live_track_
 import { GPSTrackHistoryShareLink } from 'src/services/gps/features/gps_track_history_share_link_service';
 import { UserVehicleLink } from '../users/user_service';
 
-// ✅ URL and Endpoints
 const URL = 'main/master_vehicle';
 
 const ENDPOINTS = {

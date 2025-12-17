@@ -1017,11 +1017,11 @@ export const delete_vendor_logo = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete_vendor_logo(id));
 };
 
-export const updateFleetVendorContactPersonsLogo = async (id: string, data: FleetVendorContactPersonsLogoDTO): Promise<SBR> => {
+export const update_vendor_contact_person_logo = async (id: string, data: FleetVendorContactPersonsLogoDTO): Promise<SBR> => {
     return apiPatch<SBR, FleetVendorContactPersonsLogoDTO>(ENDPOINTS.update_vendor_contact_person_logo(id), data);
 };
 
-export const deleteFleetVendorContactPersonsLogo = async (id: string): Promise<SBR> => {
+export const delete_vendor_contact_person_logo = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.delete_vendor_contact_person_logo(id));
 };
 

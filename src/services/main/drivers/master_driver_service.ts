@@ -44,12 +44,15 @@ const URL = 'main/master_driver';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
-  presigned_url_file: `${URL}/presigned_url`,
+  master_driver_logo_presigned_url: (fileName: string): string => `${URL}/master_driver_logo_presigned_url/${fileName}`,
+  master_driver_file_presigned_url: `${URL}/master_driver_file_presigned_url`,
 
   // File Uploads
-  create_file: `${URL}/create_file`,
-  remove_file: (id: string): string => `${URL}/remove_file/${id}`,
+  update_master_driver_logo: (id: string): string => `${URL}/update_master_driver_logo/${id}`,
+  delete_master_driver_logo: (id: string): string => `${URL}/delete_master_driver_logo/${id}`,
+
+  create_master_driver_file: `${URL}/create_master_driver_file`,
+  remove_master_driver_file: (id: string): string => `${URL}/remove_master_driver_file/${id}`,
 
   // MasterDriver APIs
   find: `${URL}/search`,
@@ -460,21 +463,29 @@ export const newDriverPayload = (): MasterDriverDTO => ({
 });
 
 // AWS S3 PRESIGNED
-export const get_master_driver_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(fileName));
+export const get_master_driver_logo_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.master_driver_logo_presigned_url(fileName));
 };
 
-export const get_master_driver_presigned_url_file = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url_file, data);
+export const get_master_driver_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.master_driver_file_presigned_url, data);
 };
 
 // File Uploads
-export const create_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
-  return apiPost<SBR, MasterDriverFileDTO>(ENDPOINTS.create_file, data);
+export const update_master_driver_logo = async (id: string, data: MasterDriverLogoDTO): Promise<SBR> => {
+    return apiPatch<SBR, MasterDriverLogoDTO>(ENDPOINTS.update_master_driver_logo(id), data);
 };
 
-export const remove_file = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file(id));
+export const delete_master_driver_logo = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.delete_master_driver_logo(id));
+};
+
+export const create_master_driver_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterDriverFileDTO>(ENDPOINTS.create_master_driver_file, data);
+};
+
+export const remove_master_driver_file = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_master_driver_file(id));
 };
 
 // AMasterDriver APIs

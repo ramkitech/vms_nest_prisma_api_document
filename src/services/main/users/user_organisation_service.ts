@@ -119,11 +119,11 @@ const URL = 'user/organisation';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  presigned_url: (fileName: string): string => `${URL}/presigned_url/${fileName}`,
+  organisation_logo_presigned_url: (fileName: string): string => `${URL}/organisation_logo_presigned_url/${fileName}`,
 
   // File Uploads
-  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
-  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
+  update_organisation_logo: (id: string): string => `${URL}/update_organisation_logo/${id}`,
+  delete_organisation_logo: (id: string): string => `${URL}/delete_organisation_logo/${id}`,
 
   // UserOrganisation APIs
   find: `${URL}/search`,
@@ -826,8 +826,17 @@ export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
 });
 
 // AWS S3 PRESIGNED
-export const get_user_organisation_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.presigned_url(file_name));
+export const get_organisation_logo_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.organisation_logo_presigned_url(file_name));
+};
+
+// File Uploads
+export const update_organisation_logo = async (id: string, data: UserOrganisationLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, UserOrganisationLogoDTO>(ENDPOINTS.update_organisation_logo(id), data);
+};
+
+export const delete_organisation_logo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_organisation_logo(id));
 };
 
 // AMasterUserOrganisation APIs
@@ -845,14 +854,6 @@ export const updateUserOrganisation = async (id: string, data: UserOrganisationD
 
 export const deleteUserOrganisation = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-export const updateUserOrganisationLogo = async (id: string, data: UserOrganisationLogoDTO): Promise<SBR> => {
-  return apiPatch<SBR, UserOrganisationLogoDTO>(ENDPOINTS.update_logo(id), data);
-};
-
-export const deleteUserOrganisationLogo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
 // Cache APIs
