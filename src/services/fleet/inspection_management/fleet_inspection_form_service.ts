@@ -35,8 +35,10 @@ const ENDPOINTS = {
 
 // FleetInspectionForm Interface
 export interface FleetInspectionForm extends Record<string, unknown> {
+  // Primary Fields
   inspection_form_id: string;
 
+  // Main Field Details
   inspection_form_name: string;
   inspection_form_fields: Record<string, unknown>;
 
@@ -53,7 +55,7 @@ export interface FleetInspectionForm extends Record<string, unknown> {
   // Child - Fleet
   FleetInspection?: FleetInspection[];
 
-  // Relations - ChildCount
+  // Relations - Child Count
   _count?: {
     FleetInspection?: number;
   };
@@ -67,17 +69,25 @@ export interface FleetInspectionFormSimple extends Record<string, unknown> {
 
 // FleetInspectionForm Schema
 export const FleetInspectionFormSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   inspection_form_name: stringMandatory('Inspection Form Name', 3, 100),
   inspection_form_fields: dynamicJsonSchema('Inspection Form Fields', {}),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetInspectionFormDTO = z.infer<typeof FleetInspectionFormSchema>;
 
 // FleetInspectionForm Query Schema
 export const FleetInspectionFormQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  inspection_form_ids: multi_select_optional('FleetInspectionForm'), // ✅ Multi-Selection -> FleetInspectionForm
+  // Self Table
+  inspection_form_ids: multi_select_optional('FleetInspectionForm'), // Multi-Selection -> FleetInspectionForm
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
 });
 export type FleetInspectionFormQueryDTO = z.infer<
   typeof FleetInspectionFormQuerySchema
@@ -86,16 +96,20 @@ export type FleetInspectionFormQueryDTO = z.infer<
 // Convert FleetInspectionForm Data to API Payload
 export const toFleetInspectionFormPayload = (row: FleetInspectionForm): FleetInspectionFormDTO => ({
   organisation_id: row.organisation_id || '',
+
   inspection_form_name: row.inspection_form_name || '',
   inspection_form_fields: row.inspection_form_fields || {},
+
   status: row.status || Status.Active
 });
 
 // Create New FleetInspectionForm Payload
 export const newFleetInspectionFormPayload = (): FleetInspectionFormDTO => ({
   organisation_id: '',
+
   inspection_form_name: '',
   inspection_form_fields: {},
+
   status: Status.Active
 });
 

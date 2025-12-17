@@ -67,10 +67,12 @@ const ENDPOINTS = {
 
 // FleetServiceManagement Interface
 export interface FleetServiceManagement extends Record<string, unknown> {
+  // Primary Fields
   service_management_id: string;
   service_management_sub_id: number;
   service_management_code: string;
 
+  // Main Field Details
   service_status: ServiceStatus;
   service_type: ServiceType;
 
@@ -140,7 +142,7 @@ export interface FleetServiceManagement extends Record<string, unknown> {
 
   service_center_id?: string;
   FleetVendorServiceCenter?: FleetVendorServiceCenter;
-  service_center_name?: string;
+  service_center_name: string;
 
   service_schedule_id?: string;
   FleetServiceSchedule?: FleetServiceSchedule;
@@ -166,8 +168,10 @@ export interface FleetServiceManagement extends Record<string, unknown> {
 
 // FleetServiceManagementTask Interface
 export interface FleetServiceManagementTask extends Record<string, unknown> {
+  // Primary Fields
   fleet_service_management_task_id: string;
 
+  // Main Field Details
   task_cost?: number;
   task_notes?: string;
 
@@ -185,7 +189,7 @@ export interface FleetServiceManagementTask extends Record<string, unknown> {
   fleet_service_task?: string;
 }
 
-// ✅ FleetServiceManagementFile Interface
+// FleetServiceManagementFile Interface
 export interface FleetServiceManagementFile extends BaseCommonFile {
   // Primary Field
   fleet_service_management_file_id: string;
@@ -202,8 +206,10 @@ export interface FleetServiceManagementFile extends BaseCommonFile {
 
 // FleetServiceReminder Interface
 export interface FleetServiceReminder extends Record<string, unknown> {
+  // Primary Fields
   service_reminder_id: string;
 
+  // Main Field Details
   reminder_type?: ReminderType;
 
   // Metadata
@@ -232,8 +238,8 @@ export interface ServiceDashboard {
 
 // FleetServiceManagementFile Schema
 export const FleetServiceManagementFileSchema = BaseFileSchema.extend({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  service_management_id: single_select_optional('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  service_management_id: single_select_optional('FleetServiceManagement'), // Single-Selection -> FleetServiceManagement
 });
 export type FleetServiceManagementFileDTO = z.infer<
   typeof FleetServiceManagementFileSchema
@@ -241,13 +247,13 @@ export type FleetServiceManagementFileDTO = z.infer<
 
 // FleetServiceManagement Create/Update Schema
 export const FleetServiceManagementSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> Vehicle
-  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
-  vendor_id: single_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-  service_center_id: single_select_optional('FleetVendorServiceCenter'), // ✅ Single-Selection -> FleetVendorServiceCenter
-  service_schedule_id: single_select_optional('FleetServiceSchedule'), // ✅ Single-Selection -> FleetServiceSchedule
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_mandatory('User'), // Single-Selection -> User
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> Vehicle
+  driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
+  vendor_id: single_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
+  service_center_id: single_select_optional('FleetVendorServiceCenter'), // Single-Selection -> FleetVendorServiceCenter
+  service_schedule_id: single_select_optional('FleetServiceSchedule'), // Single-Selection -> FleetServiceSchedule
 
   service_status: enumMandatory(
     'Service Status',
@@ -324,15 +330,15 @@ export type FleetServiceManagementDTO = z.infer<
 
 // FleetServiceManagement Query Schema
 export const FleetServiceManagementQuerySchema = BaseQuerySchema.extend({
-  service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
+  service_management_ids: multi_select_optional('FleetServiceManagement'), // Multi-Selection -> FleetServiceManagement
 
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> Vehicle
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> Vehicle
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
 
-  vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-Selection -> FleetVendor
-  service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // ✅ Multi-Selection -> FleetVendorServiceCenter
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
+  service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // Multi-Selection -> FleetVendorServiceCenter
 
   service_status: enumArrayOptional(
     'Service Status',
@@ -365,8 +371,8 @@ export type FleetServiceManagementQueryDTO = z.infer<
 // FleetServiceManagementDashBoard Query Schema
 export const FleetServiceManagementDashBoardQuerySchema =
   BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
 
     from_date: dateMandatory('From Date'),
     to_date: dateMandatory('To Date'),
@@ -377,8 +383,8 @@ export type FleetServiceManagementDashBoardQueryDTO = z.infer<
 
 // FleetServiceManagementTask Create/Update Schema
 export const FleetServiceManagementTaskSchema = z.object({
-  fleet_service_task_id: single_select_mandatory('MasterFleetServiceTask'), // ✅ Single-Selection -> MasterFleetServiceTask
-  service_management_id: single_select_mandatory('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
+  fleet_service_task_id: single_select_mandatory('MasterFleetServiceTask'), // Single-Selection -> MasterFleetServiceTask
+  service_management_id: single_select_mandatory('FleetServiceManagement'), // Single-Selection -> FleetServiceManagement
 
   task_cost: doubleOptional('Task Cost', 3),
   task_notes: stringOptional('Task Notes', 0, 2000),
@@ -393,10 +399,10 @@ export type FleetServiceManagementTaskDTO = z.infer<
 export const FleetServiceManagementTaskQuerySchema = BaseQuerySchema.extend({
   fleet_service_management_task_ids: multi_select_optional(
     'FleetServiceManagementTask',
-  ), // ✅ Multi-Selection -> FleetServiceManagementTask
+  ), // Multi-Selection -> FleetServiceManagementTask
 
-  service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
-  fleet_service_task_ids: multi_select_optional('MasterFleetServiceTask'), // ✅ Multi-Selection -> MasterFleetServiceTask
+  service_management_ids: multi_select_optional('FleetServiceManagement'), // Multi-Selection -> FleetServiceManagement
+  fleet_service_task_ids: multi_select_optional('MasterFleetServiceTask'), // Multi-Selection -> MasterFleetServiceTask
 });
 export type FleetServiceManagementTaskQueryDTO = z.infer<
   typeof FleetServiceManagementTaskQuerySchema
@@ -404,9 +410,9 @@ export type FleetServiceManagementTaskQueryDTO = z.infer<
 
 // FleetServiceReminder Create/Update Schema
 export const FleetServiceReminderSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-  service_management_id: single_select_mandatory('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+  service_management_id: single_select_mandatory('FleetServiceManagement'), // Single-Selection -> FleetServiceManagement
 
   reminder_type: enumMandatory(
     'Reminder Type',
@@ -422,10 +428,10 @@ export type FleetServiceReminderDTO = z.infer<
 
 // FleetServiceReminder Query Schema
 export const FleetServiceReminderQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-selection -> FleetServiceManagement
-  service_reminder_ids: multi_select_optional('FleetServiceReminder'), // ✅ Multi-selection -> FleetServiceReminder
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  service_management_ids: multi_select_optional('FleetServiceManagement'), // Multi-selection -> FleetServiceManagement
+  service_reminder_ids: multi_select_optional('FleetServiceReminder'), // Multi-selection -> FleetServiceReminder
 
   reminder_type: enumArrayOptional(
     'Reminder Type',
@@ -436,6 +442,7 @@ export const FleetServiceReminderQuerySchema = BaseQuerySchema.extend({
 export type FleetServiceReminderQueryDTO = z.infer<
   typeof FleetServiceReminderQuerySchema
 >;
+
 
 // Convert FleetServiceManagement Data to API Payload
 export const toFleetServiceManagementPayload = (row: FleetServiceManagement): FleetServiceManagementDTO => ({
@@ -478,7 +485,6 @@ export const toFleetServiceManagementPayload = (row: FleetServiceManagement): Fl
   next_odometer_reading: row.next_odometer_reading || 0,
   next_service_schedule_date: row.next_service_schedule_date || '',
 
-  status: row.status || Status.Active,
 
   // Relations
   organisation_id: row.organisation_id || '',
@@ -510,8 +516,11 @@ export const toFleetServiceManagementPayload = (row: FleetServiceManagement): Fl
     organisation_id: file.organisation_id || '',
     service_management_id: file.service_management_id || '',
   })) || [],
-  time_zone_id: '',
-  service_schedule_id: ''
+
+  service_schedule_id: '',
+  
+  status: row.status || Status.Active,
+  time_zone_id: '',  // Needs to be provided manually
 });
 
 // Create New FleetServiceManagement Payload
@@ -555,32 +564,33 @@ export const newFleetServiceManagementPayload = (): FleetServiceManagementDTO =>
   next_odometer_reading: 0,
   next_service_schedule_date: '',
 
-  status: Status.Active,
-
   FleetServiceManagementFileSchema: [],
   service_schedule_id: '',
-  time_zone_id: ''
+
+  status: Status.Active,
+  time_zone_id: '', // Needs to be provided manually
 });
 
 // Convert FleetServiceManagementTask Data to API Payload
 export const toFleetServiceManagementTaskPayload = (row: FleetServiceManagementTask): FleetServiceManagementTaskDTO => ({
+  service_management_id: row.service_management_id || '',
+  fleet_service_task_id: row.fleet_service_task_id || '',
+
   task_cost: row.task_cost || 0,
   task_notes: row.task_notes || '',
 
-  fleet_service_task_id: row.fleet_service_task_id || '',
-  service_management_id: row.service_management_id || '',
   status: row.status || Status.Active,
 });
 
 // Create New FleetServiceManagementTask Payload
 export const newFleetServiceManagementTaskPayload = (): FleetServiceManagementTaskDTO => ({
+  service_management_id: '',
+  fleet_service_task_id: '',
+
   task_cost: 0,
   task_notes: '',
 
   status: Status.Active,
-
-  service_management_id: '',
-  fleet_service_task_id: '',
 });
 
 // Convert FleetServiceReminder Data to API Payload

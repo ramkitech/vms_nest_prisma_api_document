@@ -51,13 +51,13 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
     oem_brand_name?: string;
     service_brand_name?: string;
 
-    // Rating 
-    rating?: number;
-    rating_comments?: string;
-
     // Notes
     center_notes?: string;
     is_preferred_center: YesNo;
+
+    // Rating 
+    rating?: number;
+    rating_comments?: string;
 
     // Operational Details
     operating_hours?: string;
@@ -142,11 +142,13 @@ export interface FleetVendorServiceCenterSimple extends Record<string, unknown> 
 
 // FleetVendorServiceCenter Create/Update Schema
 export const FleetVendorServiceCenterSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
+    // Relations - Parent
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
 
+    // Main Field Details
     // Basic Info
-    service_center_name: stringMandatory('Service Center Name', 3, 100),
+    service_center_name: stringMandatory('ServiceCenter Name', 3, 100),
     service_center_code: stringOptional('Service Center Code', 0, 100),
     is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
     oem_authorised: enumMandatory('OEM Authorised', YesNo, YesNo.No),
@@ -204,6 +206,7 @@ export const FleetVendorServiceCenterSchema = z.object({
     center_notes: stringOptional('Center Notes', 0, 2000),
     is_preferred_center: enumMandatory('Is Preferred Center', YesNo, YesNo.No),
 
+    // Metadata
     status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetVendorServiceCenterDTO = z.infer<
@@ -212,11 +215,14 @@ export type FleetVendorServiceCenterDTO = z.infer<
 
 // FleetVendorServiceCenter Query Schema
 export const FleetVendorServiceCenterQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    // self table
+    service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // Single-Selection -> FleetVendorServiceCenter
 
-    vendor_ids: multi_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-    service_center_ids: multi_select_optional('FleetVendorServiceCenter'), // ✅ Single-Selection -> FleetVendorServiceCenter
+    // relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+    vendor_ids: multi_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
 
+    // enums
     is_company_owned: enumArrayOptional('Is Company Owned', YesNo),
     oem_authorised: enumArrayOptional('OEM Authorised', YesNo),
     is_preferred_center: enumArrayOptional('Is Preferred Center', YesNo),

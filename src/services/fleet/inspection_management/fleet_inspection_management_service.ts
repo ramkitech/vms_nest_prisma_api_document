@@ -52,8 +52,10 @@ const ENDPOINTS = {
 
 // FleetInspection Interface
 export interface FleetInspection extends Record<string, unknown> {
+  // Primary Fields
   inspection_id: string;
 
+  // Main Field Details
   inspection_type: InspectionType;
   inspection_date: string;
   inspection_date_f: string;
@@ -80,15 +82,9 @@ export interface FleetInspection extends Record<string, unknown> {
   MasterDriver?: MasterDriver;
   driver_details?: string;
 
-  inspector_id: string;
+  inspector_id?: string;
   InspectorUser?: User;
   inspector_user_details?: string;
-
-  inspection_schedule_id?: string;
-  FleetInspectionSchedule?: FleetInspectionSchedule;
-  inspection_schedule_name?: string;
-  inspection_schedule_start_date?: string;
-  inspection_schedule_due_date?: string;
 
   inspection_form_id?: string;
   FleetInspectionForm?: FleetInspectionForm;
@@ -97,6 +93,12 @@ export interface FleetInspection extends Record<string, unknown> {
 
   service_management_id?: string;
   FleetServiceManagement?: FleetServiceManagement;
+
+  inspection_schedule_id?: string;
+  FleetInspectionSchedule?: FleetInspectionSchedule;
+  inspection_schedule_name?: string;
+  inspection_schedule_start_date?: string;
+  inspection_schedule_due_date?: string;
 
   inspection_approved_id?: string;
   ApprovedUser?: User;
@@ -135,21 +137,24 @@ export interface FleetInspectionFile extends BaseCommonFile {
 
 // FleetInspectionFile Schema
 export const FleetInspectionFileSchema = BaseFileSchema.extend({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  inspection_id: single_select_optional('FleetInspection'), // ✅ Single-Selection -> FleetInspection
+  // Relations - Parent
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  inspection_id: single_select_optional('FleetInspection'), // Single-Selection -> FleetInspection
 });
 export type FleetInspectionFileDTO = z.infer<typeof FleetInspectionFileSchema>;
 
 // FleetInspection Create/Update Schema
 export const FleetInspectionSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
-  inspector_id: single_select_optional('User'), // ✅ Single-Selection -> User
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  inspector_id: single_select_optional('User'), // Single-Selection -> User
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+  driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
 
-  inspection_form_id: single_select_mandatory('FleetInspectionForm'), // ✅ Single-Selection -> FleetInspectionForm
-  service_management_id: single_select_optional('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
+  inspection_form_id: single_select_mandatory('FleetInspectionForm'), // Single-Selection -> FleetInspectionForm
+  service_management_id: single_select_optional('FleetServiceManagement'), // Single-Selection -> FleetServiceManagement
 
+  // Main Field Details
   inspection_type: enumMandatory(
     'Inspection Type',
     InspectionType,
@@ -171,7 +176,7 @@ export const FleetInspectionSchema = z.object({
 
   odometer_reading: numberOptional('Odometer Reading'),
 
-  // Other
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
@@ -185,15 +190,18 @@ export type FleetInspectionDTO = z.infer<typeof FleetInspectionSchema>;
 
 // FleetInspection Query Schema
 export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
-  inspection_ids: multi_select_optional('FleetInspection'), // ✅ Multi-Selection -> FleetInspection
+  // Self Table
+  inspection_ids: multi_select_optional('FleetInspection'), // Multi-Selection -> FleetInspection
 
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
-  inspection_form_ids: multi_select_optional('FleetInspectionForm'), // ✅ Multi-Selection -> FleetInspectionForm
-  service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
-  inspection_schedule_ids: multi_select_optional('FleetInspectionSchedule'), // ✅ Multi-Selection -> FleetInspectionSchedule
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
+  inspection_form_ids: multi_select_optional('FleetInspectionForm'), // Multi-Selection -> FleetInspectionForm
+  service_management_ids: multi_select_optional('FleetServiceManagement'), // Multi-Selection -> FleetServiceManagement
+  inspection_schedule_ids: multi_select_optional('FleetInspectionSchedule'), // Multi-Selection -> FleetInspectionSchedule
 
+  // Enums
   inspection_type: enumArrayOptional(
     'Inspection Type',
     InspectionType,
@@ -219,15 +227,16 @@ export type FleetInspectionQueryDTO = z.infer<
   typeof FleetInspectionQuerySchema
 >;
 
-// ✅ FleetInspectionCheckPending Query Schema
+// FleetInspectionCheckPending Query Schema
 export const FleetInspectionCheckPendingQuerySchema = BaseQuerySchema.extend({
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+  // Relations - Parent
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
 });
 export type FleetInspectionCheckPendingQueryDTO = z.infer<
   typeof FleetInspectionCheckPendingQuerySchema
 >;
 
-// ✅ Convert FleetInspection Data to API Payload
+// Convert FleetInspection Data to API Payload
 export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionDTO => ({
   organisation_id: row.organisation_id || '',
   vehicle_id: row.vehicle_id || '',
@@ -270,7 +279,7 @@ export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionD
   })) || [],
 });
 
-// ✅ Create New FleetInspection Payload
+// Create New FleetInspection Payload
 export const newFleetInspectionPayload = (): FleetInspectionDTO => ({
   organisation_id: '',
   vehicle_id: '',

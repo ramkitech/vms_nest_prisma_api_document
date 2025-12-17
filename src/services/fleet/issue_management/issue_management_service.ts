@@ -60,8 +60,9 @@ const ENDPOINTS = {
 export interface FleetIssueManagement extends Record<string, unknown> {
     // Primary Fields
     vehicle_issue_id: string;
-    vehicle_sub_issue_id: number;
 
+    // Main Field Details
+    vehicle_sub_issue_id: number;
     issue_code?: string;
 
     // Issue Details
@@ -130,7 +131,10 @@ export interface FleetIssueManagement extends Record<string, unknown> {
 
 // FleetIssueManagementHistory Interface
 export interface FleetIssueManagementHistory extends Record<string, unknown> {
+    // Primary Fields
     vehicle_issue_history_id: string;
+
+    // Main Field Details
     old_issue_status: IssueStatus;
     new_issue_status: IssueStatus;
     change_reason?: string;
@@ -150,8 +154,10 @@ export interface FleetIssueManagementHistory extends Record<string, unknown> {
 
 // FleetIssueManagementComment Interface
 export interface FleetIssueManagementComment extends Record<string, unknown> {
+    // Primary Fields
     vehicle_issue_comment_id: string;
 
+    // Main Field Details
     comment_text: string;
     comment_description?: string;
 
@@ -195,8 +201,9 @@ export interface IssueDashboard {
 
 // FleetIssueManagementFile Schema
 export const FleetIssueManagementFileSchema = BaseFileSchema.extend({
-    organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    vehicle_issue_id: single_select_optional('FleetIssueManagement'), // ✅ Single-Selection -> FleetIssueManagement
+    // Relations - Parent
+    organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+    vehicle_issue_id: single_select_optional('FleetIssueManagement'), // Single-Selection -> FleetIssueManagement
 });
 export type FleetIssueManagementFileDTO = z.infer<
     typeof FleetIssueManagementFileSchema
@@ -204,13 +211,14 @@ export type FleetIssueManagementFileDTO = z.infer<
 
 // FleetIssueManagement Create/Update Schema
 export const FleetIssueManagementSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
-    vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-    driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
-    vehicle_incident_id: single_select_optional('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
-    inspection_id: single_select_optional('FleetInspection'), // ✅ Single-Selection -> FleetInspection
-    service_management_id: single_select_optional('FleetServiceManagement'), // ✅ Single-Selection -> FleetServiceManagement
+    // Relations - Parent
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    user_id: single_select_mandatory('User'), // Single-Selection -> User
+    vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+    driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
+    vehicle_incident_id: single_select_optional('FleetIncidentManagement'), // Single-Selection -> FleetIncidentManagement
+    inspection_id: single_select_optional('FleetInspection'), // Single-Selection -> FleetInspection
+    service_management_id: single_select_optional('FleetServiceManagement'), // Single-Selection -> FleetServiceManagement
 
     // Issue Details
     issue_title: stringMandatory('Issue Title', 1, 100),
@@ -235,7 +243,6 @@ export const FleetIssueManagementSchema = z.object({
     issue_source: enumMandatory('Issue Source', IssueSource, IssueSource.Direct),
 
     // Other
-    status: enumMandatory('Status', Status, Status.Active),
     time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
     FleetIssueManagementFileSchema: nestedArrayOfObjectsOptional(
@@ -243,6 +250,9 @@ export const FleetIssueManagementSchema = z.object({
         FleetIssueManagementFileSchema,
         [],
     ),
+
+    // Metadata
+    status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetIssueManagementDTO = z.infer<
     typeof FleetIssueManagementSchema
@@ -250,17 +260,20 @@ export type FleetIssueManagementDTO = z.infer<
 
 // FleetIssueManagement Query Schema
 export const FleetIssueManagementQuerySchema = BaseQuerySchema.extend({
-    vehicle_issue_ids: multi_select_optional('FleetIssueManagement'), // ✅ Multi-Selection -> FleetIssueManagement
+    // self table
+    vehicle_issue_ids: multi_select_optional('FleetIssueManagement'), // Multi-Selection -> FleetIssueManagement
 
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
-    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
-    driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
+    // relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    user_ids: multi_select_optional('User'), // Multi-Selection -> User
+    vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+    driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
 
-    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
-    inspection_ids: multi_select_optional('FleetInspection'), // ✅ Multi-Selection -> FleetInspection
-    service_management_ids: multi_select_optional('FleetServiceManagement'), // ✅ Multi-Selection -> FleetServiceManagement
+    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // Multi-Selection -> FleetIncidentManagement
+    inspection_ids: multi_select_optional('FleetInspection'), // Multi-Selection -> FleetInspection
+    service_management_ids: multi_select_optional('FleetServiceManagement'), // Multi-Selection -> FleetServiceManagement
 
+    // enums
     issue_status: enumArrayOptional('Issue Status', IssueStatus),
     issue_priority: enumArrayOptional('Issue Priority', Priority),
     issue_severity: enumArrayOptional('Issue Severity', IssueSeverity),
@@ -275,8 +288,9 @@ export type FleetIssueManagementQueryDTO = z.infer<
 
 // FleetIssueManagementDashBoard Query Schema
 export const FleetIssueManagementDashBoardQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
+    // relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
 
     from_date: dateMandatory('From Date'),
     to_date: dateMandatory('To Date'),
@@ -287,11 +301,15 @@ export type FleetIssueManagementDashBoardQueryDTO = z.infer<
 
 // FleetIssueManagementComment Create/Update Schema
 export const FleetIssueManagementCommentSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    vehicle_issue_id: single_select_mandatory('FleetIssueManagement'), // ✅ Single-Selection -> FleetIssueManagement
+    // Relations - Parent
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    vehicle_issue_id: single_select_mandatory('FleetIssueManagement'), // Single-Selection -> FleetIssueManagement
 
+    // Main Field Details
     comment_text: stringMandatory('Comment Text', 3, 100),
     comment_description: stringMandatory('Comment Description', 0, 500),
+
+    // Metadata
     status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetIssueManagementCommentDTO = z.infer<
@@ -300,12 +318,14 @@ export type FleetIssueManagementCommentDTO = z.infer<
 
 // FleetIssueManagementComment Query Schema
 export const FleetIssueManagementCommentQuerySchema = BaseQuerySchema.extend({
+    // self table
     vehicle_issue_comment_ids: multi_select_optional(
         'FleetIssueManagementComment',
-    ), // ✅ Multi-Selection -> FleetIssueManagementComment
+    ), // Multi-Selection -> FleetIssueManagementComment
 
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    vehicle_issue_ids: multi_select_optional('FleetIssueManagement'), // ✅ Multi-Selection -> FleetIssueManagement
+    // relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    vehicle_issue_ids: multi_select_optional('FleetIssueManagement'), // Multi-Selection -> FleetIssueManagement
 });
 export type FleetIssueManagementCommentQueryDTO = z.infer<
     typeof FleetIssueManagementCommentQuerySchema
@@ -390,11 +410,11 @@ export const newFleetIssueManagementPayload = (): FleetIssueManagementDTO => ({
 
 // Convert FleetIssueManagementComment Data to API Payload
 export const toFleetIssueManagementCommentPayload = (row: FleetIssueManagementComment): FleetIssueManagementCommentDTO => ({
-    comment_text: row.comment_text || '',
-    comment_description: row.comment_description || '',
-
     organisation_id: row.organisation_id || '',
     vehicle_issue_id: row.vehicle_issue_id || '',
+
+    comment_text: row.comment_text || '',
+    comment_description: row.comment_description || '',
 
     status: row.status || Status.Active,
 });

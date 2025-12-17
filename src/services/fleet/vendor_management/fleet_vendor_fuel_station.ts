@@ -41,7 +41,7 @@ const ENDPOINTS = {
 
 // FleetVendorFuelStation Interface
 export interface FleetVendorFuelStation extends Record<string, unknown> {
-    // ✅ Primary Fields
+    // Primary Fields
     fuel_station_id: string;
 
     // Basic Info
@@ -49,15 +49,14 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     fuel_station_code?: string;
     is_company_owned: YesNo;
 
+    // Notes
     is_preferred_station: YesNo;
+    station_notes?: string;
+    station_feedback?: string;
 
     // Rating 
     rating?: number;
     rating_comments?: string;
-
-    // Notes & Feedback
-    station_notes?: string;
-    station_feedback?: string;
 
     // Operational Details
     operating_hours?: string;
@@ -138,13 +137,15 @@ export interface FleetVendorFuelStationSimple extends Record<string, unknown> {
 
 // FleetVendorFuelStation Create/Update Schema
 export const FleetVendorFuelStationSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-    fuel_company_id: single_select_mandatory('MasterFuelCompany'), // ✅ Single-Selection -> MasterFuelCompany
+    // Relations - Parent
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
+    fuel_company_id: single_select_mandatory('MasterFuelCompany'), // Single-Selection -> MasterFuelCompany
 
+    // Main Field Details
     // Basic Info
     fuel_station_name: stringMandatory('Fuel Station Name', 3, 100),
-    fuel_station_code: stringOptional('Fuel Station Code', 0, 100),
+    fuel_station_code: stringOptional('FuelStation Code', 0, 100),
     is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
     is_preferred_station: enumMandatory('Is Preferred Station', YesNo, YesNo.No),
 
@@ -191,6 +192,7 @@ export const FleetVendorFuelStationSchema = z.object({
     station_notes: stringOptional('Station Notes', 0, 2000),
     station_feedback: stringOptional('Station Feedback', 0, 2000),
 
+    // Metadata
     status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetVendorFuelStationDTO = z.infer<
@@ -199,19 +201,21 @@ export type FleetVendorFuelStationDTO = z.infer<
 
 // FleetVendorFuelStation Query Schema
 export const FleetVendorFuelStationQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
+    // self table
+    fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // Single-Selection -> FleetVendorFuelStation
 
-    vendor_ids: multi_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-    fuel_company_ids: multi_select_optional('MasterFuelCompany'), // ✅ Single-Selection -> MasterFuelCompany
-    fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // ✅ Single-Selection -> FleetVendorFuelStation
+    // relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+    vendor_ids: multi_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
+    fuel_company_ids: multi_select_optional('MasterFuelCompany'), // Single-Selection -> MasterFuelCompany
 
+    // enums
     is_company_owned: enumArrayOptional('Is Company Owned', YesNo),
     is_preferred_station: enumArrayOptional('Is Preferred Station', YesNo),
 });
 export type FleetVendorFuelStationQueryDTO = z.infer<
     typeof FleetVendorFuelStationQuerySchema
 >;
-
 
 // Convert FleetVendorFuelStation Data to API Payload
 export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): FleetVendorFuelStationDTO => ({

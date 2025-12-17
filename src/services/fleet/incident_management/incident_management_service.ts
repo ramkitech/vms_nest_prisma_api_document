@@ -64,7 +64,10 @@ const ENDPOINTS = {
 
 // FleetIncidentManagement Interface
 export interface FleetIncidentManagement extends Record<string, unknown> {
+    // Primary Fields
     vehicle_incident_id: string;
+
+    // Main Field Details
     vehicle_sub_incident_id: number;
     incident_code?: string;
 
@@ -166,20 +169,23 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
     };
 }
 
-// FleetIncidentManagementCost
+// FleetIncidentManagementCost Interface
 export interface FleetIncidentManagementCost extends Record<string, unknown> {
+    // Primary Fields
     incident_cost_id: string;
+
+    // Main Field Details
     incident_cost_description?: string;
     incident_cost_amount?: number;
     incident_cost_date?: string;
     incident_cost_date_f?: string;
 
-    // ✅ Metadata
+    // Metadata
     status: Status;
     added_date_time: string;
     modified_date_time: string;
 
-    // ✅ Relations
+    // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
 
@@ -188,10 +194,7 @@ export interface FleetIncidentManagementCost extends Record<string, unknown> {
 
     expense_name_id: string;
     MasterExpenseName?: MasterExpenseName;
-
-    // ✅ Count (Child Relations)
-    _count?: {
-    };
+    expense_name?: string;
 }
 
 // FleetIncidentManagementFile Interface
@@ -218,8 +221,9 @@ export interface IncidentDashboard {
 
 // FleetIncidentManagementFile Schema
 export const FleetIncidentManagementFileSchema = BaseFileSchema.extend({
-    organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    vehicle_incident_id: single_select_optional('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
+    // Relations - Parent
+    organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+    vehicle_incident_id: single_select_optional('FleetIncidentManagement'), // Single-Selection -> FleetIncidentManagement
 });
 export type FleetIncidentManagementFileDTO = z.infer<
     typeof FleetIncidentManagementFileSchema
@@ -227,11 +231,13 @@ export type FleetIncidentManagementFileDTO = z.infer<
 
 // FleetIncidentManagement Create/update Schema
 export const FleetIncidentManagementSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
-    vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-    driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
+    // Relations - Parent
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    user_id: single_select_mandatory('User'), // Single-Selection -> User
+    vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+    driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
 
+    // Main Field Details
     fleet_incident_type_id: single_select_mandatory('MasterFleetIncidentType'), // MasterFleetIncidentType
     fleet_incident_status_id: single_select_mandatory(
         'MasterFleetIncidentStatus',
@@ -309,7 +315,6 @@ export const FleetIncidentManagementSchema = z.object({
     ),
 
     // Other
-    status: enumMandatory('Status', Status, Status.Active),
     time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
     FleetIncidentManagementFileSchema: nestedArrayOfObjectsOptional(
@@ -317,41 +322,33 @@ export const FleetIncidentManagementSchema = z.object({
         FleetIncidentManagementFileSchema,
         [],
     ),
+
+    // Metadata
+    status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetIncidentManagementDTO = z.infer<
     typeof FleetIncidentManagementSchema
 >;
 
-// FleetIncidentManagementDashBoard Query Schema
-export const FleetIncidentManagementDashBoardQuerySchema =
-    BaseQuerySchema.extend({
-        organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-        vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
-
-        from_date: dateMandatory('From Date'),
-        to_date: dateMandatory('To Date'),
-    });
-export type FleetIncidentManagementDashBoardQueryDTO = z.infer<
-    typeof FleetIncidentManagementDashBoardQuerySchema
->;
-
 // FleetIncidentManagementComment Query Schema
 export const FleetIncidentManagementQuerySchema = BaseQuerySchema.extend({
-    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
+    // relations - Parent
+    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // Multi-Selection -> FleetIncidentManagement
 
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    user_ids: multi_select_optional('User'), // ✅ Multi-Selection -> User
-    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
-    driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-Selection -> MasterDriver
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    user_ids: multi_select_optional('User'), // Multi-Selection -> User
+    vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+    driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
 
-    fleet_incident_type_ids: multi_select_optional('MasterFleetIncidentType'), // ✅ Multi-Selection -> MasterFleetIncidentType
-    fleet_incident_status_ids: multi_select_optional('MasterFleetIncidentStatus'), // ✅ Multi-Selection -> MasterFleetIncidentStatus
+    // Main Field Details
+    fleet_incident_type_ids: multi_select_optional('MasterFleetIncidentType'), // Multi-Selection -> MasterFleetIncidentType
+    fleet_incident_status_ids: multi_select_optional('MasterFleetIncidentStatus'), // Multi-Selection -> MasterFleetIncidentStatus
     fleet_incident_severity_ids: multi_select_optional(
         'MasterFleetIncidentSeverity',
-    ), // ✅ Multi-Selection -> MasterFleetIncidentSeverity
+    ), // Multi-Selection -> MasterFleetIncidentSeverity
     fleet_insurance_claim_status_ids: multi_select_optional(
         'MasterFleetInsuranceClaimStatus',
-    ), // ✅ Multi-Selection -> MasterFleetInsuranceClaimStatus
+    ), // Multi-Selection -> MasterFleetInsuranceClaimStatus
 
     was_towed: enumArrayOptional('Was Towed', YesNo, getAllEnums(YesNo)),
     is_vehicle_operational: enumArrayOptional(
@@ -403,12 +400,29 @@ export type FleetIncidentManagementQueryDTO = z.infer<
     typeof FleetIncidentManagementQuerySchema
 >;
 
+// FleetIncidentManagementDashBoard Query Schema
+export const FleetIncidentManagementDashBoardQuerySchema =
+    BaseQuerySchema.extend({
+        // relations - Parent
+        organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+        vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+
+        // Main Field Details
+        from_date: dateMandatory('From Date'),
+        to_date: dateMandatory('To Date'),
+    });
+export type FleetIncidentManagementDashBoardQueryDTO = z.infer<
+    typeof FleetIncidentManagementDashBoardQuerySchema
+>;
+
 // FleetIncidentManagementCost Create/update Schema
 export const FleetIncidentManagementCostSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    vehicle_incident_id: single_select_mandatory('FleetIncidentManagement'), // ✅ Single-Selection -> FleetIncidentManagement
-    expense_name_id: single_select_mandatory('MasterExpenseName'), // ✅ Single-Selection -> MasterExpenseName
+    // Relations - Parent
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    vehicle_incident_id: single_select_mandatory('FleetIncidentManagement'), // Single-Selection -> FleetIncidentManagement
+    expense_name_id: single_select_mandatory('MasterExpenseName'), // Single-Selection -> MasterExpenseName
 
+    // Main Field Details
     incident_cost_date: dateOptional('Incident Cost Date'),
     incident_cost_amount: doubleOptional('Incident Cost Amount'),
     incident_cost_description: stringOptional(
@@ -418,8 +432,10 @@ export const FleetIncidentManagementCostSchema = z.object({
     ),
 
     // Other
-    status: enumMandatory('Status', Status, Status.Active),
     time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+
+    // Metadata
+    status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetIncidentManagementCostDTO = z.infer<
     typeof FleetIncidentManagementCostSchema
@@ -427,11 +443,13 @@ export type FleetIncidentManagementCostDTO = z.infer<
 
 // FleetIncidentManagementCost Query Schema
 export const FleetIncidentManagementCostQuerySchema = BaseQuerySchema.extend({
-    incident_cost_ids: multi_select_optional('FleetIncidentManagementCost'), // ✅ Multi-Selection -> FleetIncidentManagementCost
+    // self table
+    incident_cost_ids: multi_select_optional('FleetIncidentManagementCost'), // Multi-Selection -> FleetIncidentManagementCost
 
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // ✅ Multi-Selection -> FleetIncidentManagement
-    expense_name_ids: multi_select_optional('MasterExpenseName'), // ✅ Multi-Selection -> MasterExpenseName
+    // relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    vehicle_incident_ids: multi_select_optional('FleetIncidentManagement'), // Multi-Selection -> FleetIncidentManagement
+    expense_name_ids: multi_select_optional('MasterExpenseName'), // Multi-Selection -> MasterExpenseName
 });
 export type FleetIncidentManagementCostQueryDTO = z.infer<
     typeof FleetIncidentManagementCostQuerySchema
@@ -570,13 +588,13 @@ export const newFleetIncidentManagementPayload = (): FleetIncidentManagementDTO 
 
 // Convert FleetIncidentManagementCost Data to API Payload
 export const toFleetIncidentManagementCostPayload = (row: FleetIncidentManagementCost): FleetIncidentManagementCostDTO => ({
-    incident_cost_date: row.incident_cost_date || '',
-    incident_cost_amount: row.incident_cost_amount || 0,
-    incident_cost_description: row.incident_cost_description || '',
-
     organisation_id: row.organisation_id || '',
     vehicle_incident_id: row.vehicle_incident_id || '',
     expense_name_id: row.expense_name_id || '',
+
+    incident_cost_date: row.incident_cost_date || '',
+    incident_cost_amount: row.incident_cost_amount || 0,
+    incident_cost_description: row.incident_cost_description || '',
 
     status: row.status || Status.Active,
     time_zone_id: '', // Needs to be provided manually

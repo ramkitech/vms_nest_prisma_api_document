@@ -35,8 +35,10 @@ const ENDPOINTS = {
 
 // FleetServiceSchedule Interface
 export interface FleetServiceSchedule extends Record<string, unknown> {
+  // Primary Fields
   service_schedule_id: string;
 
+  // Main Field Details
   service_schedule_name?: string;
   service_schedule_description?: string;
   service_schedule_start_date?: string;
@@ -57,7 +59,7 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
   User?: User;
   user_details?: string;
 
-  // Relations (Child)
+  // Relations - Child
   // Child - Fleet
   FleetServiceManagement?: FleetServiceManagement[];
   FleetServiceScheduleVehicleLink?: FleetServiceScheduleVehicleLink[];
@@ -71,7 +73,11 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
 
 // FleetServiceScheduleVehicleLink Interface
 export interface FleetServiceScheduleVehicleLink extends Record<string, unknown> {
+  // Primary Field
   service_schedule_vehicle_link_id: string;
+
+  // Main Field Details
+  // service_schedule_status: ServiceScheduleStatus;
 
   // Metadata
   status: Status;
@@ -90,8 +96,8 @@ export interface FleetServiceScheduleVehicleLink extends Record<string, unknown>
 
 // FleetServiceSchedule Create/Update Schema
 export const FleetServiceScheduleSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_mandatory('User'), // Single-Selection -> User
 
   service_schedule_name: stringMandatory('Service Schedule Name', 3, 100),
   service_schedule_description: stringOptional(
@@ -114,8 +120,8 @@ export type FleetServiceScheduleDTO = z.infer<
 
 // FleetServiceSchedule Query Schema
 export const FleetServiceScheduleQuerySchema = BaseQuerySchema.extend({
-  service_schedule_ids: multi_select_optional('FleetServiceSchedule'), // ✅ Multi-Selection -> FleetServiceSchedule
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  service_schedule_ids: multi_select_optional('FleetServiceSchedule'), // Multi-Selection -> FleetServiceSchedule
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
 });
 export type FleetServiceScheduleQueryDTO = z.infer<
   typeof FleetServiceScheduleQuerySchema

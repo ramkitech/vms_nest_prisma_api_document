@@ -35,8 +35,10 @@ const ENDPOINTS = {
 
 // FleetInspectionSchedule Interface
 export interface FleetInspectionSchedule extends Record<string, unknown> {
+  // Primary Field
   inspection_schedule_id: string;
 
+  // Main Field Details
   inspection_schedule_name?: string;
   inspection_schedule_description?: string;
   inspection_schedule_start_date?: string;
@@ -57,21 +59,23 @@ export interface FleetInspectionSchedule extends Record<string, unknown> {
   User?: User;
   user_details?: string;
 
-  // Relations (Child)
+  // Relations - Child
   // Child - Fleet
-  FleetInspection?: FleetInspection[];
   FleetInspectionScheduleVehicleLink?: FleetInspectionScheduleVehicleLink[];
 
   // Relations - Child Count
   _count?: {
-    FleetInspection?: number;
     FleetInspectionScheduleVehicleLink?: number;
   };
 }
 
 // FleetInspectionScheduleVehicleLink Interface
 export interface FleetInspectionScheduleVehicleLink extends Record<string, unknown> {
+  // Primary Field
   inspection_schedule_vehicle_link_id: string;
+
+  // Main Field Details
+  // inspection_schedule_status: InspectionScheduleStatus;
 
   // Metadata
   status: Status;
@@ -88,11 +92,13 @@ export interface FleetInspectionScheduleVehicleLink extends Record<string, unkno
   vehicle_type?: string;
 }
 
-// FleetInspectionSchedule Schema
+// FleetInspectionSchedule Create/Update Schema
 export const FleetInspectionScheduleSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_mandatory('User'), // Single-Selection -> User
 
+  // Main Field Details
   inspection_schedule_name: stringMandatory('Inspection Schedule Name', 0, 100),
   inspection_schedule_description: stringOptional(
     'Inspection Schedule Description',
@@ -106,7 +112,7 @@ export const FleetInspectionScheduleSchema = z.object({
 
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
 
-  // Other
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
@@ -116,8 +122,12 @@ export type FleetInspectionScheduleDTO = z.infer<
 
 // FleetInspectionSchedule Query Schema
 export const FleetInspectionScheduleQuerySchema = BaseQuerySchema.extend({
-  inspection_schedule_ids: multi_select_optional('FleetInspectionSchedule'), // ✅ Multi-Selection -> FleetInspectionSchedule
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+  // Self Table
+  inspection_schedule_ids: multi_select_optional('FleetInspectionSchedule'), // Multi-Selection -> FleetInspectionSchedule
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
 });
 export type FleetInspectionScheduleQueryDTO = z.infer<
   typeof FleetInspectionScheduleQuerySchema

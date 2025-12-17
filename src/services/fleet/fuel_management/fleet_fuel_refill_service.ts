@@ -142,7 +142,7 @@ export interface FleetFuelRefill extends Record<string, unknown> {
   MasterDriver?: MasterDriver;
   driver_details?: string;
 
-  device_id: string;
+  device_id?: string;
   MasterDevice?: MasterDevice;
   device_identifier?: string;
 
@@ -188,22 +188,24 @@ export interface FleetFuelRefillFile extends BaseCommonFile {
 
 // FleetFuelRefillFile Schema
 export const FleetFuelRefillFileSchema = BaseFileSchema.extend({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  fleet_fuel_refill_id: single_select_optional('FleetFuelRefill'), // ✅ Single-Selection -> FleetFuelRefill
+  // Relations - Parent
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  fleet_fuel_refill_id: single_select_optional('FleetFuelRefill'), // Single-Selection -> FleetFuelRefill
 });
 export type FleetFuelRefillFileDTO = z.infer<typeof FleetFuelRefillFileSchema>;
 
 // FleetFuelRefill Create/Update Schema
 export const FleetFuelRefillSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  user_id: single_select_optional('User'), // ✅ Single-Selection -> User
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
-  device_id: single_select_optional('MasterDevice'), // ✅ Single-Selection -> MasterDevice
-  vendor_id: single_select_optional('FleetVendor'), // ✅ Single-Selection -> FleetVendor
-  fuel_station_id: single_select_optional('FleetVendorFuelStation'), // ✅ Single-Selection -> FleetVendorFuelStation
-  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'), // ✅ Single-Selection -> MasterVehicleFuelType
-  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // ✅ Single-Selection -> MasterVehicleFuelUnit
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+  driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
+  device_id: single_select_optional('MasterDevice'), // Single-Selection -> MasterDevice
+  vendor_id: single_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
+  fuel_station_id: single_select_optional('FleetVendorFuelStation'), // Single-Selection -> FleetVendorFuelStation
+  vehicle_fuel_type_id: single_select_optional('MasterVehicleFuelType'), // Single-Selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_id: single_select_optional('MasterVehicleFuelUnit'), // Single-Selection -> MasterVehicleFuelUnit
 
   // Refill Quantity
   before_refill_quantity: doubleOptional('Before Refill Quantity'),
@@ -276,7 +278,7 @@ export const FleetFuelRefillSchema = z.object({
     YesNo.No,
   ),
 
-  // Other
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 
@@ -290,18 +292,21 @@ export type FleetFuelRefillDTO = z.infer<typeof FleetFuelRefillSchema>;
 
 // FleetFuelRefill Query Schema
 export const FleetFuelRefillQuerySchema = BaseQuerySchema.extend({
-  fleet_fuel_refill_ids: multi_select_optional('FleetFuelRefill'), // ✅ Multi-selection -> FleetFuelRefill
+  // Self Table
+  fleet_fuel_refill_ids: multi_select_optional('FleetFuelRefill'), // Multi-selection -> FleetFuelRefill
 
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
-  device_ids: multi_select_optional('MasterDevice'), // ✅ Multi-selection -> MasterDevice
-  vendor_ids: multi_select_optional('FleetVendor'), // ✅ Multi-selection -> FleetVendor
-  fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // ✅ Multi-selection -> FleetVendorFuelStation
-  vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // ✅ Multi-selection -> MasterVehicleFuelType
-  vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // ✅ Multi-selection -> MasterVehicleFuelUnit
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
+  device_ids: multi_select_optional('MasterDevice'), // Multi-selection -> MasterDevice
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-selection -> FleetVendor
+  fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // Multi-selection -> FleetVendorFuelStation
+  vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // Multi-selection -> MasterVehicleFuelType
+  vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // Multi-selection -> MasterVehicleFuelUnit
 
+  // Enums
   entry_source: enumArrayOptional(
     'Entry Source',
     RefillEntrySource,
@@ -340,12 +345,14 @@ export const FleetFuelRefillQuerySchema = BaseQuerySchema.extend({
     getAllEnums(YesNo),
   ),
 
+  // Date Range Filter
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
 export type FleetFuelRefillQueryDTO = z.infer<
   typeof FleetFuelRefillQuerySchema
 >;
+
 
 // Convert FleetFuelRefill Data to API Payload
 export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillDTO => ({

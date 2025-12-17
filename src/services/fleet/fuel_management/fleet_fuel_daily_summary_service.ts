@@ -47,6 +47,7 @@ export interface FleetFuelDailySummary extends Record<string, unknown> {
   // Primary Fields
   fleet_fuel_daily_summary_id: string;
 
+  // Main Field Details
   start_fuel_liters: number;
   end_fuel_liters: number;
   total_km: number;
@@ -90,12 +91,14 @@ export interface FleetFuelDailySummary extends Record<string, unknown> {
 
 // FleetFuelDailySummary Create/Update Schema
 export const FleetFuelDailySummarySchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  user_id: single_select_optional('User'), // ✅ Single-Selection -> User
-  vehicle_id: single_select_mandatory('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-  driver_id: single_select_optional('MasterDriver'), // ✅ Single-Selection -> MasterDriver
-  device_id: single_select_optional('MasterDevice'), // ✅ Single-Selection -> MasterDevice
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+  driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
+  device_id: single_select_optional('MasterDevice'), // Single-Selection -> MasterDevice
 
+  // Main Field Details
   date: dateMandatory('Date'),
 
   start_fuel_liters: doubleMandatory('Start Fuel Liters'),
@@ -112,6 +115,7 @@ export const FleetFuelDailySummarySchema = z.object({
   mileage_kmpl: doubleMandatory('Mileage KMPL'),
   liters_per_100km: doubleMandatory('Liters Per 100 KM'),
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetFuelDailySummaryDTO = z.infer<
@@ -120,17 +124,21 @@ export type FleetFuelDailySummaryDTO = z.infer<
 
 // FleetFuelDailySummary Query Schema
 export const FleetFuelDailySummaryQuerySchema = BaseQuerySchema.extend({
-  fleet_fuel_daily_summary_ids: multi_select_optional('FleetFuelDailySummary'), // ✅ Multi-selection -> FleetFuelDailySummary
+  // Self Table
+  fleet_fuel_daily_summary_ids: multi_select_optional('FleetFuelDailySummary'), // Multi-selection -> FleetFuelDailySummary
 
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('MasterDriver'), // ✅ Multi-selection -> MasterDriver
-  device_ids: multi_select_optional('MasterDevice'), // ✅ Multi-selection -> MasterDevice
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-selection -> User
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
+  device_ids: multi_select_optional('MasterDevice'), // Multi-selection -> MasterDevice
 
+  // Enums
   vehicle_summary: enumOptional('Vehicle Summary', YesNo, YesNo.No),
   day_summary: enumOptional('Day Summary', YesNo, YesNo.No),
 
+  // Date Range Filter
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
@@ -138,24 +146,13 @@ export type FleetFuelDailySummaryQueryDTO = z.infer<
   typeof FleetFuelDailySummaryQuerySchema
 >;
 
-// FleetFuelDailySummaryDashBoard Query Schema
-export const FleetFuelDailySummaryDashBoardQuerySchema = BaseQuerySchema.extend(
-  {
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-Selection -> MasterVehicle
-
-    from_date: dateMandatory('From Date'),
-    to_date: dateMandatory('To Date'),
-  },
-);
-export type FleetFuelDailySummaryDashBoardQueryDTO = z.infer<
-  typeof FleetFuelDailySummaryDashBoardQuerySchema
->;
-
 // FleetFuelDailyMonthlySummary Query Schema
 export const FleetFuelDailyMonthlySummaryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+
+  // Date Range Filter
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
@@ -164,12 +161,29 @@ export type FleetFuelDailyMonthlySummaryQueryDTO = z.infer<
 >;
 
 // AllVehiclesFuelDailySummary Query Schema
+
 export const AllVehiclesFuelDailySummaryQuerySchema = z.object({
   date: dateMandatory('Date'),
   organisation_utrack_id: stringMandatory('Organisation Utrack ID'),
 });
 export type AllVehiclesFuelDailySummaryDTO = z.infer<
   typeof AllVehiclesFuelDailySummaryQuerySchema
+>;
+
+// FleetIssueManagementDashBoard Query Schema
+export const FleetFuelDailySummaryDashBoardQuerySchema = BaseQuerySchema.extend(
+  {
+    // Relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+
+    // Date Range Filter
+    from_date: dateMandatory('From Date'),
+    to_date: dateMandatory('To Date'),
+  },
+);
+export type FleetFuelDailySummaryDashBoardQueryDTO = z.infer<
+  typeof FleetFuelDailySummaryDashBoardQuerySchema
 >;
 
 export interface FuelDashboard {
