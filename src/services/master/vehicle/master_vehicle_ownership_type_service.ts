@@ -18,6 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/ownership_type';
 
@@ -38,6 +39,8 @@ const ENDPOINTS = {
 export interface MasterVehicleOwnershipType extends Record<string, unknown> {
   // Primary Fields
   vehicle_ownership_type_id: string;
+
+  // Main Field Details
   ownership_type: string;
   description?: string;
 
@@ -49,13 +52,26 @@ export interface MasterVehicleOwnershipType extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  MasterVehicle?: MasterVehicle[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle?: number;
+  };
 }
 
 // MasterVehicleOwnershipType Create/Update Schema
 export const MasterVehicleOwnershipTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   ownership_type: stringMandatory('Ownership Type', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleOwnershipTypeDTO = z.infer<
@@ -64,10 +80,13 @@ export type MasterVehicleOwnershipTypeDTO = z.infer<
 
 // MasterVehicleOwnershipType Query Schema
 export const MasterVehicleOwnershipTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   vehicle_ownership_type_ids: multi_select_optional(
     'MasterVehicleOwnershipType',
   ), // Multi-selection -> MasterVehicleOwnershipType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterVehicleOwnershipTypeQueryDTO = z.infer<
   typeof MasterVehicleOwnershipTypeQuerySchema
@@ -79,14 +98,17 @@ export const toMasterVehicleOwnershipTypePayload = (row: MasterVehicleOwnershipT
 
   ownership_type: row.ownership_type || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleOwnershipType Payload
 export const newMasterVehicleOwnershipTypePayload = (): MasterVehicleOwnershipTypeDTO => ({
   organisation_id: '',
+
   ownership_type: '',
   description: '',
+  
   status: Status.Active,
 });
 

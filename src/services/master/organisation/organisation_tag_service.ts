@@ -51,7 +51,7 @@ export interface OrganisationTag extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id?: string;
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
@@ -67,17 +67,25 @@ export interface OrganisationTag extends Record<string, unknown> {
 
 // OrganisationTag Create/Update Schema
 export const OrganisationTagSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   tag_name: stringMandatory('Tag Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationTagDTO = z.infer<typeof OrganisationTagSchema>;
 
 // OrganisationTag Query Schema
 export const OrganisationTagQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   organisation_tag_ids: multi_select_optional('OrganisationTag'), // Multi-selection -> OrganisationTag
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type OrganisationTagQueryDTO = z.infer<
   typeof OrganisationTagQuerySchema
@@ -86,16 +94,20 @@ export type OrganisationTagQueryDTO = z.infer<
 // Convert OrganisationTag Data to API Payload
 export const toOrganisationTagPayload = (row: OrganisationTag): OrganisationTagDTO => ({
   organisation_id: row.organisation_id || '',
+
   tag_name: row.tag_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New OrganisationTag Payload
 export const newOrganisationTagPayload = (): OrganisationTagDTO => ({
   organisation_id: '',
+
   tag_name: '',
   description: '',
+
   status: Status.Active,
 });
 

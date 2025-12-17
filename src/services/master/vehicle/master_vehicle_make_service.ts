@@ -18,6 +18,9 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
+import { MasterVehicleModel } from './master_vehicle_model_service';
+import { MasterVehicleSubModel } from './master_vehicle_sub_model_service';
 
 const URL = 'master/vehicle/make';
 
@@ -38,6 +41,8 @@ const ENDPOINTS = {
 export interface MasterVehicleMake extends Record<string, unknown> {
   // Primary Fields
   vehicle_make_id: string;
+
+  // Main Field Details
   vehicle_make: string;
   description?: string;
 
@@ -49,21 +54,41 @@ export interface MasterVehicleMake extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  MasterVehicleModel?: MasterVehicleModel[];
+  MasterVehicleSubModel?: MasterVehicleSubModel[];
+  MasterVehicle?: MasterVehicle[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicleModel?: number;
+    MasterVehicleSubModel?: number;
+    MasterVehicle?: number;
+  };
 }
 
 // MasterVehicleMake Create/Update Schema
 export const MasterVehicleMakeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   vehicle_make: stringMandatory('Vehicle Make', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleMakeDTO = z.infer<typeof MasterVehicleMakeSchema>;
 
 // MasterVehicleMake Query Schema
 export const MasterVehicleMakeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // Multi-Selection -> UserOrganisation
+  // Self Table
   vehicle_make_ids: multi_select_optional('MasterVehicleMake'), // Multi-Selection -> MasterVehicleMake
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('Organisation'), // Multi-Selection -> UserOrganisation
 });
 export type MasterVehicleMakeQueryDTO = z.infer<
   typeof MasterVehicleMakeQuerySchema
@@ -72,16 +97,20 @@ export type MasterVehicleMakeQueryDTO = z.infer<
 // Convert MasterVehicleMake Data to API Payload
 export const toMasterVehicleMakePayload = (row: MasterVehicleMake): MasterVehicleMakeDTO => ({
   organisation_id: row.organisation_id || '',
+
   vehicle_make: row.vehicle_make || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleMake Payload
 export const newMasterVehicleMakePayload = (): MasterVehicleMakeDTO => ({
   organisation_id: '',
+
   vehicle_make: '',
   description: '',
+
   status: Status.Active,
 });
 

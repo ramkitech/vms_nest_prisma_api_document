@@ -50,7 +50,7 @@ export interface OrganisationGroup extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id?: string;
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
@@ -85,18 +85,26 @@ export interface VehicleOrganisationGroupLink extends Record<string, unknown> {
 
 // OrganisationGroup Create/Update Schema
 export const OrganisationGroupSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+
+  // Main Field Details
   group_name: stringMandatory('Group Name', 3, 100),
   description: stringOptional('Description', 0, 300),
-  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationGroupDTO = z.infer<typeof OrganisationGroupSchema>;
 
 // OrganisationGroup Query Schema
 export const OrganisationGroupQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   organisation_group_ids: multi_select_optional('OrganisationGroup'), // Multi-selection -> OrganisationGroup
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
 });
 export type OrganisationGroupQueryDTO = z.infer<
@@ -106,19 +114,23 @@ export type OrganisationGroupQueryDTO = z.infer<
 // Convert OrganisationGroup Data to API Payload
 export const toOrganisationGroupPayload = (row: OrganisationGroup): OrganisationGroupDTO => ({
   organisation_id: row.organisation_id || '',
+
   group_name: row.group_name,
   description: row.description || '',
   vehicle_ids:
     row.VehicleOrganisationGroupLink?.map((v) => v.vehicle_id) ?? [],
+
   status: row.status,
 });
 
 // Create New OrganisationGroup Payload
 export const newOrganisationGroupPayload = (): OrganisationGroupDTO => ({
   organisation_id: '',
+
   group_name: '',
   description: '',
   vehicle_ids: [],
+
   status: Status.Active,
 });
 

@@ -39,6 +39,8 @@ const ENDPOINTS = {
 export interface MasterVehicleFuelRemovalReason extends Record<string, unknown> {
   // Primary Fields
   fuel_removal_reason_id: string;
+
+  // Main Field Details
   removal_reason: string;
   description?: string;
 
@@ -54,9 +56,14 @@ export interface MasterVehicleFuelRemovalReason extends Record<string, unknown> 
 
 // MasterVehicleFuelRemovalReason Create/Update Schema
 export const MasterVehicleFuelRemovalReasonSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   removal_reason: stringMandatory('Removal Reason', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleFuelRemovalReasonDTO = z.infer<
@@ -66,10 +73,13 @@ export type MasterVehicleFuelRemovalReasonDTO = z.infer<
 // MasterVehicleFuelRemovalReason Query Schema
 export const MasterVehicleFuelRemovalReasonQuerySchema = BaseQuerySchema.extend(
   {
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+    // Self Table
     fuel_removal_reason_ids: multi_select_optional(
       'MasterVehicleFuelRemovalReason',
     ), // Multi-selection -> MasterVehicleFuelRemovalReason
+
+    // Relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   },
 );
 export type MasterVehicleFuelRemovalReasonQueryDTO = z.infer<
@@ -82,14 +92,17 @@ export const toMasterVehicleFuelRemovalReasonPayload = (row: MasterVehicleFuelRe
 
   removal_reason: row.removal_reason || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleFuelRemovalReason Payload
 export const newMasterVehicleFuelRemovalReasonPayload = (): MasterVehicleFuelRemovalReasonDTO => ({
   organisation_id: '',
+
   removal_reason: '',
   description: '',
+  
   status: Status.Active,
 });
 

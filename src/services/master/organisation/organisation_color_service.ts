@@ -52,7 +52,7 @@ export interface OrganisationColor extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id?: string;
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
@@ -68,18 +68,26 @@ export interface OrganisationColor extends Record<string, unknown> {
 
 // OrganisationColor Create/Update Schema
 export const OrganisationColorSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   color_name: stringMandatory('Color Name', 3, 100),
   color_code: stringMandatory('Color Code', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationColorDTO = z.infer<typeof OrganisationColorSchema>;
 
 // OrganisationColor Query Schema
 export const OrganisationColorQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   organisation_color_ids: multi_select_optional('OrganisationColor'), // Multi-selection -> OrganisationColor
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type OrganisationColorQueryDTO = z.infer<
   typeof OrganisationColorQuerySchema
@@ -88,18 +96,22 @@ export type OrganisationColorQueryDTO = z.infer<
 // Convert OrganisationColor Data to API Payload
 export const toOrganisationColorPayload = (row: OrganisationColor): OrganisationColorDTO => ({
   organisation_id: row.organisation_id || '',
+
   color_name: row.color_name || '',
   color_code: row.color_code || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New OrganisationColor Payload
 export const newOrganisationColorPayload = (): OrganisationColorDTO => ({
   organisation_id: '',
+
   color_name: '',
   color_code: '',
   description: '',
+  
   status: Status.Active,
 });
 

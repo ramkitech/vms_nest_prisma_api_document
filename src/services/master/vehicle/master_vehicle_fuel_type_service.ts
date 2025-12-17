@@ -34,10 +34,12 @@ const ENDPOINTS = {
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// VehicleFuelType Interface
+// MasterVehicleFuelType Interface
 export interface MasterVehicleFuelType extends Record<string, unknown> {
   // Primary Fields
   vehicle_fuel_type_id: string;
+
+  // Main Field Details
   fuel_type: string;
   description?: string;
 
@@ -53,9 +55,14 @@ export interface MasterVehicleFuelType extends Record<string, unknown> {
 
 // MasterVehicleFuelType Create/Update Schema
 export const MasterVehicleFuelTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   fuel_type: stringMandatory('Fuel Type', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleFuelTypeDTO = z.infer<
@@ -64,8 +71,11 @@ export type MasterVehicleFuelTypeDTO = z.infer<
 
 // MasterVehicleFuelType Query Schema
 export const MasterVehicleFuelTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // Multi-selection -> MasterVehicleFuelType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterVehicleFuelTypeQueryDTO = z.infer<
   typeof MasterVehicleFuelTypeQuerySchema
@@ -77,14 +87,17 @@ export const toMasterVehicleFuelTypePayload = (row: MasterVehicleFuelType): Mast
 
   fuel_type: row.fuel_type || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleFuelType Payload
 export const newMasterVehicleFuelTypePayload = (): MasterVehicleFuelTypeDTO => ({
   organisation_id: '',
+
   fuel_type: '',
   description: '',
+  
   status: Status.Active,
 });
 

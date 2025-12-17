@@ -21,6 +21,7 @@ import { Status } from '../../../core/Enums';
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 import { MasterVehicleModel } from '../../../services/master/vehicle/master_vehicle_model_service';
 import { MasterVehicleMake } from './master_vehicle_make_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/sub_model';
 
@@ -41,6 +42,8 @@ const ENDPOINTS = {
 export interface MasterVehicleSubModel extends Record<string, unknown> {
   // Primary Fields
   vehicle_sub_model_id: string;
+
+  // Main Field Details
   vehicle_sub_model: string;
   description?: string;
 
@@ -53,24 +56,35 @@ export interface MasterVehicleSubModel extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
-  vehicle_make_id: string;
-  MasterVehicleMake: MasterVehicleMake;
+  vehicle_make_id?: string;
+  MasterVehicleMake?: MasterVehicleMake;
   vehicle_make?: string;
 
   vehicle_model_id: string;
   MasterVehicleModel?: MasterVehicleModel;
   vehicle_model?: string;
+
+  // Relations - Child
+  MasterVehicle?: MasterVehicle[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle?: number;
+  };
 }
 
 // MasterVehicleSubModel Create/Update Schema
 export const MasterVehicleSubModelSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   vehicle_make_id: single_select_mandatory('MasterVehicleMake'), // Single-Selection -> MasterVehicleMake
   vehicle_model_id: single_select_mandatory('MasterVehicleModel'), // Single-Selection -> MasterVehicleModel
 
+  // Main Field Details
   vehicle_sub_model: stringMandatory('Vehicle Sub Model', 3, 100),
   description: stringOptional('Description', 0, 300),
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleSubModelDTO = z.infer<

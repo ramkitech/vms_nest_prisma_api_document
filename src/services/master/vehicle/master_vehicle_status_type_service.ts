@@ -18,6 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/status_type';
 
@@ -38,6 +39,8 @@ const ENDPOINTS = {
 export interface MasterVehicleStatusType extends Record<string, unknown> {
   // Primary Fields
   vehicle_status_type_id: string;
+
+  // Main Field Details
   status_type: string;
   description?: string;
 
@@ -49,13 +52,26 @@ export interface MasterVehicleStatusType extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  MasterVehicle?: MasterVehicle[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle?: number;
+  };
 }
 
 // MasterVehicleStatusType Create/Update Schema
 export const MasterVehicleStatusTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   status_type: stringMandatory('Status Type', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleStatusTypeDTO = z.infer<
@@ -64,8 +80,11 @@ export type MasterVehicleStatusTypeDTO = z.infer<
 
 // MasterVehicleStatusType Query Schema
 export const MasterVehicleStatusTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   vehicle_status_type_ids: multi_select_optional('MasterVehicleStatusType'), // Multi-selection -> MasterVehicleStatusType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterVehicleStatusTypeQueryDTO = z.infer<
   typeof MasterVehicleStatusTypeQuerySchema
@@ -74,16 +93,20 @@ export type MasterVehicleStatusTypeQueryDTO = z.infer<
 // Convert MasterVehicleStatusType Data to API Payload
 export const toMasterVehicleStatusTypePayload = (row: MasterVehicleStatusType): MasterVehicleStatusTypeDTO => ({
   organisation_id: row.organisation_id || '',
+
   status_type: row.status_type || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleStatusType Payload
 export const newMasterVehicleStatusTypePayload = (): MasterVehicleStatusTypeDTO => ({
   organisation_id: '',
+
   status_type: '',
   description: '',
+  
   status: Status.Active,
 });
 

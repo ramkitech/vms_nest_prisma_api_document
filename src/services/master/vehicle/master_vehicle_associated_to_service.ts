@@ -18,6 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/associated_to';
 
@@ -38,6 +39,8 @@ const ENDPOINTS = {
 export interface MasterVehicleAssociatedTo extends Record<string, unknown> {
   // Primary Fields
   vehicle_associated_to_id: string;
+
+  // Main Field Details
   associated_to: string;
   description?: string;
 
@@ -49,13 +52,26 @@ export interface MasterVehicleAssociatedTo extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  MasterVehicle?: MasterVehicle[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle?: number;
+  };
 }
 
 // MasterVehicleAssociatedTo Create/Update Schema
 export const MasterVehicleAssociatedToSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   associated_to: stringMandatory('Associated To', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleAssociatedToDTO = z.infer<
@@ -64,8 +80,11 @@ export type MasterVehicleAssociatedToDTO = z.infer<
 
 // MasterVehicleAssociatedTo Query Schema
 export const MasterVehicleAssociatedToQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   vehicle_associated_to_ids: multi_select_optional('MasterVehicleAssociatedTo'), // Multi-selection -> MasterVehicleAssociatedTo
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterVehicleAssociatedToQueryDTO = z.infer<
   typeof MasterVehicleAssociatedToQuerySchema
@@ -77,14 +96,17 @@ export const toMasterVehicleAssociatedToPayload = (row: MasterVehicleAssociatedT
 
   associated_to: row.associated_to || '',
   description: row.description || '',
+  
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleAssociatedTo Payload
 export const newMasterVehicleAssociatedToPayload = (): MasterVehicleAssociatedToDTO => ({
   organisation_id: '',
+
   associated_to: '',
   description: '',
+
   status: Status.Active,
 });
 

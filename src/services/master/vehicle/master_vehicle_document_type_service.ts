@@ -37,6 +37,8 @@ const ENDPOINTS = {
 export interface MasterVehicleDocumentType extends Record<string, unknown> {
   // Primary Fields
   document_type_id: string;
+
+  // Main Field Details
   document_type: string;
   description?: string;
 
@@ -61,9 +63,14 @@ export interface MasterVehicleDocumentType extends Record<string, unknown> {
 
 // MasterVehicleDocumentType Create/Update Schema
 export const MasterVehicleDocumentTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   document_type: stringMandatory('Document Type', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleDocumentTypeDTO = z.infer<
@@ -72,8 +79,11 @@ export type MasterVehicleDocumentTypeDTO = z.infer<
 
 // MasterVehicleDocumentType Query Schema
 export const MasterVehicleDocumentTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   document_type_ids: multi_select_optional('MasterVehicleDocumentType'), // Multi-selection -> MasterVehicleDocumentType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterVehicleDocumentTypeQueryDTO = z.infer<
   typeof MasterVehicleDocumentTypeQuerySchema
@@ -85,14 +95,17 @@ export const toMasterVehicleDocumentTypePayload = (row: MasterVehicleDocumentTyp
 
   document_type: row.document_type || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleDocumentType Payload
 export const newMasterVehicleDocumentTypePayload = (): MasterVehicleDocumentTypeDTO => ({
   organisation_id: '',
+
   document_type: '',
   description: '',
+  
   status: Status.Active,
 });
 

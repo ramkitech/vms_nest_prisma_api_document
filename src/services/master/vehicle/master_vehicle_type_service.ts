@@ -64,17 +64,25 @@ export interface MasterVehicleType extends Record<string, unknown> {
 
 // MasterVehicleType Create/Update Schema
 export const MasterVehicleTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   vehicle_type: stringMandatory('Vehicle Type', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleTypeDTO = z.infer<typeof MasterVehicleTypeSchema>;
 
 // MasterVehicleType Query Schema
 export const MasterVehicleTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   vehicle_type_ids: multi_select_optional('MasterVehicleType'), // Multi-selection -> MasterVehicleType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterVehicleTypeQueryDTO = z.infer<
   typeof MasterVehicleTypeQuerySchema
@@ -86,14 +94,17 @@ export const toMasterVehicleTypePayload = (row: MasterVehicleType): MasterVehicl
 
   vehicle_type: row.vehicle_type || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleType Payload
 export const newMasterVehicleTypePayload = (): MasterVehicleTypeDTO => ({
   organisation_id: '',
+
   vehicle_type: '',
   description: '',
+
   status: Status.Active,
 });
 

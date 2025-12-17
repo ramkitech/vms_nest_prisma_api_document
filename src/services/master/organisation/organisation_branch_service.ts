@@ -53,7 +53,7 @@ export interface OrganisationBranch extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id?: string;
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
@@ -69,19 +69,27 @@ export interface OrganisationBranch extends Record<string, unknown> {
 
 // OrganisationBranch Create/Update Schema
 export const OrganisationBranchSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   branch_name: stringMandatory('Branch Name', 3, 100),
   branch_city: stringMandatory('Branch City', 3, 100),
   branch_address: stringMandatory('Branch Address', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationBranchDTO = z.infer<typeof OrganisationBranchSchema>;
 
 // OrganisationBranch Query Schema
 export const OrganisationBranchQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type OrganisationBranchQueryDTO = z.infer<
   typeof OrganisationBranchQuerySchema

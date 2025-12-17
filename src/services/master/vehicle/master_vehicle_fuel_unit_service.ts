@@ -38,6 +38,8 @@ const ENDPOINTS = {
 export interface MasterVehicleFuelUnit extends Record<string, unknown> {
   // Primary Fields
   vehicle_fuel_unit_id: string;
+
+  // Main Field Details
   fuel_unit: string;
   description?: string;
 
@@ -53,9 +55,14 @@ export interface MasterVehicleFuelUnit extends Record<string, unknown> {
 
 // MasterVehicleFuelUnit Create/Update Schema
 export const MasterVehicleFuelUnitSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   fuel_unit: stringMandatory('Fuel Unit', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVehicleFuelUnitDTO = z.infer<
@@ -64,8 +71,11 @@ export type MasterVehicleFuelUnitDTO = z.infer<
 
 // MasterVehicleFuelUnit Query Schema
 export const MasterVehicleFuelUnitQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // Multi-selection -> MasterVehicleFuelUnit
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterVehicleFuelUnitQueryDTO = z.infer<
   typeof MasterVehicleFuelUnitQuerySchema
@@ -77,14 +87,17 @@ export const toMasterVehicleFuelUnitPayload = (row: MasterVehicleFuelUnit): Mast
 
   fuel_unit: row.fuel_unit || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVehicleFuelUnit Payload
 export const newMasterVehicleFuelUnitPayload = (): MasterVehicleFuelUnitDTO => ({
   organisation_id: '',
+
   fuel_unit: '',
   description: '',
+  
   status: Status.Active,
 });
 
