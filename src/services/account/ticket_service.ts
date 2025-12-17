@@ -29,14 +29,18 @@ import { UserOrganisation } from '../../services/main/users/user_organisation_se
 const URL = 'account/tickets';
 
 const ENDPOINTS = {
+  // AWS S3 PRESIGNED
+  ticket_file_presigned_url: `${URL}/ticket_file_presigned_url`,
+
+  // File Uploads
+  create_ticket_file: `${URL}/create_ticket_file`,
+  remove_ticket_file: (id: string): string => `${URL}/remove_ticket_file/${id}`,
+
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   update_verify_status: (id: string): string => `${URL}/verify_status/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
-  presigned_url: `${URL}/presigned_url`,
-  create_file: `${URL}/create_file`,
-  remove_file: (id: string): string => `${URL}/remove_file/${id}`,
 };
 
 // Ticket Interface
@@ -194,6 +198,20 @@ export const newTicketPayload = (): TicketDTO => ({
   status: Status.Active,
 });
 
+// AWS S3 PRESIGNED
+export const get_ticket_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.ticket_file_presigned_url, data);
+};
+
+// File Uploads
+export const create_ticket_file = async (data: TicketFileDTO): Promise<SBR> => {
+  return apiPost<SBR, TicketFileDTO>(ENDPOINTS.create_ticket_file, data);
+};
+
+export const remove_ticket_file = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_ticket_file(id));
+};
+
 // API Methods
 export const findTickets = async (data: TicketQueryDTO): Promise<FBR<Ticket[]>> => {
   return apiPost<FBR<Ticket[]>, TicketQueryDTO>(ENDPOINTS.find, data);
@@ -213,17 +231,4 @@ export const updateVerifyStatus = async (id: string, data: TicketVerifyDTO): Pro
 
 export const deleteTicket = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-// File API Methods
-export const getTicketFilePresignedUrl = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.presigned_url, data);
-};
-
-export const createTicketFile = async (data: TicketFileDTO): Promise<SBR> => {
-  return apiPost<SBR, TicketFileDTO>(ENDPOINTS.create_file, data);
-};
-
-export const removeTicketFile = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file(id));
 };
