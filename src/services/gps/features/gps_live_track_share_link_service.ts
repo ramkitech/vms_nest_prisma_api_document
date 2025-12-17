@@ -97,8 +97,11 @@ export interface GPSLiveTrackShareLinkNotification extends Record<string, unknow
 
 // GPSLiveTrackShareLinkNotification Create/Update Schema
 export const GPSLiveTrackShareLinkNotificationSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
   gps_live_track_share_link_id: single_select_optional('GPSLiveTrackShareLink'), // Single-Selection -> GPSLiveTrackShareLink
+
+  // Main Field Details
   share_channels: enumArrayMandatory(
     'Share Channels',
     ShareChannel,
@@ -107,6 +110,8 @@ export const GPSLiveTrackShareLinkNotificationSchema = z.object({
   mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
   email_ids: stringOptional('Email IDs', 0, 300),
   cc_email_ids: stringOptional('CC email IDs', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type GPSLiveTrackShareLinkNotificationDTO = z.infer<
@@ -115,12 +120,15 @@ export type GPSLiveTrackShareLinkNotificationDTO = z.infer<
 
 // GPSLiveTrackShareLink Create Schema
 export const GPSLiveTrackShareLinkSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('Vehicle ID'),
 
+  // Main Field Details
   expire_milliseconds: numberOptional('Expire Milliseconds'),
-
   link_status: enumMandatory('Link Status', LinkStatus, LinkStatus.Active),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type GPSLiveTrackShareLinkDTO = z.infer<
@@ -129,6 +137,7 @@ export type GPSLiveTrackShareLinkDTO = z.infer<
 
 // GPSLiveTrackShareLink Update Time Schema
 export const GPSLiveTrackShareLinkUpdateExpiryTimeSchema = z.object({
+  // Main Field Details
   expire_milliseconds: numberMandatory('Expire Milliseconds'),
 });
 export type GPSLiveTrackShareLinkUpdateExpiryTimeDTO = z.infer<
@@ -137,6 +146,7 @@ export type GPSLiveTrackShareLinkUpdateExpiryTimeDTO = z.infer<
 
 // GPSLiveTrackShareLink Update Link Status Schema
 export const GPSLiveTrackShareLinkUpdateLinkStatusSchema = z.object({
+  // Main Field Details
   link_status: enumMandatory('Link Status', LinkStatus, LinkStatus.Active),
 });
 export type GPSLiveTrackShareLinkUpdateLinkStatusDTO = z.infer<
@@ -145,14 +155,19 @@ export type GPSLiveTrackShareLinkUpdateLinkStatusDTO = z.infer<
 
 // GPSLiveTrackShareLink Query Schema
 export const GPSLiveTrackShareLinkQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  gps_live_track_share_link_ids: multi_select_optional('GPSLiveTrackShareLink'), // Multi-selection -> GPSLiveTrackShareLink
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+
+  // Enums
   link_status: enumArrayOptional(
     'Link Status',
     LinkStatus,
     getAllEnums(LinkStatus),
   ),
-  gps_live_track_share_link_ids: multi_select_optional('GPSLiveTrackShareLink'), // Multi-selection -> GPSLiveTrackShareLink
 });
 export type GPSLiveTrackShareLinkQueryDTO = z.infer<
   typeof GPSLiveTrackShareLinkQuerySchema
@@ -176,7 +191,7 @@ export const newGPSLiveTrackShareLinkPayload = (): GPSLiveTrackShareLinkDTO => (
 
   expire_milliseconds: 0,
   link_status: LinkStatus.Active,
-  
+
   status: Status.Active,
 });
 

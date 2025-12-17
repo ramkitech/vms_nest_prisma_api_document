@@ -95,10 +95,13 @@ export interface GPSTrackHistoryShareLinkNotification extends Record<string, unk
 
 // GPSTrackHistoryShareLinkNotification Create/Update Schema
 export const GPSTrackHistoryShareLinkNotificationSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
   gps_track_history_share_link_id: single_select_optional(
     'GPSTrackHistoryShareLink',
   ),
+
+  // Main Field Details
   share_channels: enumArrayMandatory(
     'Share Channels',
     ShareChannel,
@@ -107,6 +110,8 @@ export const GPSTrackHistoryShareLinkNotificationSchema = z.object({
   mobile_numbers: stringOptional('Mobile Numbers', 0, 300),
   email_ids: stringOptional('Email IDs', 0, 300),
   cc_email_ids: stringOptional('CC email IDs', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type GPSTrackHistoryShareLinkNotificationDTO = z.infer<
@@ -115,8 +120,11 @@ export type GPSTrackHistoryShareLinkNotificationDTO = z.infer<
 
 // GPSTrackHistoryShareLink Create/Update Schema
 export const GPSTrackHistoryShareLinkSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'),
   vehicle_id: single_select_mandatory('MasterVehicle'),
+
+  // Main Field Details
   from_date_time: stringMandatory('From Date Time'),
   to_date_time: stringMandatory('To Date Time'),
 
@@ -125,6 +133,8 @@ export const GPSTrackHistoryShareLinkSchema = z.object({
     TrackHistoryLinkStatus,
     TrackHistoryLinkStatus.Active,
   ),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
@@ -134,6 +144,7 @@ export type GPSTrackHistoryShareLinkDTO = z.infer<
 
 // GPSTrackHistoryShareLink Update Link Status Schema
 export const GPSTrackHistoryShareLinkUpdateLinkStatusSchema = z.object({
+  // Main Field Details
   link_status: enumMandatory(
     'Track History Link Status',
     TrackHistoryLinkStatus,
@@ -146,16 +157,21 @@ export type GPSTrackHistoryShareLinkUpdateLinkStatusDTO = z.infer<
 
 // GPSTrackHistoryShareLink Query Schema
 export const GPSTrackHistoryShareLinkQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  gps_track_history_share_link_ids: multi_select_optional(
+    'GPSTrackHistoryShareLink',
+  ), // Multi-selection -> GPSTrackHistoryShareLink
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+
+  // Enums
   link_status: enumArrayOptional(
     'Track History Link Status',
     TrackHistoryLinkStatus,
     getAllEnums(TrackHistoryLinkStatus),
   ),
-  gps_track_history_share_link_ids: multi_select_optional(
-    'GPSTrackHistoryShareLink',
-  ), // Multi-selection -> GPSTrackHistoryShareLink
 });
 
 export type GPSTrackHistoryShareLinkQueryDTO = z.infer<
@@ -170,7 +186,7 @@ export const toGPSTrackHistoryShareLinkPayload = (data: GPSTrackHistoryShareLink
   from_date_time: data.from_date_time || '',
   to_date_time: data.to_date_time || '',
   link_status: data.link_status || TrackHistoryLinkStatus.Active,
-  
+
   status: data.status || Status.Active,
   time_zone_id: '', // Needs to be provided manually
 });
