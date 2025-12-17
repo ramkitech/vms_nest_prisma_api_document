@@ -37,8 +37,10 @@ const ENDPOINTS = {
 
 // OrganisationGroup Interface
 export interface OrganisationGroup extends Record<string, unknown> {
-  // Primary Fields
+  // Primary Field
   organisation_group_id: string;
+
+  // Main Field Details
   group_name: string;
   description?: string;
 
@@ -48,7 +50,7 @@ export interface OrganisationGroup extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id: string;
+  organisation_id?: string;
   UserOrganisation?: UserOrganisation;
 
   // Relations - Child
@@ -103,7 +105,7 @@ export type OrganisationGroupQueryDTO = z.infer<
 
 // Convert OrganisationGroup Data to API Payload
 export const toOrganisationGroupPayload = (row: OrganisationGroup): OrganisationGroupDTO => ({
-  organisation_id: row.organisation_id,
+  organisation_id: row.organisation_id || '',
   group_name: row.group_name,
   description: row.description || '',
   vehicle_ids:

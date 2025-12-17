@@ -18,6 +18,8 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
+import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 
 const URL = 'master/organisation/color';
 
@@ -36,8 +38,10 @@ const ENDPOINTS = {
 
 // OrganisationColor Interface
 export interface OrganisationColor extends Record<string, unknown> {
-  // Primary Fields
+  // Primary Field
   organisation_color_id: string;
+
+  // Main Field Details
   color_name: string;
   color_code: string;
   description?: string;
@@ -50,6 +54,16 @@ export interface OrganisationColor extends Record<string, unknown> {
   // Relations - Parent
   organisation_id?: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  MasterVehicle?: MasterVehicle[];
+  MasterDriver?: MasterDriver[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle?: number;
+    MasterDriver?: number;
+  };
 }
 
 // OrganisationColor Create/Update Schema

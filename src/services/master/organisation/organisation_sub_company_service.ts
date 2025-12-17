@@ -18,6 +18,11 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+<<<<<<< HEAD
+=======
+import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
+import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
+>>>>>>> 2366660b18ce3d8a52f262589e9fb88061469313
 
 const URL = 'master/organisation/sub_company';
 
@@ -43,15 +48,18 @@ const ENDPOINTS = {
 
 // OrganisationSubCompany Interface
 export interface OrganisationSubCompany extends Record<string, unknown> {
-  // Primary Fields
+  // Primary Field
   organisation_sub_company_id: string;
-  sub_company_name: string;
-  sub_company_GSTIN: string;
-  description?: string;
 
+  // Profile Image/Logo
   logo_key?: string;
   logo_url?: string;
   logo_name?: string;
+
+  // Main Field Details
+  sub_company_name: string;
+  sub_company_GSTIN: string;
+  description?: string;
 
   // Metadata
   status: Status;
@@ -59,8 +67,18 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id: string;
+  organisation_id?: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  MasterVehicle?: MasterVehicle[];
+  MasterDriver?: MasterDriver[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle?: number;
+    MasterDriver?: number;
+  };
 }
 
 // OrganisationSubCompany Create/Update Schema
@@ -104,7 +122,7 @@ export const toOrganisationSubCompanyPayload = (row: OrganisationSubCompany): Or
   sub_company_GSTIN: row.sub_company_GSTIN || '',
   description: row.description || '',
   logo_url: row.logo_url || '',
-  logo_key: row.logo_key || '', 
+  logo_key: row.logo_key || '',
   logo_name: row.logo_name || '',
   status: row.status || Status.Active,
 });
@@ -117,7 +135,7 @@ export const newOrganisationSubCompanyPayload = (): OrganisationSubCompanyDTO =>
   description: '',
 
   logo_url: '',
-  logo_key: '', 
+  logo_key: '',
   logo_name: '',
 
   status: Status.Active,

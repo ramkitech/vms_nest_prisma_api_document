@@ -481,7 +481,6 @@ export interface MasterVehicleFile extends BaseCommonFile {
   // Usage Type -> Number Plate, Front Image, Full Image, Side Image
 }
 
-// VehicleDetailGPS Interface
 export interface VehicleDetailGPS extends Record<string, unknown> {
   // Primary Fields
   vehicle_details_gps_id: string;
@@ -494,7 +493,7 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   custom_protocol?: string;
   api_details?: string;
 
-  // sensor configuration
+  // Sensor configuration
   temperature?: YesNo;
   duel_temperature?: YesNo;
   fuel?: YesNo;
@@ -505,7 +504,7 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   fuel_tank_2_size?: number;
   fuel_tank_total_size?: number;
   over_speed_kmph?: number;
-  is_obd: YesNo;
+  is_obd?: YesNo;
   gps_lock_relay?: YesNo;
   gps_door_locker?: YesNo;
   door_sensor?: YesNo;
@@ -523,18 +522,19 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   calibration_file_updated_date_time_f?: string;
 
   // GPS Data
-  gps_source?: string;
+  gps_source?: GPSSource;
   protocol?: string;
   api_code?: string;
   attributes?: object;
   raw?: string;
   fuel_mapping?: object;
   fuel_values?: object;
+  geofence_transactions?: object;
 
-  // Time Fields
-  st?: string;
-  dt?: string;
-  ft?: string;
+  // Time Fields (server / device / fix)
+  st?: string; // server time
+  dt?: string; // device time
+  ft?: string; // fix time
   sts?: number;
   dts?: number;
   fts?: number;
@@ -567,11 +567,11 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   t2?: number;
   t_f?: string;
 
-  // Additional Sensor
-  s_r_l?: boolean;
-  s_d_l?: boolean;
-  s_d?: boolean;
-  s_g?: boolean;
+  // Additional Sensors
+  s_r_l?: boolean; // relay lock
+  s_d_l?: boolean; // digital door lock
+  s_d?: boolean;   // door sensor
+  s_g?: boolean;   // genset sensor
 
   // OverSpeed Data
   f_dt_os?: string;
@@ -623,36 +623,37 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   s_ll_d?: string;
   s_ld_d?: number;
 
-  // Location
+  // Location (current)
   gl?: string;
   lid?: string;
   ll?: string;
   ld?: number;
 
-  // OBD details
-  obd_battery?: string,
-  obd_gear?: string,
-  obd_coolant_temp?: string,
-  obd_ad_def_temp?: string,
-  obd_ad_def_level?: string,
-  obd_engine_oil_level?: string,
-  obd_engine_oil_temp?: string,
-  obd_engine_oil_pressure?: string,
-  obd_fuel_level?: string,
-  obd_inst_fuel_economy?: string,
+  // OBD details (raw)
+  obd_battery?: string;
+  obd_gear?: string;
+  obd_coolant_temp?: string;
+  obd_ad_def_temp?: string;
+  obd_ad_def_level?: string;
+  obd_engine_oil_level?: string;
+  obd_engine_oil_temp?: string;
+  obd_engine_oil_pressure?: string;
+  obd_fuel_level?: string;
+  obd_inst_fuel_economy?: string;
 
-  obd_battery_f?: string,
-  obd_gear_f?: string,
-  obd_coolant_temp_f?: string,
-  obd_ad_def_temp_f?: string,
-  obd_ad_def_level_f?: string,
-  obd_engine_oil_level_f?: string,
-  obd_engine_oil_temp_f?: string,
-  obd_engine_oil_pressure_f?: string,
-  obd_fuel_level_f?: string,
-  obd_inst_fuel_economy_f?: string,
+  // OBD details (formatted)
+  obd_battery_f?: string;
+  obd_gear_f?: string;
+  obd_coolant_temp_f?: string;
+  obd_ad_def_temp_f?: string;
+  obd_ad_def_level_f?: string;
+  obd_engine_oil_level_f?: string;
+  obd_engine_oil_temp_f?: string;
+  obd_engine_oil_pressure_f?: string;
+  obd_fuel_level_f?: string;
+  obd_inst_fuel_economy_f?: string;
 
-  // Kilometer Analytics
+  // Kilometer Analytics – last 24 hours
   km_last_24?: number;
   t_s_last_24_moving_on?: number;
   t_s_last_24_moving_off?: number;
@@ -666,6 +667,7 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   t_s_last_24_ignition_on_f?: string;
   t_s_last_24_ignition_off_f?: string;
 
+  // Kilometer Analytics – today
   km_today?: number;
   t_s_today_moving_on?: number;
   t_s_today_moving_off?: number;
@@ -679,12 +681,14 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   t_s_today_ignition_on_f?: string;
   t_s_today_ignition_off_f?: string;
 
+  // Aggregated KM
   km_this_week_sunday?: number;
   km_this_week_monday?: number;
   km_this_month?: number;
   km_this_year?: number;
   km_this_financial_year?: number;
 
+  // Slotted KM
   km_slotted_today?: number;
   km_slotted_this_week_sunday?: number;
   km_slotted_this_week_monday?: number;
@@ -692,6 +696,7 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   km_slotted_this_year?: number;
   km_slotted_this_financial_year?: number;
 
+  // Derived flags (not in Prisma, set in API)
   is_valid?: boolean;
   is_live?: boolean;
   is_recent?: boolean;
@@ -701,15 +706,16 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations - Parent
+  // Relations
   vehicle_id?: string;
-  Vehicle?: MasterVehicle;
+  MasterVehicle?: MasterVehicle; // Prisma relation field name
   vehicle_number?: string;
   vehicle_type?: string;
 
   landmark_id?: string;
-  // MasterMainLandMark?: MasterMainLandMark;
+  // MasterMainLandMark?: MasterMainLandMark; // add if you expose it
 }
+
 
 // VehicleDetailTrip Interface
 export interface VehicleDetailTrip extends Record<string, unknown> {
