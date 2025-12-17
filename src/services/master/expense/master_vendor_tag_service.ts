@@ -32,10 +32,12 @@ const ENDPOINTS = {
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// VendorTag Interface
+// MasterVendorTag Interface
 export interface MasterVendorTag extends Record<string, unknown> {
   // Primary Fields
   vendor_tag_id: string;
+
+  // Main Field Details
   vendor_tag: string;
   description?: string;
 
@@ -47,21 +49,30 @@ export interface MasterVendorTag extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 }
 
 // MasterVendorTag Create/Update Schema
 export const MasterVendorTagSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   vendor_tag: stringMandatory('Vendor Tag', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVendorTagDTO = z.infer<typeof MasterVendorTagSchema>;
 
 // MasterVendorTag Query Schema
 export const MasterVendorTagQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  vendor_tag_ids: multi_select_optional('MasterVendorTag'), // Multi-selection -> MasterVendorTag
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
-  vendor_tag_ids: multi_select_optional('MasterVendorTag'), // Multi-selection -> MasterVendorType
 });
 export type MasterVendorTagQueryDTO = z.infer<
   typeof MasterVendorTagQuerySchema
@@ -70,16 +81,20 @@ export type MasterVendorTagQueryDTO = z.infer<
 // Convert MasterVendorTag Data to API Payload
 export const toMasterVendorTagPayload = (row: MasterVendorTag): MasterVendorTagDTO => ({
   organisation_id: row.organisation_id || '',
+
   vendor_tag: row.vendor_tag || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVendorTag Payload
 export const newMasterVendorTagPayload = (): MasterVendorTagDTO => ({
   organisation_id: '',
+
   vendor_tag: '',
   description: '',
+
   status: Status.Active,
 });
 

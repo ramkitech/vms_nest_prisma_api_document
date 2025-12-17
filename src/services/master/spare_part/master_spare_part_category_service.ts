@@ -36,10 +36,12 @@ const ENDPOINTS = {
   cache_child: (organisation_id: string): string => `${URL}/cache_child/${organisation_id}`,
 };
 
-// SparePartCategory Interface
+// MasterSparePartCategory Interface
 export interface MasterSparePartCategory extends Record<string, unknown> {
   // Primary Fields
   spare_part_category_id: string;
+
+  // Main Field Details
   category_name: string;
   category_code: string;
   description?: string;
@@ -52,6 +54,7 @@ export interface MasterSparePartCategory extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Master
@@ -68,10 +71,15 @@ export interface MasterSparePartCategory extends Record<string, unknown> {
 
 // MasterSparePartCategory Create/Update Schema
 export const MasterSparePartCategorySchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   category_name: stringMandatory('Category Name', 3, 50),
   category_code: stringMandatory('Category Code', 2, 10),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterSparePartCategoryDTO = z.infer<
@@ -80,8 +88,11 @@ export type MasterSparePartCategoryDTO = z.infer<
 
 // MasterSparePartCategory Query Schema
 export const SparePartCategoryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   spare_part_category_ids: multi_select_optional('MasterSparePartCategory'), // Multi-selection -> MasterSparePartCategory
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type SparePartCategoryQueryDTO = z.infer<
   typeof SparePartCategoryQuerySchema
@@ -94,15 +105,18 @@ export const toMasterSparePartCategoryPayload = (row: MasterSparePartCategory): 
   category_name: row.category_name || '',
   category_code: row.category_code || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterSparePartCategory Payload
 export const newMasterSparePartCategoryPayload = (): MasterSparePartCategoryDTO => ({
-  organisation_id: '',
+  organisation_id: ''
+  ,
   category_name: '',
   category_code: '',
   description: '',
+
   status: Status.Active,
 });
 

@@ -36,10 +36,12 @@ const ENDPOINTS = {
   cache_count: (organisation_id: string, spare_part_category_id: string = '0'): string => `${URL}/cache_count/${organisation_id}?spare_part_category_id=${spare_part_category_id}`,
 };
 
-// SparePartSubCategory Interface
+// MasterSparePartSubCategory Interface
 export interface MasterSparePartSubCategory extends Record<string, unknown> {
   // Primary Fields
   spare_part_sub_category_id: string;
+
+  // Main Field Details
   sub_category_name: string;
   sub_category_code: string;
   description?: string;
@@ -52,6 +54,7 @@ export interface MasterSparePartSubCategory extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   spare_part_category_id: string;
   MasterSparePartCategory?: MasterSparePartCategory;
@@ -68,11 +71,16 @@ export interface MasterSparePartSubCategory extends Record<string, unknown> {
 
 // MasterSparePartSubCategory Create/Update Schema
 export const MasterSparePartSubCategorySchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   spare_part_category_id: single_select_mandatory('MasterSparePartCategory'), // Single-Selection -> MasterSparePartCategory
+
+  // Main Field Details
   sub_category_name: stringMandatory('Sub Category Name', 3, 50),
   sub_category_code: stringMandatory('Sub Category Code', 2, 10),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterSparePartSubCategoryDTO = z.infer<
@@ -81,9 +89,12 @@ export type MasterSparePartSubCategoryDTO = z.infer<
 
 // MasterSparePartSubCategory Query Schema
 export const SparePartSubCategoryQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   spare_part_sub_category_ids: multi_select_optional(
     'MasterSparePartSubCategory',
   ), // Multi-selection -> MasterSparePartSubCategory
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   spare_part_category_ids: multi_select_optional('MasterSparePartCategory'), // Multi-selection -> MasterSparePartCategory
 });
@@ -104,6 +115,7 @@ export const toMasterSparePartSubCategoryPayload = (row: MasterSparePartSubCateg
   sub_category_name: row.sub_category_name || '',
   sub_category_code: row.sub_category_code || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
@@ -111,9 +123,11 @@ export const toMasterSparePartSubCategoryPayload = (row: MasterSparePartSubCateg
 export const newMasterSparePartSubCategoryPayload = (): MasterSparePartSubCategoryDTO => ({
   organisation_id: '',
   spare_part_category_id: '',
+
   sub_category_name: '',
   sub_category_code: '',
   description: '',
+  
   status: Status.Active,
 });
 

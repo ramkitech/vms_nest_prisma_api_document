@@ -33,10 +33,12 @@ const ENDPOINTS = {
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// TripPartyType Interface
+// MasterTripPartyType Interface
 export interface MasterTripPartyType extends Record<string, unknown> {
   // Primary Fields
   party_type_id: string;
+
+  // Main Field Details
   party_type: string;
   description?: string;
 
@@ -48,6 +50,7 @@ export interface MasterTripPartyType extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Fleet
@@ -61,17 +64,25 @@ export interface MasterTripPartyType extends Record<string, unknown> {
 
 // MasterTripPartyType Create/Update Schema
 export const MasterTripPartyTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   party_type: stringMandatory('Party Type', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTripPartyTypeDTO = z.infer<typeof MasterTripPartyTypeSchema>;
 
 // MasterTripPartyType Query Schema
 export const MasterTripPartyTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   party_type_ids: multi_select_optional('MasterTripPartyType'), // Multi-selection -> MasterTripPartyType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterTripPartyTypeQueryDTO = z.infer<
   typeof MasterTripPartyTypeQuerySchema
@@ -83,14 +94,17 @@ export const toMasterTripPartyTypePayload = (row: MasterTripPartyType): MasterTr
 
   party_type: row.party_type || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterTripPartyType Payload
 export const newMasterTripPartyTypePayload = (): MasterTripPartyTypeDTO => ({
   organisation_id: '',
+
   party_type: '',
   description: '',
+
   status: Status.Active,
 });
 

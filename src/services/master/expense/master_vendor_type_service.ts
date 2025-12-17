@@ -32,10 +32,12 @@ const ENDPOINTS = {
   cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
-// VendorType Interface
+// MasterVendorType Interface
 export interface MasterVendorType extends Record<string, unknown> {
   // Primary Fields
   vendor_type_id: string;
+
+  // Main Field Details
   vendor_type: string;
   description?: string;
 
@@ -47,21 +49,30 @@ export interface MasterVendorType extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 }
 
 // MasterVendorType Create/Update Schema
 export const MasterVendorTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   vendor_type: stringMandatory('Vendor Type', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterVendorTypeDTO = z.infer<typeof MasterVendorTypeSchema>;
 
 // MasterVendorType Query Schema
 export const MasterVendorTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   vendor_type_ids: multi_select_optional('MasterVendorType'), // Multi-selection -> MasterVendorType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterVendorTypeQueryDTO = z.infer<
   typeof MasterVendorTypeQuerySchema
@@ -70,16 +81,20 @@ export type MasterVendorTypeQueryDTO = z.infer<
 // Convert MasterVendorType Data to API Payload
 export const toMasterVendorTypePayload = (row: MasterVendorType): MasterVendorTypeDTO => ({
   organisation_id: row.organisation_id || '',
+
   vendor_type: row.vendor_type || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterVendorType Payload
 export const newMasterVendorTypePayload = (): MasterVendorTypeDTO => ({
   organisation_id: '',
+
   vendor_type: '',
   description: '',
+
   status: Status.Active,
 });
 

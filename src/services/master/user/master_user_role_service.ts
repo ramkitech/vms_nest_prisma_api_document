@@ -34,10 +34,12 @@ const ENDPOINTS = {
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
-// UserRole Interface
+// MasterUserRole Interface
 export interface MasterUserRole extends Record<string, unknown> {
   // Primary Fields
   user_role_id: string;
+
+  // Main Field Details
   user_role: string;
   description?: string;
 
@@ -49,6 +51,7 @@ export interface MasterUserRole extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - User
@@ -62,17 +65,25 @@ export interface MasterUserRole extends Record<string, unknown> {
 
 // MasterUserRole Create/Update Schema
 export const MasterUserRoleSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   user_role: stringMandatory('User Role', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterUserRoleDTO = z.infer<typeof MasterUserRoleSchema>;
 
 // MasterUserRole Query Schema
 export const MasterUserRoleQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   user_role_ids: multi_select_optional('MasterUserRole'), // Multi-selection -> MasterUserRole
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterUserRoleQueryDTO = z.infer<typeof MasterUserRoleQuerySchema>;
 
@@ -82,14 +93,17 @@ export const toMasterUserRolePayload = (row: MasterUserRole): MasterUserRoleDTO 
 
   user_role: row.user_role || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterUserRole Payload
 export const newMasterUserRolePayload = (): MasterUserRoleDTO => ({
   organisation_id: '',
+
   user_role: '',
   description: '',
+
   status: Status.Active,
 });
 

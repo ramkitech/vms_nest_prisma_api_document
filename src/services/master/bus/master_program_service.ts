@@ -38,6 +38,8 @@ const ENDPOINTS = {
 export interface MasterProgram extends Record<string, unknown> {
   // Primary Fields
   program_id: string;
+
+  // Main Field Details
   program_name: string;
   description?: string;
 
@@ -49,8 +51,9 @@ export interface MasterProgram extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
-  // Children
+  // Relations - Child
   // Child - Fleet
   Student?: Student[];
 
@@ -62,33 +65,45 @@ export interface MasterProgram extends Record<string, unknown> {
 
 // MasterProgram Create/Update Schema
 export const MasterProgramSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   program_name: stringMandatory('Program Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterProgramDTO = z.infer<typeof MasterProgramSchema>;
 
 // MasterProgram Query Schema
 export const MasterProgramQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   program_ids: multi_select_optional('MasterProgram'), // Multi-selection -> MasterProgram
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterProgramQueryDTO = z.infer<typeof MasterProgramQuerySchema>;
 
 // Convert MasterProgram Data to API Payload
 export const toMasterProgramPayload = (row: MasterProgram): MasterProgramDTO => ({
   organisation_id: row.organisation_id || '',
+
   program_name: row.program_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterProgram Payload
 export const newMasterProgramPayload = (): MasterProgramDTO => ({
   organisation_id: '',
+
   program_name: '',
   description: '',
+
   status: Status.Active
 });
 

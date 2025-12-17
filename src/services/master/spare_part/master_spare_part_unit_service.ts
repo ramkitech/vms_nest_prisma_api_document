@@ -34,10 +34,12 @@ const ENDPOINTS = {
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
-// SparePartUnit Interface
+// MasterSparePartUnit Interface
 export interface MasterSparePartUnit extends Record<string, unknown> {
   // Primary Fields
   spare_part_unit_id: string;
+
+  // Main Field Details
   unit_name: string;
   unit_code: string;
   description?: string;
@@ -50,6 +52,7 @@ export interface MasterSparePartUnit extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Fleet
@@ -63,35 +66,48 @@ export interface MasterSparePartUnit extends Record<string, unknown> {
 
 // MasterSparePartUnit Create/Update Schema
 export const MasterSparePartUnitSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   unit_name: stringMandatory('Unit Name', 3, 50),
   unit_code: stringMandatory('Unit Code', 2, 10),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterSparePartUnitDTO = z.infer<typeof MasterSparePartUnitSchema>;
 
 // MasterSparePartUnit Query Schema
 export const SparePartUnitQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   spare_part_unit_ids: multi_select_optional('MasterSparePartUnit'), // Multi-selection -> MasterSparePartUnit
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type SparePartUnitQueryDTO = z.infer<typeof SparePartUnitQuerySchema>;
+
 // Convert MasterSparePartUnit Data to API Payload
 export const toMasterSparePartUnitPayload = (row: MasterSparePartUnit): MasterSparePartUnitDTO => ({
   organisation_id: row.organisation_id || '',
+
   unit_name: row.unit_name || '',
   unit_code: row.unit_code || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterSparePartUnit Payload
 export const newMasterSparePartUnitPayload = (): MasterSparePartUnitDTO => ({
   organisation_id: '',
+
   unit_name: '',
   unit_code: '',
   description: '',
+
   status: Status.Active,
 });
 

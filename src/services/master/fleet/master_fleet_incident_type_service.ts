@@ -37,6 +37,8 @@ const ENDPOINTS = {
 export interface MasterFleetIncidentType extends Record<string, unknown> {
   // Primary Fields
   fleet_incident_type_id: string;
+
+  // Main Field Details
   fleet_incident_type: string;
   description?: string;
 
@@ -48,12 +50,13 @@ export interface MasterFleetIncidentType extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Fleet
   FleetIncidentManagement?: FleetIncidentManagement[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
     FleetIncidentManagement?: number;
   };
@@ -61,9 +64,14 @@ export interface MasterFleetIncidentType extends Record<string, unknown> {
 
 // MasterFleetIncidentType Create/Update Schema
 export const MasterFleetIncidentTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   fleet_incident_type: stringMandatory('Fleet Incident Type', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterFleetIncidentTypeDTO = z.infer<
@@ -72,8 +80,11 @@ export type MasterFleetIncidentTypeDTO = z.infer<
 
 // MasterFleetIncidentType Query Schema
 export const MasterFleetIncidentTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   fleet_incident_type_ids: multi_select_optional('MasterFleetIncidentType'), // Multi-selection -> MasterFleetIncidentType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterFleetIncidentTypeQueryDTO = z.infer<
   typeof MasterFleetIncidentTypeQuerySchema
@@ -82,16 +93,20 @@ export type MasterFleetIncidentTypeQueryDTO = z.infer<
 // Convert MasterFleetIncidentType Data to API Payload
 export const toMasterFleetIncidentTypePayload = (row: MasterFleetIncidentType): MasterFleetIncidentTypeDTO => ({
   organisation_id: row.organisation_id || '',
+
   fleet_incident_type: row.fleet_incident_type || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterFleetIncidentType Payload
 export const newMasterFleetIncidentTypePayload = (): MasterFleetIncidentTypeDTO => ({
   organisation_id: '',
+
   fleet_incident_type: '',
   description: '',
+
   status: Status.Active,
 });
 

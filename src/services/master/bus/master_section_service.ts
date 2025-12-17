@@ -38,6 +38,8 @@ const ENDPOINTS = {
 export interface MasterSection extends Record<string, unknown> {
   // Primary Fields
   section_id: string;
+
+  // Main Field Details
   section_name: string;
   description?: string;
 
@@ -49,8 +51,9 @@ export interface MasterSection extends Record<string, unknown> {
   // Relations - Parent
   organisation_id?: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
-  // Children
+  // Relations - Child
   // Child - Fleet
   Student?: Student[];
 
@@ -62,33 +65,45 @@ export interface MasterSection extends Record<string, unknown> {
 
 // MasterSection Create/Update Schema
 export const MasterSectionSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   section_name: stringMandatory('Section Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterSectionDTO = z.infer<typeof MasterSectionSchema>;
 
 // MasterSection Query Schema
 export const MasterSectionQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   section_ids: multi_select_optional('MasterSection'), // Multi-selection -> MasterSection
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterSectionQueryDTO = z.infer<typeof MasterSectionQuerySchema>;
 
 // Convert MasterSection Data to API Payload
 export const toMasterSectionPayload = (row: MasterSection): MasterSectionDTO => ({
   organisation_id: row.organisation_id || '',
+
   section_name: row.section_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterSection Payload
 export const newMasterSectionPayload = (): MasterSectionDTO => ({
   organisation_id: '',
+
   section_name: '',
   description: '',
+
   status: Status.Active
 });
 

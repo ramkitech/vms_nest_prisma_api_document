@@ -35,6 +35,8 @@ const ENDPOINTS = {
 export interface MasterMainIndustry extends Record<string, unknown> {
   // Primary Fields
   industry_id: string;
+
+  // Main Field Details
   industry_name: string;
   description?: string;
 
@@ -54,14 +56,18 @@ export interface MasterMainIndustry extends Record<string, unknown> {
 
 // MasterMainIndustry Create/Update Schema
 export const MasterMainIndustrySchema = z.object({
+  // Main Field Details
   industry_name: stringMandatory('Industry Name', 3, 100),
   description: stringOptional('Industry Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainIndustryDTO = z.infer<typeof MasterMainIndustrySchema>;
 
 // MasterMainIndustry Query Schema
 export const MasterMainIndustryQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   industry_ids: multi_select_optional('MasterMainIndustry'), // Multi-Selection -> MasterMainIndustry
 });
 export type MasterMainIndustryQueryDTO = z.infer<
@@ -72,6 +78,7 @@ export type MasterMainIndustryQueryDTO = z.infer<
 export const toMasterMainIndustryPayload = (row: MasterMainIndustry): MasterMainIndustryDTO => ({
   industry_name: row.industry_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
@@ -79,6 +86,7 @@ export const toMasterMainIndustryPayload = (row: MasterMainIndustry): MasterMain
 export const newMasterMainIndustryPayload = (): MasterMainIndustryDTO => ({
   industry_name: '',
   description: '',
+
   status: Status.Active,
 });
 

@@ -41,6 +41,8 @@ const ENDPOINTS = {
 export interface MasterDeviceModel extends Record<string, unknown> {
   // Primary Fields
   device_model_id: string;
+
+  // Main Field Details
   device_model_name: string;
   device_model_code?: string;
   description?: string;
@@ -68,18 +70,26 @@ export interface MasterDeviceModel extends Record<string, unknown> {
 
 // MasterDeviceModel Create/Update Schema
 export const MasterDeviceModelSchema = z.object({
+  // Relations - Parent
   device_manufacturer_id: single_select_mandatory('MasterDeviceManufacturer'), // Single-Selection -> MasterDeviceManufacturer
+
+  // Main Field Details
   device_model_name: stringMandatory('Device Model Name', 3, 100),
   device_model_code: stringOptional('Device Model Code', 0, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterDeviceModelDTO = z.infer<typeof MasterDeviceModelSchema>;
 
 // MasterDeviceModel Query Schema
 export const MasterDeviceModelQuerySchema = BaseQuerySchema.extend({
-  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // Multi-Selection -> MasterDeviceManufacturer
+  // Self Table
   device_model_ids: multi_select_optional('MasterDeviceModel'), // Multi-Selection -> MasterDeviceModel
+
+  // Relations - Parent
+  device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // Multi-Selection -> MasterDeviceManufacturer
 });
 export type MasterDeviceModelQueryDTO = z.infer<
   typeof MasterDeviceModelQuerySchema
@@ -93,18 +103,22 @@ export type FindCacheDTO = z.infer<typeof FindCacheSchema>;
 // Convert MasterDeviceModel Data to API Payload
 export const toMasterDeviceModelPayload = (row: MasterDeviceModel): MasterDeviceModelDTO => ({
   device_manufacturer_id: row.device_manufacturer_id || '',
+
   device_model_name: row.device_model_name || '',
   device_model_code: row.device_model_code || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterDeviceModel Payload
 export const newMasterDeviceModelPayload = (): MasterDeviceModelDTO => ({
   device_manufacturer_id: '',
+
   device_model_name: '',
   device_model_code: '',
   description: '',
+  
   status: Status.Active,
 });
 

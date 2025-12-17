@@ -34,6 +34,8 @@ const ENDPOINTS = {
 export interface MasterMainUnitMileage extends Record<string, unknown> {
   // Primary Fields
   unit_id: string;
+
+  // Main Field Details
   unit_name: string;
   unit_code: string;
 
@@ -54,8 +56,11 @@ export interface MasterMainUnitMileage extends Record<string, unknown> {
 
 // MasterMainUnitMileage Create/Update Schema
 export const MasterMainUnitMileageSchema = z.object({
+  // Main Field Details
   unit_name: stringMandatory('Unit Name', 1, 50),
   unit_code: stringMandatory('Unit Code', 1, 10),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainUnitMileageDTO = z.infer<
@@ -64,6 +69,7 @@ export type MasterMainUnitMileageDTO = z.infer<
 
 // MasterMainUnitMileage Query Schema
 export const MasterMainUnitMileageQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   unit_ids: multi_select_optional('Unit Mileage'), // Multi-selection -> MasterMainUnitMileage
 });
 export type MasterMainUnitMileageQueryDTO = z.infer<
@@ -74,6 +80,7 @@ export type MasterMainUnitMileageQueryDTO = z.infer<
 export const toMasterMainUnitMileagePayload = (row: MasterMainUnitMileage): MasterMainUnitMileageDTO => ({
   unit_name: row.unit_name || '',
   unit_code: row.unit_code || '',
+
   status: row.status || Status.Active,
 });
 
@@ -81,6 +88,7 @@ export const toMasterMainUnitMileagePayload = (row: MasterMainUnitMileage): Mast
 export const newMasterMainUnitMileagePayload = (): MasterMainUnitMileageDTO => ({
   unit_name: '',
   unit_code: '',
+
   status: Status.Active,
 });
 

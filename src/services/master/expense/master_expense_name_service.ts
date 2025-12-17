@@ -38,6 +38,8 @@ const ENDPOINTS = {
 export interface MasterExpenseName extends Record<string, unknown> {
   // Primary Fields
   expense_name_id: string;
+
+  // Main Field Details
   expense_name: string;
   expense_category: ExpenseCategory;
   description?: string;
@@ -50,6 +52,7 @@ export interface MasterExpenseName extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Fleet
@@ -63,7 +66,10 @@ export interface MasterExpenseName extends Record<string, unknown> {
 
 //  MasterExpenseName Create/Update Schema
 export const MasterExpenseNameSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   expense_name: stringMandatory('Expense Name', 3, 100),
   expense_category: enumMandatory(
     'Expense Category',
@@ -71,14 +77,21 @@ export const MasterExpenseNameSchema = z.object({
     ExpenseCategory.Main,
   ),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterExpenseNameDTO = z.infer<typeof MasterExpenseNameSchema>;
 
 //  MasterExpenseName Query Schema
 export const MasterExpenseNameQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  // Self Table
   expense_name_ids: multi_select_optional('MasterExpenseName'), // Multi-Selection -> MasterExpenseName
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+
+  // Enums
   expense_category: enumArrayOptional('Expense Category', ExpenseCategory), // Multi-Selection -> ExpenseCategory
 });
 export type MasterExpenseNameQueryDTO = z.infer<
@@ -88,18 +101,22 @@ export type MasterExpenseNameQueryDTO = z.infer<
 // Convert MasterExpenseName Data to API Payload
 export const toMasterExpenseNamePayload = (row: MasterExpenseName): MasterExpenseNameDTO => ({
   organisation_id: row.organisation_id || '',
+
   expense_name: row.expense_name || '',
   expense_category: row.expense_category || ExpenseCategory.Other,
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterExpenseName Payload
 export const newMasterExpenseNamePayload = (): MasterExpenseNameDTO => ({
   organisation_id: '',
+
   expense_name: '',
   expense_category: ExpenseCategory.Main,
   description: '',
+  
   status: Status.Active,
 });
 

@@ -41,6 +41,8 @@ const ENDPOINTS = {
 export interface MasterMainCountry extends Record<string, unknown> {
   // Primary Fields
   country_id: string;
+
+  // Main Field Details
   country_name: string;
   country_code: string;
   country_mobile_code: string;
@@ -53,12 +55,14 @@ export interface MasterMainCountry extends Record<string, unknown> {
   // Relations - Child
   // Child - User
   UserOrganisation?: UserOrganisation[];
+
   // Relations - Child
   MasterMainState?: MasterMainState[];
   MasterMainCurrency?: MasterMainCurrency[];
   MasterMainTimeZone?: MasterMainTimeZone[];
   // MasterMainLandMark?: MasterMainLandMark[]
   MasterFuelCompany?: MasterFuelCompany[];
+
   // Child - Main
   MasterVehicle?: MasterVehicle[];
   MasterDevice?: MasterDevice[];
@@ -80,15 +84,19 @@ export interface MasterMainCountry extends Record<string, unknown> {
 
 // MasterMainCountry Create/Update Schema
 export const MasterMainCountrySchema = z.object({
+  // Main Field Details
   country_name: stringMandatory('Country Name', 3, 100),
   country_code: stringMandatory('Country Code', 1, 10),
   country_mobile_code: stringMandatory('Country Mobile Code', 1, 10),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainCountryDTO = z.infer<typeof MasterMainCountrySchema>;
 
 // MasterMainCountry Query Schema
 export const MasterMainCountryQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   country_ids: multi_select_optional('Country'), // Multi-selection -> MasterMainCountry
 });
 export type MasterMainCountryQueryDTO = z.infer<
@@ -100,6 +108,7 @@ export const toMasterMainCountryPayload = (row: MasterMainCountry): MasterMainCo
   country_name: row.country_name || '',
   country_code: row.country_code || '',
   country_mobile_code: row.country_mobile_code || '',
+
   status: row.status || Status.Active,
 });
 
@@ -108,6 +117,7 @@ export const newMasterMainCountryPayload = (): MasterMainCountryDTO => ({
   country_name: '',
   country_code: '',
   country_mobile_code: '',
+
   status: Status.Active,
 });
 

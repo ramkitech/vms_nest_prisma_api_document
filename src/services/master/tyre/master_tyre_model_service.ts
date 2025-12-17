@@ -10,6 +10,7 @@ import {
   multi_select_optional,
   enumMandatory,
   stringOptional,
+  stringUUIDMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -39,6 +40,8 @@ const ENDPOINTS = {
 export interface MasterTyreModel extends Record<string, unknown> {
   // Primary Fields
   tyre_model_id: string;
+
+  // Main Field Details
   tyre_model: string;
   description?: string;
 
@@ -50,6 +53,7 @@ export interface MasterTyreModel extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   tyre_make_id: string;
   MasterTyreMake?: MasterTyreMake;
@@ -66,31 +70,45 @@ export interface MasterTyreModel extends Record<string, unknown> {
 
 // MasterTyreModel Create/Update Schema
 export const MasterTyreModelSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   tyre_make_id: single_select_mandatory('MasterTyreMake'), // Single-Selection -> MasterTyreMake
+
+  // Main Field Details
   tyre_model: stringMandatory('Tyre Model', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTyreModelDTO = z.infer<typeof MasterTyreModelSchema>;
 
 // MasterTyreModel Query Schema
 export const MasterTyreModelQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  tyre_model_ids: multi_select_optional('MasterTyreModel'), // Multi-selection -> MasterTyreModel
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   tyre_make_ids: multi_select_optional('MasterTyreMake'), // Multi-selection -> MasterTyreMake
-  tyre_model_ids: multi_select_optional('MasterTyreModel'), // Multi-selection -> MasterTyreModel
 });
 export type MasterTyreModelQueryDTO = z.infer<
   typeof MasterTyreModelQuerySchema
 >;
 
+export const FindCacheSchema = z.object({
+  tyre_make_id: stringUUIDMandatory('tyre_make_id'),
+});
+export type FindCacheDTO = z.infer<typeof FindCacheSchema>;
+
 // Convert MasterTyreModel Data to API Payload
 export const toMasterTyreModelPayload = (row: MasterTyreModel): MasterTyreModelDTO => ({
   organisation_id: row.organisation_id || '',
   tyre_make_id: row.tyre_make_id || '',
-  tyre_model: row.tyre_model || '',
 
+  tyre_model: row.tyre_model || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
@@ -98,8 +116,10 @@ export const toMasterTyreModelPayload = (row: MasterTyreModel): MasterTyreModelD
 export const newMasterTyreModelPayload = (): MasterTyreModelDTO => ({
   organisation_id: '',
   tyre_make_id: '',
+
   tyre_model: '',
   description: '',
+
   status: Status.Active,
 });
 

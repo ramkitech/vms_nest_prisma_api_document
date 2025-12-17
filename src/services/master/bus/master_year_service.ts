@@ -38,6 +38,8 @@ const ENDPOINTS = {
 export interface MasterYear extends Record<string, unknown> {
   // Primary Fields
   year_id: string;
+
+  // Main Field Details
   year_name: string;
   description?: string;
 
@@ -49,8 +51,9 @@ export interface MasterYear extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
-  // Children
+  // Relations - Children
   // Child - Fleet
   Student?: Student[];
 
@@ -62,33 +65,45 @@ export interface MasterYear extends Record<string, unknown> {
 
 // MasterYear Create/Update Schema
 export const MasterYearSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   year_name: stringMandatory('Year Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterYearDTO = z.infer<typeof MasterYearSchema>;
 
 // MasterYear Query Schema
 export const MasterYearQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   year_ids: multi_select_optional('MasterYear'), // Multi-selection -> MasterYear
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterYearQueryDTO = z.infer<typeof MasterYearQuerySchema>;
 
 // Convert MasterYear Data to API Payload
 export const toMasterYearPayload = (row: MasterYear): MasterYearDTO => ({
   organisation_id: row.organisation_id || '',
+
   year_name: row.year_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterYear Payload
 export const newMasterYearPayload = (): MasterYearDTO => ({
   organisation_id: '',
+
   year_name: '',
   description: '',
+
   status: Status.Active
 });
 

@@ -18,7 +18,6 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { User } from '../../main/users/user_service';
 import { Student } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/class';
@@ -39,6 +38,8 @@ const ENDPOINTS = {
 export interface MasterClass extends Record<string, unknown> {
   // Primary Fields
   class_id: string;
+
+  // Main Field Details
   class_name: string;
   description?: string;
 
@@ -50,8 +51,9 @@ export interface MasterClass extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
-  // Children
+  // Relations - Child
   // Child - Fleet
   Student?: Student[];
 
@@ -63,33 +65,45 @@ export interface MasterClass extends Record<string, unknown> {
 
 // MasterClass Create/Update Schema
 export const MasterClassSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   class_name: stringMandatory('Class Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterClassDTO = z.infer<typeof MasterClassSchema>;
 
 // MasterClass Query Schema
 export const MasterClassQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   class_ids: multi_select_optional('MasterClass'), // Multi-selection -> MasterClass
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterClassQueryDTO = z.infer<typeof MasterClassQuerySchema>;
 
 // Convert MasterClass Data to API Payload
 export const toMasterClassPayload = (row: MasterClass): MasterClassDTO => ({
   organisation_id: row.organisation_id || '',
+
   class_name: row.class_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterClass Payload
 export const newMasterClassPayload = (): MasterClassDTO => ({
   organisation_id: '',
+
   class_name: '',
   description: '',
+
   status: Status.Active
 });
 

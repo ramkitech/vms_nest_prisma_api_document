@@ -36,6 +36,8 @@ const ENDPOINTS = {
 export interface MasterExpenseType extends Record<string, unknown> {
   // Primary Fields
   expense_type_id: string;
+
+  // Main Field Details
   expense_type_name: string;
   description?: string;
 
@@ -47,24 +49,30 @@ export interface MasterExpenseType extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
-
-  // Count
-  _count?: object;
+  organisation_name?: string;
 }
 
 // MasterExpenseType Create/Update Schema
 export const MasterExpenseTypeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   expense_type_name: stringMandatory('Expense Type Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterExpenseTypeDTO = z.infer<typeof MasterExpenseTypeSchema>;
 
 // MasterExpenseType Query Schema
 export const MasterExpenseTypeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  // Self Table
   expense_type_ids: multi_select_optional('MasterExpenseType'), // Multi-Selection -> MasterExpenseType
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
 });
 export type MasterExpenseTypeQueryDTO = z.infer<
   typeof MasterExpenseTypeQuerySchema
@@ -73,16 +81,20 @@ export type MasterExpenseTypeQueryDTO = z.infer<
 // Convert MasterExpenseType Data to API Payload
 export const toMasterExpenseTypePayload = (row: MasterExpenseType): MasterExpenseTypeDTO => ({
   organisation_id: row.organisation_id || '',
+
   expense_type_name: row.expense_type_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterExpenseType Payload
 export const newMasterExpenseTypePayload = (): MasterExpenseTypeDTO => ({
   organisation_id: '',
+
   expense_type_name: '',
   description: '',
+
   status: Status.Active,
 });
 

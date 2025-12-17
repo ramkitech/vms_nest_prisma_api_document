@@ -24,7 +24,7 @@ import { FleetVendorFuelStation } from 'src/services/fleet/vendor_management/fle
 const URL = 'master/expense/fuel_company';
 
 const ENDPOINTS = {
-   // AWS S3 PRESIGNED
+  // AWS S3 PRESIGNED
   master_fuel_company_presigned_url: (fileName: string): string => `${URL}/master_fuel_company_presigned_url/${fileName}`,
 
   // File Uploads
@@ -45,6 +45,8 @@ const ENDPOINTS = {
 export interface MasterFuelCompany extends Record<string, unknown> {
   // Primary Fields
   fuel_company_id: string;
+
+  // Main Field Details
   company_name: string;
   description?: string;
 
@@ -61,11 +63,13 @@ export interface MasterFuelCompany extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   country_id: string;
   MasterMainCountry?: MasterMainCountry;
+  country_name?: string;
 
-  // Child
+  // Relations - Child
   // Child - Fleet
   FleetVendorFuelStation?: FleetVendorFuelStation[]
 
@@ -77,25 +81,32 @@ export interface MasterFuelCompany extends Record<string, unknown> {
 
 // MasterFuelCompany Create/Update Schema
 export const MasterFuelCompanySchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
 
-  company_name: stringMandatory('Company Name', 3, 100),
-  description: stringOptional('Description', 0, 300),
-
+  // Profile Image/Logo
   logo_url: stringOptional('Logo URL', 0, 300),
   logo_key: stringOptional('Logo Key', 0, 300),
   logo_name: stringOptional('Logo Name', 0, 300),
 
+  // Main Field Details
+  company_name: stringMandatory('Company Name', 3, 100),
+  description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterFuelCompanyDTO = z.infer<typeof MasterFuelCompanySchema>;
 
 // MasterFuelCompany Query Schema
 export const MasterFuelCompanyQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  fuel_company_ids: multi_select_optional('MasterFuelCompany'), // Multi-Selection -> MasterFuelCompany
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
   country_ids: multi_select_optional('MasterMainCountry'), // Multi-Selection -> MasterMainCountry
-  fuel_company_ids: multi_select_optional('MasterFuelCompany'), // Multi-Selection -> MasterFuelCompany
 });
 export type MasterFuelCompanyQueryDTO = z.infer<
   typeof MasterFuelCompanyQuerySchema
@@ -103,6 +114,7 @@ export type MasterFuelCompanyQueryDTO = z.infer<
 
 // MasterFuelCompany Logo Schema
 export const FuelCompanyLogoSchema = z.object({
+  // Profile Image/Logo
   logo_url: stringMandatory('User Image URL', 0, 300),
   logo_key: stringMandatory('User Image Key', 0, 300),
   logo_name: stringMandatory('User Image Name', 0, 300),
@@ -113,9 +125,9 @@ export type FuelCompanyLogoDTO = z.infer<typeof FuelCompanyLogoSchema>;
 export const toMasterFuelCompanyPayload = (row: MasterFuelCompany): MasterFuelCompanyDTO => ({
   organisation_id: row.organisation_id || '',
   country_id: row.country_id || '',
+
   company_name: row.company_name || '',
   description: row.description || '',
-
 
   logo_url: '',
   logo_key: '',
@@ -128,6 +140,7 @@ export const toMasterFuelCompanyPayload = (row: MasterFuelCompany): MasterFuelCo
 export const newMasterFuelCompanyPayload = (): MasterFuelCompanyDTO => ({
   organisation_id: '',
   country_id: '',
+
   company_name: '',
   description: '',
 

@@ -41,6 +41,8 @@ const ENDPOINTS = {
 export interface MasterMainTimeZone extends Record<string, unknown> {
   // Primary Fields
   time_zone_id: string;
+
+  // Main Field Details
   time_zone_code: string;
   time_zone_identifier?: string;
   time_zone_abbrevation: string;
@@ -55,11 +57,13 @@ export interface MasterMainTimeZone extends Record<string, unknown> {
   // Relations - Parent
   country_id: string;
   MasterMainCountry?: MasterMainCountry;
+  country_name?: string;
 
   // Relations - Child
   // Child - User
   UserOrganisation?: UserOrganisation[]
   User?: User[]
+
   // Child - Main
   MasterVehicle?: MasterVehicle[]
   MasterDevice?: MasterDevice[]
@@ -76,7 +80,10 @@ export interface MasterMainTimeZone extends Record<string, unknown> {
 
 // MasterMainTimeZone Create/Update Schema
 export const MasterMainTimeZoneSchema = z.object({
+  // Relations - Parent
   country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
+
+  // Main Field Details
   time_zone_code: stringMandatory('Time Zone Code', 2, 50),
   time_zone_identifier: stringMandatory('Time Zone Identifier', 2, 100),
   time_zone_abbrevation: stringMandatory('Time Zone Abbreviation', 2, 100),
@@ -86,14 +93,19 @@ export const MasterMainTimeZoneSchema = z.object({
     0,
     1000000,
   ),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainTimeZoneDTO = z.infer<typeof MasterMainTimeZoneSchema>;
 
 // MasterMainTimeZone Query Schema
 export const MasterMainTimeZoneQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('MasterMainCountry'), // Multi-selection -> MasterMainCountry
+  // Self Table
   time_zone_ids: multi_select_optional('MasterMainTimeZone'), // Multi-selection -> MasterMainTimeZone
+
+  // Relations - Parent
+  country_ids: multi_select_optional('MasterMainCountry'), // Multi-selection -> MasterMainCountry
 });
 export type MasterMainTimeZoneQueryDTO = z.infer<
   typeof MasterMainTimeZoneQuerySchema
@@ -102,22 +114,26 @@ export type MasterMainTimeZoneQueryDTO = z.infer<
 // Convert MasterMainTimeZone Data to API Payload
 export const toMasterMainTimeZonePayload = (row: MasterMainTimeZone): MasterMainTimeZoneDTO => ({
   country_id: row.country_id || '',
+
   time_zone_identifier: row.time_zone_identifier || '',
   time_zone_code: row.time_zone_code || '',
   time_zone_abbrevation: row.time_zone_abbrevation || '',
   time_zone_offset: row.time_zone_offset || '',
   time_zone_offset_seconds: row.time_zone_offset_seconds || 0,
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterMainTimeZone Payload
 export const newMasterMainTimeZonePayload = (): MasterMainTimeZoneDTO => ({
   country_id: '',
+
   time_zone_identifier: '',
   time_zone_code: '',
   time_zone_abbrevation: '',
   time_zone_offset: '',
   time_zone_offset_seconds: 0,
+
   status: Status.Active,
 });
 

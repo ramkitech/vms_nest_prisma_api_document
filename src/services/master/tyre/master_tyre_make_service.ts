@@ -40,6 +40,8 @@ const ENDPOINTS = {
 export interface MasterTyreMake extends Record<string, unknown> {
   // Primary Fields
   tyre_make_id: string;
+
+  // Main Field Details
   tyre_make: string;
   description?: string;
 
@@ -51,6 +53,7 @@ export interface MasterTyreMake extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Master
@@ -67,33 +70,45 @@ export interface MasterTyreMake extends Record<string, unknown> {
 
 // MasterTyreMake Create/Update Schema
 export const MasterTyreMakeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   tyre_make: stringMandatory('Tyre Make', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTyreMakeDTO = z.infer<typeof MasterTyreMakeSchema>;
 
 // MasterTyreMake Query Schema
 export const MasterTyreMakeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   tyre_make_ids: multi_select_optional('MasterTyreMake'), // Multi-selection -> MasterTyreMake
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterTyreMakeQueryDTO = z.infer<typeof MasterTyreMakeQuerySchema>;
 
 // Convert MasterTyreMake Data to API Payload
 export const toMasterTyreMakePayload = (row: MasterTyreMake): MasterTyreMakeDTO => ({
   organisation_id: row.organisation_id || '',
+
   tyre_make: row.tyre_make || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterTyreMake Payload
 export const newMasterTyreMakePayload = (): MasterTyreMakeDTO => ({
   organisation_id: '',
+
   tyre_make: '',
   description: '',
+
   status: Status.Active,
 });
 

@@ -33,6 +33,8 @@ const ENDPOINTS = {
 export interface MasterMainSimProvider extends Record<string, unknown> {
   // Primary Fields
   sim_provider_id: string;
+
+  // Main Field Details
   provider_name: string;
   country_notes: string;
 
@@ -53,8 +55,11 @@ export interface MasterMainSimProvider extends Record<string, unknown> {
 
 // MasterMainSimProvider Create/Update Schema
 export const MasterMainSimProviderSchema = z.object({
+  // Main Field Details
   provider_name: stringMandatory('Provider Name', 1, 100),
   country_notes: stringOptional('Country Notes', 0, 200),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainSimProviderDTO = z.infer<
@@ -63,6 +68,7 @@ export type MasterMainSimProviderDTO = z.infer<
 
 // MasterMainSimProvider Query Schema
 export const MasterMainSimProviderQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   sim_provider_ids: multi_select_optional('MasterMainSimProvider'), // Multi-selection -> MasterMainSimProvider
 });
 export type MasterMainSimProviderQueryDTO = z.infer<
@@ -73,6 +79,7 @@ export type MasterMainSimProviderQueryDTO = z.infer<
 export const toMasterMainSimProviderPayload = (row: MasterMainSimProvider): MasterMainSimProviderDTO => ({
   provider_name: row.provider_name || '',
   country_notes: row.country_notes || '',
+
   status: row.status || Status.Active,
 });
 
@@ -80,6 +87,7 @@ export const toMasterMainSimProviderPayload = (row: MasterMainSimProvider): Mast
 export const newMasterMainSimProviderPayload = (): MasterMainSimProviderDTO => ({
   provider_name: '',
   country_notes: '',
+  
   status: Status.Active,
 });
 

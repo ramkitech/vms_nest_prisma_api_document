@@ -35,6 +35,7 @@ export interface MasterMainLandMark extends Record<string, unknown> {
   // Primary Fields
   landmark_id: string;
 
+  // Main Field Details
   landmark_name: string;
   location: string;
   locality: string;
@@ -53,6 +54,7 @@ export interface MasterMainLandMark extends Record<string, unknown> {
   // Relations - Parent
   country_id?: string;
   MasterMainCountry?: MasterMainCountry;
+  country_name?: string;
 }
 
 // MasterMainLandmark Create/Update Schema

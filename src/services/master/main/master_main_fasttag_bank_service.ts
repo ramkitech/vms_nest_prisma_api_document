@@ -32,6 +32,8 @@ const ENDPOINTS = {
 export interface MasterMainFasttagBank extends Record<string, unknown> {
   // Primary Fields
   fasttag_bank_id: string;
+
+  // Main Field Details
   bank_name: string;
   bank_code?: string;
 
@@ -52,8 +54,11 @@ export interface MasterMainFasttagBank extends Record<string, unknown> {
 
 // MasterMainFasttagBank Create/Update Schema
 export const MasterMainFasttagBankSchema = z.object({
+  // Main Field Details
   bank_name: stringMandatory('Bank Name', 3, 100),
   bank_code: stringOptional('Bank Code', 0, 10),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainFasttagBankDTO = z.infer<
@@ -62,6 +67,7 @@ export type MasterMainFasttagBankDTO = z.infer<
 
 // MasterMainFasttagBank Query Schema
 export const MasterMainFasttagBankQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   fasttag_bank_ids: multi_select_optional('MasterMainFasttagBank'), // Multi-selection -> MasterMainFasttagBank
 });
 export type MasterMainFasttagBankQueryDTO = z.infer<
@@ -72,6 +78,7 @@ export type MasterMainFasttagBankQueryDTO = z.infer<
 export const toMasterMainFasttagPayload = (row: MasterMainFasttagBank): MasterMainFasttagBankDTO => ({
   bank_name: row.bank_name || '',
   bank_code: row.bank_code || '',
+
   status: row.status || Status.Active,
 });
 
@@ -79,6 +86,7 @@ export const toMasterMainFasttagPayload = (row: MasterMainFasttagBank): MasterMa
 export const newMasterMainFasttagPayload = (): MasterMainFasttagBankDTO => ({
   bank_name: '',
   bank_code: '',
+  
   status: Status.Active,
 });
 

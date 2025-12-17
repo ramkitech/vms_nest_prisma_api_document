@@ -37,6 +37,8 @@ const ENDPOINTS = {
 export interface MasterFleetIncidentStatus extends Record<string, unknown> {
   // Primary Fields
   fleet_incident_status_id: string;
+
+  // Main Field Details
   fleet_incident_status: string;
   description?: string;
 
@@ -48,12 +50,13 @@ export interface MasterFleetIncidentStatus extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Fleet
   FleetIncidentManagement?: FleetIncidentManagement[]
 
-  // Count
+  // Relations - Child Count
   _count?: {
     FleetIncidentManagement?: number;
   };
@@ -61,9 +64,14 @@ export interface MasterFleetIncidentStatus extends Record<string, unknown> {
 
 // MasterFleetIncidentStatus Create/Update Schema
 export const MasterFleetIncidentStatusSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   fleet_incident_status: stringMandatory('Fleet Incident Status', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterFleetIncidentStatusDTO = z.infer<
@@ -72,8 +80,11 @@ export type MasterFleetIncidentStatusDTO = z.infer<
 
 // MasterFleetIncidentStatus Query Schema
 export const MasterFleetIncidentStatusQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   fleet_incident_status_ids: multi_select_optional('MasterFleetIncidentStatus'), // Multi-selection -> MasterFleetIncidentStatus
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterFleetIncidentStatusQueryDTO = z.infer<
   typeof MasterFleetIncidentStatusQuerySchema
@@ -82,16 +93,20 @@ export type MasterFleetIncidentStatusQueryDTO = z.infer<
 // Convert MasterFleetIncidentStatus Data to API Payload
 export const toMasterFleetIncidentStatusPayload = (row: MasterFleetIncidentStatus): MasterFleetIncidentStatusDTO => ({
   organisation_id: row.organisation_id || '',
+
   fleet_incident_status: row.fleet_incident_status || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterFleetIncidentStatus Payload
 export const newMasterFleetIncidentStatusPayload = (): MasterFleetIncidentStatusDTO => ({
   organisation_id: '',
+
   fleet_incident_status: '',
   description: '',
+
   status: Status.Active,
 });
 

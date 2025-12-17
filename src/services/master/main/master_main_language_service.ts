@@ -35,6 +35,8 @@ const ENDPOINTS = {
 export interface MasterMainLanguage extends Record<string, unknown> {
   // Primary Fields
   language_id: string;
+
+  // Main Field Details
   language_name: string;
   language_code: string;
 
@@ -57,14 +59,18 @@ export interface MasterMainLanguage extends Record<string, unknown> {
 
 // MasterMainLanguage Create/Update Schema
 export const MasterMainLanguageSchema = z.object({
+  // Main Field Details
   language_name: stringMandatory('Language Name', 3, 50),
   language_code: stringMandatory('Language Code', 2, 10),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainLanguageDTO = z.infer<typeof MasterMainLanguageSchema>;
 
 // MasterMainLanguage Query Schema
 export const MasterMainLanguageQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   language_ids: multi_select_optional('Language'), // Multi-selection -> MasterMainLanguage
 });
 export type MasterMainLanguageQueryDTO = z.infer<
@@ -75,6 +81,7 @@ export type MasterMainLanguageQueryDTO = z.infer<
 export const toMasterMainLanguagePayload = (row: MasterMainLanguage): MasterMainLanguageDTO => ({
   language_name: row.language_name || '',
   language_code: row.language_code || '',
+
   status: row.status || Status.Active,
 });
 
@@ -82,6 +89,7 @@ export const toMasterMainLanguagePayload = (row: MasterMainLanguage): MasterMain
 export const newMasterMainLanguagePayload = (): MasterMainLanguageDTO => ({
   language_name: '',
   language_code: '',
+
   status: Status.Active,
 });
 

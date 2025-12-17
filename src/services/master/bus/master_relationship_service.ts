@@ -18,7 +18,6 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { User } from '../../main/users/user_service';
 import { StudentGuardianLink } from 'src/services/fleet/bus_mangement/student';
 
 const URL = 'master/bus/relationship';
@@ -39,8 +38,10 @@ const ENDPOINTS = {
 export interface MasterRelationship extends Record<string, unknown> {
   // Primary Fields
   relationship_id: string;
-  relationship_name: string; // Min: 3, Max: 100
-  description?: string; // Optional, Max: 300
+
+  // Main Field Details
+  relationship_name: string;
+  description?: string;
 
   // Metadata
   status: Status;
@@ -50,8 +51,9 @@ export interface MasterRelationship extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
-  // Children
+  // Relations - Child
   // Child - Fleet
   StudentGuardianLink?: StudentGuardianLink[];
 
@@ -63,17 +65,25 @@ export interface MasterRelationship extends Record<string, unknown> {
 
 // MasterRelationship Create/Update Schema
 export const MasterRelationshipSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   relationship_name: stringMandatory('RelationShip Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterRelationshipDTO = z.infer<typeof MasterRelationshipSchema>;
 
 // MasterRelationship Query Schema
 export const MasterRelationshipQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   relationship_ids: multi_select_optional('MasterRelationship'), // Multi-selection -> MasterRelationship
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterRelationshipQueryDTO = z.infer<
   typeof MasterRelationshipQuerySchema
@@ -82,16 +92,20 @@ export type MasterRelationshipQueryDTO = z.infer<
 // Convert MasterRelationship Data to API Payload
 export const toMasterRelationshipPayload = (row: MasterRelationship): MasterRelationshipDTO => ({
   organisation_id: row.organisation_id || '',
+
   relationship_name: row.relationship_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterRelationship Payload
 export const newMasterRelationshipPayload = (): MasterRelationshipDTO => ({
   organisation_id: '',
+
   relationship_name: '',
   description: '',
+
   status: Status.Active
 });
 

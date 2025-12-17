@@ -37,6 +37,8 @@ const ENDPOINTS = {
 export interface MasterFleetIncidentSeverity extends Record<string, unknown> {
   // Primary Fields
   fleet_incident_severity_id: string;
+
+  // Main Field Details
   fleet_incident_severity: string;
   description?: string;
 
@@ -48,6 +50,7 @@ export interface MasterFleetIncidentSeverity extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Fleet
@@ -61,9 +64,14 @@ export interface MasterFleetIncidentSeverity extends Record<string, unknown> {
 
 // MasterFleetIncidentSeverity Create/Update Schema
 export const MasterFleetIncidentSeveritySchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   fleet_incident_severity: stringMandatory('Fleet Incident Severity', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterFleetIncidentSeverityDTO = z.infer<
@@ -72,10 +80,13 @@ export type MasterFleetIncidentSeverityDTO = z.infer<
 
 // MasterFleetIncidentSeverity Query Schema
 export const MasterFleetIncidentSeverityQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   fleet_incident_severity_ids: multi_select_optional(
     'MasterFleetIncidentSeverity',
   ), // Multi-selection -> MasterFleetIncidentSeverity
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterFleetIncidentSeverityQueryDTO = z.infer<
   typeof MasterFleetIncidentSeverityQuerySchema
@@ -84,16 +95,20 @@ export type MasterFleetIncidentSeverityQueryDTO = z.infer<
 // Convert MasterFleetIncidentSeverity Data to API Payload
 export const toMasterFleetIncidentSeverityPayload = (row: MasterFleetIncidentSeverity): MasterFleetIncidentSeverityDTO => ({
   organisation_id: row.organisation_id || '',
+
   fleet_incident_severity: row.fleet_incident_severity || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterFleetIncidentSeverity Payload
 export const newMasterFleetIncidentSeverityPayload = (): MasterFleetIncidentSeverityDTO => ({
   organisation_id: '',
+
   fleet_incident_severity: '',
   description: '',
+
   status: Status.Active,
 });
 

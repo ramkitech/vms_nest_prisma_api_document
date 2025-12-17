@@ -39,6 +39,8 @@ const ENDPOINTS = {
 export interface MasterDeviceManufacturer extends Record<string, unknown> {
   // Primary Fields
   device_manufacturer_id: string;
+
+  // Main Field Details
   device_manufacturer_name: string;
   device_manufacturer_code?: string;
   description?: string;
@@ -64,9 +66,12 @@ export interface MasterDeviceManufacturer extends Record<string, unknown> {
 
 // MasterDeviceManufacturer Create/Update Schema
 export const MasterDeviceManufacturerSchema = z.object({
+  // Main Field Details
   device_manufacturer_name: stringMandatory('Device Manufacturer Name', 3, 100),
   device_manufacturer_code: stringOptional('Device Manufacturer Code', 0, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterDeviceManufacturerDTO = z.infer<
@@ -75,6 +80,7 @@ export type MasterDeviceManufacturerDTO = z.infer<
 
 // MasterDeviceManufacturer Query Schema
 export const MasterDeviceManufacturerQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   device_manufacturer_ids: multi_select_optional('MasterDeviceManufacturer'), // Multi-selection -> MasterDeviceManufacturer
 });
 export type MasterDeviceManufacturerQueryDTO = z.infer<
@@ -86,6 +92,7 @@ export const toMasterDeviceManufacturerPayload = (row: MasterDeviceManufacturer)
   device_manufacturer_name: row.device_manufacturer_name || '',
   device_manufacturer_code: row.device_manufacturer_code || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
@@ -94,6 +101,7 @@ export const newMasterDeviceManufacturerPayload = (): MasterDeviceManufacturerDT
   device_manufacturer_name: '',
   device_manufacturer_code: '',
   description: '',
+  
   status: Status.Active,
 });
 

@@ -35,6 +35,8 @@ const ENDPOINTS = {
 export interface MasterMainDateFormat extends Record<string, unknown> {
   // Primary Fields
   date_format_id: string;
+
+  // Main Field Details
   date_format_date: string;
   date_format_time: string;
 
@@ -57,8 +59,11 @@ export interface MasterMainDateFormat extends Record<string, unknown> {
 
 // MasterMainDateFormat Create/Update Schema
 export const MasterMainDateFormatSchema = z.object({
+  // Main Field Details
   date_format_date: stringMandatory('Date Format Date', 3, 50),
   date_format_time: stringMandatory('Date Format Time', 3, 50),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainDateFormatDTO = z.infer<
@@ -67,6 +72,7 @@ export type MasterMainDateFormatDTO = z.infer<
 
 // MasterMainDateFormat Query Schema
 export const MasterMainDateFormatQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   date_format_ids: multi_select_optional('Date Format'), // Multi-selection -> MasterMainDateFormat
 });
 export type MasterMainDateFormatQueryDTO = z.infer<
@@ -77,6 +83,7 @@ export type MasterMainDateFormatQueryDTO = z.infer<
 export const toMasterMainDateFormatPayload = (row: MasterMainDateFormat): MasterMainDateFormatDTO => ({
   date_format_date: row.date_format_date || '',
   date_format_time: row.date_format_time || '',
+
   status: row.status || Status.Active,
 });
 
@@ -84,6 +91,7 @@ export const toMasterMainDateFormatPayload = (row: MasterMainDateFormat): Master
 export const newMasterMainDateFormatPayload = (): MasterMainDateFormatDTO => ({
   date_format_date: '',
   date_format_time: '',
+
   status: Status.Active,
 });
 

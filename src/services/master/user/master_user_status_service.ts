@@ -34,10 +34,12 @@ const ENDPOINTS = {
   cache_count: (organisation_id: string): string => `${URL}/cache_count/${organisation_id}`,
 };
 
-// UserStatus Interface
+// MasterUserStatus Interface
 export interface MasterUserStatus extends Record<string, unknown> {
   // Primary Fields
   user_status_id: string;
+
+  // Main Field Details
   user_status: string;
   description?: string;
 
@@ -49,6 +51,7 @@ export interface MasterUserStatus extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - User
@@ -62,17 +65,25 @@ export interface MasterUserStatus extends Record<string, unknown> {
 
 // MasterUserStatus Create/Update Schema
 export const MasterUserStatusSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   user_status: stringMandatory('User Status', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterUserStatusDTO = z.infer<typeof MasterUserStatusSchema>;
 
 // MasterUserStatus Query Schema
 export const MasterUserStatusQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   user_status_ids: multi_select_optional('MasterUserStatus'), // Multi-selection -> MasterUserStatus
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterUserStatusQueryDTO = z.infer<
   typeof MasterUserStatusQuerySchema
@@ -81,16 +92,20 @@ export type MasterUserStatusQueryDTO = z.infer<
 // Convert MasterUserStatus Data to API Payload
 export const toMasterUserStatusPayload = (row: MasterUserStatus): MasterUserStatusDTO => ({
   organisation_id: row.organisation_id || '',
+
   user_status: row.user_status || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterUserStatus Payload
 export const newMasterUserStatusPayload = (): MasterUserStatusDTO => ({
   organisation_id: '',
+
   user_status: '',
   description: '',
+  
   status: Status.Active,
 });
 

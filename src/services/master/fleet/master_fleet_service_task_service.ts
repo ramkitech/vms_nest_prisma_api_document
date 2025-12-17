@@ -37,6 +37,8 @@ const ENDPOINTS = {
 export interface MasterFleetServiceTask extends Record<string, unknown> {
   // Primary Fields
   fleet_service_task_id: string;
+
+  // Main Field Details
   fleet_service_task: string;
   description?: string;
 
@@ -48,6 +50,7 @@ export interface MasterFleetServiceTask extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   // Child - Main
@@ -63,9 +66,14 @@ export interface MasterFleetServiceTask extends Record<string, unknown> {
 
 // MasterFleetServiceTask Create/Update Schema
 export const MasterFleetServiceTaskSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   fleet_service_task: stringMandatory('Fleet Service Task', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterFleetServiceTaskDTO = z.infer<
@@ -74,8 +82,11 @@ export type MasterFleetServiceTaskDTO = z.infer<
 
 // MasterFleetServiceTask Query Schema
 export const MasterFleetServiceTaskQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   fleet_service_task_ids: multi_select_optional('MasterFleetServiceTask'), // Multi-selection -> MasterFleetServiceTask
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterFleetServiceTaskQueryDTO = z.infer<
   typeof MasterFleetServiceTaskQuerySchema
@@ -84,16 +95,20 @@ export type MasterFleetServiceTaskQueryDTO = z.infer<
 // Convert MasterFleetServiceTask Data to API Payload
 export const toMasterFleetServiceTaskPayload = (row: MasterFleetServiceTask): MasterFleetServiceTaskDTO => ({
   organisation_id: row.organisation_id || '',
+
   fleet_service_task: row.fleet_service_task || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterFleetServiceTask Payload
 export const newMasterFleetServiceTaskPayload = (): MasterFleetServiceTaskDTO => ({
   organisation_id: '',
+
   fleet_service_task: '',
   description: '',
+  
   status: Status.Active,
 });
 

@@ -32,6 +32,8 @@ const ENDPOINTS = {
 export interface MasterMainEwayBillProvider extends Record<string, unknown> {
   // Primary Fields
   e_way_bill_provider_id: string;
+
+  // Main Field Details
   provider_name: string;
   provider_code?: string;
 
@@ -52,8 +54,11 @@ export interface MasterMainEwayBillProvider extends Record<string, unknown> {
 
 // MasterMainEwayBillProvider Create/Update Schema
 export const MasterMainEwayBillProviderSchema = z.object({
+  // Main Field Details
   provider_name: stringMandatory('Provider Name', 3, 100),
   provider_code: stringOptional('Provider Code', 0, 10),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainEwayBillProviderDTO = z.infer<
@@ -62,6 +67,7 @@ export type MasterMainEwayBillProviderDTO = z.infer<
 
 // MasterMainEwayBillProvider Query Schema
 export const MasterMainEwayBillProviderQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   e_way_bill_provider_ids: multi_select_optional('MasterMainEWayBillProvider'), // Multi-selection -> MasterMainEWayBillProvider
 });
 export type MasterMainEwayBillProviderQueryDTO = z.infer<
@@ -72,6 +78,7 @@ export type MasterMainEwayBillProviderQueryDTO = z.infer<
 export const toMasterMainEwayBillProviderPayload = (row: MasterMainEwayBillProvider): MasterMainEwayBillProviderDTO => ({
   provider_name: row.provider_name || '',
   provider_code: row.provider_code || '',
+
   status: row.status || Status.Active,
 });
 
@@ -79,6 +86,7 @@ export const toMasterMainEwayBillProviderPayload = (row: MasterMainEwayBillProvi
 export const newMasterMainEwayBillProviderPayload = (): MasterMainEwayBillProviderDTO => ({
   provider_name: '',
   provider_code: '',
+
   status: Status.Active,
 });
 

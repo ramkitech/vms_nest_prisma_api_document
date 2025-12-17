@@ -38,6 +38,8 @@ const ENDPOINTS = {
 export interface MasterTyreGrade extends Record<string, unknown> {
   // Primary Fields
   tyre_grade_id: string;
+
+  // Main Field Details
   tyre_grade: string;
   description?: string;
 
@@ -49,8 +51,9 @@ export interface MasterTyreGrade extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
-   // Relations - Child
+  // Relations - Child
   // Child - Fleet
   // FleetTyreInventory?: FleetTyreInventory[];
 
@@ -62,17 +65,25 @@ export interface MasterTyreGrade extends Record<string, unknown> {
 
 // MasterTyreGrade Create/Update Schema
 export const MasterTyreGradeSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   tyre_grade: stringMandatory('Tyre Grade', 1, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterTyreGradeDTO = z.infer<typeof MasterTyreGradeSchema>;
 
 // MasterTyreGrade Query Schema
 export const MasterTyreGradeQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   tyre_grade_ids: multi_select_optional('MasterTyreGrade'), // Multi-selection -> MasterTyreGrade
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterTyreGradeQueryDTO = z.infer<
   typeof MasterTyreGradeQuerySchema
@@ -84,14 +95,17 @@ export const toMasterTyreGradePayload = (row: MasterTyreGrade): MasterTyreGradeD
 
   tyre_grade: row.tyre_grade || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterTyreGrade Payload
 export const newMasterTyreGradePayload = (): MasterTyreGradeDTO => ({
   organisation_id: '',
+
   tyre_grade: '',
   description: '',
+
   status: Status.Active,
 });
 

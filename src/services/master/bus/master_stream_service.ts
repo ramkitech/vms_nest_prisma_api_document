@@ -38,6 +38,8 @@ const ENDPOINTS = {
 export interface MasterStream extends Record<string, unknown> {
   // Primary Fields
   stream_id: string;
+
+  // Main Field Details
   stream_name: string;
   description?: string;
 
@@ -49,8 +51,9 @@ export interface MasterStream extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
-  // Children
+  // Relations - Child
   // Child - Fleet
   Student?: Student[];
 
@@ -62,33 +65,45 @@ export interface MasterStream extends Record<string, unknown> {
 
 // MasterStream Create/Update Schema
 export const MasterStreamSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  // Main Field Details
   stream_name: stringMandatory('Stream Name', 3, 100),
   description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterStreamDTO = z.infer<typeof MasterStreamSchema>;
 
 // MasterStream Query Schema
 export const MasterStreamQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   stream_ids: multi_select_optional('MasterStream'), // Multi-selection -> MasterStream
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type MasterStreamQueryDTO = z.infer<typeof MasterStreamQuerySchema>;
 
 // Convert MasterStream Data to API Payload
 export const toMasterStreamPayload = (row: MasterStream): MasterStreamDTO => ({
   organisation_id: row.organisation_id || '',
+
   stream_name: row.stream_name || '',
   description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterStream Payload
 export const newMasterStreamPayload = (): MasterStreamDTO => ({
   organisation_id: '',
+
   stream_name: '',
   description: '',
+
   status: Status.Active
 });
 

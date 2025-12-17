@@ -34,6 +34,8 @@ const ENDPOINTS = {
 export interface MasterMainUnitVolume extends Record<string, unknown> {
   // Primary Fields
   unit_id: string;
+
+  // Main Field Details
   unit_name: string;
   unit_code: string;
 
@@ -54,8 +56,11 @@ export interface MasterMainUnitVolume extends Record<string, unknown> {
 
 // MasterMainUnitVolume Create/Update Schema
 export const MasterMainUnitVolumeSchema = z.object({
+  // Main Field Details
   unit_name: stringMandatory('Unit Name', 1, 50),
   unit_code: stringMandatory('Unit Code', 1, 10),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainUnitVolumeDTO = z.infer<
@@ -64,6 +69,7 @@ export type MasterMainUnitVolumeDTO = z.infer<
 
 // MasterMainUnitVolume Query Schema
 export const MasterMainUnitVolumeQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   unit_ids: multi_select_optional('Unit Volume'), // Multi-selection -> MasterMainUnitVolume
 });
 export type MasterMainUnitVolumeQueryDTO = z.infer<
@@ -74,6 +80,7 @@ export type MasterMainUnitVolumeQueryDTO = z.infer<
 export const toMasterMainUnitVolumePayload = (row: MasterMainUnitVolume): MasterMainUnitVolumeDTO => ({
   unit_name: row.unit_name || '',
   unit_code: row.unit_code || '',
+
   status: row.status || Status.Active,
 });
 
@@ -81,6 +88,7 @@ export const toMasterMainUnitVolumePayload = (row: MasterMainUnitVolume): Master
 export const newMasterMainUnitVolumePayload = (): MasterMainUnitVolumeDTO => ({
   unit_name: '',
   unit_code: '',
+
   status: Status.Active,
 });
 

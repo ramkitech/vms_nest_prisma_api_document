@@ -34,6 +34,8 @@ const ENDPOINTS = {
 export interface MasterMainUnitDistance extends Record<string, unknown> {
   // Primary Fields
   unit_id: string;
+
+  // Main Field Details
   unit_name: string;
   unit_code: string;
 
@@ -54,8 +56,11 @@ export interface MasterMainUnitDistance extends Record<string, unknown> {
 
 // MasterMainUnitDistance Create/Update Schema
 export const MasterMainUnitDistanceSchema = z.object({
+  // Main Field Details
   unit_name: stringMandatory('Unit Name', 1, 50),
   unit_code: stringMandatory('Unit Code', 1, 10),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainUnitDistanceDTO = z.infer<
@@ -64,6 +69,7 @@ export type MasterMainUnitDistanceDTO = z.infer<
 
 // MasterMainUnitDistance Query Schema
 export const MasterMainUnitDistanceQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   unit_ids: multi_select_optional('Unit Distance'), // Multi-selection -> MasterMainUnitDistance
 });
 export type MasterMainUnitDistanceQueryDTO = z.infer<
@@ -74,6 +80,7 @@ export type MasterMainUnitDistanceQueryDTO = z.infer<
 export const toMasterMainUnitDistancePayload = (row: MasterMainUnitDistance): MasterMainUnitDistanceDTO => ({
   unit_name: row.unit_name || '',
   unit_code: row.unit_code || '',
+
   status: row.status || Status.Active,
 });
 
@@ -81,6 +88,7 @@ export const toMasterMainUnitDistancePayload = (row: MasterMainUnitDistance): Ma
 export const newMasterMainUnitDistancePayload = (): MasterMainUnitDistanceDTO => ({
   unit_name: '',
   unit_code: '',
+
   status: Status.Active,
 });
 

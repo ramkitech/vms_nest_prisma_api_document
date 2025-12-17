@@ -37,6 +37,8 @@ const ENDPOINTS = {
 export interface MasterMainCurrency extends Record<string, unknown> {
   // Primary Fields
   currency_id: string;
+
+  // Main Field Details
   currency_name: string;
   currency_symbol?: string;
   currency_code: string;
@@ -49,6 +51,7 @@ export interface MasterMainCurrency extends Record<string, unknown> {
   // Relations - Parent
   country_id: string;
   MasterMainCountry?: MasterMainCountry;
+  country_name?: string;
 
   // Relations - Child
   UserOrganisation?: UserOrganisation[];
@@ -61,18 +64,26 @@ export interface MasterMainCurrency extends Record<string, unknown> {
 
 // MasterMainCurrency Create/Update Schema
 export const MasterMainCurrencySchema = z.object({
+  // Relations - Parent
   country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
+
+  // Main Field Details
   currency_name: stringMandatory('Currency Name', 3, 100),
   currency_symbol: stringOptional('Currency Symbol', 0, 10),
   currency_code: stringMandatory('Currency Code', 2, 10),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type MasterMainCurrencyDTO = z.infer<typeof MasterMainCurrencySchema>;
 
 // MasterMainCurrency Query Schema
 export const MasterMainCurrencyQuerySchema = BaseQuerySchema.extend({
-  country_ids: multi_select_optional('MasterMainCountry'), // Multi-selection -> MasterMainCountry
+  // Self Table
   currency_ids: multi_select_optional('MasterMainCurrency'), // Multi-selection -> MasterMainCurrency
+
+  // Relations - Parent
+  country_ids: multi_select_optional('MasterMainCountry'), // Multi-selection -> MasterMainCountry
 });
 export type MasterMainCurrencyQueryDTO = z.infer<
   typeof MasterMainCurrencyQuerySchema
@@ -81,18 +92,22 @@ export type MasterMainCurrencyQueryDTO = z.infer<
 // Convert MasterMainCurrency Data to API Payload
 export const toMasterMainCurrencyPayload = (row: MasterMainCurrency): MasterMainCurrencyDTO => ({
   country_id: row.country_id || '',
+
   currency_name: row.currency_name || '',
   currency_symbol: row.currency_symbol || '',
   currency_code: row.currency_code || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New MasterMainCurrency Payload
 export const newMasterMainCurrencyPayload = (): MasterMainCurrencyDTO => ({
   country_id: '',
+
   currency_name: '',
   currency_symbol: '',
   currency_code: '',
+
   status: Status.Active,
 });
 
