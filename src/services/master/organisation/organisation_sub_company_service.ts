@@ -80,15 +80,20 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
 
 // OrganisationSubCompany Create/Update Schema
 export const OrganisationSubCompanySchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  sub_company_name: stringMandatory('Sub Company Name', 3, 100),
-  sub_company_GSTIN: stringMandatory('Sub Company GSTIN', 3, 100),
-  description: stringOptional('Description', 0, 300),
 
+  // Profile Image/Logo
   logo_url: stringOptional('Logo URL', 0, 300),
   logo_key: stringOptional('Logo Key', 0, 300),
   logo_name: stringOptional('Logo Name', 0, 300),
 
+  // Main Field Details
+  sub_company_name: stringMandatory('Sub Company Name', 3, 100),
+  sub_company_GSTIN: stringMandatory('Sub Company GSTIN', 3, 100),
+  description: stringOptional('Description', 0, 300),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationSubCompanyDTO = z.infer<
@@ -97,8 +102,11 @@ export type OrganisationSubCompanyDTO = z.infer<
 
 // OrganisationSubCompany Query Schema
 export const OrganisationSubCompanyQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  // Self Table
   organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // Multi-selection -> OrganisationSubCompany
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
 });
 export type OrganisationSubCompanyQueryDTO = z.infer<
   typeof OrganisationSubCompanyQuerySchema
@@ -106,6 +114,7 @@ export type OrganisationSubCompanyQueryDTO = z.infer<
 
 // OrganisationSubCompany Logo Schema
 export const SubCompanyLogoSchema = z.object({
+  // Profile Image/Logo
   logo_url: stringMandatory('User Image URL', 0, 300),
   logo_key: stringMandatory('User Image Key', 0, 300),
   logo_name: stringMandatory('User Image Name', 0, 300),
@@ -115,25 +124,29 @@ export type SubCompanyLogoDTO = z.infer<typeof SubCompanyLogoSchema>;
 // Convert OrganisationSubCompany Data to API Payload
 export const toOrganisationSubCompanyPayload = (row: OrganisationSubCompany): OrganisationSubCompanyDTO => ({
   organisation_id: row.organisation_id || '',
-  sub_company_name: row.sub_company_name || '',
-  sub_company_GSTIN: row.sub_company_GSTIN || '',
-  description: row.description || '',
+
   logo_url: row.logo_url || '',
   logo_key: row.logo_key || '',
   logo_name: row.logo_name || '',
+
+  sub_company_name: row.sub_company_name || '',
+  sub_company_GSTIN: row.sub_company_GSTIN || '',
+  description: row.description || '',
+
   status: row.status || Status.Active,
 });
 
 // Create New OrganisationSubCompany Payload
 export const newOrganisationSubCompanyPayload = (): OrganisationSubCompanyDTO => ({
   organisation_id: '',
-  sub_company_name: '',
-  sub_company_GSTIN: '',
-  description: '',
 
   logo_url: '',
   logo_key: '',
   logo_name: '',
+
+  sub_company_name: '',
+  sub_company_GSTIN: '',
+  description: '',
 
   status: Status.Active,
 });

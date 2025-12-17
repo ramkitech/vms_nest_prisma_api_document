@@ -18,6 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/vehicle_type';
 
@@ -36,8 +37,10 @@ const ENDPOINTS = {
 
 // MasterVehicleType Interface
 export interface MasterVehicleType extends Record<string, unknown> {
-  // Primary Fields
+  // Primary Field
   vehicle_type_id: string;
+
+  // Main Field Details
   vehicle_type: string;
   description?: string;
 
@@ -49,6 +52,14 @@ export interface MasterVehicleType extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  MasterVehicle?: MasterVehicle[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle?: number;
+  };
 }
 
 // MasterVehicleType Create/Update Schema
