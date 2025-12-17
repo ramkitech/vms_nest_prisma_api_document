@@ -19,6 +19,7 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
+import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 
 const URL = 'master/organisation/tag';
 
@@ -37,8 +38,10 @@ const ENDPOINTS = {
 
 // OrganisationTag Interface
 export interface OrganisationTag extends Record<string, unknown> {
-  // Primary Fields
+  // Primary Field
   organisation_tag_id: string;
+
+  // Main Field Details
   tag_name: string;
   description?: string;
 
@@ -48,8 +51,18 @@ export interface OrganisationTag extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id: string;
+  organisation_id?: string;
   UserOrganisation?: UserOrganisation;
+
+  // Relations - Child
+  MasterVehicle?: MasterVehicle[];
+  MasterDriver?: MasterDriver[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle?: number;
+    MasterDriver?: number;
+  };
 }
 
 // OrganisationTag Create/Update Schema

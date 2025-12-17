@@ -19,6 +19,7 @@ import { Status } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
 import { MasterVehicle } from '../../../services/main/vehicle/master_vehicle_service';
+import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 
 const URL = 'master/organisation/branch';
 
@@ -37,8 +38,10 @@ const ENDPOINTS = {
 
 // OrganisationBranch Interface
 export interface OrganisationBranch extends Record<string, unknown> {
-  // Primary Fields
+ // Primary Field
   organisation_branch_id: string;
+
+  // Main Field Details
   branch_name: string;
   branch_city: string;
   branch_address: string;
@@ -50,15 +53,17 @@ export interface OrganisationBranch extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id: string;
-  UserOrganisation: UserOrganisation;
+  organisation_id?: string;
+  UserOrganisation?: UserOrganisation;
 
   // Relations - Child
   MasterVehicle?: MasterVehicle[];
+  MasterDriver?: MasterDriver[];
 
   // Relations - Child Count
   _count?: {
     MasterVehicle?: number;
+    MasterDriver?: number;
   };
 }
 
