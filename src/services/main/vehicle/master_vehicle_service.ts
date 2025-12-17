@@ -716,7 +716,6 @@ export interface VehicleDetailGPS extends Record<string, unknown> {
   // MasterMainLandMark?: MasterMainLandMark; // add if you expose it
 }
 
-
 // VehicleDetailTrip Interface
 export interface VehicleDetailTrip extends Record<string, unknown> {
   // Primary Fields
