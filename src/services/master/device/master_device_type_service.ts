@@ -149,8 +149,8 @@ export const getMasterDeviceTypeCache = async (device_model_id?: string): Promis
   return apiGet<FBR<MasterDeviceType[]>>(ENDPOINTS.cache(device_model_id));
 };
 
-export const getMasterDeviceTypeCacheCount = async (device_model_id?: string): Promise<FBR<MasterDeviceType>> => {
-  return apiGet<FBR<MasterDeviceType>>(ENDPOINTS.cache_count(device_model_id));
+export const getMasterDeviceTypeCacheCount = async (device_model_id?: string): Promise<FBR<MasterDeviceType[]>> => {
+  return apiGet<FBR<MasterDeviceType[]>>(ENDPOINTS.cache_count(device_model_id));
 };
 
 export const getMasterDeviceTypeCacheChild = async (device_model_id?: string): Promise<FBR<MasterDeviceType[]>> => {

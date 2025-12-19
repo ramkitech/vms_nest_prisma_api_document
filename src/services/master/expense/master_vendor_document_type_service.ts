@@ -49,7 +49,7 @@ export interface MasterVendorDocumentType extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id?: string;
+  organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
 }

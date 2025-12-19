@@ -51,9 +51,9 @@ export interface MasterFuelCompany extends Record<string, unknown> {
   description?: string;
 
   // Logo
-  logo_url: string;
-  logo_key: string;
-  logo_name: string;
+  logo_url?: string;
+  logo_key?: string;
+  logo_name?: string;
 
   // Metadata
   status: Status;
@@ -129,9 +129,9 @@ export const toMasterFuelCompanyPayload = (row: MasterFuelCompany): MasterFuelCo
   company_name: row.company_name || '',
   description: row.description || '',
 
-  logo_url: '',
-  logo_key: '',
-  logo_name: '',
+  logo_url: row.logo_url || '',
+  logo_key: row.logo_key || '',
+  logo_name: row.logo_name || '',
 
   status: row.status || Status.Active,
 });
@@ -149,7 +149,6 @@ export const newMasterFuelCompanyPayload = (): MasterFuelCompanyDTO => ({
   logo_name: '',
 
   status: Status.Active,
-
 });
 
 // AWS S3 PRESIGNED

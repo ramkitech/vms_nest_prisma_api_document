@@ -127,8 +127,8 @@ export const getMasterDeviceManufacturerCache = async (): Promise<FBR<MasterDevi
   return apiGet<FBR<MasterDeviceManufacturer[]>>(ENDPOINTS.cache);
 };
 
-export const getMasterDeviceManufacturerCacheCount = async (): Promise<FBR<MasterDeviceManufacturer>> => {
-  return apiGet<FBR<MasterDeviceManufacturer>>(ENDPOINTS.cache_count);
+export const getMasterDeviceManufacturerCacheCount = async (): Promise<FBR<MasterDeviceManufacturer[]>> => {
+  return apiGet<FBR<MasterDeviceManufacturer[]>>(ENDPOINTS.cache_count);
 };
 
 export const getMasterDeviceManufacturerCacheChild = async (): Promise<FBR<MasterDeviceManufacturer[]>> => {

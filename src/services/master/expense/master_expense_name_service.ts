@@ -53,15 +53,6 @@ export interface MasterExpenseName extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
-
-  // Relations - Child
-  // Child - Fleet
-  FleetIncidentManagementCost?: FleetIncidentManagementCost[]
-
-  // Relations - Child Count
-  _count?: {
-    FleetIncidentManagementCost?: number;
-  };
 }
 
 //  MasterExpenseName Create/Update Schema
