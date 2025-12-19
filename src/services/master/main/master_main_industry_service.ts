@@ -91,7 +91,7 @@ export const newMasterMainIndustryPayload = (): MasterMainIndustryDTO => ({
 });
 
 // MasterMainIndustry APIs
-export const findMasterMainIndustrys = async (data: MasterMainIndustryQueryDTO): Promise<FBR<MasterMainIndustry[]>> => {
+export const findMasterMainIndustry = async (data: MasterMainIndustryQueryDTO): Promise<FBR<MasterMainIndustry[]>> => {
   return apiPost<FBR<MasterMainIndustry[]>, MasterMainIndustryQueryDTO>(ENDPOINTS.find, data);
 };
 

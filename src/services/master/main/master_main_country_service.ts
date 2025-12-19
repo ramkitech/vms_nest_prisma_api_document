@@ -22,6 +22,7 @@ import { UserOrganisation } from '../../../services/main/users/user_organisation
 import { MasterFuelCompany } from '../expense/master_fuel_company_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 import { MasterDevice } from 'src/services/main/devices/master_device_service';
+import { MasterMainLandMark } from './master_main_landmark_service';
 
 const URL = 'master/main/country';
 
@@ -60,12 +61,10 @@ export interface MasterMainCountry extends Record<string, unknown> {
   MasterMainState?: MasterMainState[];
   MasterMainCurrency?: MasterMainCurrency[];
   MasterMainTimeZone?: MasterMainTimeZone[];
-  // MasterMainLandMark?: MasterMainLandMark[]
-  MasterFuelCompany?: MasterFuelCompany[];
+  MasterMainLandMark?: MasterMainLandMark[]
 
   // Child - Main
   MasterVehicle?: MasterVehicle[];
-  MasterDevice?: MasterDevice[];
 
   // Relations - Child Count
   _count?: {
@@ -75,10 +74,8 @@ export interface MasterMainCountry extends Record<string, unknown> {
     MasterMainCurrency?: number;
     MasterMainTimeZone?: number;
     MasterMainLandMark?: number;
-    MasterFuelCompany?: number;
 
     MasterVehicle?: number;
-    MasterDevice?: number;
   };
 }
 

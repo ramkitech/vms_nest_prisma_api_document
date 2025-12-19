@@ -76,7 +76,7 @@ export const OrganisationBranchSchema = z.object({
   // Main Field Details
   branch_name: stringMandatory('Branch Name', 3, 100),
   branch_city: stringMandatory('Branch City', 3, 100),
-  branch_address: stringMandatory('Branch Address', 3, 100),
+  branch_address: stringMandatory('Branch Address', 3, 300),
   description: stringOptional('Description', 0, 300),
 
   // Metadata
