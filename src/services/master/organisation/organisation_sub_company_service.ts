@@ -55,7 +55,7 @@ export interface OrganisationSubCompany extends Record<string, unknown> {
 
   // Main Field Details
   sub_company_name: string;
-  sub_company_GSTIN: string;
+  sub_company_GSTIN?: string;
   description?: string;
 
   // Metadata
@@ -91,7 +91,7 @@ export const OrganisationSubCompanySchema = z.object({
 
   // Main Field Details
   sub_company_name: stringMandatory('Sub Company Name', 3, 100),
-  sub_company_GSTIN: stringMandatory('Sub Company GSTIN', 3, 100),
+  sub_company_GSTIN: stringOptional('Sub Company GSTIN', 0, 100),
   description: stringOptional('Description', 0, 300),
 
   // Metadata
