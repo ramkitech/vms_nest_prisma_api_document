@@ -18,6 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
+import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
 const URL = 'master/vehicle/fuel_type';
 
@@ -52,6 +53,15 @@ export interface MasterVehicleFuelType extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+
+  // Relations - Child
+  // Child - MasterVehicle
+  MasterVehicle_PrimaryFuelType?: MasterVehicle[];
+
+  // Relations - Child Count
+  _count?: {
+    MasterVehicle_PrimaryFuelType?: number;
+  };
 }
 
 // MasterVehicleFuelType Create/Update Schema

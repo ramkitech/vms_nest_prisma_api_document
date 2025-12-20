@@ -39,7 +39,7 @@ export interface FleetInspectionSchedule extends Record<string, unknown> {
   inspection_schedule_id: string;
 
   // Main Field Details
-  inspection_schedule_name?: string;
+  inspection_schedule_name: string;
   inspection_schedule_description?: string;
   inspection_schedule_start_date?: string;
   inspection_schedule_start_date_f?: string;
@@ -99,7 +99,7 @@ export const FleetInspectionScheduleSchema = z.object({
   user_id: single_select_mandatory('User'), // Single-Selection -> User
 
   // Main Field Details
-  inspection_schedule_name: stringMandatory('Inspection Schedule Name', 0, 100),
+  inspection_schedule_name: stringMandatory('Inspection Schedule Name', 3, 100),
   inspection_schedule_description: stringOptional(
     'Inspection Schedule Description',
     0,

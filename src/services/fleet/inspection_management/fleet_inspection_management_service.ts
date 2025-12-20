@@ -94,12 +94,6 @@ export interface FleetInspection extends Record<string, unknown> {
   service_management_id?: string;
   FleetServiceManagement?: FleetServiceManagement;
 
-  inspection_schedule_id?: string;
-  FleetInspectionSchedule?: FleetInspectionSchedule;
-  inspection_schedule_name?: string;
-  inspection_schedule_start_date?: string;
-  inspection_schedule_due_date?: string;
-
   inspection_approved_id?: string;
   ApprovedUser?: User;
   approved_user_details?: string;
@@ -199,7 +193,6 @@ export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
   driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
   inspection_form_ids: multi_select_optional('FleetInspectionForm'), // Multi-Selection -> FleetInspectionForm
   service_management_ids: multi_select_optional('FleetServiceManagement'), // Multi-Selection -> FleetServiceManagement
-  inspection_schedule_ids: multi_select_optional('FleetInspectionSchedule'), // Multi-Selection -> FleetInspectionSchedule
 
   // Enums
   inspection_type: enumArrayOptional(

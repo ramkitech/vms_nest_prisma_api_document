@@ -144,12 +144,6 @@ export interface FleetServiceManagement extends Record<string, unknown> {
   FleetVendorServiceCenter?: FleetVendorServiceCenter;
   service_center_name: string;
 
-  service_schedule_id?: string;
-  FleetServiceSchedule?: FleetServiceSchedule;
-  service_schedule_name?: string;
-  service_schedule_start_date?: string;
-  service_schedule_due_date?: string;
-
   // Relations - Child
   // Child - Fleet
   FleetServiceManagementTask?: FleetServiceManagementTask[]
@@ -255,7 +249,6 @@ export const FleetServiceManagementSchema = z.object({
   driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
   vendor_id: single_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
   service_center_id: single_select_optional('FleetVendorServiceCenter'), // Single-Selection -> FleetVendorServiceCenter
-  service_schedule_id: single_select_optional('FleetServiceSchedule'), // Single-Selection -> FleetServiceSchedule
 
   service_status: enumMandatory(
     'Service Status',
@@ -521,8 +514,6 @@ export const toFleetServiceManagementPayload = (row: FleetServiceManagement): Fl
     service_management_id: file.service_management_id || '',
   })) || [],
 
-  service_schedule_id: '',
-  
   status: row.status || Status.Active,
   time_zone_id: '',  // Needs to be provided manually
 });
@@ -569,7 +560,6 @@ export const newFleetServiceManagementPayload = (): FleetServiceManagementDTO =>
   next_service_schedule_date: '',
 
   FleetServiceManagementFileSchema: [],
-  service_schedule_id: '',
 
   status: Status.Active,
   time_zone_id: '', // Needs to be provided manually

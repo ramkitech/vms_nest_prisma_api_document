@@ -106,7 +106,7 @@ export interface GPSGeofencePolilineData {
   longitude: number;
 }
 
-// GPSGeofenceSchema Poliline Data Create/Update Schema
+// GPSGeofence Poliline Data Create/Update Schema
 export const GPSGeofencePolilineDataSchema = z.object({
   latitude: doubleMandatoryLatLng('latitude'),
   longitude: doubleMandatoryLatLng('longitude'),
@@ -115,7 +115,7 @@ export type GPSGeofencePolilineDataDTO = z.infer<
   typeof GPSGeofencePolilineDataSchema
 >;
 
-// GPSGeofenceSchema Create/Update Schema
+// GPSGeofence Create/Update Schema
 export const GPSGeofenceSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'),
@@ -163,7 +163,7 @@ export const GPSGeofenceSchema = z.object({
 });
 export type GPSGeofenceDTO = z.infer<typeof GPSGeofenceSchema>;
 
-// GPS Geofence Data Query Schema
+// GPSGeofence Data Query Schema
 export const GPSGeofenceQuerySchema = BaseQuerySchema.extend({
   // Self Table
   gps_geofence_ids: multi_select_optional('GPSGeofence'), // Multi-selection -> GPSGeofence

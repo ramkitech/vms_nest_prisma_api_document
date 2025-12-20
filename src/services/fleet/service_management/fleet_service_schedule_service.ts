@@ -61,12 +61,10 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
 
   // Relations - Child
   // Child - Fleet
-  FleetServiceManagement?: FleetServiceManagement[];
   FleetServiceScheduleVehicleLink?: FleetServiceScheduleVehicleLink[];
 
   // Relations - Child Count
   _count?: {
-    FleetServiceManagement?: number;
     FleetServiceScheduleVehicleLink?: number;
   };
 }
