@@ -173,7 +173,8 @@ export interface FleetServiceManagementTask extends Record<string, unknown> {
 
   // Main Field Details
   task_cost?: number;
-  task_notes?: string;
+  task_quantity?: number;
+  task_description?: string;
 
   // Metadata
   status: Status;
@@ -387,7 +388,8 @@ export const FleetServiceManagementTaskSchema = z.object({
   service_management_id: single_select_mandatory('FleetServiceManagement'), // Single-Selection -> FleetServiceManagement
 
   task_cost: doubleOptional('Task Cost', 3),
-  task_notes: stringOptional('Task Notes', 0, 2000),
+  task_quantity: numberOptional('Task Quantity', 0),
+  task_description: stringOptional('Task Description', 0, 2000),
 
   status: enumMandatory('Status', Status, Status.Active),
 });
@@ -577,7 +579,8 @@ export const toFleetServiceManagementTaskPayload = (row: FleetServiceManagementT
   fleet_service_task_id: row.fleet_service_task_id || '',
 
   task_cost: row.task_cost || 0,
-  task_notes: row.task_notes || '',
+  task_quantity: row.task_quantity || 0,
+  task_description: row.task_description || '',
 
   status: row.status || Status.Active,
 });
@@ -588,7 +591,8 @@ export const newFleetServiceManagementTaskPayload = (): FleetServiceManagementTa
   fleet_service_task_id: '',
 
   task_cost: 0,
-  task_notes: '',
+  task_quantity: 0,
+  task_description: '',
 
   status: Status.Active,
 });
