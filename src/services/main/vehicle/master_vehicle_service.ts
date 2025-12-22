@@ -1256,6 +1256,11 @@ export const VehicleDeviceLinkSchema = z.object({
   camera_extra_count: numberOptional('Camera Extra Count'),
   fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
 
+  // Profile Image/Logo
+  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
+  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
+  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
+
   // Metadata
   MasterDeviceFileSchema: nestedArrayOfObjectsOptional(
     'MasterDeviceFileSchema',
@@ -1310,6 +1315,11 @@ export const VehicleDetailGPSSensorSchema = z.object({
   is_front_cam: enumOptional('Is Front Cam', YesNo, YesNo.No),
   camera_extra_count: numberOptional('Camera Extra Count'),
   fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
+
+  // Profile Image/Logo
+  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
+  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
+  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
 });
 export type VehicleDetailGPSSensorDTO = z.infer<
   typeof VehicleDetailGPSSensorSchema
@@ -1876,6 +1886,9 @@ export const toVehicleDetailsGPSPayload = (vehicleGPS?: VehicleDetailGPS): Vehic
   camera_extra_count: vehicleGPS?.camera_extra_count || 0,
 
   fuel_mapping: vehicleGPS?.fuel_mapping || {},
+  calibration_file_url: vehicleGPS?.calibration_file_url || '',
+  calibration_file_key: vehicleGPS?.calibration_file_key || '',
+  calibration_file_name: vehicleGPS?.calibration_file_name || '',
 });
 
 // Convert VehicleDetailTrip Data to API Payload
