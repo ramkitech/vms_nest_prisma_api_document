@@ -47,6 +47,7 @@ const ENDPOINTS = {
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+  inspection_dashboard: `${URL}/inspection_dashboard`,
   find_check_pending: `${URL}/check_pending`,
 };
 
@@ -127,6 +128,13 @@ export interface FleetInspectionFile extends BaseCommonFile {
   FleetInspection?: FleetInspection;
 
   // Usage Type -> Inspection Images, Inspection Videos, Inspection Documents
+}
+
+export interface InspectionDashboard {
+    vehicle_id: string;
+    vehicle_number: string;
+    vehicle_type: string;
+    inspections_count: number;
 }
 
 // FleetInspectionFile Schema
@@ -218,6 +226,20 @@ export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
 });
 export type FleetInspectionQueryDTO = z.infer<
   typeof FleetInspectionQuerySchema
+>;
+
+// FleetInspectionDashBoard Query Schema
+export const FleetInspectionDashBoardQuerySchema = BaseQuerySchema.extend({
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'),
+  vehicle_ids: multi_select_optional('MasterVehicle'),
+
+  // Date Range
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
+});
+export type FleetInspectionDashBoardQueryDTO = z.infer<
+  typeof FleetInspectionDashBoardQuerySchema
 >;
 
 // FleetInspectionCheckPending Query Schema
@@ -324,6 +346,10 @@ export const updateFleetInspection = async (id: string, data: FleetInspectionDTO
 
 export const deleteFleetInspection = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+export const inspection_dashboard = async (data: FleetInspectionDashBoardQueryDTO): Promise<FBR<InspectionDashboard[]>> => {
+    return apiPost<FBR<InspectionDashboard[]>, FleetInspectionDashBoardQueryDTO>(ENDPOINTS.inspection_dashboard, data);
 };
 
 export const find_check_pending = async (data: FleetInspectionCheckPendingQueryDTO): Promise<FBR<FleetInspection[]>> => {
