@@ -1,6 +1,6 @@
 // Axios
-import { apiPost, apiPatch, apiDelete } from '../../../../core/apiCall';
-import { SBR, FBR } from '../../../../core/BaseResponse';
+import { apiPost, apiPatch, apiDelete, apiGet } from '../../../../core/apiCall';
+import { SBR, FBR, BR } from '../../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -37,6 +37,9 @@ const ENDPOINTS = {
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  // Cache APIs
+  cache: (organisation_id: string): string => `${URL}/cache/${organisation_id}`,
 };
 
 // GPSGeofence Interface
@@ -105,6 +108,13 @@ export interface GPSGeofencePolilineData {
   latitude: number;
   longitude: number;
 }
+
+// GPSGeofenceCache Interface
+export interface GPSGeofenceCache extends Record<string, unknown> {
+    gps_geofence_id: string;
+    geofence_name?: string;
+    geofence_details?: string;
+};
 
 // GPSGeofence Poliline Data Create/Update Schema
 export const GPSGeofencePolilineDataSchema = z.object({
@@ -261,4 +271,9 @@ export const updateGPSGeofence = async (id: string, data: GPSGeofenceDTO): Promi
 
 export const deleteGPSGeofence = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
+};
+
+// Cache APIs
+export const getGPSGeofenceCache = async (organisation_id: string): Promise<BR<GPSGeofenceCache[]>> => {
+    return apiGet<BR<GPSGeofenceCache[]>>(ENDPOINTS.cache(organisation_id));
 };
