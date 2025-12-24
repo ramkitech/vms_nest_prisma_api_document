@@ -1257,9 +1257,9 @@ export const VehicleDeviceLinkSchema = z.object({
   fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
 
   // Profile Image/Logo
-  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
-  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
-  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
+  calibration_file_url: stringOptional('Calibration File URL', 0, 300),
+  calibration_file_key: stringOptional('Calibration File Key', 0, 300),
+  calibration_file_name: stringOptional('Calibration File Name', 0, 300),
 
   // Metadata
   MasterDeviceFileSchema: nestedArrayOfObjectsOptional(
@@ -1317,9 +1317,9 @@ export const VehicleDetailGPSSensorSchema = z.object({
   fuel_mapping: dynamicJsonSchema('Fuel Mapping'),
 
   // Profile Image/Logo
-  calibration_file_url: stringMandatory('Calibration File URL', 0, 300),
-  calibration_file_key: stringMandatory('Calibration File Key', 0, 300),
-  calibration_file_name: stringMandatory('Calibration File Name', 0, 300),
+  calibration_file_url: stringOptional('Calibration File URL', 0, 300),
+  calibration_file_key: stringOptional('Calibration File Key', 0, 300),
+  calibration_file_name: stringOptional('Calibration File Name', 0, 300),
 });
 export type VehicleDetailGPSSensorDTO = z.infer<
   typeof VehicleDetailGPSSensorSchema
