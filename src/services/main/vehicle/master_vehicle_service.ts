@@ -1686,20 +1686,12 @@ export type VehicleDocumentExpiryQueryDTO = z.infer<
 
 // Vehicle Query Schema
 export const VehicleQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
-
-  is_driver_assigned: enumArrayOptional(
-    'Is Device Installed',
-    YesNo,
-    getAllEnums(YesNo),
-  ),
   driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
-
-  is_device_installed: enumArrayOptional(
-    'Is Device Installed',
-    YesNo,
-    getAllEnums(YesNo),
-  ),
   device_ids: multi_select_optional('MasterDevice'), // Multi-Selection -> MasterDevice
 
   organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // Multi-Selection -> OrganisationSubCompany
@@ -1720,8 +1712,17 @@ export const VehicleQuerySchema = BaseQuerySchema.extend({
   vehicle_fuel_type_ids: multi_select_optional('MasterVehicleFuelType'), // Multi-Selection -> MasterVehicleFuelType
   vehicle_fuel_unit_ids: multi_select_optional('MasterVehicleFuelUnit'), // Multi-Selection -> MasterVehicleFuelUnit
 
-  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
-
+  // Enums
+  is_device_installed: enumArrayOptional(
+    'Is Device Installed',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
+  is_driver_assigned: enumArrayOptional(
+    'Is Driver Assigned',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
   gps_vehicle_category: enumOptional(
     'GPS Vehicle Category',
     GPSVehicleCategory,
@@ -1742,6 +1743,7 @@ export const VehicleGPSQuerySchema = BaseQuerySchema.extend({
   vehicle_id: single_select_mandatory('MasterVehicle'), // Single-selection -> MasterVehicle
 });
 export type VehicleGPSQueryDTO = z.infer<typeof VehicleGPSQuerySchema>;
+
 
 // Convert Vehicle Data to API Payload
 export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
