@@ -47,6 +47,8 @@ const ENDPOINTS = {
 export interface Ticket extends Record<string, unknown> {
   // Primary Fields
   ticket_id: string;
+
+  // Main Field Details
   subject: string;
   description?: string;
   admin_message?: string;
@@ -64,9 +66,11 @@ export interface Ticket extends Record<string, unknown> {
 
   user_id: string;
   User?: User;
+  user_details?: string;
 
   admin_id?: string;
   UserAdmin?: UserAdmin;
+  admin_name?: string;
 
   // Child Relations
   TicketFile?: TicketFile[];
@@ -93,20 +97,20 @@ export interface TicketFile extends BaseCommonFile {
   // Usage Type -> Issue Image, Issue Video
 }
 
-// ✅ Ticket File Schema
+// Ticket File Schema
 export const TicketFileSchema = BaseFileSchema.extend({
-  organisation_id: single_select_optional('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  ticket_id: single_select_optional('Ticket'), // ✅ Single-Selection -> Ticket
+  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  ticket_id: single_select_optional('Ticket'), // Single-Selection -> Ticket
 });
 export type TicketFileDTO = z.infer<typeof TicketFileSchema>;
 
-// ✅ Ticket Create/update Schema
+// Ticket Create/update Schema
 export const TicketSchema = z.object({
   subject: stringMandatory('Subject', 3, 100),
   description: stringOptional('Description', 0, 500),
 
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  user_id: single_select_mandatory('User'), // ✅ Single-Selection -> User
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_mandatory('User'), // Single-Selection -> User
 
   TicketFileSchema: nestedArrayOfObjectsOptional(
     'TicketFileSchema',
@@ -117,9 +121,9 @@ export const TicketSchema = z.object({
 });
 export type TicketDTO = z.infer<typeof TicketSchema>;
 
-// ✅ Ticket Verify Schema
+// Ticket Verify Schema
 export const TicketVerifySchema = z.object({
-  admin_id: single_select_mandatory('UserAdmin'), // ✅ Single-Selection -> UserAdmin
+  admin_id: single_select_mandatory('UserAdmin'), // Single-Selection -> UserAdmin
   admin_message: stringOptional('Admin Message', 0, 500),
   ticket_status: enumMandatory('TicketStatus', TicketStatus, TicketStatus.Open),
   TicketFileSchema: nestedArrayOfObjectsOptional(
@@ -130,12 +134,12 @@ export const TicketVerifySchema = z.object({
 });
 export type TicketVerifyDTO = z.infer<typeof TicketVerifySchema>;
 
-// ✅ Ticket Query Schema
+// Ticket Query Schema
 export const TicketQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
-  admin_ids: multi_select_optional('UserAdmin'), // ✅ Multi-selection -> UserAdmin
-  ticket_ids: multi_select_optional('Ticket'), // ✅ Multi-selection -> Ticket
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-selection -> User
+  admin_ids: multi_select_optional('UserAdmin'), // Multi-selection -> UserAdmin
+  ticket_ids: multi_select_optional('Ticket'), // Multi-selection -> Ticket
   ticket_status: enumArrayOptional(
     'Ticket Status',
     TicketStatus,
@@ -146,33 +150,13 @@ export type TicketQueryDTO = z.infer<typeof TicketQuerySchema>;
 
 // Convert existing data to a payload structure
 export const toTicketPayload = (ticket: Ticket): TicketDTO => ({
-  subject: ticket.subject,
-  description: ticket.description ?? '',
   organisation_id: ticket.organisation_id,
   user_id: ticket.user_id,
-  status: ticket.status,
 
-  TicketFileSchema: ticket.TicketFile?.map((file) => ({
-    organisation_id: file.organisation_id ?? '',
-    ticket_id: file.ticket_id ?? '',
-    ticket_file_id: file.ticket_file_id ?? '',
-    usage_type: file.usage_type,
-    file_type: file.file_type,
-    file_url: file.file_url || '',
-    file_key: file.file_key || '',
-    file_name: file.file_name || '',
-    file_description: file.file_description || '',
-    file_size: file.file_size ?? 0,
-    file_metadata: file.file_metadata ?? {},
-    status: file.status,
-  })) ?? [],
-});
+  subject: ticket.subject ?? '',
+  description: ticket.description ?? '',
 
-// Convert existing data to a payload structure
-export const toVerifyTicketPayload = (ticket: Ticket): TicketVerifyDTO => ({
-  admin_message: ticket.admin_message ?? '',
-  ticket_status: ticket.ticket_status,
-  admin_id: ticket.admin_id ?? '',
+  status: ticket.status || Status.Active,
 
   TicketFileSchema: ticket.TicketFile?.map((file) => ({
     organisation_id: file.organisation_id ?? '',
@@ -194,10 +178,36 @@ export const toVerifyTicketPayload = (ticket: Ticket): TicketVerifyDTO => ({
 export const newTicketPayload = (): TicketDTO => ({
   organisation_id: '',
   user_id: '',
+
   subject: '',
   description: '',
-  TicketFileSchema: [],
+
   status: Status.Active,
+
+  TicketFileSchema: [],
+});
+
+// Convert existing data to a payload structure
+export const toVerifyTicketPayload = (ticket: Ticket): TicketVerifyDTO => ({
+  admin_id: ticket.admin_id ?? '',
+
+  admin_message: ticket.admin_message ?? '',
+  ticket_status: ticket.ticket_status,
+
+  TicketFileSchema: ticket.TicketFile?.map((file) => ({
+    organisation_id: file.organisation_id ?? '',
+    ticket_id: file.ticket_id ?? '',
+    ticket_file_id: file.ticket_file_id ?? '',
+    usage_type: file.usage_type,
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+    status: file.status,
+  })) ?? [],
 });
 
 // AWS S3 PRESIGNED
