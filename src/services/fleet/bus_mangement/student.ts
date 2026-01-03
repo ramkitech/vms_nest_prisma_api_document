@@ -131,6 +131,7 @@ export interface Student extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id?: string;
     OrganisationBranch?: OrganisationBranch;
@@ -229,6 +230,7 @@ export interface StudentAddress extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -266,6 +268,7 @@ export interface StudentLeaveRequest extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -297,6 +300,7 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -332,6 +336,7 @@ export interface StudentGuardianLink extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;

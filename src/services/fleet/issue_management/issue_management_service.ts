@@ -89,6 +89,7 @@ export interface FleetIssueManagement extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     user_id: string;
     User?: User;
@@ -169,6 +170,7 @@ export interface FleetIssueManagementComment extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     vehicle_issue_id: string;
     FleetIssueManagement?: FleetIssueManagement;
@@ -182,6 +184,7 @@ export interface FleetIssueManagementFile extends BaseCommonFile {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     vehicle_issue_id: string;
     FleetIssueManagement?: FleetIssueManagement;

@@ -73,6 +73,7 @@ export interface FleetInspection extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -123,6 +124,7 @@ export interface FleetInspectionFile extends BaseCommonFile {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   inspection_id: string;
   FleetInspection?: FleetInspection;

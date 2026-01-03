@@ -54,6 +54,7 @@ export interface OrganisationCalendar extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   organisation_branch_id?: string;
   OrganisationBranch?: OrganisationBranch;

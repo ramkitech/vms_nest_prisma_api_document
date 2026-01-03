@@ -56,9 +56,10 @@ export interface OrganisationReportPreference extends Record<string, unknown> {
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   // Relations - Child
   OrganisationReportPreferenceVehicleLink: OrganisationReportPreferenceVehicleLink[]
@@ -118,9 +119,10 @@ export interface OrganisationReportAutomationMail extends Record<string, unknown
   added_date_time: string;
   modified_date_time: string;
 
-  // Relations
+  // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   report_preference_id: string;
   OrganisationReportPreference?: OrganisationReportPreference;

@@ -106,6 +106,7 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     vendor_id: string;
     FleetVendor?: FleetVendor;

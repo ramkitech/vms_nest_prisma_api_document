@@ -128,6 +128,7 @@ export interface FleetFuelRefill extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   user_id?: string;
   User?: User;
@@ -179,6 +180,7 @@ export interface FleetFuelRefillFile extends BaseCommonFile {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   fleet_fuel_refill_id: string;
   FleetFuelRefill?: FleetFuelRefill;

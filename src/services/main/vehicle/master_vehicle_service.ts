@@ -481,6 +481,7 @@ export interface MasterVehicleFile extends BaseCommonFile {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -1018,6 +1019,7 @@ export interface VehicleDocumentFile extends BaseCommonFile {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_document_id: string;
   VehicleDocument?: VehicleDocument;
@@ -1041,6 +1043,7 @@ export interface VehicleDocumentExpiry extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -1070,6 +1073,7 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;

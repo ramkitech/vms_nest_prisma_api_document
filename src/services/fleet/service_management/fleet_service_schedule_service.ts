@@ -54,6 +54,7 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   user_id: string;
   User?: User;

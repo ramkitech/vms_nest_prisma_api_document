@@ -90,6 +90,7 @@ export interface GPSLiveTrackShareLinkNotification extends Record<string, unknow
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   gps_live_track_share_link_id: string;
   GPSLiveTrackShareLink?: GPSLiveTrackShareLink;

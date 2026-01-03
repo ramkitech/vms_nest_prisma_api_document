@@ -88,6 +88,7 @@ export interface GPSTrackHistoryShareLinkNotification extends Record<string, unk
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   gps_track_history_share_link_id: string;
   GPSTrackHistoryShareLink?: GPSTrackHistoryShareLink;

@@ -126,6 +126,7 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     user_id: string;
     User?: User;
@@ -188,6 +189,7 @@ export interface FleetIncidentManagementCost extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     vehicle_incident_id: string;
     FleetIncidentManagement?: FleetIncidentManagement;
@@ -205,6 +207,7 @@ export interface FleetIncidentManagementFile extends BaseCommonFile {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     vehicle_incident_id: string;
     FleetIncidentManagement?: FleetIncidentManagement;

@@ -100,6 +100,7 @@ export interface MasterRoute extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -139,6 +140,7 @@ export interface MasterRouteStop extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -192,6 +194,7 @@ export interface MasterFixedSchedule extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -243,6 +246,7 @@ export interface MasterRouteStudent extends Record<string, unknown> {
     // Relations - Parent
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;

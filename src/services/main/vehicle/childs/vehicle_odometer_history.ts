@@ -48,6 +48,7 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
   // Relations
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;

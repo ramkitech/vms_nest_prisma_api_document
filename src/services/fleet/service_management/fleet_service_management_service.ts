@@ -122,6 +122,7 @@ export interface FleetServiceManagement extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   user_id: string;
   User?: User;
@@ -193,6 +194,7 @@ export interface FleetServiceManagementFile extends BaseCommonFile {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   service_management_id: string;
   FleetServiceManagement?: FleetServiceManagement;
@@ -216,6 +218,7 @@ export interface FleetServiceReminder extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;

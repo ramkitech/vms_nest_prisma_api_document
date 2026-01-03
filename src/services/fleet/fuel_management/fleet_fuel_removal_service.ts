@@ -109,6 +109,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   user_id?: string;
   User?: User;
@@ -152,6 +153,7 @@ export interface FleetFuelRemovalFile extends BaseCommonFile {
   // Relations - Parent
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
+  organisation_name?: string;
 
   fleet_fuel_removal_id: string;
   FleetFuelRemoval?: FleetFuelRemoval;
