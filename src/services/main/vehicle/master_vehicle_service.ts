@@ -1595,7 +1595,6 @@ export const VehicleDocumentSchema = z.object({
   vendor_id: single_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
 
   // Main Field Details
-  vehicle_document_code: stringOptional('vehicle Document Code', 0, 50),
   document_number: stringOptional('vehicle Document Code', 0, 100),
   document_authorized_name: stringOptional('vehicle Document Code', 0, 100),
   document_cost: doubleOptional('Document Cost'),
@@ -2059,8 +2058,6 @@ export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentD
   vendor_id: row.vendor_id || '',
   document_type_id: row.document_type_id || '',
 
-  vehicle_document_code: row.vehicle_document_code || '',
-
   document_number: row.document_number || '',
   document_authorized_name: row.document_authorized_name || '',
   document_cost: row.document_cost || 0,
@@ -2108,8 +2105,6 @@ export const newVehicleDocumentPayload = (): VehicleDocumentDTO => ({
   vehicle_id: '',
   vendor_id: '',
   document_type_id: '',
-
-  vehicle_document_code: '',
 
   document_number: '',
   document_authorized_name: '',
