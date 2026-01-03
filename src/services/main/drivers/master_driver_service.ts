@@ -400,40 +400,6 @@ export const toDriverPayload = (row: MasterDriver): MasterDriverDTO => ({
 
   status: row?.status || Status.Active,
 
-  MasterDriverFileSchema: [],
-  // MasterDriverFileSchema: row.MasterDriverFile?.map((file) => ({
-  //   driver_file_id: file.driver_file_id || '',
-  //   organisation_id: file.organisation_id || '',
-  //   driver_id: file.driver_id || '',
-
-  //   usage_type: file.usage_type,
-
-  //   file_type: file.file_type,
-  //   file_url: file.file_url || '',
-  //   file_key: file.file_key || '',
-  //   file_name: file.file_name || '',
-  //   file_description: file.file_description || '',
-  //   file_size: file.file_size || 0,
-  //   file_metadata: file.file_metadata || {},
-  //   status: file.status || Status.Active,
-  // })) || [],
-});
-
-// Convert MasterDriverProfile Data to API Payload
-export const toDriverProfilePayload = (row: MasterDriver): MasterDriverProfileDTO => ({
-  driver_code: row.driver_code || '',
-  driver_first_name: row.driver_first_name || '',
-  driver_last_name: row.driver_last_name || '',
-  driver_mobile: row.driver_mobile || '',
-  driver_email: row.driver_email || '',
-  driver_license: row.driver_license || '',
-  driver_pan: row.driver_pan || '',
-  driver_aadhaar: row.driver_aadhaar || '',
-
-  driver_image_url: row.driver_image_url || '',
-  driver_image_key: row.driver_image_key || '',
-  driver_image_name: row.driver_image_name || '',
-
   MasterDriverFileSchema: row.MasterDriverFile?.map((file) => ({
     driver_file_id: file.driver_file_id || '',
 
@@ -484,6 +450,43 @@ export const newDriverPayload = (): MasterDriverDTO => ({
   MasterDriverFileSchema: [],
 
   status: Status.Active,
+});
+
+// Convert MasterDriverProfile Data to API Payload
+export const toDriverProfilePayload = (row: MasterDriver): MasterDriverProfileDTO => ({
+  driver_code: row.driver_code || '',
+  driver_first_name: row.driver_first_name || '',
+  driver_last_name: row.driver_last_name || '',
+  driver_mobile: row.driver_mobile || '',
+  driver_email: row.driver_email || '',
+  driver_license: row.driver_license || '',
+  driver_pan: row.driver_pan || '',
+  driver_aadhaar: row.driver_aadhaar || '',
+
+  driver_image_url: row.driver_image_url || '',
+  driver_image_key: row.driver_image_key || '',
+  driver_image_name: row.driver_image_name || '',
+
+  MasterDriverFileSchema: row.MasterDriverFile?.map((file) => ({
+    driver_file_id: file.driver_file_id || '',
+
+    usage_type: file.usage_type,
+
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size || 0,
+    file_metadata: file.file_metadata || {},
+
+    status: file.status,
+    added_date_time: file.added_date_time,
+    modified_date_time: file.modified_date_time,
+
+    organisation_id: file.organisation_id ?? '',
+    driver_id: file.driver_id ?? '',
+  })) ?? []
 });
 
 // AWS S3 PRESIGNED
