@@ -141,16 +141,16 @@ const ENDPOINTS = {
   vehicle_device_link_history_by_device: (id: string): string => `${URL}/vehicle_device_link_history_by_device/${id}`,
 
   // VehicleDocument APIs
-  create_document: `${URL}/document`,
-  find_document: `${URL}/find_document/search`,
-  update_document: (id: string): string => `${URL}/vehicle_document/${id}`,
-  remove_document: (id: string): string => `${URL}/vehicle_document/${id}`,
+  create_vehicle_document: `${URL}/vehicle_document`,
+  find_vehicle_document: `${URL}/vehicle_document/search`,
+  update_vehicle_document: (id: string): string => `${URL}/vehicle_document/${id}`,
+  remove_vehicle_document: (id: string): string => `${URL}/vehicle_document/${id}`,
 
   // VehicleDocumentExpiry APIs
-  create_document_expiry: `${URL}/vehicle_document_expiry`,
-  find_document_expiry: `${URL}/vehicle_document_expiry/search`,
-  update_document_expiry: (id: string): string => `${URL}/vehicle_document_expiry/${id}`,
-  remove_document_expiry: (id: string): string => `${URL}/vehicle_document_expiry/${id}`,
+  create_vehicle_document_expiry: `${URL}/vehicle_document_expiry`,
+  find_vehicle_document_expiry: `${URL}/vehicle_document_expiry/search`,
+  update_vehicle_document_expiry: (id: string): string => `${URL}/vehicle_document_expiry/${id}`,
+  remove_vehicle_document_expiry: (id: string): string => `${URL}/vehicle_document_expiry/${id}`,
 
   // Cache APIs
   find_cache: `${URL}/cache/:organisation_id`,
@@ -2288,36 +2288,36 @@ export const getDeviceLinkHistoryByDevice = async (id: string, params: BaseQuery
 
 // VehicleDocument APIs
 export const createVehicleDocument = async (payload: VehicleDocumentDTO): Promise<SBR> => {
-  return apiPost<SBR, VehicleDocumentDTO>(ENDPOINTS.create_document, payload);
+  return apiPost<SBR, VehicleDocumentDTO>(ENDPOINTS.create_vehicle_document, payload);
 };
 
 export const findVehicleDocument = async (payload: VehicleDocumentQueryDTO): Promise<FBR<VehicleDocument[]>> => {
-  return apiPost<FBR<VehicleDocument[]>, VehicleDocumentQueryDTO>(ENDPOINTS.find_document, payload);
+  return apiPost<FBR<VehicleDocument[]>, VehicleDocumentQueryDTO>(ENDPOINTS.find_vehicle_document, payload);
 };
 
 export const updateVehicleDocument = async (id: string, payload: VehicleDocumentDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDocumentDTO>(ENDPOINTS.update_document(id), payload);
+  return apiPatch<SBR, VehicleDocumentDTO>(ENDPOINTS.update_vehicle_document(id), payload);
 };
 
 export const removeVehicleDocument = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_document(id));
+  return apiDelete<SBR>(ENDPOINTS.remove_vehicle_document(id));
 };
 
 // VehicleDocumentExpiry APIs
 export const createVehicleDocumentExpiry = async (payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
-  return apiPost<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.create_document_expiry, payload);
+  return apiPost<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.create_vehicle_document_expiry, payload);
 };
 
 export const findVehicleDocumentExpiry = async (payload: VehicleDocumentExpiryQueryDTO): Promise<FBR<VehicleDocumentExpiry[]>> => {
-  return apiPost<FBR<VehicleDocumentExpiry[]>, VehicleDocumentExpiryQueryDTO>(ENDPOINTS.find_document_expiry, payload);
+  return apiPost<FBR<VehicleDocumentExpiry[]>, VehicleDocumentExpiryQueryDTO>(ENDPOINTS.find_vehicle_document_expiry, payload);
 };
 
 export const updateVehicleDocumentExpiry = async (id: string, payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.update_document_expiry(id), payload);
+  return apiPatch<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.update_vehicle_document_expiry(id), payload);
 };
 
 export const removeVehicleDocumentExpiry = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_document_expiry(id));
+  return apiDelete<SBR>(ENDPOINTS.remove_vehicle_document_expiry(id));
 };
 
 // Cache APIs
