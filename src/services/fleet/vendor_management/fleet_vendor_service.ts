@@ -109,7 +109,6 @@ export interface FleetVendor extends Record<string, unknown> {
     business_email?: string;
 
     // Business Details
-    company_name?: string;
     gst_number?: string;
     pan_number?: string;
     tax_id_number?: string;
@@ -456,7 +455,6 @@ export const FleetVendorSchema = z.object({
     business_email: stringOptional('Business Email', 0, 100),
 
     // Business Details
-    company_name: stringOptional('Company Name', 0, 100),
     gst_number: stringOptional('GST Number', 0, 15),
     pan_number: stringOptional('PAN Number', 0, 10),
     tax_id_number: stringOptional('Tax ID Number', 0, 50),
@@ -755,7 +753,6 @@ export const toFleetVendorPayload = (row: FleetVendor): FleetVendorDTO => ({
     logo_name: row.logo_name || '',
 
     // Business Details
-    company_name: row.company_name || '',
     gst_number: row.gst_number || '',
     pan_number: row.pan_number || '',
     tax_id_number: row.tax_id_number || '',
@@ -791,7 +788,6 @@ export const newFleetVendorPayload = (): FleetVendorDTO => ({
     logo_key: '',
     logo_name: '',
 
-    company_name: '',
     gst_number: '',
     pan_number: '',
     tax_id_number: '',
