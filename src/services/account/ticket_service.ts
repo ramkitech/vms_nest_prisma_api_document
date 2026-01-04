@@ -123,6 +123,7 @@ export type TicketDTO = z.infer<typeof TicketSchema>;
 
 // Ticket Verify Schema
 export const TicketVerifySchema = z.object({
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   admin_id: single_select_mandatory('UserAdmin'), // Single-Selection -> UserAdmin
   admin_message: stringOptional('Admin Message', 0, 500),
   ticket_status: enumMandatory('TicketStatus', TicketStatus, TicketStatus.Open),
@@ -189,6 +190,8 @@ export const newTicketPayload = (): TicketDTO => ({
 
 // Convert existing data to a payload structure
 export const toVerifyTicketPayload = (ticket: Ticket): TicketVerifyDTO => ({
+  organisation_id: ticket.organisation_id ?? '',
+
   admin_id: ticket.admin_id ?? '',
 
   admin_message: ticket.admin_message ?? '',
