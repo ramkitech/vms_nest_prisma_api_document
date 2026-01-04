@@ -189,6 +189,18 @@ export const newTicketPayload = (): TicketDTO => ({
 });
 
 // Convert existing data to a payload structure
+export const newVerifyTicketPayload = (): TicketVerifyDTO => ({
+  organisation_id: '',
+
+  admin_id: '',
+
+  admin_message: '',
+  ticket_status: TicketStatus.Open,
+
+  TicketFileSchema: [],
+});
+
+// Convert existing data to a payload structure
 export const toVerifyTicketPayload = (ticket: Ticket): TicketVerifyDTO => ({
   organisation_id: ticket.organisation_id ?? '',
 
