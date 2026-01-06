@@ -102,7 +102,7 @@ export type MultipleVehicleReportQueryDTO = z.infer<
   typeof MultipleVehicleReportSchema
 >;
 
-// ✅ MultipleDriverReportSchema
+// MultipleDriverReportSchema
 export const MultipleDriverReportSchema = MongoBaseQuerySchema.extend({
   organisation_id: single_select_mandatory('Organisation'),
   db_instance: stringMandatory('DB Instance'),
@@ -113,15 +113,17 @@ export const MultipleDriverReportSchema = MongoBaseQuerySchema.extend({
   time_slot: enumOptional(
     'Time Slot',
     TimeSlot,
-    TimeSlot.TIME_SLOT_12AM_TO_12AM
+    TimeSlot.TIME_SLOT_12AM_TO_12AM,
   ),
   night_driving: enumOptional(
     'Night Driving',
     NightDriving,
-    NightDriving.Night_Driving_8PM_4AM
+    NightDriving.Night_Driving_8PM_4AM,
   ),
   over_speed: enumOptional('Over Speed', OverSpeed, OverSpeed.Over_Speed_60KM),
   utilization_km: numberMandatory('Utilization KM'),
+  raw_data: enumOptional('Raw Data', YesNo, YesNo.No),
+  day_summary: enumOptional('Day Summary', YesNo, YesNo.No),
   vehicle_summary: enumOptional('Vehicle Summary', YesNo, YesNo.No),
   driver_summary: enumOptional('Vehicle Summary', YesNo, YesNo.No),
 });
