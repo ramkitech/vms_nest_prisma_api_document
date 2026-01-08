@@ -71,12 +71,13 @@ export interface BusStop extends Record<string, unknown> {
 
   // Location
   google_location?: string;
+  
   geofence_type: GeofenceType;
-  stop_latitude?: number;
-  stop_longitude?: number;
-  radius_meters?: number;
+  radius_m?: number;
   radius_km?: number;
-  polygon_data?: BusStopPolygonData[];
+  latitude?: number;
+  longitude?: number;
+  poliline_data?: BusStopPolygonData[];
 
   // Metadata
   status: Status;
@@ -109,8 +110,8 @@ export type BusStopPolygonDataDTO = z.infer<typeof BusStopPolygonDataSchema>;
 
 // BusStop Create/Update Schema
 export const BusStopSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-  organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 
   // Basic Info
   stop_name: stringMandatory('Stop Name', 3, 120),
@@ -138,12 +139,12 @@ export const BusStopSchema = z.object({
     GeofenceType,
     GeofenceType.Circle,
   ),
-  stop_latitude: doubleOptionalLatLng('Stop Latitude'),
-  stop_longitude: doubleOptionalLatLng('Stop Longitude'),
-  radius_meters: doubleOptional('Radius Meters'),
-  radius_km: doubleOptional('Radius KM'),
-  polygon_data: nestedArrayOfObjectsOptional(
-    'Polygon Data',
+  radius_km: doubleOptional('radius_km'),
+  radius_m: doubleOptional('radius_m'),
+  latitude: doubleOptionalLatLng('latitude'),
+  longitude: doubleOptionalLatLng('longitude'),
+  poliline_data: nestedArrayOfObjectsOptional(
+    'Polyline Data',
     BusStopPolygonDataSchema,
     [],
   ),
@@ -197,11 +198,12 @@ export const toBusStopPayload = (row: BusStop): BusStopDTO => ({
   google_location: row.google_location || '',
 
   geofence_type: row.geofence_type || GeofenceType.Circle,
-  stop_latitude: row.stop_latitude || 0,
-  stop_longitude: row.stop_longitude || 0,
-  radius_meters: row.radius_meters || 0,
+  radius_m: row.radius_m || 0,
   radius_km: row.radius_km || 0,
-  polygon_data: row.polygon_data || [],
+  latitude: row.latitude || 0,
+  longitude: row.longitude || 0,
+  poliline_data: row.poliline_data || [],
+
   status: row.status || Status.Active,
 });
 
@@ -230,11 +232,12 @@ export const newBusStopPayload = (): BusStopDTO => ({
   google_location: '',
 
   geofence_type: GeofenceType.Circle,
-  stop_latitude: 0,
-  stop_longitude: 0,
-  radius_meters: 0,
+  latitude: 0,
+  longitude: 0,
+  radius_m: 0,
   radius_km: 0,
-  polygon_data: [],
+  poliline_data: [],
+
   status: Status.Active,
 });
 
