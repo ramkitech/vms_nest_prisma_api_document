@@ -62,7 +62,6 @@ const ENDPOINTS = {
     find_address: `${URL}/address/search`,
     create_address: `${URL}/address`,
     update_address: (id: string): string => `${URL}/address/${id}`,
-    update_address_bus_stop_assign: (id: string): string => `${URL}/address_bus_stop_assign/${id}`,
     remove_address: (id: string): string => `${URL}/address/${id}`,
 
     // StudentGuardianLink APIs
@@ -88,6 +87,9 @@ const ENDPOINTS = {
     update_stop_change_request: (id: string): string => `${URL}/stop_change_request/${id}`,
     approve_stop_change_request: (id: string): string => `${URL}/approve_stop_change_request/${id}`,
     remove_stop_change_request: (id: string): string => `${URL}/stop_change_request/${id}`,
+
+    // StudentEnrollmentStatusHistory APIs
+    find_enrollment_status_history: `${URL}/enrollment_status_history/search`,
 };
 
 // Student Interface
@@ -884,6 +886,19 @@ export type StudentStopChangeRequestQueryDTO = z.infer<
     typeof StudentStopChangeRequestQuerySchema
 >;
 
+// StudentEnrollmentStatusHistory Query Schema
+export const StudentEnrollmentStatusHistoryQuerySchema = BaseQuerySchema.extend({
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
+    student_ids: multi_select_optional('Student'), // Multi-selection -> Student
+    student_enrollment_status_history_ids: multi_select_optional(
+        'StudentEnrollmentStatusHistory',
+    ), // Multi-selection -> StudentEnrollmentStatusHistory
+});
+export type StudentEnrollmentStatusHistoryQueryDTO = z.infer<
+    typeof StudentEnrollmentStatusHistoryQuerySchema
+>;
+
 // Convert Student Data to API Payload
 export const toStudentPayload = (row: Student): StudentDTO => ({
     organisation_id: row.organisation_id || '',
@@ -1169,10 +1184,6 @@ export const updateStudentAddress = async (id: string, data: StudentAddressDTO):
     return apiPatch<SBR, StudentAddressDTO>(ENDPOINTS.update_address(id), data);
 };
 
-export const updateAddressBusStopAssign = async (id: string, data: StudentAddressBusStopAssignDTO): Promise<SBR> => {
-    return apiPatch<SBR, StudentAddressBusStopAssignDTO>(ENDPOINTS.update_address_bus_stop_assign(id), data);
-};
-
 export const deleteStudentAddress = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_address(id));
 };
@@ -1250,6 +1261,11 @@ export const approveStopChangeRequest = async (id: string, data: StudentStopChan
 
 export const deleteStudentStopChangeRequest = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_stop_change_request(id));
+};
+
+// StudentEnrollmentStatusHistory APIs
+export const findStudentEnrollmentStatusHistory = async (data: StudentEnrollmentStatusHistoryQueryDTO): Promise<FBR<StudentEnrollmentStatusHistory[]>> => {
+    return apiPost<FBR<StudentEnrollmentStatusHistory[]>, StudentEnrollmentStatusHistoryQueryDTO>(ENDPOINTS.find_enrollment_status_history, data);
 };
 
 
