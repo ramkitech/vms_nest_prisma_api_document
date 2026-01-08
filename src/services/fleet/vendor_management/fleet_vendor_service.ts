@@ -45,6 +45,9 @@ const ENDPOINTS = {
     update_vendor_logo: (id: string): string => `${URL}/update_vendor_logo/${id}`,
     delete_vendor_logo: (id: string): string => `${URL}/delete_vendor_logo/${id}`,
 
+    update_vendor_contact_person_logo: (id: string): string => `${URL}/update_vendor_contact_person_logo/${id}`,
+    delete_vendor_contact_person_logo: (id: string): string => `${URL}/delete_vendor_contact_person_logo/${id}`,
+
     // File Uploads
     create_vendor_document_file: `${URL}/create_vendor_document_file`,
     remove_vendor_document_file: (id: string): string => `${URL}/remove_vendor_document_file/${id}`,
@@ -73,8 +76,6 @@ const ENDPOINTS = {
     find_contact_person: `${URL}/contact_person/search`,
     update_contact_person: (id: string): string => `${URL}/contact_person/${id}`,
     remove_contact_person: (id: string): string => `${URL}/contact_person/${id}`,
-    update_vendor_contact_person_logo: (id: string): string => `${URL}/update_vendor_contact_person_logo/${id}`,
-    delete_vendor_contact_person_logo: (id: string): string => `${URL}/delete_vendor_contact_person_logo/${id}`,
 
     // FleetVendorReview APIs
     create_review: `${URL}/review`,

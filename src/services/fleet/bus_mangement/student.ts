@@ -2,7 +2,7 @@
 
 // Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
-import { SBR, FBR } from '../../../core/BaseResponse';
+import { SBR, FBR, AWSPresignedUrl, BR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
@@ -20,7 +20,7 @@ import {
     doubleOptionalLatLng,
     getAllEnums,
 } from '../../../zod_utils/zod_utils';
-import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
+import { BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
 import {
@@ -49,13 +49,23 @@ import { MasterMainLandMark } from 'src/services/master/main/master_main_landmar
 const URL = 'student';
 
 const ENDPOINTS = {
+    // AWS S3 PRESIGNED
+    student_presigned_url: (fileName: string): string => `${URL}/student_presigned_url/${fileName}`,
+    student_guardian_presigned_url: (fileName: string): string => `${URL}/student_guardian_presigned_url/${fileName}`,
+
+    // File Uploads
+    update_profile_picture: (id: string): string => `${URL}/update_profile_picture/${id}`,
+    delete_profile_picture: (id: string): string => `${URL}/delete_profile_picture/${id}`,
+
+    update_guardian_profile_picture: (id: string): string => `${URL}/update_guardian_profile_picture/${id}`,
+    delete_guardian_profile_picture: (id: string): string => `${URL}/delete_guardian_profile_picture/${id}`,
+
     // Student APIs
     find: `${URL}/search`,
     create: URL,
     find_students_with_no_route_pickup: `${URL}/no_route_pickup/search`,
     find_students_with_no_route_drop: `${URL}/no_route_drop/search`,
     update: (id: string): string => `${URL}/${id}`,
-    update_profile_picture: (id: string): string => `${URL}/update_profile_picture/${id}`,
     remove: (id: string): string => `${URL}/${id}`,
 
     // StudentAddress APIs
@@ -68,7 +78,6 @@ const ENDPOINTS = {
     find_guardian_link: `${URL}/guardian_link/search`,
     create_guardian_link: `${URL}/guardian_link`,
     update_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
-    update_guardian_profile_picture: (id: string): string => `${URL}/guardian_profile_picture/${id}`,
     update_guardian_details: (id: string): string => `${URL}/guardian_details/${id}`,
     update_guardian_mobile_number: (id: string): string => `${URL}/guardian_mobile_number/${id}`,
     remove_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
@@ -1142,6 +1151,34 @@ export const newStudentGuardianLinkPayload = (): StudentGuardianLinkDTO => ({
 
 
 // Student APIs
+
+// AWS S3 PRESIGNED
+export const get_student_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+    return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.student_presigned_url(fileName));
+};
+
+export const get_student_guardian_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+    return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.student_guardian_presigned_url(fileName));
+};
+
+// File Uploads
+export const update_profile_picture = async (id: string, data: StudentProfilePictureDTO): Promise<SBR> => {
+    return apiPatch<SBR, StudentProfilePictureDTO>(ENDPOINTS.update_profile_picture(id), data);
+};
+
+export const delete_profile_picture = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.delete_profile_picture(id));
+};
+
+export const update_guardian_profile_picture = async (id: string, data: GuardianProfilePictureDTO): Promise<SBR> => {
+    return apiPatch<SBR, GuardianProfilePictureDTO>(ENDPOINTS.update_guardian_profile_picture(id), data);
+};
+
+export const delete_guardian_profile_picture = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.delete_guardian_profile_picture(id));
+};
+
+
 export const findStudent = async (data: StudentQueryDTO): Promise<FBR<Student[]>> => {
     return apiPost<FBR<Student[]>, StudentQueryDTO>(ENDPOINTS.find, data);
 };
