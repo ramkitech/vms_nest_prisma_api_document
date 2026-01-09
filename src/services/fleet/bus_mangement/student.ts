@@ -43,8 +43,9 @@ import { MasterSemester } from 'src/services/master/bus/master_semester_service'
 import { MasterStream } from 'src/services/master/bus/master_stream_service';
 import { MasterYear } from 'src/services/master/bus/master_year_service';
 import { MasterRelationship } from 'src/services/master/bus/master_relationship_service';
-import { MasterFixedSchedule, MasterRoute, MasterRouteStop, MasterRouteStudent } from './master_route';
+import { MasterRoute, MasterRouteStop } from './master_route';
 import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
+import { MasterFixedSchedule, MasterRouteStudent } from './master_schedule';
 
 const URL = 'student';
 
