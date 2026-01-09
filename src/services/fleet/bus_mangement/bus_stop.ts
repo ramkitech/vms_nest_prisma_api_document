@@ -8,7 +8,6 @@ import {
   stringMandatory,
   stringOptional,
   single_select_mandatory,
-  single_select_optional,
   multi_select_optional,
   enumMandatory,
   enumArrayOptional,
@@ -52,10 +51,17 @@ export interface BusStop extends Record<string, unknown> {
 
   // Basic Info
   stop_name: string;
-  stop_code?: string;
   stop_type: BusStopType;
   stop_description?: string;
   stop_duration_seconds?: number;
+
+  // Geofence Info
+  geofence_type: GeofenceType;
+  radius_m?: number;
+  radius_km?: number;
+  latitude?: number;
+  longitude?: number;
+  poliline_data?: BusStopPolygonData[];
 
   // Address
   address_line1?: string;
@@ -71,13 +77,6 @@ export interface BusStop extends Record<string, unknown> {
 
   // Location
   google_location?: string;
-  
-  geofence_type: GeofenceType;
-  radius_m?: number;
-  radius_km?: number;
-  latitude?: number;
-  longitude?: number;
-  poliline_data?: BusStopPolygonData[];
 
   // Metadata
   status: Status;
@@ -110,30 +109,21 @@ export type BusStopPolygonDataDTO = z.infer<typeof BusStopPolygonDataSchema>;
 
 // BusStop Create/Update Schema
 export const BusStopSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 
   // Basic Info
-  stop_name: stringMandatory('Stop Name', 3, 120),
-  stop_code: stringOptional('Stop Code', 0, 50),
-  stop_type: enumMandatory('Stop Type', BusStopType, BusStopType.FixedStop),
+  stop_name: stringMandatory('Stop Name', 3, 100),
+  stop_type: enumMandatory(
+    'Stop Type',
+    BusStopType,
+    BusStopType.CommonPickupPoint,
+  ),
   stop_description: stringOptional('Stop Description', 0, 2000),
   stop_duration_seconds: numberOptional('Stop Duration Seconds'),
 
-  // Address
-  address_line1: stringOptional('Address Line 1', 0, 150),
-  address_line2: stringOptional('Address Line 2', 0, 150),
-  locality_landmark: stringOptional('Locality / Landmark', 0, 150),
-  neighborhood: stringOptional('Neighborhood', 0, 100),
-  town_city: stringOptional('Town / City', 0, 100),
-  district_county: stringOptional('District / County', 0, 100),
-  state_province_region: stringOptional('State / Province / Region', 0, 100),
-  postal_code: stringOptional('Postal Code', 0, 20),
-  country: stringOptional('Country', 0, 100),
-  country_code: stringOptional('Country Code', 0, 5),
-
-  google_location: stringOptional('Google Location', 0, 500),
-
+  // Geofence Info
   geofence_type: enumMandatory(
     'Geofence Type',
     GeofenceType,
@@ -149,17 +139,35 @@ export const BusStopSchema = z.object({
     [],
   ),
 
+  // Address
+  address_line1: stringOptional('Address Line 1', 0, 150),
+  address_line2: stringOptional('Address Line 2', 0, 150),
+  locality_landmark: stringOptional('Locality / Landmark', 0, 150),
+  neighborhood: stringOptional('Neighborhood', 0, 100),
+  town_city: stringOptional('Town / City', 0, 100),
+  district_county: stringOptional('District / County', 0, 100),
+  state_province_region: stringOptional('State / Province / Region', 0, 100),
+  postal_code: stringOptional('Postal Code', 0, 20),
+  country: stringOptional('Country', 0, 100),
+  country_code: stringOptional('Country Code', 0, 5),
+
+  google_location: stringOptional('Google Location', 0, 500),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type BusStopDTO = z.infer<typeof BusStopSchema>;
 
 // BusStop Query Schema
 export const BusStopQuerySchema = BaseQuerySchema.extend({
-  bus_stop_ids: multi_select_optional('BusStop'), // ✅ Multi-selection -> BusStop
+  // Self Table
+  bus_stop_ids: multi_select_optional('BusStop'), // Multi-selection -> BusStop
 
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
 
+  // Enums
   stop_type: enumArrayOptional(
     'Stop Type',
     BusStopType,
@@ -179,10 +187,16 @@ export const toBusStopPayload = (row: BusStop): BusStopDTO => ({
   organisation_branch_id: row.organisation_branch_id || '',
 
   stop_name: row.stop_name || '',
-  stop_code: row.stop_code || '',
-  stop_type: row.stop_type || BusStopType.FixedStop,
+  stop_type: row.stop_type || BusStopType.CommonPickupPoint,
   stop_description: row.stop_description || '',
   stop_duration_seconds: row.stop_duration_seconds || 0,
+
+  geofence_type: row.geofence_type || GeofenceType.Circle,
+  radius_m: row.radius_m || 0,
+  radius_km: row.radius_km || 0,
+  latitude: row.latitude || 0,
+  longitude: row.longitude || 0,
+  poliline_data: row.poliline_data || [],
 
   address_line1: row.address_line1 || '',
   address_line2: row.address_line2 || '',
@@ -197,13 +211,6 @@ export const toBusStopPayload = (row: BusStop): BusStopDTO => ({
 
   google_location: row.google_location || '',
 
-  geofence_type: row.geofence_type || GeofenceType.Circle,
-  radius_m: row.radius_m || 0,
-  radius_km: row.radius_km || 0,
-  latitude: row.latitude || 0,
-  longitude: row.longitude || 0,
-  poliline_data: row.poliline_data || [],
-
   status: row.status || Status.Active,
 });
 
@@ -213,10 +220,16 @@ export const newBusStopPayload = (): BusStopDTO => ({
   organisation_branch_id: '',
 
   stop_name: '',
-  stop_code: '',
-  stop_type: BusStopType.FixedStop,
+  stop_type: BusStopType.CommonPickupPoint,
   stop_description: '',
   stop_duration_seconds: 0,
+
+  geofence_type: GeofenceType.Circle,
+  latitude: 0,
+  longitude: 0,
+  radius_m: 0,
+  radius_km: 0,
+  poliline_data: [],
 
   address_line1: '',
   address_line2: '',
@@ -230,13 +243,6 @@ export const newBusStopPayload = (): BusStopDTO => ({
   country_code: '',
 
   google_location: '',
-
-  geofence_type: GeofenceType.Circle,
-  latitude: 0,
-  longitude: 0,
-  radius_m: 0,
-  radius_km: 0,
-  poliline_data: [],
 
   status: Status.Active,
 });

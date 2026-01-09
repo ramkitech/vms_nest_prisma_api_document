@@ -42,19 +42,19 @@ const ENDPOINTS = {
     update_route: (id: string): string => `${URL}/route/${id}`,
     remove_route: (id: string): string => `${URL}/route/${id}`,
 
-    // MasterFixedSchedule APIs
-    find_schedule: `${URL}/schedule/search`,
-    create_schedule: `${URL}/schedule`,
-    update_schedule: (id: string): string => `${URL}/schedule/${id}`,
-    remove_schedule: (id: string): string => `${URL}/schedule/${id}`,
-
-    // StopsFirstTimeRoute APIs
+    // MasterRouteStop APIs
     create_stops_first_time_route: `${URL}/create_stops_first_time_route`,
     append_route_stop: `${URL}/append_route_stop`,
     update_route_stop: (id: string): string => `${URL}/route_stop/${id}`,
     reorder_route_stops: `${URL}/reorder_route_stops`,
     delete_route_stops_all: `${URL}/delete_route_stops_all`,
     delete_route_stop_reorder: `${URL}/delete_route_stop_reorder`,
+
+    // MasterFixedSchedule APIs
+    find_schedule: `${URL}/schedule/search`,
+    create_schedule: `${URL}/schedule`,
+    update_schedule: (id: string): string => `${URL}/schedule/${id}`,
+    remove_schedule: (id: string): string => `${URL}/schedule/${id}`,
 
     // MasterRouteStudent assign/unassign APIs
     find_students_with_no_stop_pickup: `${URL}/students_with_no_stop_pickup/search`,
@@ -78,19 +78,35 @@ const ENDPOINTS = {
 
 // MasterRoute Interface
 export interface MasterRoute extends Record<string, unknown> {
+    // Primary Field
     route_id: string;
+
+    // Main Field Details
     route_name: string;
-    route_code?: string;
     route_notes?: string;
     route_status: Status;
 
-    pickup_journey_time_in_seconds?: number;
-    drop_journey_time_in_seconds?: number;
+    // Journey Time
+    pickup_journey_time_in_minutes?: number;
+    pickup_journey_time_in_minutes_f?: string;
+    drop_journey_time_in_minutes?: number;
+    drop_journey_time_in_minutes_f?: string;
 
     pickup_start_stop_id?: string;
+    Pickup_Start_BusStop?: BusStop;
+    pickup_start_stop_name?: string;
+
     pickup_end_stop_id?: string;
+    Pickup_End_BusStop?: BusStop;
+    pickup_end_stop_name?: string;
+
     drop_start_stop_id?: string;
+    Drop_Start_BusStop?: BusStop;
+    drop_start_stop_name?: string;
+
     drop_end_stop_id?: string;
+    Drop_End_BusStop?: BusStop;
+    drop_end_stop_name?: string;
 
     // Metadata
     status: Status;
@@ -104,23 +120,29 @@ export interface MasterRoute extends Record<string, unknown> {
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
-
-    // Navigation
-    Pickup_Start_BusStop?: BusStop;
-    Pickup_End_BusStop?: BusStop;
-    Drop_Start_BusStop?: BusStop;
-    Drop_End_BusStop?: BusStop;
+    branch_name?: string;
+    branch_city?: string;
 
     // Relations - Child
     MasterRouteStop?: MasterRouteStop[];
+
     MasterFixedSchedule?: MasterFixedSchedule[];
     MasterRouteStudent?: MasterRouteStudent[];
+
+    // FixedScheduleDayRun?: FixedScheduleDayRun[];
+    // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
+    // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
 
     // Relations - Child Count
     _count?: {
         MasterRouteStop?: number;
+
         MasterFixedSchedule?: number;
         MasterRouteStudent?: number;
+
+        FixedScheduleDayRun?: number;
+        FixedScheduleDayRunStop?: number;
+        FixedScheduleDayRunStudent?: number;
     };
 }
 
@@ -277,14 +299,13 @@ export const MasterRouteSchema = z.object({
     drop_end_stop_id: single_select_optional('Drop_End_BusStop'), // ✅ Single-Selection -> BusStop
 
     route_name: stringMandatory('Route Name', 3, 100),
-    route_code: stringOptional('Route Code', 0, 100),
     route_notes: stringOptional('Route Notes', 0, 500),
     route_status: enumMandatory('Route Status', Status, Status.Active),
 
-    pickup_journey_time_in_seconds: numberOptional(
-        'Pickup Journey Time In Seconds',
+    pickup_journey_time_in_minutes: numberOptional(
+        'Pickup Journey Time In Minutes',
     ),
-    drop_journey_time_in_seconds: numberOptional('Drop Journey Time In Seconds'),
+    drop_journey_time_in_minutes: numberOptional('Drop Journey Time In Minutes'),
 
     status: enumMandatory('Status', Status, Status.Active),
 });
@@ -495,12 +516,11 @@ export const toMasterRoutePayload = (row: MasterRoute): MasterRouteDTO => ({
     drop_end_stop_id: row.drop_end_stop_id || '',
 
     route_name: row.route_name || '',
-    route_code: row.route_code || '',
     route_notes: row.route_notes || '',
 
     route_status: row.route_status || Status.Active,
-    pickup_journey_time_in_seconds: row.pickup_journey_time_in_seconds || 0,
-    drop_journey_time_in_seconds: row.drop_journey_time_in_seconds || 0,
+    pickup_journey_time_in_minutes: row.pickup_journey_time_in_minutes || 0,
+    drop_journey_time_in_minutes: row.drop_journey_time_in_minutes || 0,
 
     status: row.status || Status.Active,
 });
@@ -516,12 +536,11 @@ export const newMasterRoutePayload = (): MasterRouteDTO => ({
     drop_end_stop_id: '',
 
     route_name: '',
-    route_code: '',
     route_notes: '',
-
     route_status: Status.Active,
-    pickup_journey_time_in_seconds: 0,
-    drop_journey_time_in_seconds: 0,
+
+    pickup_journey_time_in_minutes: 0,
+    drop_journey_time_in_minutes: 0,
 
     status: Status.Active,
 });

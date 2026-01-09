@@ -842,10 +842,10 @@ export enum BusLeg {
 
 
 export enum BusStopType {
-  FixedStop = 'FixedStop',
+  CommonPickupPoint = 'CommonPickupPoint',
   HomeStop = 'HomeStop',
   BranchGate = 'BranchGate',
-  ParkingStop = 'ParkingStop',
+  ParkingSlot = 'ParkingSlot',
 }
 
 export enum EnrollmentStatus {
