@@ -53,7 +53,6 @@ export interface BusStop extends Record<string, unknown> {
   stop_name: string;
   stop_type: BusStopType;
   stop_description?: string;
-  stop_duration_seconds?: number;
 
   // Geofence Info
   geofence_type: GeofenceType;
@@ -121,7 +120,6 @@ export const BusStopSchema = z.object({
     BusStopType.CommonPickupPoint,
   ),
   stop_description: stringOptional('Stop Description', 0, 2000),
-  stop_duration_seconds: numberOptional('Stop Duration Seconds'),
 
   // Geofence Info
   geofence_type: enumMandatory(
@@ -189,7 +187,6 @@ export const toBusStopPayload = (row: BusStop): BusStopDTO => ({
   stop_name: row.stop_name || '',
   stop_type: row.stop_type || BusStopType.CommonPickupPoint,
   stop_description: row.stop_description || '',
-  stop_duration_seconds: row.stop_duration_seconds || 0,
 
   geofence_type: row.geofence_type || GeofenceType.Circle,
   radius_m: row.radius_m || 0,
@@ -222,7 +219,6 @@ export const newBusStopPayload = (): BusStopDTO => ({
   stop_name: '',
   stop_type: BusStopType.CommonPickupPoint,
   stop_description: '',
-  stop_duration_seconds: 0,
 
   geofence_type: GeofenceType.Circle,
   latitude: 0,
