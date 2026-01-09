@@ -1,22 +1,17 @@
-// master_route_service.ts
-
 // Axios
-import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
 import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
 import {
     stringMandatory,
-    stringOptional,
     single_select_mandatory,
     single_select_optional,
     multi_select_optional,
     enumMandatory,
     enumArrayOptional,
     numberOptional,
-    numberMandatory,
-    nestedArrayOfObjectsOptional,
     dateOptional,
     getAllEnums,
 } from '../../../zod_utils/zod_utils';
@@ -28,27 +23,14 @@ import { Status, BusLeg, YesNo } from '../../../core/Enums';
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
-import { BusStop } from './bus_stop';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 import { Student } from './student';
+import { MasterRoute, MasterRouteStop } from './master_route';
 
-const URL = 'master_route';
+const URL = 'master_schedule';
 
 const ENDPOINTS = {
-    // MasterRoute APIs
-    find_route: `${URL}/route/search`,
-    create_route: (id: string): string => `${URL}/route/${id}`,
-    update_route: (id: string): string => `${URL}/route/${id}`,
-    remove_route: (id: string): string => `${URL}/route/${id}`,
-
-    // MasterRouteStop APIs
-    create_stops_first_time_route: `${URL}/create_stops_first_time_route`,
-    append_route_stop: `${URL}/append_route_stop`,
-    update_route_stop: (id: string): string => `${URL}/route_stop/${id}`,
-    reorder_route_stops: `${URL}/reorder_route_stops`,
-    delete_route_stops_all: `${URL}/delete_route_stops_all`,
-    delete_route_stop_reorder: `${URL}/delete_route_stop_reorder`,
 
     // MasterFixedSchedule APIs
     find_schedule: `${URL}/schedule/search`,
@@ -75,116 +57,6 @@ const ENDPOINTS = {
     remove_master_route_student_schedule_to_students_pickup: `${URL}/remove_master_route_student_schedule_to_students_pickup`,
     remove_master_route_student_schedule_to_students_drop: `${URL}/remove_master_route_student_schedule_to_students_drop`,
 };
-
-// MasterRoute Interface
-export interface MasterRoute extends Record<string, unknown> {
-    // Primary Field
-    route_id: string;
-
-    // Main Field Details
-    route_name: string;
-    route_notes?: string;
-    route_status: Status;
-
-    // Journey Time
-    pickup_journey_time_in_minutes?: number;
-    pickup_journey_time_in_minutes_f?: string;
-    drop_journey_time_in_minutes?: number;
-    drop_journey_time_in_minutes_f?: string;
-
-    pickup_start_stop_id?: string;
-    Pickup_Start_BusStop?: BusStop;
-    pickup_start_stop_name?: string;
-
-    pickup_end_stop_id?: string;
-    Pickup_End_BusStop?: BusStop;
-    pickup_end_stop_name?: string;
-
-    drop_start_stop_id?: string;
-    Drop_Start_BusStop?: BusStop;
-    drop_start_stop_name?: string;
-
-    drop_end_stop_id?: string;
-    Drop_End_BusStop?: BusStop;
-    drop_end_stop_name?: string;
-
-    // Metadata
-    status: Status;
-    added_date_time?: string;
-    modified_date_time?: string;
-
-    // Relations - Parent
-    organisation_id: string;
-    UserOrganisation?: UserOrganisation;
-    organisation_name?: string;
-
-    organisation_branch_id: string;
-    OrganisationBranch?: OrganisationBranch;
-    branch_name?: string;
-    branch_city?: string;
-
-    // Relations - Child
-    MasterRouteStop?: MasterRouteStop[];
-
-    MasterFixedSchedule?: MasterFixedSchedule[];
-    MasterRouteStudent?: MasterRouteStudent[];
-
-    // FixedScheduleDayRun?: FixedScheduleDayRun[];
-    // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
-    // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
-
-    // Relations - Child Count
-    _count?: {
-        MasterRouteStop?: number;
-
-        MasterFixedSchedule?: number;
-        MasterRouteStudent?: number;
-
-        FixedScheduleDayRun?: number;
-        FixedScheduleDayRunStop?: number;
-        FixedScheduleDayRunStudent?: number;
-    };
-}
-
-// MasterRouteStop Interface
-export interface MasterRouteStop extends Record<string, unknown> {
-    route_stop_id: string;
-    leg: BusLeg;
-    order_no: number;
-    stop_duration_seconds: number;
-    travel_seconds_to_next_stop: number;
-
-    // Metadata
-    status: Status;
-    added_date_time?: string;
-    modified_date_time?: string;
-
-    // Relations - Parent
-    organisation_id: string;
-    UserOrganisation?: UserOrganisation;
-    organisation_name?: string;
-
-    organisation_branch_id: string;
-    OrganisationBranch?: OrganisationBranch;
-    branch_name?: string;
-    branch_city?: string;
-
-    route_id: string;
-    MasterRoute?: MasterRoute;
-
-    bus_stop_id: string;
-    BusStop?: BusStop;
-    stop_name?: string;
-
-    // Relations - Child
-    // Child - Fleet
-    MasterRouteStudent?: MasterRouteStudent[]
-
-    // Relations - Child Count
-    _count?: {
-        MasterRouteStudent?: number;
-    };
-}
 
 // MasterFixedSchedule Interface
 export interface MasterFixedSchedule extends Record<string, unknown> {
@@ -288,38 +160,6 @@ export interface MasterRouteStudent extends Record<string, unknown> {
     MasterFixedSchedule?: MasterFixedSchedule;
 }
 
-// MasterRoute Create/Update Schema
-export const MasterRouteSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
-
-    pickup_start_stop_id: single_select_optional('Pickup_Start_BusStop'), // ✅ Single-Selection -> BusStop
-    pickup_end_stop_id: single_select_optional('Pickup_End_BusStop'), // ✅ Single-Selection -> BusStop
-    drop_start_stop_id: single_select_optional('Drop_Start_BusStop'), // ✅ Single-Selection -> BusStop
-    drop_end_stop_id: single_select_optional('Drop_End_BusStop'), // ✅ Single-Selection -> BusStop
-
-    route_name: stringMandatory('Route Name', 3, 100),
-    route_notes: stringOptional('Route Notes', 0, 500),
-    route_status: enumMandatory('Route Status', Status, Status.Active),
-
-    pickup_journey_time_in_minutes: numberOptional(
-        'Pickup Journey Time In Minutes',
-    ),
-    drop_journey_time_in_minutes: numberOptional('Drop Journey Time In Minutes'),
-
-    status: enumMandatory('Status', Status, Status.Active),
-});
-export type MasterRouteDTO = z.infer<typeof MasterRouteSchema>;
-
-// MasterRoute Query Schema
-export const MasterRouteQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
-    route_ids: multi_select_optional('MasterRoute'), // ✅ Multi-selection -> MasterRoute
-    route_status: enumArrayOptional('Route Status', Status, getAllEnums(Status)),
-});
-export type MasterRouteQueryDTO = z.infer<typeof MasterRouteQuerySchema>;
-
 // MasterFixedSchedule Create/Update Schema
 export const MasterFixedScheduleSchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
@@ -387,81 +227,6 @@ export type MasterFixedScheduleQueryDTO = z.infer<
     typeof MasterFixedScheduleQuerySchema
 >;
 
-// MasterRouteStop Create Array Schema
-export const MasterRouteStopSchema = z.object({
-    order_no: numberMandatory('Order No'),
-    stop_duration_seconds: numberMandatory('Stop Duration Seconds'),
-    travel_seconds_to_next_stop: numberMandatory('Travel Seconds To Next Stop'),
-    bus_stop_id: single_select_mandatory('BusStop'), // ✅ Single-Selection -> BusStop
-});
-export type MasterRouteStopDTO = z.infer<typeof MasterRouteStopSchema>;
-
-// MasterRouteStop Update Schema
-export const MasterRouteStopUpdateSchema = z.object({
-    stop_duration_seconds: numberMandatory('Stop Duration Seconds'),
-    travel_seconds_to_next_stop: numberMandatory('Travel Seconds To Next Stop'),
-    bus_stop_id: single_select_mandatory('BusStop'),
-});
-export type MasterRouteStopUpdateDTO = z.infer<
-    typeof MasterRouteStopUpdateSchema
->;
-
-// MasterRouteStop Create Schema
-export const MasterRouteStopCreateSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
-    leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
-    status: enumMandatory('Status', Status, Status.Active),
-    MasterRouteStop: nestedArrayOfObjectsOptional(
-        'MasterRouteStop',
-        MasterRouteStopSchema,
-        [],
-    ),
-});
-export type MasterRouteStopCreateDTO = z.infer<
-    typeof MasterRouteStopCreateSchema
->;
-
-// MasterRouteStop Reorder Array Schema
-export const MasterRouteStopIds = z.object({
-    route_stop_id: single_select_mandatory('MasterRouteStop'), // ✅ Single-Selection -> MasterRouteStop
-});
-export type MasterRouteStopIdsDTO = z.infer<typeof MasterRouteStopIds>;
-
-// MasterRouteStopReorder Schema
-export const MasterRouteStopReorderSchema = z.object({
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
-    leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
-    MasterRouteStopIds: nestedArrayOfObjectsOptional(
-        'MasterRouteStopIds',
-        MasterRouteStopIds,
-        [],
-    ),
-});
-export type MasterRouteStopReorderDTO = z.infer<
-    typeof MasterRouteStopReorderSchema
->;
-
-// MasterRouteStopDeleteAll Schema
-export const MasterRouteStopDeleteAllSchema = z.object({
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
-    leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
-});
-export type MasterRouteStopDeleteDTO = z.infer<
-    typeof MasterRouteStopDeleteAllSchema
->;
-
-// MasterRouteStop Delete Schema
-export const MasterRouteStopDeleteSchema = z.object({
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
-    bus_stop_id: single_select_mandatory('BusStop'), // ✅ Single-Selection -> BusStop
-    leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
-});
-export type MasterRouteStopDeleteReOrderDTO = z.infer<
-    typeof MasterRouteStopDeleteSchema
->;
-
 // StudentNoRoute Query Schema
 export const StudentNoStopQuerySchema = BaseQuerySchema.extend({
     route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
@@ -504,46 +269,6 @@ export const MasterRouteStudentScheduleAssignRemoveSchema = z.object({
 export type MasterRouteStudentScheduleAssignRemoveDTO = z.infer<
     typeof MasterRouteStudentScheduleAssignRemoveSchema
 >;
-
-// Convert MasterRoute Data to API Payload
-export const toMasterRoutePayload = (row: MasterRoute): MasterRouteDTO => ({
-    organisation_id: row.organisation_id || '',
-    organisation_branch_id: row.organisation_branch_id || '',
-
-    pickup_start_stop_id: row.pickup_start_stop_id || '',
-    pickup_end_stop_id: row.pickup_end_stop_id || '',
-    drop_start_stop_id: row.drop_start_stop_id || '',
-    drop_end_stop_id: row.drop_end_stop_id || '',
-
-    route_name: row.route_name || '',
-    route_notes: row.route_notes || '',
-
-    route_status: row.route_status || Status.Active,
-    pickup_journey_time_in_minutes: row.pickup_journey_time_in_minutes || 0,
-    drop_journey_time_in_minutes: row.drop_journey_time_in_minutes || 0,
-
-    status: row.status || Status.Active,
-});
-
-// Create New MasterRoute Payload
-export const newMasterRoutePayload = (): MasterRouteDTO => ({
-    organisation_id: '',
-    organisation_branch_id: '',
-
-    pickup_start_stop_id: '',
-    pickup_end_stop_id: '',
-    drop_start_stop_id: '',
-    drop_end_stop_id: '',
-
-    route_name: '',
-    route_notes: '',
-    route_status: Status.Active,
-
-    pickup_journey_time_in_minutes: 0,
-    drop_journey_time_in_minutes: 0,
-
-    status: Status.Active,
-});
 
 // Convert MasterFixedSchedule Data to API Payload
 export const toMasterFixedSchedulePayload = (row: MasterFixedSchedule): MasterFixedScheduleDTO => ({
@@ -615,36 +340,6 @@ export const newMasterFixedSchedulePayload = (): MasterFixedScheduleDTO => ({
     time_zone_id: '', // Needs to be provided manually
 });
 
-// Convert MasterRouteStop Data to API Payload
-export const toMasterRouteStopPayload = (row: MasterRouteStop): MasterRouteStopCreateDTO => ({
-    organisation_id: row.organisation_id || '',
-    organisation_branch_id: row.organisation_branch_id || '',
-    route_id: row.route_id || '',
-
-    leg: row.leg || BusLeg.Pickup,
-    status: row.status || Status.Active,
-    MasterRouteStop: [],
-});
-
-// Create New MasterRouteStop Payload
-export const newMasterRouteStopPayload = (): MasterRouteStopCreateDTO => ({
-    organisation_id: '',
-    organisation_branch_id: '',
-    route_id: '',
-
-    leg: BusLeg.Pickup,
-    status: Status.Active,
-    MasterRouteStop: [],
-});
-
-// Convert MasterRouteStopReorder Data to API Payload
-export const toMasterRouteStopReorderPayload = (row: MasterRouteStop): MasterRouteStopReorderDTO => ({
-    route_id: row.route_id || '',
-
-    leg: row.leg || BusLeg.Pickup,
-    MasterRouteStopIds: [],
-});
-
 // Convert MasterRouteStudentAssign Data to API Payload
 export const toMasterRouteStudentAssignPayload = (row: MasterRouteStudent): MasterRouteStudentAssignRemoveDTO => ({
     route_id: row.route_id || '',
@@ -656,23 +351,6 @@ export const newMasterRouteStudentAssignPayload = (): MasterRouteStudentAssignRe
     route_id: '',
     student_ids: [],
 });
-
-// MasterRoute APIs
-export const findMasterRoute = async (data: MasterRouteQueryDTO): Promise<FBR<MasterRoute[]>> => {
-    return apiPost<FBR<MasterRoute[]>, MasterRouteQueryDTO>(ENDPOINTS.find_route, data);
-};
-
-export const createMasterRoute = async (id: string, data: MasterRouteDTO): Promise<SBR> => {
-    return apiPatch<SBR, MasterRouteDTO>(ENDPOINTS.create_route(id), data);
-};
-
-export const updateMasterRoute = async (id: string, data: MasterRouteDTO): Promise<SBR> => {
-    return apiPatch<SBR, MasterRouteDTO>(ENDPOINTS.update_route(id), data);
-};
-
-export const deleteMasterRoute = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_route(id));
-};
 
 // MasterFixedSchedule APIs
 export const findMasterFixedSchedule = async (data: MasterFixedScheduleQueryDTO): Promise<FBR<MasterFixedSchedule[]>> => {
@@ -689,34 +367,6 @@ export const updateMasterFixedSchedule = async (id: string, data: MasterFixedSch
 
 export const deleteMasterFixedSchedule = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_schedule(id));
-};
-
-// StopsFirstTimeRoute APIs
-export const createStopsFirstTimeRoute = async (data: MasterRouteStopCreateDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStopCreateDTO>(ENDPOINTS.create_stops_first_time_route, data);
-};
-
-export const appendRouteStop = async (data: MasterRouteStopCreateDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStopCreateDTO>(ENDPOINTS.append_route_stop, data);
-};
-
-export const updateRouteStop = async (id: string, data: MasterRouteStopUpdateDTO): Promise<SBR> => {
-    return apiPatch<SBR, MasterRouteStopUpdateDTO>(ENDPOINTS.update_route_stop(id), data);
-};
-
-export const reorderRouteStops = async (data: MasterRouteStopReorderDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStopReorderDTO>(ENDPOINTS.reorder_route_stops, data);
-};
-
-export const deleteRouteStopsAll = async (data: MasterRouteStopDeleteDTO): Promise<SBR> => {
-    // Controller expects a body with DELETE. If apiDelete supports body, use it. Otherwise adjust.
-    // @ts-ignore
-    return apiDelete<SBR, MasterRouteStopDeleteDTO>(ENDPOINTS.delete_route_stops_all, data);
-};
-
-export const deleteRouteStopReorder = async (data: MasterRouteStopDeleteReOrderDTO): Promise<SBR> => {
-    // @ts-ignore
-    return apiDelete<SBR, MasterRouteStopDeleteReOrderDTO>(ENDPOINTS.delete_route_stop_reorder, data);
 };
 
 // MasterRouteStudent assign/unassign APIs
