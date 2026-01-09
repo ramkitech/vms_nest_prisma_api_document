@@ -32,7 +32,7 @@ const URL = 'master_route';
 const ENDPOINTS = {
     // MasterRoute APIs
     find_route: `${URL}/route/search`,
-    create_route: `${URL}/route/search`,
+    create_route: `${URL}/route`,
     update_route: (id: string): string => `${URL}/route/${id}`,
     remove_route: (id: string): string => `${URL}/route/${id}`,
 
