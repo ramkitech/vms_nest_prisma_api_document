@@ -47,7 +47,7 @@ import { OrganisationNotificationPreference } from 'src/services/account/notific
 import { OrganisationReportPreference, OrganisationReportAutomationMail } from 'src/services/account/report_preferences.service';
 import { Ticket, TicketFile } from 'src/services/account/ticket_service';
 import { BusStop } from 'src/services/fleet/bus_mangement/bus_stop';
-import { MasterRoute, MasterRouteStop, MasterRouteStudent, MasterFixedSchedule } from 'src/services/fleet/bus_mangement/master_route';
+import { MasterRoute, MasterRouteStop } from 'src/services/fleet/bus_mangement/master_route';
 import { OrganisationNoticeBoard } from 'src/services/fleet/bus_mangement/notice_board';
 import { Student, StudentAddress, StudentGuardianLink, StudentLeaveRequest, StudentStopChangeRequest } from 'src/services/fleet/bus_mangement/student';
 
@@ -115,6 +115,7 @@ import { MasterVehicleStatusType } from 'src/services/master/vehicle/master_vehi
 import { MasterVehicleSubModel } from 'src/services/master/vehicle/master_vehicle_sub_model_service';
 import { MasterVehicleType } from 'src/services/master/vehicle/master_vehicle_type_service';
 import { MasterMainUnitDistance } from 'src/services/master/main/master_main_unit_distance_service';
+import { MasterFixedSchedule, MasterRouteStudent } from 'src/services/fleet/bus_mangement/master_schedule';
 
 const URL = 'user/organisation';
 

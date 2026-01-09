@@ -76,7 +76,6 @@ import { MasterVehicleDocumentType } from 'src/services/master/vehicle/master_ve
 import { FleetVendor } from 'src/services/fleet/vendor_management/fleet_vendor_service';
 import { OrganisationNotificationPreferenceVehicleLink } from 'src/services/account/notification_preferences.service';
 import { OrganisationReportPreferenceVehicleLink, OrganisationReportAutomationMailVehicleLink } from 'src/services/account/report_preferences.service';
-import { MasterFixedSchedule } from 'src/services/fleet/bus_mangement/master_route';
 import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
 import { FleetFuelRefill } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
 import { FleetFuelRemoval } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
@@ -93,6 +92,7 @@ import { GPSLiveTrackShareLink } from 'src/services/gps/features/gps_live_track_
 import { GPSTrackHistoryShareLink } from 'src/services/gps/features/gps_track_history_share_link_service';
 import { UserVehicleLink } from '../users/user_service';
 import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
+import { MasterFixedSchedule } from 'src/services/fleet/bus_mangement/master_schedule';
 
 const URL = 'main/master_vehicle';
 
