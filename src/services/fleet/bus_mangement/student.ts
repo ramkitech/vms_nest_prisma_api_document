@@ -20,17 +20,18 @@ import {
     doubleOptionalLatLng,
     getAllEnums,
 } from '../../../zod_utils/zod_utils';
-import { BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
+import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
 import {
     Status,
     YesNo,
     ApprovalStatus,
-    EnrollmentStatus,
     StudentLeaveType,
     TransportPlanType,
     LoginFrom,
+    Gender,
+    BloodGroup,
 } from '../../../core/Enums';
 
 // Other Models
@@ -98,8 +99,8 @@ const ENDPOINTS = {
     approve_stop_change_request: (id: string): string => `${URL}/approve_stop_change_request/${id}`,
     remove_stop_change_request: (id: string): string => `${URL}/stop_change_request/${id}`,
 
-    // StudentEnrollmentStatusHistory APIs
-    find_enrollment_status_history: `${URL}/enrollment_status_history/search`,
+    // StudentTransportPlanTypeChangeHistory APIs
+    find_student_transport_plan_type_change_history: `${URL}/student_transport_plan_type_change_history/search`,
 };
 
 // Student Interface
@@ -121,12 +122,11 @@ export interface Student extends Record<string, unknown> {
 
     dob?: string;
     dob_f?: string;
-    gender?: string;
-    blood_group?: string;
+    gender?: Gender;
+    blood_group?: BloodGroup;
     special_notes?: string;
 
     // Admin Will Update
-    enrollment_status: EnrollmentStatus;
     transport_plan_type: TransportPlanType;
 
     pickup_route_id?: string;
@@ -200,7 +200,7 @@ export interface Student extends Record<string, unknown> {
     StudentGuardianLink?: StudentGuardianLink[];
     StudentLeaveRequest?: StudentLeaveRequest[];
     StudentStopChangeRequest?: StudentStopChangeRequest[];
-    StudentEnrollmentStatusHistory?: StudentEnrollmentStatusHistory[];
+    StudentTransportPlanTypeChangeHistory?: StudentTransportPlanTypeChangeHistory[];
 
     StudentLoginPush?: StudentLoginPush[];
     MasterRouteStudent?: MasterRouteStudent[];
@@ -213,7 +213,7 @@ export interface Student extends Record<string, unknown> {
         StudentGuardianLink?: number;
         StudentLeaveRequest?: number;
         StudentStopChangeRequest?: number;
-        StudentEnrollmentStatusHistory?: number;
+        StudentTransportPlanTypeChangeHistory?: number;
 
         StudentLoginPush?: number;
         MasterRouteStudent?: number;
@@ -452,14 +452,14 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
     StudentAddress?: StudentAddress;
 }
 
-// StudentEnrollmentStatusHistory Interface
-export interface StudentEnrollmentStatusHistory extends Record<string, unknown> {
+// StudentTransportPlanTypeChangeHistory Interface
+export interface StudentTransportPlanTypeChangeHistory extends Record<string, unknown> {
     // Primary Field
-    student_enrollment_status_history_id: string;
+    student_transport_plan_type_change_history_id: string;
 
     // Main Field Details
-    from_status: EnrollmentStatus;
-    to_status: EnrollmentStatus;
+    from_type: TransportPlanType;
+    to_type: TransportPlanType;
     change_reason?: string;
     changed_at: string;
     changed_at_f?: string;
@@ -561,93 +561,84 @@ export interface StudentGuardianLoginPush extends Record<string, unknown> {
 
 // Student Create/Update Schema
 export const StudentSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 
-    program_id: single_select_optional('MasterProgram'), // Single-Selection -> MasterProgram
-    stream_id: single_select_optional('MasterStream'), // Single-Selection -> MasterStream
-    year_id: single_select_optional('MasterYear'), // Single-Selection -> MasterYear
-    semester_id: single_select_optional('MasterSemester'), // Single-Selection -> MasterSemester
-    class_id: single_select_optional('MasterClass'), // Single-Selection -> MasterClass
-    section_id: single_select_optional('MasterSection'), // Single-Selection -> MasterSection
+  program_id: single_select_optional('MasterProgram'), // Single-Selection -> MasterProgram
+  stream_id: single_select_optional('MasterStream'), // Single-Selection -> MasterStream
+  year_id: single_select_optional('MasterYear'), // Single-Selection -> MasterYear
+  semester_id: single_select_optional('MasterSemester'), // Single-Selection -> MasterSemester
+  class_id: single_select_optional('MasterClass'), // Single-Selection -> MasterClass
+  section_id: single_select_optional('MasterSection'), // Single-Selection -> MasterSection
 
-    // Profile Image/Logo
-    photo_url: stringOptional('Photo URL', 0, 300),
-    photo_key: stringOptional('Photo Key', 0, 300),
-    photo_name: stringOptional('Photo Name', 0, 300),
+  // Profile Image/Logo
+  photo_url: stringOptional('Photo URL', 0, 300),
+  photo_key: stringOptional('Photo Key', 0, 300),
+  photo_name: stringOptional('Photo Name', 0, 300),
 
-    admission_number: stringOptional('Admission Number', 0, 100),
-    roll_number: stringOptional('Roll Number', 0, 100),
+  admission_number: stringOptional('Admission Number', 0, 100),
+  roll_number: stringOptional('Roll Number', 0, 100),
 
-    first_name: stringMandatory('First Name', 3, 100),
-    last_name: stringOptional('Last Name', 0, 100),
-    mobile_number: stringOptional('Mobile Number', 0, 10),
-    email: stringOptional('Email', 0, 100),
-    dob: dateOptional('DOB'),
-    gender: stringOptional('Gender', 0, 10),
-    blood_group: stringOptional('Blood Group', 0, 10),
-    special_notes: stringOptional('Special Notes', 0, 500),
+  first_name: stringMandatory('First Name', 3, 100),
+  last_name: stringOptional('Last Name', 0, 100),
+  mobile_number: stringOptional('Mobile Number', 0, 10),
+  email: stringOptional('Email', 0, 100),
 
-    // Admin Will Update
-    enrollment_status: enumOptional(
-        'Enrollment Status',
-        EnrollmentStatus,
-        EnrollmentStatus.Active,
-    ),
-    transport_plan_type: enumOptional(
-        'Transport Plan Type',
-        TransportPlanType,
-        TransportPlanType.Both,
-    ),
+  dob: dateOptional('DOB'),
+  gender: enumOptional('Gender', Gender, Gender.PreferNotToSay),
+  blood_group: enumOptional('Blood Group', BloodGroup, BloodGroup.Unknown),
+  special_notes: stringOptional('Special Notes', 0, 500),
 
-    // Other
-    status: enumMandatory('Status', Status, Status.Active),
-    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+  // Admin Will Update
+  transport_plan_type: enumOptional(
+    'Transport Plan Type',
+    TransportPlanType,
+    TransportPlanType.Both,
+  ),
+
+  // Other
+  status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type StudentDTO = z.infer<typeof StudentSchema>;
 
 // StudentProfilePicture Update Schema
 export const StudentProfilePictureSchema = z.object({
-    // Profile Image/Logo
-    photo_url: stringMandatory('Photo URL', 0, 300),
-    photo_key: stringMandatory('Photo Key', 0, 300),
-    photo_name: stringMandatory('Photo Name', 0, 300),
+  // Profile Image/Logo
+  photo_url: stringMandatory('Photo URL', 0, 300),
+  photo_key: stringMandatory('Photo Key', 0, 300),
+  photo_name: stringMandatory('Photo Name', 0, 300),
 });
 export type StudentProfilePictureDTO = z.infer<
-    typeof StudentProfilePictureSchema
+  typeof StudentProfilePictureSchema
 >;
 
 // Student Query Schema
 export const StudentQuerySchema = BaseQuerySchema.extend({
-    student_ids: multi_select_optional('Student'), // Multi-selection -> Student
+  student_ids: multi_select_optional('Student'), // Multi-selection -> Student
 
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
-    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
 
-    program_ids: multi_select_optional('MasterProgram'), // Multi-selection -> MasterProgram
-    stream_ids: multi_select_optional('MasterStream'), // Multi-selection -> MasterStream
-    year_ids: multi_select_optional('MasterYear'), // Multi-selection -> MasterYear
-    semester_ids: multi_select_optional('MasterSemester'), // Multi-selection -> MasterSemester
-    class_ids: multi_select_optional('MasterClass'), // Multi-selection -> MasterClass
-    section_ids: multi_select_optional('MasterSection'), // Multi-selection -> MasterSection
+  program_ids: multi_select_optional('MasterProgram'), // Multi-selection -> MasterProgram
+  stream_ids: multi_select_optional('MasterStream'), // Multi-selection -> MasterStream
+  year_ids: multi_select_optional('MasterYear'), // Multi-selection -> MasterYear
+  semester_ids: multi_select_optional('MasterSemester'), // Multi-selection -> MasterSemester
+  class_ids: multi_select_optional('MasterClass'), // Multi-selection -> MasterClass
+  section_ids: multi_select_optional('MasterSection'), // Multi-selection -> MasterSection
 
-    pickup_route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
-    drop_route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
-    pickup_route_stop_ids: multi_select_optional('MasterRouteStop'), // Multi-selection -> MasterRouteStop
-    drop_route_stop_ids: multi_select_optional('MasterRouteStop'), // Multi-selection -> MasterRouteStop
-    pickup_fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
-    drop_fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
+  pickup_route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
+  drop_route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
+  pickup_route_stop_ids: multi_select_optional('MasterRouteStop'), // Multi-selection -> MasterRouteStop
+  drop_route_stop_ids: multi_select_optional('MasterRouteStop'), // Multi-selection -> MasterRouteStop
+  pickup_fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
+  drop_fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
 
-    enrollment_status: enumArrayOptional(
-        'Enrollment Status',
-        EnrollmentStatus,
-        getAllEnums(EnrollmentStatus),
-    ),
-    transport_plan_type: enumArrayOptional(
-        'Transport Plan Type',
-        TransportPlanType,
-        getAllEnums(TransportPlanType),
-    ),
+  transport_plan_type: enumArrayOptional(
+    'Transport Plan Type',
+    TransportPlanType,
+    getAllEnums(TransportPlanType),
+  ),
 });
 export type StudentQueryDTO = z.infer<typeof StudentQuerySchema>;
 
@@ -896,17 +887,20 @@ export type StudentStopChangeRequestQueryDTO = z.infer<
     typeof StudentStopChangeRequestQuerySchema
 >;
 
-// StudentEnrollmentStatusHistory Query Schema
-export const StudentEnrollmentStatusHistoryQuerySchema = BaseQuerySchema.extend({
+// StudentTransportPlanTypeChangeHistory Query Schema
+export const StudentTransportPlanTypeChangeHistoryQuerySchema = BaseQuerySchema.extend(
+  {
+    student_transport_plan_type_change_history_ids: multi_select_optional(
+      'StudentTransportPlanTypeChangeHistory',
+    ), // Multi-selection -> StudentTransportPlanTypeChangeHistory
+
     organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
     organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
     student_ids: multi_select_optional('Student'), // Multi-selection -> Student
-    student_enrollment_status_history_ids: multi_select_optional(
-        'StudentEnrollmentStatusHistory',
-    ), // Multi-selection -> StudentEnrollmentStatusHistory
-});
-export type StudentEnrollmentStatusHistoryQueryDTO = z.infer<
-    typeof StudentEnrollmentStatusHistoryQuerySchema
+  },
+);
+export type StudentTransportPlanTypeChangeHistoryQueryDTO = z.infer<
+  typeof StudentTransportPlanTypeChangeHistoryQuerySchema
 >;
 
 // Convert Student Data to API Payload
@@ -935,11 +929,10 @@ export const toStudentPayload = (row: Student): StudentDTO => ({
     email: row.email || '',
 
     dob: row.dob || '',
-    gender: row.gender || '',
-    blood_group: row.blood_group || '',
+    gender: row.gender || Gender.PreferNotToSay,
+    blood_group: row.blood_group || BloodGroup.Unknown,
     special_notes: row.special_notes || '',
 
-    enrollment_status: row.enrollment_status || EnrollmentStatus.Active,
     transport_plan_type: row.transport_plan_type || TransportPlanType.Both,
 
     status: row.status || Status.Active,
@@ -971,11 +964,10 @@ export const newStudentPayload = (): StudentDTO => ({
     email: '',
 
     dob: '',
-    gender: '',
-    blood_group: '',
+    gender: Gender.PreferNotToSay,
+    blood_group: BloodGroup.Unknown,
     special_notes: '',
 
-    enrollment_status: EnrollmentStatus.Active,
     transport_plan_type: TransportPlanType.Both,
 
     status: Status.Active,
@@ -1301,9 +1293,9 @@ export const deleteStudentStopChangeRequest = async (id: string): Promise<SBR> =
     return apiDelete<SBR>(ENDPOINTS.remove_stop_change_request(id));
 };
 
-// StudentEnrollmentStatusHistory APIs
-export const findStudentEnrollmentStatusHistory = async (data: StudentEnrollmentStatusHistoryQueryDTO): Promise<FBR<StudentEnrollmentStatusHistory[]>> => {
-    return apiPost<FBR<StudentEnrollmentStatusHistory[]>, StudentEnrollmentStatusHistoryQueryDTO>(ENDPOINTS.find_enrollment_status_history, data);
+// StudentTransportPlanTypeChangeHistory APIs
+export const findStudentTransportPlanTypeChangeHistory = async (data: StudentTransportPlanTypeChangeHistoryQueryDTO): Promise<FBR<StudentTransportPlanTypeChangeHistory[]>> => {
+    return apiPost<FBR<StudentTransportPlanTypeChangeHistory[]>, StudentTransportPlanTypeChangeHistoryQueryDTO>(ENDPOINTS.find_student_transport_plan_type_change_history, data);
 };
 
 

@@ -840,7 +840,6 @@ export enum BusLeg {
   Drop = 'Drop'
 }
 
-
 export enum BusStopType {
   CommonPickupPoint = 'CommonPickupPoint',
   HomeStop = 'HomeStop',
@@ -848,15 +847,29 @@ export enum BusStopType {
   ParkingSlot = 'ParkingSlot',
 }
 
-export enum EnrollmentStatus {
-  Active = 'Active',
-  Inactive = 'Inactive',
-}
-
 export enum TransportPlanType {
+  None = 'None',
   Both = 'Both',
   PickupOnly = 'PickupOnly',
   DropOnly = 'DropOnly',
+}
+
+export enum Gender {
+  PreferNotToSay = 'PreferNotToSay',
+  Male = 'Male',
+  Female = 'Female',
+}
+
+export enum BloodGroup {
+  Unknown = 'Unknown',
+  APostive = 'APostive',
+  ANegative = 'ANegative',
+  BPositive = 'BPositive',
+  BNegative = 'BNegative',
+  ABPositive = 'ABPositive',
+  ABNegative = 'ABNegative',
+  OPositive = 'OPositive',
+  ONegative = 'ONegative',
 }
 
 export enum ApprovalStatus {
