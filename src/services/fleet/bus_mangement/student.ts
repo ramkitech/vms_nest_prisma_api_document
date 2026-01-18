@@ -120,8 +120,8 @@ export interface Student extends Record<string, unknown> {
     mobile_number?: string;
     email?: string;
 
-    dob?: string;
-    dob_f?: string;
+    date_of_birth?: string;
+    date_of_birth_f?: string;
     gender?: Gender;
     blood_group?: BloodGroup;
     special_notes?: string;
@@ -584,7 +584,7 @@ export const StudentSchema = z.object({
   mobile_number: stringOptional('Mobile Number', 0, 10),
   email: stringOptional('Email', 0, 100),
 
-  dob: dateOptional('DOB'),
+  date_of_birth: dateOptional('Date of Birth'),
   gender: enumOptional('Gender', Gender, Gender.PreferNotToSay),
   blood_group: enumOptional('Blood Group', BloodGroup, BloodGroup.Unknown),
   special_notes: stringOptional('Special Notes', 0, 500),
@@ -928,7 +928,7 @@ export const toStudentPayload = (row: Student): StudentDTO => ({
     mobile_number: row.mobile_number || '',
     email: row.email || '',
 
-    dob: row.dob || '',
+    date_of_birth: row.date_of_birth || '',
     gender: row.gender || Gender.PreferNotToSay,
     blood_group: row.blood_group || BloodGroup.Unknown,
     special_notes: row.special_notes || '',
@@ -963,7 +963,7 @@ export const newStudentPayload = (): StudentDTO => ({
     mobile_number: '',
     email: '',
 
-    dob: '',
+    date_of_birth: '',
     gender: Gender.PreferNotToSay,
     blood_group: BloodGroup.Unknown,
     special_notes: '',
