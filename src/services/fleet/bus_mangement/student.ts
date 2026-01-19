@@ -291,7 +291,7 @@ export interface StudentGuardian extends Record<string, unknown> {
     photo_key?: string;
     photo_name?: string;
 
-    full_name: string;
+    name: string;
     mobile: string;
     email?: string;
     alternative_mobile?: string;
@@ -354,7 +354,7 @@ export interface StudentGuardianLink extends Record<string, unknown> {
 
     guardian_id: string;
     StudentGuardian?: StudentGuardian;
-    full_name?: string;
+    name?: string;
     mobile?: string;
 
     relationship_id: string;
@@ -531,7 +531,7 @@ export interface StudentGuardianLoginPush extends Record<string, unknown> {
     // Relations - Parent
     guardian_id: string;
     StudentGuardian?: StudentGuardian;
-    full_name?: string;
+    name?: string;
     mobile?: string;
 
     organisation_id: string;
@@ -702,59 +702,60 @@ export type StudentAddressQueryDTO = z.infer<typeof StudentAddressQuerySchema>;
 
 // StudentGuardianLink Create/Update Schema
 export const StudentGuardianLinkSchema = z.object({
-    // Relations - Parent
-    organisation_id: single_select_mandatory('UserOrganisation'),
-    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
-    student_id: single_select_mandatory('Student'),
-    relationship_id: single_select_mandatory('MasterRelationship'),
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+  student_id: single_select_mandatory('Student'), // Single-Selection -> Student
+  relationship_id: single_select_mandatory('MasterRelationship'), // Single-Selection -> MasterRelationship
 
-    // Profile Image/Logo
-    photo_url: stringOptional('Photo URL', 0, 300),
-    photo_key: stringOptional('Photo Key', 0, 300),
-    photo_name: stringOptional('Photo Name', 0, 300),
+  // Profile Image/Logo
+  photo_url: stringOptional('Photo URL', 0, 300),
+  photo_key: stringOptional('Photo Key', 0, 300),
+  photo_name: stringOptional('Photo Name', 0, 300),
 
-    // Main Field Details
-    full_name: stringMandatory('Full Name', 3, 100),
-    mobile: stringMandatory('Mobile', 1, 10),
-    email: stringOptional('Email', 0, 100),
-    alternative_mobile: stringOptional('Alternative Mobile', 0, 10),
+  // Main Field Details
+  name: stringMandatory('Name', 3, 100),
+  mobile: stringMandatory('Mobile', 1, 10),
+  email: stringOptional('Email', 0, 100),
+  alternative_mobile: stringOptional('Alternative Mobile', 0, 10),
 
-    is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
-    notes: stringOptional('Notes', 0, 500),
+  is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
+  notes: stringOptional('Notes', 0, 500),
 
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type StudentGuardianLinkDTO = z.infer<typeof StudentGuardianLinkSchema>;
 
 // GuardianProfilePicture Update Schema
 export const GuardianProfilePictureSchema = z.object({
-    // Profile Image/Logo
-    photo_url: stringMandatory('Photo URL', 0, 300),
-    photo_key: stringMandatory('Photo Key', 0, 300),
-    photo_name: stringMandatory('Photo Name', 0, 300),
+  // Profile Image/Logo
+  photo_url: stringMandatory('Photo URL', 0, 300),
+  photo_key: stringMandatory('Photo Key', 0, 300),
+  photo_name: stringMandatory('Photo Name', 0, 300),
 });
 export type GuardianProfilePictureDTO = z.infer<
-    typeof GuardianProfilePictureSchema
+  typeof GuardianProfilePictureSchema
 >;
 
 // GuardianDetails Update Schema
 export const GuardianDetailsSchema = z.object({
-    full_name: stringMandatory('Full Name', 3, 100),
-    email: stringOptional('Email', 0, 100),
-    alternative_mobile: stringOptional('Alternative Mobile', 0, 10),
+  name: stringMandatory('Name', 3, 100),
+  mobile: stringMandatory('Mobile', 1, 10),
+  email: stringOptional('Email', 0, 100),
+  alternative_mobile: stringOptional('Alternative Mobile', 0, 10),
 });
 export type GuardianDetailsDTO = z.infer<typeof GuardianDetailsSchema>;
 
 // GuardianMobileNumber Update Schema
 export const GuardianMobileNumberSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'),
-    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
-    old_mobile: stringMandatory('Mobile', 1, 10),
-    new_mobile: stringMandatory('Mobile', 1, 10),
+  organisation_id: single_select_mandatory('UserOrganisation'),
+  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+  old_mobile: stringMandatory('Mobile', 1, 10),
+  new_mobile: stringMandatory('Mobile', 1, 10),
 });
 export type GuardianMobileNumberDTO = z.infer<
-    typeof GuardianMobileNumberSchema
+  typeof GuardianMobileNumberSchema
 >;
 
 // StudentGuardian Query Schema
@@ -1111,7 +1112,7 @@ export const toStudentGuardianLinkPayload = (row: StudentGuardianLink): StudentG
     photo_key: row.StudentGuardian?.photo_key || '',
     photo_name: row.StudentGuardian?.photo_name || '',
 
-    full_name: row.StudentGuardian?.full_name || '',
+    name: row.StudentGuardian?.name || '',
     mobile: row.StudentGuardian?.mobile || '',
     email: row.StudentGuardian?.email || '',
     alternative_mobile: row.StudentGuardian?.alternative_mobile || '',
@@ -1134,7 +1135,7 @@ export const newStudentGuardianLinkPayload = (): StudentGuardianLinkDTO => ({
     photo_key: '',
     photo_name: '',
 
-    full_name: '',
+    name: '',
     mobile: '',
     email: '',
     alternative_mobile: '',
