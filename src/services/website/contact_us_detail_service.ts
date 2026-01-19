@@ -45,9 +45,9 @@ export interface ContactUsDetail extends Record<string, unknown> {
   modified_date_time: string;
 }
 
-// ✅ Contact Us Detail Create/Update Schema
+// ContactUsDetail Create/Update Schema
 export const ContactUsDetailSchema = z.object({
-  mobile_number: stringOptional('Mobile Number', 0, 20),
+  mobile_number: stringOptional('Mobile Number', 0, 15),
   email: stringOptional('Email', 0, 100),
   facebook_link: stringOptional('Facebook Link', 0, 200),
   twitter_link: stringOptional('Twitter Link', 0, 200),

@@ -657,7 +657,7 @@ export const UserOrganisationSchema = z.object({
   // Relations - Parent
   organisation_name: stringMandatory('Organisation Name', 3, 100),
   organisation_email: stringOptional('Organisation Email', 0, 100),
-  organisation_mobile: stringOptional('Organisation Mobile', 0, 20),
+  organisation_mobile: stringOptional('Organisation Mobile', 0, 15),
 
   organisation_code: stringOptional('Organisation Code', 0, 20),
   organisation_utrack_id: stringOptional('Organisation UTrack ID', 0, 20),

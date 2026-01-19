@@ -304,8 +304,8 @@ export const UserSchema = z.object({
   first_name: stringMandatory('First Name', 2, 100),
   last_name: stringOptional('Last Name', 0, 100),
   email: stringMandatory('Email', 3, 100),
-  username: stringOptional('Mobile', 0, 100),
-  mobile: stringOptional('Mobile', 0, 20),
+  username: stringOptional('Username', 0, 100),
+  mobile: stringOptional('Mobile', 0, 15),
   password: stringOptional('Password', 0, 20),
 
   can_login: enumMandatory('Can Login', YesNo, YesNo.Yes),
@@ -358,8 +358,8 @@ export const UserProfileSchema = z.object({
   first_name: stringMandatory('First Name', 2, 100),
   last_name: stringOptional('Last Name', 0, 100),
   email: stringMandatory('Email', 3, 100),
-  username: stringOptional('Mobile', 0, 100),
-  mobile: stringOptional('Mobile', 0, 20),
+  username: stringOptional('Username', 0, 100),
+  mobile: stringOptional('Mobile', 0, 15),
 });
 export type UserProfileDTO = z.infer<typeof UserProfileSchema>;
 

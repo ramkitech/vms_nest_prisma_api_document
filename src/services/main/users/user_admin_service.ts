@@ -114,7 +114,7 @@ export const UserAdminSchema = z.object({
   admin_name: stringMandatory('Admin Name', 3, 100),
   email: stringMandatory('Email', 3, 100),
   password: stringOptional('Password', 0, 20),
-  mobile: stringOptional('Password', 0, 20),
+  mobile: stringOptional('Password', 0, 15),
   admin_role: enumMandatory('Admin Role', AdminRole, AdminRole.MasterAdmin),
 
   // Metadata
@@ -141,7 +141,7 @@ export const UserAdminProfileSchema = z.object({
   // Main Field Details
   admin_name: stringMandatory('Admin Name', 3, 100),
   email: stringMandatory('Email', 3, 100),
-  mobile: stringOptional('Password', 0, 20),
+  mobile: stringOptional('Password', 0, 15),
 });
 export type UserAdminProfileDTO = z.infer<typeof UserAdminProfileSchema>;
 
