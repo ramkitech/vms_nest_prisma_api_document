@@ -89,6 +89,16 @@ export interface ApiDataShareHitLog extends Record<string, unknown> {
     modified_date_time: string;
 }
 
+// ExternalApiReport Interface
+export interface ExternalApiReport {
+    api_name?: string;
+    vendor_name?: string;
+
+    success_count: number;
+    failed_count: number;
+    total_count: number;
+}
+
 // ApiDataShareManagement Create/Update Schema
 export const ApiDataShareManagementSchema = z.object({
     // Main Field Details
@@ -225,12 +235,12 @@ export const findApiDataShareHitLog = async (data: ApiDataShareHitLogQueryDTO): 
 };
 
 // Reports
-export const getExternalApiDailyReport = async (data: ExternalApiReportDTO): Promise<FBR<any[]>> => {
-    return apiPost<FBR<any[]>, ExternalApiReportDTO>(ENDPOINTS.daily_report, data);
+export const getExternalApiDailyReport = async (data: ExternalApiReportDTO): Promise<FBR<ExternalApiReport[]>> => {
+    return apiPost<FBR<ExternalApiReport[]>, ExternalApiReportDTO>(ENDPOINTS.daily_report, data);
 };
 
-export const getExternalApiMonthlyReport = async (data: ExternalApiReportDTO): Promise<FBR<any[]>> => {
-    return apiPost<FBR<any[]>, ExternalApiReportDTO>(ENDPOINTS.monthly_report, data);
+export const getExternalApiMonthlyReport = async (data: ExternalApiReportDTO): Promise<FBR<ExternalApiReport[]>> => {
+    return apiPost<FBR<ExternalApiReport[]>, ExternalApiReportDTO>(ENDPOINTS.monthly_report, data);
 };
 
 // Cache APIs
