@@ -24,7 +24,7 @@ const ENDPOINTS = {
     cron_jobs_reset: `${URL}/cron_jobs_reset`,
 };
 
-// Cron Job Log Interface
+// CronJobLog Interface
 export interface CronJobLog extends Record<string, unknown> {
     // Primary Fields
     cron_job_log_id: string;
@@ -55,8 +55,8 @@ export interface CronJobLog extends Record<string, unknown> {
     modified_date_time: string;
 }
 
-// Cron Job Monitor Interface
-export interface CronJobMonitor extends Record<string, unknown> {
+// CronJobList Interface
+export interface CronJobList extends Record<string, unknown> {
     // Primary Fields
     cron_job_id: string;
 
@@ -100,7 +100,6 @@ export const CronMonitorQuerySchema = BaseQuerySchema.extend({
   run_type: enumArrayOptional('Run Type', RunType),
   execution_status: enumArrayOptional('Execution Status', ExecutionStatus),
 });
-
 export type CronMonitorQueryDTO = z.infer<typeof CronMonitorQuerySchema>;
 
 // CronJobLog Query
@@ -113,13 +112,12 @@ export const CronJobLogQuerySchema = BaseQuerySchema.extend({
   execution_status: enumArrayOptional('Execution Status', ExecutionStatus),
   is_latest_run: enumArrayOptional('Is Latest Run', YesNo),
 });
-
 export type CronJobLogQueryDTO = z.infer<typeof CronJobLogQuerySchema>;
 
 
 // Monitor APIs
-export const getCronJobMonitor = async (data: CronMonitorQueryDTO): Promise<FBR<CronJobMonitor[]>> => {
-    return apiPost<FBR<CronJobMonitor[]>, CronMonitorQueryDTO>(ENDPOINTS.monitor, data);
+export const getCronJobMonitor = async (data: CronMonitorQueryDTO): Promise<FBR<CronJobList[]>> => {
+    return apiPost<FBR<CronJobList[]>, CronMonitorQueryDTO>(ENDPOINTS.monitor, data);
 };
 
 // Cron Job Log APIs
