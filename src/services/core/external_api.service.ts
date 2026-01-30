@@ -40,14 +40,19 @@ export interface ApiDataShareManagement extends Record<string, unknown> {
     purpose?: string;
     description?: string;
 
+    // Control
     is_enabled: YesNo;
+
+    // Authentication
     auth_type: APIAuthType;
 
     api_key?: string;
     username?: string;
     password?: string;
 
+    // Rate limit
     rate_limit_rpm: number;
+
     allowed_ips: string[];
 
     // Metadata
@@ -68,11 +73,13 @@ export interface ApiDataShareHitLog extends Record<string, unknown> {
     // Primary Fields
     api_data_share_hit_log_id: string;
 
-    // Main Field Details
+    // Relations - Parent
     api_data_share_id: string;
+    ApiDataShareManagement?: ApiDataShareManagement;
     api_name?: string;
     vendor_name?: string;
 
+    // Request info
     request_date_time: string;
     request_date_time_f?: string;
 
