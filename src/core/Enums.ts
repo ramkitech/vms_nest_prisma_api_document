@@ -987,3 +987,23 @@ export enum IncidentVisibility {
   VeryPoor = 'VeryPoor',
   Unknown = 'Unknown',
 }
+
+// Cronjobs
+export enum ExecutionStatus {
+  REGISTERED = 'REGISTERED',
+  FIRED = 'FIRED',
+  RUNNING = 'RUNNING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+}
+
+export enum RunType {
+  SCHEDULED = 'SCHEDULED',
+  MANUAL = 'MANUAL',
+}
+
+// EXTERNAL APIS
+export enum APIAuthType {
+  API_KEY = 'API_KEY',
+  BASIC_AUTH = 'BASIC_AUTH',
+}
