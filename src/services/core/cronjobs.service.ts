@@ -62,10 +62,10 @@ export interface CronJobList extends Record<string, unknown> {
 
     // Main Field Details
     app_name: string;
-    job_name: string;
-
     category_name?: string;
     sub_category_name?: string;
+    
+    job_name: string;
     job_description?: string;
 
     cron_expression: string;
