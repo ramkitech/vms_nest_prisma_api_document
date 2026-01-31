@@ -18,9 +18,9 @@ const ENDPOINTS = {
     cron_job_log: `${URL}/cron_job_log/search`,
 
     // Controls
-    cron_job_run_now: (job_name: string): string => `${URL}/cron_job_run_now/${job_name}`,
-    cron_job_enable: (job_name: string): string => `${URL}/cron_job_enable/${job_name}`,
-    cron_job_disable: (job_name: string): string => `${URL}/cron_job_disable/${job_name}`,
+    cron_job_run_now: (cron_name: string): string => `${URL}/cron_job_run_now/${cron_name}`,
+    cron_job_enable: (cron_name: string): string => `${URL}/cron_job_enable/${cron_name}`,
+    cron_job_disable: (cron_name: string): string => `${URL}/cron_job_disable/${cron_name}`,
     cron_jobs_reset: `${URL}/cron_jobs_reset`,
 };
 
@@ -46,7 +46,7 @@ export interface CronJobLog extends Record<string, unknown> {
     cron_job_id: string;
     CronJobList?: CronJobList;
     app_name?: string;
-    job_name?: string;
+    cron_name?: string;
     is_latest_run: YesNo;
 
     // Metadata
@@ -68,6 +68,7 @@ export interface CronJobList extends Record<string, unknown> {
     job_name: string;
     job_description?: string;
 
+    cron_name?: string;
     cron_expression: string;
     cron_expression_description?: string;
 
@@ -136,16 +137,16 @@ export const getCronJobLog = async (data: CronJobLogQueryDTO): Promise<FBR<CronJ
 };
 
 // Control APIs
-export const runCronJobNow = async (job_name: string): Promise<SBR> => {
-    return apiGet<SBR>(ENDPOINTS.cron_job_run_now(job_name));
+export const runCronJobNow = async (cron_name: string): Promise<SBR> => {
+    return apiGet<SBR>(ENDPOINTS.cron_job_run_now(cron_name));
 };
 
-export const enableCronJob = async (job_name: string): Promise<SBR> => {
-    return apiGet<SBR>(ENDPOINTS.cron_job_enable(job_name));
+export const enableCronJob = async (cron_name: string): Promise<SBR> => {
+    return apiGet<SBR>(ENDPOINTS.cron_job_enable(cron_name));
 };
 
-export const disableCronJob = async (job_name: string): Promise<SBR> => {
-    return apiGet<SBR>(ENDPOINTS.cron_job_disable(job_name));
+export const disableCronJob = async (cron_name: string): Promise<SBR> => {
+    return apiGet<SBR>(ENDPOINTS.cron_job_disable(cron_name));
 };
 
 export const resetCronJobs = async (): Promise<SBR> => {
