@@ -13,11 +13,12 @@ import {
   enumMandatory,
   enumArrayOptional,
   getAllEnums,
+  enumOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, FleetSize } from '../../../core/Enums';
+import { Status, FleetSize, YesNo } from '../../../core/Enums';
 
 // Other Models
 import { MasterMainIndustry } from '../../../services/master/main/master_main_industry_service';
@@ -188,6 +189,10 @@ export interface UserOrganisation extends Record<string, unknown> {
   postal_code?: string;
   country?: string;
   country_code?: string;
+
+  // Operations
+  is_sync_gps_data_from_utrack: YesNo;
+  show_vehicle_filters: YesNo;
 
   // Metadata
   status: Status;
@@ -703,6 +708,14 @@ export const UserOrganisationSchema = z.object({
   country: stringOptional('Country', 0, 100),
   country_code: stringOptional('Country Code', 0, 5),
 
+  // Operations
+  is_sync_gps_data_from_utrack: enumOptional(
+    'Is Sync GPS Data From UTrack',
+    YesNo,
+    YesNo.No,
+  ),
+  show_vehicle_filters: enumOptional('Show Vehicle Filters', YesNo, YesNo.Yes),
+
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
@@ -728,6 +741,16 @@ export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
     FleetSize,
     getAllEnums(FleetSize),
   ),
+  is_sync_gps_data_from_utrack: enumArrayOptional(
+    'Is Sync GPS Data From UTrack',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
+  show_vehicle_filters: enumArrayOptional(
+    'Show Vehicle Filters',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
 });
 export type UserOrganisationQueryDTO = z.infer<
   typeof UserOrganisationQuerySchema
@@ -743,6 +766,16 @@ export const UserOrganisationLogoSchema = z.object({
 export type UserOrganisationLogoDTO = z.infer<
   typeof UserOrganisationLogoSchema
 >;
+
+// UserOrganisation Show Filter Schema
+export const UserOrganisationShowFilterSchema = z.object({
+  // Profile Image/Logo
+  show_vehicle_filters: enumMandatory('Show Vehicle Filters', YesNo, YesNo.Yes),
+});
+export type UserOrganisationShowFilterDTO = z.infer<
+  typeof UserOrganisationShowFilterSchema
+>;
+
 
 // Convert UserOrganisation Data to API Payload
 export const toUserOrganisationPayload = (row: UserOrganisation): UserOrganisationDTO => ({
@@ -785,6 +818,10 @@ export const toUserOrganisationPayload = (row: UserOrganisation): UserOrganisati
   postal_code: row.postal_code || '',
   country: row.country || '',
   country_code: row.country_code || '',
+
+  // Operations
+  is_sync_gps_data_from_utrack: row.is_sync_gps_data_from_utrack || YesNo.No,
+  show_vehicle_filters: row.show_vehicle_filters || YesNo.Yes,
 
   industry_id: row.industry_id,
   country_id: row.country_id,
@@ -843,6 +880,10 @@ export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
   postal_code: '',
   country: '',
   country_code: '',
+
+  // Operations
+  is_sync_gps_data_from_utrack: YesNo.No,
+  show_vehicle_filters: YesNo.Yes,
 
   industry_id: '',
   country_id: '',
