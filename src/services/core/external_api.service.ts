@@ -97,7 +97,7 @@ export interface ApiDataShareHitLog extends Record<string, unknown> {
 }
 
 // ExternalApiReport Interface
-export interface ExternalApiReport {
+export interface ExternalApiReport extends Record<string, unknown> {
     api_name: string;
     vendor_name: string;
 
