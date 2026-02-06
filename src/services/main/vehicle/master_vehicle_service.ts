@@ -115,6 +115,7 @@ const ENDPOINTS = {
 
   // MasterVehicle APIs
   find: `${URL}/search`,
+  find_no_gps_data_vehicles: `${URL}/no_gps_data_vehicles`,
   find_live_dashboard: `${URL}/live_dashboard/search`,
   find_gps_details: `${URL}/gps_details/search`,
   create: `${URL}`,
@@ -1734,11 +1735,13 @@ export const VehicleQuerySchema = BaseQuerySchema.extend({
 });
 export type VehicleQueryDTO = z.infer<typeof VehicleQuerySchema>;
 
-// Simple Find Query Schema
-export const SimpleFindQuerySchema = BaseQuerySchema.extend({
-  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+// No GPS Data Vehicles Query Schema
+export const NoGPSDataVehiclesQuerySchema = BaseQuerySchema.extend({
+  selected_time_zone_id: single_select_mandatory('MasterMainTimeZone'), // Single-Selection -> MasterMainTimeZone
 });
-export type SimpleFindQueryDTO = z.infer<typeof SimpleFindQuerySchema>;
+export type NoGPSDataVehiclesQueryDTO = z.infer<
+  typeof NoGPSDataVehiclesQuerySchema
+>;
 
 // Vehicle GPS Query Schema
 export const VehicleGPSQuerySchema = BaseQuerySchema.extend({
@@ -2208,6 +2211,10 @@ export const delete_calibration_file = async (id: string): Promise<SBR> => {
 // Vehicle APIs
 export const findVehicles = async (payload: VehicleQueryDTO): Promise<FBR<MasterVehicle[]>> => {
   return apiPost<FBR<MasterVehicle[]>, VehicleQueryDTO>(ENDPOINTS.find, payload);
+};
+
+export const find_no_gps_data_vehicles = async (payload: NoGPSDataVehiclesQueryDTO): Promise<FBR<MasterVehicle[]>> => {
+  return apiPost<FBR<MasterVehicle[]>, NoGPSDataVehiclesQueryDTO>(ENDPOINTS.find_no_gps_data_vehicles, payload);
 };
 
 export const findVehiclesLiveDashboard = async (payload: VehicleQueryDTO): Promise<FBR<MasterVehicle[]>> => {
