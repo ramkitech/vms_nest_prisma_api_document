@@ -105,7 +105,7 @@ const ENDPOINTS = {
 
   // File Uploads
   create_file_vehicle: `${URL}/create_file_vehicle`,
-  remove_file_vehicle: (id: string): string => `${URL}/remove_file_vehicle${id}`,
+  remove_file_vehicle: (id: string): string => `${URL}/remove_file_vehicle/${id}`,
   create_file_device: `${URL}/create_file_device`,
   remove_file_device: (id: string): string => `${URL}/remove_file_device/${id}`,
   create_file_vehicle_document: `${URL}/create_file_vehicle_document`,
