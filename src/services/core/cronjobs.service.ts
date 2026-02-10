@@ -39,8 +39,10 @@ export interface CronJobLog extends Record<string, unknown> {
     end_date_time?: string;
     end_date_time_f?: string;
 
-    error_details?: string;
+    duration_f?: string;
+
     success_details?: string;
+    error_details?: string;
 
     // Relations - Parent
     cron_job_id: string;
