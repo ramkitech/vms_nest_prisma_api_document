@@ -74,6 +74,7 @@ export interface FleetInspection extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -125,6 +126,7 @@ export interface FleetInspectionFile extends BaseCommonFile {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   inspection_id: string;
   FleetInspection?: FleetInspection;

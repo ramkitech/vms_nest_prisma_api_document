@@ -129,6 +129,7 @@ export interface FleetFuelRefill extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   user_id?: string;
   User?: User;
@@ -181,6 +182,7 @@ export interface FleetFuelRefillFile extends BaseCommonFile {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   fleet_fuel_refill_id: string;
   FleetFuelRefill?: FleetFuelRefill;

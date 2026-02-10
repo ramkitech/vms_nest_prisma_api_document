@@ -53,6 +53,7 @@ export interface MasterVehicleFuelRemovalReason extends Record<string, unknown> 
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 }
 
 // MasterVehicleFuelRemovalReason Create/Update Schema

@@ -50,6 +50,7 @@ export interface MasterVendorTag extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 }
 
 // MasterVendorTag Create/Update Schema

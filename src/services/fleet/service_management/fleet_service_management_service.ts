@@ -123,6 +123,7 @@ export interface FleetServiceManagement extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   user_id: string;
   User?: User;
@@ -195,6 +196,7 @@ export interface FleetServiceManagementFile extends BaseCommonFile {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   service_management_id: string;
   FleetServiceManagement?: FleetServiceManagement;
@@ -219,6 +221,7 @@ export interface FleetServiceReminder extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;

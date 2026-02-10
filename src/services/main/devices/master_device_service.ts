@@ -109,6 +109,7 @@ export interface MasterDevice extends Record<string, unknown> {
   organisation_id?: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   country_id?: string;
   MasterMainCountry?: MasterMainCountry;
@@ -179,6 +180,7 @@ export interface MasterDeviceFile extends BaseCommonFile {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   // Parent
   device_id: string;

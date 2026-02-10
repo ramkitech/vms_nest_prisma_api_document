@@ -164,6 +164,7 @@ export interface Student extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id?: string;
     OrganisationBranch?: OrganisationBranch;
@@ -260,6 +261,7 @@ export interface StudentAddress extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -305,6 +307,7 @@ export interface StudentGuardian extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -339,6 +342,7 @@ export interface StudentGuardianLink extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -390,6 +394,7 @@ export interface StudentLeaveRequest extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -435,6 +440,7 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -473,6 +479,7 @@ export interface StudentTransportPlanTypeChangeHistory extends Record<string, un
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -502,6 +509,7 @@ export interface StudentLoginPush extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     // Device / Push
     fcm_token: string;
@@ -537,6 +545,7 @@ export interface StudentGuardianLoginPush extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     // Device / Push
     fcm_token: string;

@@ -54,6 +54,7 @@ export interface MasterTyreModel extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   tyre_make_id: string;
   MasterTyreMake?: MasterTyreMake;

@@ -63,6 +63,7 @@ export interface Ticket extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   user_id: string;
   User?: User;
@@ -90,6 +91,7 @@ export interface TicketFile extends BaseCommonFile {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   ticket_id: string;
   Ticket?: Ticket;

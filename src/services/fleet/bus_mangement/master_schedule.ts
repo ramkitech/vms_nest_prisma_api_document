@@ -89,6 +89,7 @@ export interface MasterFixedSchedule extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -141,6 +142,7 @@ export interface MasterRouteStudent extends Record<string, unknown> {
     organisation_id: string;
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
+    organisation_code?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;

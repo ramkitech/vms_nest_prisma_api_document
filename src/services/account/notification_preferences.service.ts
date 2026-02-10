@@ -65,6 +65,7 @@ export interface OrganisationNotificationPreference extends Record<string, unkno
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   // Relations - Child
   OrganisationNotificationPreferenceVehicleLink: OrganisationNotificationPreferenceVehicleLink[];

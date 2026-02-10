@@ -1,16 +1,10 @@
-// Imports
+// Axios
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
 import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
-import {
-  stringMandatory,
-  single_select_mandatory,
-  multi_select_optional,
-  enumMandatory,
-  stringOptional,
-} from '../../../zod_utils/zod_utils';
+import { stringMandatory, single_select_mandatory, multi_select_optional, enumMandatory, stringOptional, } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
@@ -53,6 +47,7 @@ export interface MasterVehicleType extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   // Relations - Child
   MasterVehicle?: MasterVehicle[];

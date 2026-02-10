@@ -55,6 +55,7 @@ export interface MasterVehicleMake extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   // Relations - Child
   MasterVehicleModel?: MasterVehicleModel[];

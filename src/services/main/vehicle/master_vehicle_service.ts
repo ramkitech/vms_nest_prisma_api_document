@@ -242,6 +242,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   organisation_sub_company_id?: string;
   OrganisationSubCompany?: OrganisationSubCompany;
@@ -483,6 +484,7 @@ export interface MasterVehicleFile extends BaseCommonFile {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -987,6 +989,7 @@ export interface VehicleDocument extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -1021,6 +1024,7 @@ export interface VehicleDocumentFile extends BaseCommonFile {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   vehicle_document_id: string;
   VehicleDocument?: VehicleDocument;
@@ -1045,6 +1049,7 @@ export interface VehicleDocumentExpiry extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -1075,6 +1080,7 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
