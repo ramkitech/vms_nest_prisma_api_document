@@ -34,10 +34,12 @@ const URL = 'bus_stop';
 const ENDPOINTS = {
   // BusStop APIs
   find: `${URL}/search`,
-  bus_dashboard: `${URL}/bus_dashboard`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   remove: (id: string): string => `${URL}/${id}`,
+
+  // DASHBOARD
+   bus_dashboard: `${URL}/bus_dashboard`,
 };
 
 // BusStopPolygonData Interface

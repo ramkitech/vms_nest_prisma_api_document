@@ -65,7 +65,6 @@ const ENDPOINTS = {
 
     // Student APIs
     find: `${URL}/search`,
-    school_dashboard: `${URL}/school_dashboard`,
     create: URL,
     find_students_with_no_route_pickup: `${URL}/no_route_pickup/search`,
     find_students_with_no_route_drop: `${URL}/no_route_drop/search`,
@@ -103,6 +102,9 @@ const ENDPOINTS = {
 
     // StudentTransportPlanTypeChangeHistory APIs
     find_student_transport_plan_type_change_history: `${URL}/student_transport_plan_type_change_history/search`,
+
+    // Dashboard
+    school_dashboard: `${URL}/school_dashboard`,
 };
 
 // Student Interface
@@ -664,11 +666,11 @@ export type StudentQueryDTO = z.infer<typeof StudentQuerySchema>;
 
 // SchoolDashBoard Query Schema
 export const SchoolDashBoardQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_mandatory('UserOrganisation'), // Multi-Selection -> UserOrganisation
-  organisation_branch_ids: multi_select_mandatory('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
+    organisation_ids: multi_select_mandatory('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    organisation_branch_ids: multi_select_mandatory('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
 });
 export type SchoolDashBoardQueryDTO = z.infer<
-  typeof SchoolDashBoardQuerySchema
+    typeof SchoolDashBoardQuerySchema
 >;
 
 // Student NoRoute Query Schema
@@ -1209,10 +1211,6 @@ export const deleteStudent = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove(id));
 };
 
-export const school_dashboard = async (data: SchoolDashBoardQueryDTO,): Promise<FBR<SchoolDashboard[]>> => {
-    return apiPost<FBR<SchoolDashboard[]>, SchoolDashBoardQueryDTO>(ENDPOINTS.school_dashboard, data);
-};
-
 // Student No-Route helpers (pickup/drop)
 export const findStudentsWithNoRoutePickup = async (data: StudentNoRouteQueryDTO): Promise<FBR<Student[]>> => {
     return apiPost<FBR<Student[]>, StudentNoRouteQueryDTO>(`${URL}/no_route_pickup/search`, data);
@@ -1321,6 +1319,11 @@ export const deleteStudentStopChangeRequest = async (id: string): Promise<SBR> =
 // StudentTransportPlanTypeChangeHistory APIs
 export const findStudentTransportPlanTypeChangeHistory = async (data: StudentTransportPlanTypeChangeHistoryQueryDTO): Promise<FBR<StudentTransportPlanTypeChangeHistory[]>> => {
     return apiPost<FBR<StudentTransportPlanTypeChangeHistory[]>, StudentTransportPlanTypeChangeHistoryQueryDTO>(ENDPOINTS.find_student_transport_plan_type_change_history, data);
+};
+
+// DashBoard
+export const school_dashboard = async (data: SchoolDashBoardQueryDTO,): Promise<FBR<SchoolDashboard[]>> => {
+    return apiPost<FBR<SchoolDashboard[]>, SchoolDashBoardQueryDTO>(ENDPOINTS.school_dashboard, data);
 };
 
 
