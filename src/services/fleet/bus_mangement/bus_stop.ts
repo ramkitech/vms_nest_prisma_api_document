@@ -17,6 +17,7 @@ import {
   nestedArrayOfObjectsOptional,
   numberOptional,
   getAllEnums,
+  multi_select_mandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -33,6 +34,7 @@ const URL = 'bus_stop';
 const ENDPOINTS = {
   // BusStop APIs
   find: `${URL}/search`,
+  bus_dashboard: `${URL}/bus_dashboard`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   remove: (id: string): string => `${URL}/${id}`,
@@ -98,6 +100,14 @@ export interface BusStop extends Record<string, unknown> {
   _count?: {
     MasterRouteStop?: number;
   };
+}
+
+export interface BusDashboard {
+    main_counts: {
+        bus_stops: number;
+        bus_routes: number;
+        bus_schedules: number;
+    };
 }
 
 // BusStop Polygon Data Create/Update Schema
@@ -180,6 +190,13 @@ export const BusStopQuerySchema = BaseQuerySchema.extend({
 });
 export type BusStopQueryDTO = z.infer<typeof BusStopQuerySchema>;
 
+// BusDashBoard Query Schema
+export const BusDashBoardQuerySchema = BaseQuerySchema.extend({
+  organisation_ids: multi_select_mandatory('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  organisation_branch_ids: multi_select_mandatory('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
+});
+export type BusDashBoardQueryDTO = z.infer<typeof BusDashBoardQuerySchema>;
+
 // Convert BusStop Data to API Payload
 export const toBusStopPayload = (row: BusStop): BusStopDTO => ({
   organisation_id: row.organisation_id || '',
@@ -259,4 +276,8 @@ export const updateBusStop = async (id: string, data: BusStopDTO): Promise<SBR> 
 
 export const deleteBusStop = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove(id));
+};
+
+export const bus_dashboard = async (data: BusDashBoardQueryDTO,): Promise<FBR<BusDashboard[]>> => {
+    return apiPost<FBR<BusDashboard[]>, BusDashBoardQueryDTO>(ENDPOINTS.bus_dashboard, data);
 };

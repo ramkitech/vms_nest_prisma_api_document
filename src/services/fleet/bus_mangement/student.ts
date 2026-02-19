@@ -19,6 +19,7 @@ import {
     stringOptional,
     doubleOptionalLatLng,
     getAllEnums,
+    multi_select_mandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -64,6 +65,7 @@ const ENDPOINTS = {
 
     // Student APIs
     find: `${URL}/search`,
+    school_dashboard: `${URL}/school_dashboard`,
     create: URL,
     find_students_with_no_route_pickup: `${URL}/no_route_pickup/search`,
     find_students_with_no_route_drop: `${URL}/no_route_drop/search`,
@@ -220,6 +222,15 @@ export interface Student extends Record<string, unknown> {
         MasterRouteStudent?: number;
         MasterRouteStudentChangeHistory?: number;
         FixedScheduleDayRunStudent?: number;
+    };
+}
+
+export interface SchoolDashboard {
+    main_counts: {
+        noticeboard: number;
+        students: number;
+        leave_requests: number;
+        route_change_requests: number;
     };
 }
 
@@ -650,6 +661,15 @@ export const StudentQuerySchema = BaseQuerySchema.extend({
     ),
 });
 export type StudentQueryDTO = z.infer<typeof StudentQuerySchema>;
+
+// SchoolDashBoard Query Schema
+export const SchoolDashBoardQuerySchema = BaseQuerySchema.extend({
+  organisation_ids: multi_select_mandatory('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  organisation_branch_ids: multi_select_mandatory('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
+});
+export type SchoolDashBoardQueryDTO = z.infer<
+  typeof SchoolDashBoardQuerySchema
+>;
 
 // Student NoRoute Query Schema
 export const StudentNoRouteQuerySchema = BaseQuerySchema.extend({
@@ -1172,7 +1192,7 @@ export const delete_guardian_profile_picture = async (id: string): Promise<SBR> 
     return apiDelete<SBR>(ENDPOINTS.delete_guardian_profile_picture(id));
 };
 
-
+// Student APIs
 export const findStudent = async (data: StudentQueryDTO): Promise<FBR<Student[]>> => {
     return apiPost<FBR<Student[]>, StudentQueryDTO>(ENDPOINTS.find, data);
 };
@@ -1187,6 +1207,10 @@ export const updateStudent = async (id: string, data: StudentDTO): Promise<SBR> 
 
 export const deleteStudent = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove(id));
+};
+
+export const school_dashboard = async (data: SchoolDashBoardQueryDTO,): Promise<FBR<SchoolDashboard[]>> => {
+    return apiPost<FBR<SchoolDashboard[]>, SchoolDashBoardQueryDTO>(ENDPOINTS.school_dashboard, data);
 };
 
 // Student No-Route helpers (pickup/drop)
