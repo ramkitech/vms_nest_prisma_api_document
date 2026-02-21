@@ -46,6 +46,13 @@ export enum Status {
   Inactive = 'Inactive',
 }
 
+export enum InvoiceStatus {
+  InvoiceGenerated = 'InvoiceGenerated',
+  InvoiceDue = 'InvoiceDue',
+  InvoiceOverdue = 'InvoiceOverdue',
+  InvoicePaid = 'InvoicePaid'
+}
+
 export enum ReminderType {
   Upcoming = 'Upcoming',
   OverDue = 'OverDue',
