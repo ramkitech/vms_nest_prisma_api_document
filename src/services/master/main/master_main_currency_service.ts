@@ -30,6 +30,7 @@ const ENDPOINTS = {
   delete: (id: string): string => `${URL}/${id}`,
 
   // Cache APIs
+  cache_all: `${URL}/cache_all`,
   cache: (country_id: string): string => `${URL}/cache?country_id=${country_id}`,
 };
 
@@ -129,6 +130,10 @@ export const deleteMasterMainCurrency = async (id: string): Promise<SBR> => {
 };
 
 // Cache APIs
+export const getMasterMainCurrencyCacheAll = async (): Promise<FBR<MasterMainCurrency[]>> => {
+  return apiGet<FBR<MasterMainCurrency[]>>(ENDPOINTS.cache_all);
+};
+
 export const getMasterMainCurrencyCache = async (country_id: string): Promise<FBR<MasterMainCurrency[]>> => {
   return apiGet<FBR<MasterMainCurrency[]>>(ENDPOINTS.cache(country_id));
 };
