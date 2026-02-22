@@ -54,8 +54,11 @@ export interface Invoice extends Record<string, unknown> {
   invoice_amount: number;
 
   invoice_generate_date?: string;
+  invoice_generate_date_f?: string;
   invoice_due_date?: string;
+  invoice_due_date_f?: string;
   payment_date?: string;
+  payment_date_f?: string;
 
   invoice_status: InvoiceStatus;
 
