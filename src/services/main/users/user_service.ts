@@ -41,6 +41,7 @@ import { FleetIssueManagement } from 'src/services/fleet/issue_management/issue_
 import { FleetServiceManagement } from 'src/services/fleet/service_management/fleet_service_management_service';
 import { FleetServiceSchedule } from 'src/services/fleet/service_management/fleet_service_schedule_service';
 import { FleetVendorDocument, FleetVendorReview } from 'src/services/fleet/vendor_management/fleet_vendor_service';
+import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
 
 const URL = 'user/user';
 
@@ -83,8 +84,8 @@ export interface User extends Record<string, unknown> {
   // Main Field Details
   first_name: string;
   last_name?: string;
-  email: string;
   username?: string;
+  email: string;
   mobile?: string;
   password?: string;
 
@@ -104,6 +105,11 @@ export interface User extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+
+  organisation_branch_id?: string;
+  OrganisationBranch?: OrganisationBranch;
+  branch_name?: string;
+  branch_city?: string;
 
   user_role_id?: string;
   MasterUserRole?: MasterUserRole;
@@ -291,6 +297,7 @@ export interface UserLoginPush extends Record<string, unknown> {
 export const UserSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
   user_role_id: single_select_optional('MasterUserRole'), // Single-Selection -> MasterUserRole
   user_status_id: single_select_optional('MasterUserStatus'), // Single-Selection -> MasterUserStatus
   language_id: single_select_optional('MasterMainLanguage'), // Single-Selection -> MasterMainLanguage
@@ -305,8 +312,8 @@ export const UserSchema = z.object({
   // Main Field Details
   first_name: stringMandatory('First Name', 2, 100),
   last_name: stringOptional('Last Name', 0, 100),
-  email: stringMandatory('Email', 3, 100),
   username: stringOptional('Username', 0, 100),
+  email: stringMandatory('Email', 3, 100),
   mobile: stringOptional('Mobile', 0, 15),
   password: stringOptional('Password', 0, 20),
 
@@ -327,6 +334,7 @@ export const UserQuerySchema = BaseQuerySchema.extend({
 
   // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
   user_role_ids: multi_select_optional('MasterUserRole'), // Multi-Selection -> MasterUserRole
   user_status_ids: multi_select_optional('MasterUserStatus'), // Multi-Selection -> MasterUserStatus
   language_ids: multi_select_optional('MasterMainLanguage'), // Multi-Selection -> MasterMainLanguage
@@ -403,6 +411,7 @@ export const toUserPayload = (row: User): UserDTO => ({
   user_image_name: row.user_image_name || '',
 
   organisation_id: row.organisation_id || '',
+  organisation_branch_id: row.organisation_branch_id || '',
   user_role_id: row.user_role_id || '',
   user_status_id: row.user_status_id || '',
   language_id: row.language_id || '',
@@ -447,6 +456,7 @@ export const newUserPayload = (): UserDTO => ({
   user_image_name: '',
 
   organisation_id: '',
+  organisation_branch_id: '',
   user_role_id: '',
   user_status_id: '',
   language_id: '',
