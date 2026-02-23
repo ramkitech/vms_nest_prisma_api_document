@@ -76,10 +76,8 @@ const ENDPOINTS = {
 // MultipleVehicleReportSchema
 export const MultipleVehicleReportSchema = MongoBaseQuerySchema.extend({
   organisation_id: single_select_mandatory('Organisation'),
-  db_instance: stringMandatory('DB Instance'),
   db_group: stringMandatory('DB Group'),
   vehicle_ids: multi_select_mandatory('Master Vehicle'),
-  from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
   time_slot: enumOptional(
     'Time Slot',
