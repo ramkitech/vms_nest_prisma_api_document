@@ -31,13 +31,15 @@ const ENDPOINTS = {
 
 // RequestDemo Interface
 export interface RequestDemo extends Record<string, unknown> {
-    // Primary Fields
-    first_name: string;
-    last_name?: string;
+    // Primary Field
+    request_demo_id: string;
+
+    // main Field Details
+    name: string;
     mobile?: string;
-    country_code?: string;
     email?: string;
     message?: string;
+    city?: string;
 
     // Admin Details
     admin_message?: string;
@@ -51,70 +53,66 @@ export interface RequestDemo extends Record<string, unknown> {
 
 // RequestDemo Create/Update Schema
 export const RequestDemoSchema = z.object({
-    // Main Field Details
-    first_name: stringMandatory('First Name', 3, 100),
-    last_name: stringOptional('Last Name', 0, 100),
-    mobile: stringOptional('Mobile', 0, 20),
-    country_code: stringOptional('Country Code', 0, 20),
-    email: stringOptional('Email', 0, 100),
-    message: stringOptional('Message', 0, 500),
+  // Main Field Details
+  name: stringMandatory('Name', 3, 100),
+  mobile: stringOptional('Mobile', 0, 20),
+  email: stringOptional('Email', 0, 100),
+  message: stringOptional('Message', 0, 500),
+  city: stringOptional('City', 0, 100),
 
-    // Admin Details
-    admin_message: stringOptional('Admin Message', 0, 1000),
-    admin_view: enumMandatory('Admin View', YesNo, YesNo.No),
+  // Admin Details
+  admin_message: stringOptional('Admin Message', 0, 1000),
+  admin_view: enumMandatory('Admin View', YesNo, YesNo.No),
 
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type RequestDemoDTO = z.infer<typeof RequestDemoSchema>;
 
 // RequestDemo Query Schema
 export const RequestDemoQuerySchema = BaseQuerySchema.extend({
-    // Self Table
-    request_demo_ids: multi_select_optional('RequestDemo'), // Multi-selection -> RequestDemo
+  // Self Table
+  request_demo_ids: multi_select_optional('RequestDemo'), // Multi-selection -> RequestDemo
 
-    // Enums
-    admin_view: enumArrayOptional('Admin View', YesNo, getAllEnums(YesNo)),
+  // Enums
+  admin_view: enumArrayOptional('Admin View', YesNo, getAllEnums(YesNo)),
 });
 export type RequestDemoQueryDTO = z.infer<typeof RequestDemoQuerySchema>;
 
 // RequestDemo Create Schema
 export const RequestDemoCreateSchema = z.object({
-    // Main Field Details
-    first_name: stringMandatory('First Name', 3, 100),
-    last_name: stringOptional('Last Name', 0, 100),
-    mobile: stringOptional('Mobile', 0, 20),
-    country_code: stringOptional('Country Code', 0, 20),
-    email: stringOptional('Email', 0, 100),
-    message: stringOptional('Message', 0, 500),
+  // Main Field Details
+  name: stringMandatory('Name', 3, 100),
+  mobile: stringOptional('Mobile', 0, 20),
+  email: stringOptional('Email', 0, 100),
+  message: stringOptional('Message', 0, 500),
+  city: stringOptional('City', 0, 100),
 });
 export type RequestDemoCreateDTO = z.infer<typeof RequestDemoCreateSchema>;
 
 // Convert existing data to a payload structure
-export const toFaqPayload = (request_demo: RequestDemo): RequestDemoDTO => ({
-    first_name: request_demo.first_name || '',
-    last_name: request_demo.last_name || '',
-    mobile: request_demo.mobile || '',
-    country_code: request_demo.country_code || '',
-    email: request_demo.email || '',
-    message: request_demo.message || '',
+export const toFaqPayload = (row: RequestDemo): RequestDemoDTO => ({
+    name: row.name || '',
+    mobile: row.mobile || '',
+    email: row.email || '',
+    message: row.message || '',
+    city: row.city || '',
 
     // Admin Details
-    admin_message: request_demo.admin_message || '',
-    admin_view: request_demo.admin_view || YesNo.No,
+    admin_message: row.admin_message || '',
+    admin_view: row.admin_view || YesNo.No,
 
     // Metadata
-    status: request_demo.status,
+    status: row.status,
 });
 
 // Generate a new payload with default values
 export const newFaqPayload = (): RequestDemoDTO => ({
-    first_name: '',
-    last_name: '',
+    name: '',
     mobile: '',
-    country_code: '',
     email: '',
     message: '',
+    city: '',
 
     // Admin Details
     admin_message: '',
