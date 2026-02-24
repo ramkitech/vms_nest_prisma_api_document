@@ -91,7 +91,7 @@ export const RequestDemoCreateSchema = z.object({
 export type RequestDemoCreateDTO = z.infer<typeof RequestDemoCreateSchema>;
 
 // Convert existing data to a payload structure
-export const toFaqPayload = (row: RequestDemo): RequestDemoDTO => ({
+export const todRequestDemoPayload = (row: RequestDemo): RequestDemoDTO => ({
     name: row.name || '',
     mobile: row.mobile || '',
     email: row.email || '',
@@ -107,7 +107,7 @@ export const toFaqPayload = (row: RequestDemo): RequestDemoDTO => ({
 });
 
 // Generate a new payload with default values
-export const newFaqPayload = (): RequestDemoDTO => ({
+export const newdRequestDemoPayload = (): RequestDemoDTO => ({
     name: '',
     mobile: '',
     email: '',

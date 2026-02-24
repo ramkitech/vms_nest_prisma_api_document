@@ -77,7 +77,7 @@ export type ExclusiveFeatureAccessQueryDTO = z.infer<
 >;
 
 // Convert existing data to a payload structure
-export const toFaqPayload = (row: ExclusiveFeatureAccess): ExclusiveFeatureAccessDTO => ({
+export const toExclusiveFeatureAccessPayload = (row: ExclusiveFeatureAccess): ExclusiveFeatureAccessDTO => ({
     subject: row.subject || '',
     message: row.message || '',
 
@@ -89,7 +89,7 @@ export const toFaqPayload = (row: ExclusiveFeatureAccess): ExclusiveFeatureAcces
 });
 
 // Generate a new payload with default values
-export const newFaqPayload = (): ExclusiveFeatureAccessDTO => ({
+export const newExclusiveFeatureAccessPayload = (): ExclusiveFeatureAccessDTO => ({
     subject: '',
     message: '',
 
