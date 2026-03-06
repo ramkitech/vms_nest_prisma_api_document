@@ -11,6 +11,8 @@ export interface SBR {
   status: boolean;
   message: string;
   error?: string;
+  data?: any;
+  id?: string;
 }
 
 export interface BR<T> {
