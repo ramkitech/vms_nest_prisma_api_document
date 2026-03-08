@@ -202,6 +202,7 @@ export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
   driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
   inspection_form_ids: multi_select_optional('FleetInspectionForm'), // Multi-Selection -> FleetInspectionForm
+  service_management_ids: multi_select_optional('FleetServiceManagement'), // Multi-Selection -> FleetServiceManagement
 
   // Enums
   inspection_type: enumArrayOptional(
@@ -220,6 +221,7 @@ export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
     getAllEnums(InspectionStatus),
   ),
 
+  // Dates
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
