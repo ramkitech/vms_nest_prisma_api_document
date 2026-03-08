@@ -15,6 +15,7 @@ import {
   single_select_optional,
   getAllEnums,
   dynamicJsonSchema,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
@@ -30,7 +31,6 @@ import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service'
 import { FleetIssueManagement } from '../issue_management/issue_management_service';
 import { FleetServiceManagement } from '../service_management/fleet_service_management_service';
 import { FleetInspectionForm } from './fleet_inspection_form_service';
-import { FleetInspectionSchedule } from './fleet_inspection_schedule_service';
 
 const URL = 'fleet/inspection_management/inspections';
 
@@ -47,6 +47,7 @@ const ENDPOINTS = {
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
   inspection_dashboard: `${URL}/inspection_dashboard`,
   find_check_pending: `${URL}/check_pending`,
 };
@@ -59,9 +60,10 @@ export interface FleetInspection extends Record<string, unknown> {
   // Main Field Details
   inspection_type: InspectionType;
   inspection_date: string;
-  inspection_date_f: string;
+  inspection_date_f?: string;
   inspection_priority: InspectionPriority;
   inspection_status: InspectionStatus;
+  inspection_notes?: string;
 
   odometer_reading: number;
 
@@ -85,9 +87,9 @@ export interface FleetInspection extends Record<string, unknown> {
   MasterDriver?: MasterDriver;
   driver_details?: string;
 
-  inspector_id?: string;
-  InspectorUser?: User;
-  inspector_user_details?: string;
+  user_id?: string;
+  User?: User;
+  user_details?: string;
 
   inspection_form_id?: string;
   FleetInspectionForm?: FleetInspectionForm;
@@ -96,14 +98,6 @@ export interface FleetInspection extends Record<string, unknown> {
 
   service_management_id?: string;
   FleetServiceManagement?: FleetServiceManagement;
-
-  inspection_approved_id?: string;
-  ApprovedUser?: User;
-  approved_user_details?: string;
-
-  inspection_action_status?: InspectionActionStatus;
-  inspection_action_date?: string;
-  inspection_action_comments: string;
 
   // Relations - Child
   // Child - Fleet
@@ -135,10 +129,10 @@ export interface FleetInspectionFile extends BaseCommonFile {
 }
 
 export interface InspectionDashboard {
-    vehicle_id: string;
-    vehicle_number: string;
-    vehicle_type: string;
-    inspections_count: number;
+  vehicle_id: string;
+  vehicle_number: string;
+  vehicle_type: string;
+  inspections_count: number;
 }
 
 // FleetInspectionFile Schema
@@ -153,7 +147,7 @@ export type FleetInspectionFileDTO = z.infer<typeof FleetInspectionFileSchema>;
 export const FleetInspectionSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  inspector_id: single_select_optional('User'), // Single-Selection -> User
+  user_id: single_select_optional('User'), // Single-Selection -> User
   vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
   driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
 
@@ -177,6 +171,7 @@ export const FleetInspectionSchema = z.object({
     InspectionStatus,
     InspectionStatus.Pending,
   ),
+  inspection_notes: stringOptional('Inspection Notes', 0, 500),
 
   inspection_data: dynamicJsonSchema('Inspection Data', {}),
 
@@ -242,6 +237,7 @@ export const FleetInspectionDashBoardQuerySchema = BaseQuerySchema.extend({
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
+
 export type FleetInspectionDashBoardQueryDTO = z.infer<
   typeof FleetInspectionDashBoardQuerySchema
 >;
@@ -258,9 +254,10 @@ export type FleetInspectionCheckPendingQueryDTO = z.infer<
 // Convert FleetInspection Data to API Payload
 export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionDTO => ({
   organisation_id: row.organisation_id || '',
+  user_id: row.user_id || '',
   vehicle_id: row.vehicle_id || '',
   driver_id: row.driver_id || '',
-  inspector_id: row.inspector_id || '',
+
   inspection_form_id: row.inspection_form_id || '',
   service_management_id: row.service_management_id || '',
 
@@ -268,6 +265,7 @@ export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionD
   inspection_date: row.inspection_date || '',
   inspection_priority: row.inspection_priority || InspectionPriority.NoPriority,
   inspection_status: row.inspection_status || InspectionStatus.Pending,
+  inspection_notes: row.inspection_notes || '',
 
   inspection_data: row.inspection_data || {},
   odometer_reading: row.odometer_reading || 0,
@@ -301,9 +299,10 @@ export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionD
 // Create New FleetInspection Payload
 export const newFleetInspectionPayload = (): FleetInspectionDTO => ({
   organisation_id: '',
+  user_id: '',
   vehicle_id: '',
   driver_id: '',
-  inspector_id: '',
+
   inspection_form_id: '',
   service_management_id: '',
 
@@ -311,6 +310,7 @@ export const newFleetInspectionPayload = (): FleetInspectionDTO => ({
   inspection_date: '',
   inspection_priority: InspectionPriority.NoPriority,
   inspection_status: InspectionStatus.Pending,
+  inspection_notes: '',
 
   inspection_data: {},
   odometer_reading: 0,
@@ -353,7 +353,7 @@ export const deleteFleetInspection = async (id: string): Promise<SBR> => {
 };
 
 export const inspection_dashboard = async (data: FleetInspectionDashBoardQueryDTO): Promise<FBR<InspectionDashboard[]>> => {
-    return apiPost<FBR<InspectionDashboard[]>, FleetInspectionDashBoardQueryDTO>(ENDPOINTS.inspection_dashboard, data);
+  return apiPost<FBR<InspectionDashboard[]>, FleetInspectionDashBoardQueryDTO>(ENDPOINTS.inspection_dashboard, data);
 };
 
 export const find_check_pending = async (data: FleetInspectionCheckPendingQueryDTO): Promise<FBR<FleetInspection[]>> => {
