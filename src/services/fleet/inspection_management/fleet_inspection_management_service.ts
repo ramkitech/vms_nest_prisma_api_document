@@ -20,7 +20,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { FileType, InspectionActionStatus, InspectionPriority, InspectionStatus, InspectionType, PaymentStatus, ServiceStatus, ServiceType, Status, YesNo } from '../../../core/Enums';
+import { FileType, InspectionPriority, InspectionStatus, InspectionType, Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -219,6 +219,9 @@ export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
     InspectionStatus,
     getAllEnums(InspectionStatus),
   ),
+
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
 });
 export type FleetInspectionQueryDTO = z.infer<
   typeof FleetInspectionQuerySchema
@@ -256,6 +259,7 @@ export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionD
   driver_id: row.driver_id || '',
 
   inspection_form_id: row.inspection_form_id || '',
+  inspection_data: row.inspection_data || {},
   service_management_id: row.service_management_id || '',
 
   inspection_type: row.inspection_type || InspectionType.Regular,
@@ -264,7 +268,6 @@ export const toFleetInspectionPayload = (row: FleetInspection): FleetInspectionD
   inspection_status: row.inspection_status || InspectionStatus.Pending,
   inspection_notes: row.inspection_notes || '',
 
-  inspection_data: row.inspection_data || {},
   odometer_reading: row.odometer_reading || 0,
 
   status: row.status || Status.Active,
@@ -301,6 +304,7 @@ export const newFleetInspectionPayload = (): FleetInspectionDTO => ({
   driver_id: '',
 
   inspection_form_id: '',
+  inspection_data: {},
   service_management_id: '',
 
   inspection_type: InspectionType.Regular,
@@ -309,7 +313,6 @@ export const newFleetInspectionPayload = (): FleetInspectionDTO => ({
   inspection_status: InspectionStatus.Pending,
   inspection_notes: '',
 
-  inspection_data: {},
   odometer_reading: 0,
 
   status: Status.Active,
