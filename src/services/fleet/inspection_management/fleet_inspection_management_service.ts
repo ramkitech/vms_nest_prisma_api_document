@@ -56,6 +56,8 @@ const ENDPOINTS = {
 export interface FleetInspection extends Record<string, unknown> {
   // Primary Fields
   inspection_id: string;
+  sub_inspection_id: number;
+  inspection_code: string;
 
   // Main Field Details
   inspection_type: InspectionType;
@@ -78,6 +80,10 @@ export interface FleetInspection extends Record<string, unknown> {
   organisation_name?: string;
   organisation_code?: string;
 
+  user_id?: string;
+  User?: User;
+  user_details?: string;
+
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
@@ -86,10 +92,6 @@ export interface FleetInspection extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
-
-  user_id?: string;
-  User?: User;
-  user_details?: string;
 
   inspection_form_id?: string;
   FleetInspectionForm?: FleetInspectionForm;
@@ -196,10 +198,10 @@ export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
 
   // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
   driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
   inspection_form_ids: multi_select_optional('FleetInspectionForm'), // Multi-Selection -> FleetInspectionForm
-  service_management_ids: multi_select_optional('FleetServiceManagement'), // Multi-Selection -> FleetServiceManagement
 
   // Enums
   inspection_type: enumArrayOptional(
@@ -216,11 +218,6 @@ export const FleetInspectionQuerySchema = BaseQuerySchema.extend({
     'Inspection Status',
     InspectionStatus,
     getAllEnums(InspectionStatus),
-  ),
-  inspection_action_status: enumArrayOptional(
-    'Inspection Action Status',
-    InspectionActionStatus,
-    getAllEnums(InspectionActionStatus),
   ),
 });
 export type FleetInspectionQueryDTO = z.infer<
