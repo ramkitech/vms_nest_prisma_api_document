@@ -471,23 +471,18 @@ export const dateOptional = (
 ) => {
   const schema = z
     .string()
-    .refine((val) => !isNaN(Date.parse(val)), {
+    .optional()
+    .transform((val) => (val === '' || val === null || val === undefined ? undefined : val))
+    .refine((val) => val === undefined || !isNaN(Date.parse(val)), {
       message: `${fieldName} must be a valid ISO date.`,
     })
-    .optional()
-    .default(defaultValue);
-
-  if (minDate) {
-    schema.refine((val) => new Date(val) >= new Date(minDate), {
+    .refine((val) => !minDate || val === undefined || new Date(val) >= new Date(minDate), {
       message: `${fieldName} must be after ${minDate}.`,
-    });
-  }
-
-  if (maxDate) {
-    schema.refine((val) => new Date(val) <= new Date(maxDate), {
+    })
+    .refine((val) => !maxDate || val === undefined || new Date(val) <= new Date(maxDate), {
       message: `${fieldName} must be before ${maxDate}.`,
-    });
-  }
+    })
+    .default(defaultValue);
 
   return schema;
 };
@@ -528,23 +523,18 @@ export const dateTimeOptional = (
 ) => {
   const schema = z
     .string()
-    .refine((val) => !isNaN(Date.parse(val)), {
+    .optional()
+    .transform((val) => (val === '' || val === null || val === undefined ? undefined : val))
+    .refine((val) => val === undefined || !isNaN(Date.parse(val)), {
       message: `${fieldName} must be a valid ISO date.`,
     })
-    .optional()
-    .default(defaultValue);
-
-  if (minDate) {
-    schema.refine((val) => new Date(val) >= new Date(minDate), {
+    .refine((val) => !minDate || val === undefined || new Date(val) >= new Date(minDate), {
       message: `${fieldName} must be after ${minDate}.`,
-    });
-  }
-
-  if (maxDate) {
-    schema.refine((val) => new Date(val) <= new Date(maxDate), {
+    })
+    .refine((val) => !maxDate || val === undefined || new Date(val) <= new Date(maxDate), {
       message: `${fieldName} must be before ${maxDate}.`,
-    });
-  }
+    })
+    .default(defaultValue);
 
   return schema;
 };
