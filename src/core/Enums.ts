@@ -317,6 +317,12 @@ export enum InspectionActionStatus {
   Escalated = 'Escalated',
 }
 
+export enum InspectionScheduleStatus {
+  Pending   = 'Pending',
+  OverDue   = 'OverDue',
+  Completed = 'Completed',
+}
+
 export enum ScheduleStatus {
   Scheduled = 'Scheduled',
   ServiceInitiated = 'ServiceInitiated',

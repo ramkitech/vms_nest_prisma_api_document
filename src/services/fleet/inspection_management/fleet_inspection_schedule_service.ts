@@ -5,17 +5,18 @@ import { SBR, FBR } from '../../../core/BaseResponse';
 // Zod
 import { z } from 'zod';
 import {
-  dateOptional,
+  dateMandatory,
   enumMandatory,
   multi_select_optional,
   single_select_mandatory,
+  single_select_optional,
   stringMandatory,
   stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status } from '../../../core/Enums';
+import { InspectionScheduleStatus, Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -55,6 +56,7 @@ export interface FleetInspectionSchedule extends Record<string, unknown> {
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
 
   user_id: string;
   User?: User;
@@ -67,6 +69,9 @@ export interface FleetInspectionSchedule extends Record<string, unknown> {
   // Relations - Child Count
   _count?: {
     FleetInspectionScheduleVehicleLink?: number;
+    FleetInspectionScheduleVehicleLink_Pending?: number;
+    FleetInspectionScheduleVehicleLink_OverDue?: number;
+    FleetInspectionScheduleVehicleLink_Completed?: number;
   };
 }
 
@@ -76,7 +81,9 @@ export interface FleetInspectionScheduleVehicleLink extends Record<string, unkno
   inspection_schedule_vehicle_link_id: string;
 
   // Main Field Details
-  // inspection_schedule_status: InspectionScheduleStatus;
+  inspection_schedule_status: InspectionScheduleStatus;
+  inspection_date_time?: string;
+  inspection_date_time_f?: string;
 
   // Metadata
   status: Status;
@@ -97,7 +104,7 @@ export interface FleetInspectionScheduleVehicleLink extends Record<string, unkno
 export const FleetInspectionScheduleSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  user_id: single_select_mandatory('User'), // Single-Selection -> User
+  user_id: single_select_optional('User'), // Single-Selection -> User
 
   // Main Field Details
   inspection_schedule_name: stringMandatory('Inspection Schedule Name', 3, 100),
@@ -106,10 +113,10 @@ export const FleetInspectionScheduleSchema = z.object({
     0,
     2000,
   ),
-  inspection_schedule_start_date: dateOptional(
+  inspection_schedule_start_date: dateMandatory(
     'Inspection Schedule Start Date',
   ),
-  inspection_schedule_due_date: dateOptional('Inspection Schedule Due Date'),
+  inspection_schedule_due_date: dateMandatory('Inspection Schedule Due Date'),
 
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
 
