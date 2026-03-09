@@ -20,7 +20,6 @@ import { InspectionScheduleStatus, Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
-import { FleetInspection } from './fleet_inspection_management_service';
 import { User } from 'src/services/main/users/user_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 
