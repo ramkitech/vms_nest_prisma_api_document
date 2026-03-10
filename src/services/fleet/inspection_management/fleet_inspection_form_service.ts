@@ -10,6 +10,7 @@ import {
   multi_select_optional,
   single_select_mandatory,
   stringMandatory,
+  stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -34,6 +35,7 @@ const ENDPOINTS = {
   cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
+
 // FleetInspectionForm Interface
 export interface FleetInspectionForm extends Record<string, unknown> {
   // Primary Fields
@@ -41,7 +43,8 @@ export interface FleetInspectionForm extends Record<string, unknown> {
 
   // Main Field Details
   inspection_form_name: string;
-  inspection_form_fields: Record<string, unknown>;
+  inspection_form_notes: string;
+  inspection_form_data: Record<string, unknown>;
 
   // Metadata
   status: Status;
@@ -64,7 +67,6 @@ export interface FleetInspectionForm extends Record<string, unknown> {
   };
 }
 
-// FleetInspectionFormSimple Interface
 export interface FleetInspectionFormSimple extends Record<string, unknown> {
   inspection_form_id: string;
   inspection_form_name: string;
@@ -77,7 +79,8 @@ export const FleetInspectionFormSchema = z.object({
 
   // Main Field Details
   inspection_form_name: stringMandatory('Inspection Form Name', 3, 100),
-  inspection_form_fields: dynamicJsonSchema('Inspection Form Fields', {}),
+  inspection_form_notes: stringOptional('Inspection Form Notes', 0, 500),
+  inspection_form_data: dynamicJsonSchema('Inspection Form Data', {}),
 
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
@@ -98,7 +101,7 @@ export type FleetInspectionFormQueryDTO = z.infer<
 
 // FleetInspectionForm Update Fields Schema
 export const FleetInspectionFormFieldsSchema = z.object({
-  inspection_form_fields: dynamicJsonSchema('Inspection Form Fields', {}),
+  inspection_form_data: dynamicJsonSchema('Inspection Form Data', {}),
 });
 export type FleetInspectionFormFieldsDTO = z.infer<
   typeof FleetInspectionFormFieldsSchema
@@ -109,7 +112,8 @@ export const toFleetInspectionFormPayload = (row: FleetInspectionForm): FleetIns
   organisation_id: row.organisation_id || '',
 
   inspection_form_name: row.inspection_form_name || '',
-  inspection_form_fields: row.inspection_form_fields || {},
+  inspection_form_notes: row.inspection_form_notes || '',
+  inspection_form_data: row.inspection_form_data || {},
 
   status: row.status || Status.Active
 });
@@ -119,11 +123,11 @@ export const newFleetInspectionFormPayload = (): FleetInspectionFormDTO => ({
   organisation_id: '',
 
   inspection_form_name: '',
-  inspection_form_fields: {},
+  inspection_form_notes: '',
+  inspection_form_data: {},
 
   status: Status.Active
 });
-
 // FleetInspectionForm APIs
 export const findFleetInspectionForm = async (data: FleetInspectionFormQueryDTO): Promise<FBR<FleetInspectionForm[]>> => {
   return apiPost<FBR<FleetInspectionForm[]>, FleetInspectionFormQueryDTO>(ENDPOINTS.find, data);
