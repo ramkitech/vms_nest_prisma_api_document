@@ -69,11 +69,11 @@ export interface FleetIncidentManagement extends Record<string, unknown> {
 
     // Main Field Details
     vehicle_sub_incident_id: number;
-    incident_code?: string;
+    incident_code: string;
 
     // Incident Details
     incident_date: string;
-    incident_date_f: string;
+    incident_date_f?: string;
     was_towed: YesNo;
     is_vehicle_operational: YesNo;
     incident_time: IncidentTime;
@@ -531,8 +531,8 @@ export const toFleetIncidentManagementPayload = (row: FleetIncidentManagement): 
         file_metadata: file.file_metadata || {},
 
         status: file.status,
-        added_date_time: file.added_date_time,
-        modified_date_time: file.modified_date_time,
+        added_date_time: file.added_date_time ?? '',
+        modified_date_time: file.modified_date_time ?? '',
 
         organisation_id: file.organisation_id || '',
 
