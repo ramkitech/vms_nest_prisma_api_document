@@ -43,9 +43,9 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
   // Main Field Details
   service_schedule_name: string;
   service_schedule_description?: string;
-  service_schedule_start_date?: string;
+  service_schedule_start_date: string;
   service_schedule_start_date_f?: string;
-  service_schedule_due_date?: string;
+  service_schedule_due_date: string;
   service_schedule_due_date_f?: string;
 
   // Metadata

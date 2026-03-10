@@ -112,6 +112,7 @@ export interface FleetServiceManagement extends Record<string, unknown> {
   // Next Schedule
   next_odometer_reading?: number;
   next_service_schedule_date?: string;
+  next_service_schedule_date_f?: string;
 
   // Metadata
   status: Status;
@@ -527,8 +528,8 @@ export const toFleetServiceManagementPayload = (row: FleetServiceManagement): Fl
     file_metadata: file.file_metadata || {},
 
     status: file.status || Status.Active,
-    added_date_time: file.added_date_time,
-    modified_date_time: file.modified_date_time,
+    added_date_time: file.added_date_time ?? '',
+    modified_date_time: file.modified_date_time ?? '',
 
     organisation_id: file.organisation_id || '',
     service_management_id: file.service_management_id || '',
