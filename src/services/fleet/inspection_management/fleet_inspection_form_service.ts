@@ -28,7 +28,7 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
-  update_fields: (id: string): string => `${URL}/update_fields/${id}`,
+  update_form_data: (id: string): string => `${URL}/update_form_data/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
   // Cache APIs
@@ -141,8 +141,8 @@ export const updateFleetInspectionForm = async (id: string, data: FleetInspectio
   return apiPatch<SBR, FleetInspectionFormDTO>(ENDPOINTS.update(id), data);
 };
 
-export const updateFleetInspectionFormFields = async (id: string, data: FleetInspectionFormFieldsDTO): Promise<SBR> => {
-  return apiPatch<SBR, FleetInspectionFormFieldsDTO>(ENDPOINTS.update_fields(id), data);
+export const updateFleetInspectionFormData = async (id: string, data: FleetInspectionFormFieldsDTO): Promise<SBR> => {
+  return apiPatch<SBR, FleetInspectionFormFieldsDTO>(ENDPOINTS.update_form_data(id), data);
 };
 
 export const deleteFleetInspectionForm = async (id: string): Promise<SBR> => {
