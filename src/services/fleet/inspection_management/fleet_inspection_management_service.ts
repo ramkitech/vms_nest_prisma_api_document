@@ -153,7 +153,7 @@ export const FleetInspectionSchema = z.object({
   vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
   driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
 
-  inspection_form_id: single_select_mandatory('FleetInspectionForm'), // Single-Selection -> FleetInspectionForm
+  inspection_form_id: single_select_optional('FleetInspectionForm'), // Single-Selection -> FleetInspectionForm
   service_management_id: single_select_optional('FleetServiceManagement'), // Single-Selection -> FleetServiceManagement
 
   // Main Field Details
@@ -329,11 +329,11 @@ export const get_inspection_file_presigned_url = async (data: FilePresignedUrlDT
 };
 
 // File Uploads
-export const create_service_file = async (data: FleetInspectionFileDTO): Promise<SBR> => {
+export const create_inspection_file = async (data: FleetInspectionFileDTO): Promise<SBR> => {
   return apiPost<SBR, FleetInspectionFileDTO>(ENDPOINTS.create_inspection_file, data);
 };
 
-export const remove_service_file = async (id: string): Promise<SBR> => {
+export const remove_inspection_file = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_inspection_file(id));
 };
 

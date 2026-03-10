@@ -57,7 +57,7 @@ export interface FleetInspectionSchedule extends Record<string, unknown> {
   organisation_name?: string;
   organisation_code?: string;
 
-  user_id: string;
+  user_id?: string;
   User?: User;
   user_details?: string;
 
