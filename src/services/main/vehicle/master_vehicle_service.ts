@@ -243,6 +243,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  vehicles_count?: number;
 
   organisation_sub_company_id?: string;
   OrganisationSubCompany?: OrganisationSubCompany;

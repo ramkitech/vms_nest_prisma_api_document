@@ -61,21 +61,20 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
 
     // Operational Details
     operating_hours?: string;
+    supported_service_types?: string;
+    supported_vehicle_types?: string;
+
     is_24x7: YesNo;
     supports_credit: YesNo;
     pickup_and_drop: YesNo;
     roadside_assistance: YesNo;
     warranty_repairs: YesNo;
-    supported_service_types?: string;
-    supported_vehicle_types?: string;
     has_alignment_bay: YesNo;
     has_body_shop: YesNo;
     has_paint_booth: YesNo;
     has_wash_bay: YesNo;
     has_tow_truck: YesNo;
     service_capacity_per_day?: number;
-    eta_regular_service_hours?: number;
-    eta_repair_hours?: number;
 
     // Contact Info
     center_email?: string;
@@ -128,8 +127,11 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
     // Relations - Child Count
     _count?: {
         FleetServiceManagement?: number;
+        FleetServiceManagement_total_cost?: number;
         FleetServiceManagement_ThisMonth?: number;
+        FleetServiceManagement_ThisMonth_total_cost?: number;
         FleetServiceManagement_ThisYear?: number;
+        FleetServiceManagement_ThisYear_total_cost?: number;
         FleetServiceJobCard?: number;
     };
 }
@@ -163,13 +165,14 @@ export const FleetVendorServiceCenterSchema = z.object({
 
     // Operational Details
     operating_hours: stringOptional('Operating Hours', 0, 100),
+    supported_service_types: stringOptional('Supported Service Types', 0, 500),
+    supported_vehicle_types: stringOptional('Supported Vehicle Types', 0, 500),
+
     is_24x7: enumMandatory('Is 24x7', YesNo, YesNo.No),
     supports_credit: enumMandatory('Supports Credit', YesNo, YesNo.No),
     pickup_and_drop: enumMandatory('Pickup And Drop', YesNo, YesNo.No),
     roadside_assistance: enumMandatory('Roadside Assistance', YesNo, YesNo.No),
     warranty_repairs: enumMandatory('Warranty Repairs', YesNo, YesNo.No),
-    supported_service_types: stringOptional('Supported Service Types', 0, 500),
-    supported_vehicle_types: stringOptional('Supported Vehicle Types', 0, 500),
 
     has_alignment_bay: enumMandatory('Has Alignment Bay', YesNo, YesNo.No),
     has_body_shop: enumMandatory('Has Body Shop', YesNo, YesNo.No),
@@ -178,8 +181,6 @@ export const FleetVendorServiceCenterSchema = z.object({
     has_tow_truck: enumMandatory('Has Tow Truck', YesNo, YesNo.No),
 
     service_capacity_per_day: numberOptional('Service Capacity Per Day', 0),
-    eta_regular_service_hours: numberOptional('ETA Regular Service Hours'),
-    eta_repair_hours: numberOptional('ETA Repair Hours'),
 
     // Contact Info
     center_email: stringOptional('Center Email', 0, 100),
@@ -253,21 +254,20 @@ export const toFleetVendorServiceCenterPayload = (row: FleetVendorServiceCenter)
 
     // Operational Details
     operating_hours: row.operating_hours || '',
+    supported_service_types: row.supported_service_types || '',
+    supported_vehicle_types: row.supported_vehicle_types || '',
+
     is_24x7: row.is_24x7 || YesNo.No,
     supports_credit: row.supports_credit || YesNo.No,
     pickup_and_drop: row.pickup_and_drop || YesNo.No,
     roadside_assistance: row.roadside_assistance || YesNo.No,
     warranty_repairs: row.warranty_repairs || YesNo.No,
-    supported_service_types: row.supported_service_types || '',
-    supported_vehicle_types: row.supported_vehicle_types || '',
     has_alignment_bay: row.has_alignment_bay || YesNo.No,
     has_body_shop: row.has_body_shop || YesNo.No,
     has_paint_booth: row.has_paint_booth || YesNo.No,
     has_wash_bay: row.has_wash_bay || YesNo.Yes,
     has_tow_truck: row.has_tow_truck || YesNo.No,
     service_capacity_per_day: row.service_capacity_per_day || 0,
-    eta_regular_service_hours: row.eta_regular_service_hours || 0,
-    eta_repair_hours: row.eta_repair_hours || 0,
 
 
     // Contact Info
@@ -318,21 +318,20 @@ export const newFleetVendorServiceCenterPayload = (): FleetVendorServiceCenterDT
     is_preferred_center: YesNo.No,
 
     operating_hours: '',
+    supported_service_types: '',
+    supported_vehicle_types: '',
+
     is_24x7: YesNo.No,
     supports_credit: YesNo.No,
     pickup_and_drop: YesNo.No,
     roadside_assistance: YesNo.No,
     warranty_repairs: YesNo.No,
-    supported_service_types: '',
-    supported_vehicle_types: '',
     has_alignment_bay: YesNo.No,
     has_body_shop: YesNo.No,
     has_paint_booth: YesNo.No,
     has_wash_bay: YesNo.Yes,
     has_tow_truck: YesNo.No,
     service_capacity_per_day: 0,
-    eta_regular_service_hours: 0,
-    eta_repair_hours: 0,
 
     center_email: '',
     center_mobile: '',

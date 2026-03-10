@@ -124,8 +124,11 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     // Relations - Child Count
     _count?: {
         FleetFuelRefill?: number;
+        FleetFuelRefill_liters?: number;
         FleetFuelRefill_ThisMonth?: number;
+        FleetFuelRefill_ThisMonth_liters?: number;
         FleetFuelRefill_ThisYear?: number;
+        FleetFuelRefill_ThisYear_liters?: number;
     };
 }
 

@@ -172,6 +172,8 @@ export interface FleetServiceManagementTask extends Record<string, unknown> {
   task_quantity?: number;
   task_total_cost?: number;
   task_description?: string;
+  task_next_due_date?: string;
+  task_next_due_date_f?: string;
 
   // Metadata
   status: Status;
@@ -397,9 +399,11 @@ export const FleetServiceManagementTaskSchema = z.object({
   task_quantity: numberOptional('Task Quantity'),
   task_total_cost: doubleOptional('Task Total Cost'),
   task_description: stringOptional('Task Notes', 0, 2000),
+  task_next_due_date: dateOptional('Task Next Due Date'),
 
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type FleetServiceManagementTaskDTO = z.infer<
   typeof FleetServiceManagementTaskSchema
@@ -595,8 +599,10 @@ export const toFleetServiceManagementTaskPayload = (row: FleetServiceManagementT
   task_quantity: row.task_quantity || 0,
   task_total_cost: row.task_total_cost || 0,
   task_description: row.task_description || '',
+  task_next_due_date: row.task_next_due_date || '',
 
   status: row.status || Status.Active,
+  time_zone_id: '',  // Needs to be provided manually
 });
 
 // Create New FleetServiceManagementTask Payload
@@ -608,8 +614,10 @@ export const newFleetServiceManagementTaskPayload = (): FleetServiceManagementTa
   task_quantity: 0,
   task_total_cost: 0,
   task_description: '',
+  task_next_due_date: '',
 
   status: Status.Active,
+  time_zone_id: '', // Needs to be provided manually
 });
 
 // Convert FleetServiceReminder Data to API Payload
