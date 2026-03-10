@@ -27,6 +27,7 @@ const ENDPOINTS = {
   find: `${URL}/search`,
   create: `${URL}`,
   update: (id: string): string => `${URL}/${id}`,
+  update_fields: (id: string): string => `${URL}/update_fields/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
   // Cache APIs
@@ -95,6 +96,14 @@ export type FleetInspectionFormQueryDTO = z.infer<
   typeof FleetInspectionFormQuerySchema
 >;
 
+// FleetInspectionForm Update Fields Schema
+export const FleetInspectionFormFieldsSchema = z.object({
+  inspection_form_fields: dynamicJsonSchema('Inspection Form Fields', {}),
+});
+export type FleetInspectionFormFieldsDTO = z.infer<
+  typeof FleetInspectionFormFieldsSchema
+>;
+
 // Convert FleetInspectionForm Data to API Payload
 export const toFleetInspectionFormPayload = (row: FleetInspectionForm): FleetInspectionFormDTO => ({
   organisation_id: row.organisation_id || '',
@@ -126,6 +135,10 @@ export const createFleetInspectionForm = async (data: FleetInspectionFormDTO): P
 
 export const updateFleetInspectionForm = async (id: string, data: FleetInspectionFormDTO): Promise<SBR> => {
   return apiPatch<SBR, FleetInspectionFormDTO>(ENDPOINTS.update(id), data);
+};
+
+export const updateFleetInspectionFormFields = async (id: string, data: FleetInspectionFormFieldsDTO): Promise<SBR> => {
+  return apiPatch<SBR, FleetInspectionFormFieldsDTO>(ENDPOINTS.update_fields(id), data);
 };
 
 export const deleteFleetInspectionForm = async (id: string): Promise<SBR> => {
