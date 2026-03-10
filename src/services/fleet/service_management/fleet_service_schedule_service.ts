@@ -5,17 +5,19 @@ import { SBR, FBR } from '../../../core/BaseResponse';
 // Zod
 import { z } from 'zod';
 import {
+  dateMandatory,
   dateOptional,
   enumMandatory,
   multi_select_optional,
   single_select_mandatory,
+  single_select_optional,
   stringMandatory,
   stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status } from '../../../core/Enums';
+import { ServiceScheduleStatus, Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
@@ -39,7 +41,7 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
   service_schedule_id: string;
 
   // Main Field Details
-  service_schedule_name?: string;
+  service_schedule_name: string;
   service_schedule_description?: string;
   service_schedule_start_date?: string;
   service_schedule_start_date_f?: string;
@@ -57,7 +59,7 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
   organisation_name?: string;
   organisation_code?: string;
 
-  user_id: string;
+  user_id?: string;
   User?: User;
   user_details?: string;
 
@@ -68,6 +70,9 @@ export interface FleetServiceSchedule extends Record<string, unknown> {
   // Relations - Child Count
   _count?: {
     FleetServiceScheduleVehicleLink?: number;
+    FleetServiceScheduleVehicleLink_Pending?: number;
+    FleetServiceScheduleVehicleLink_OverDue?: number;
+    FleetServiceScheduleVehicleLink_Completed?: number;
   };
 }
 
@@ -77,7 +82,9 @@ export interface FleetServiceScheduleVehicleLink extends Record<string, unknown>
   service_schedule_vehicle_link_id: string;
 
   // Main Field Details
-  // service_schedule_status: ServiceScheduleStatus;
+  service_schedule_status: ServiceScheduleStatus;
+  service_date_time?: string;
+  service_date_time_f?: string;
 
   // Metadata
   status: Status;
@@ -96,21 +103,23 @@ export interface FleetServiceScheduleVehicleLink extends Record<string, unknown>
 
 // FleetServiceSchedule Create/Update Schema
 export const FleetServiceScheduleSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  user_id: single_select_mandatory('User'), // Single-Selection -> User
+  user_id: single_select_optional('User'), // Single-Selection -> User
 
+  // Main Field Details
   service_schedule_name: stringMandatory('Service Schedule Name', 3, 100),
   service_schedule_description: stringOptional(
     'Service Schedule Description',
     0,
     2000,
   ),
-  service_schedule_start_date: dateOptional('Service Schedule Start Date'),
-  service_schedule_due_date: dateOptional('Service Schedule Due Date'),
+  service_schedule_start_date: dateMandatory('Service Schedule Start Date'),
+  service_schedule_due_date: dateMandatory('Service Schedule Due Date'),
 
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
 
-  // Other
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
@@ -120,8 +129,12 @@ export type FleetServiceScheduleDTO = z.infer<
 
 // FleetServiceSchedule Query Schema
 export const FleetServiceScheduleQuerySchema = BaseQuerySchema.extend({
+  // Self Table
   service_schedule_ids: multi_select_optional('FleetServiceSchedule'), // Multi-Selection -> FleetServiceSchedule
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
 });
 export type FleetServiceScheduleQueryDTO = z.infer<
   typeof FleetServiceScheduleQuerySchema

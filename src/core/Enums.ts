@@ -323,6 +323,12 @@ export enum InspectionScheduleStatus {
   Completed = 'Completed',
 }
 
+export enum ServiceScheduleStatus {
+  Pending   = 'Pending',
+  OverDue   = 'OverDue',
+  Completed = 'Completed',
+}
+
 export enum ScheduleStatus {
   Scheduled = 'Scheduled',
   ServiceInitiated = 'ServiceInitiated',
