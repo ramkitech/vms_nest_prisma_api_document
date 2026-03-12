@@ -193,6 +193,7 @@ export interface UserOrganisation extends Record<string, unknown> {
   // Operations
   is_sync_gps_data_from_utrack: YesNo;
   show_vehicle_filters: YesNo;
+  is_bus_collage: YesNo;
 
   // Metadata
   status: Status;
@@ -638,6 +639,8 @@ export interface UserOrganisationSimple extends Record<string, unknown> {
   l_id: string;
   df_id: string;
   tz_id: string;
+
+  bus_collage: string
 }
 
 // UserOrganisation Create/Update Schema
@@ -715,6 +718,7 @@ export const UserOrganisationSchema = z.object({
     YesNo.No,
   ),
   show_vehicle_filters: enumOptional('Show Vehicle Filters', YesNo, YesNo.Yes),
+  is_bus_collage: enumOptional('Is Bus Collage', YesNo, YesNo.No),
 
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
@@ -748,6 +752,11 @@ export const UserOrganisationQuerySchema = BaseQuerySchema.extend({
   ),
   show_vehicle_filters: enumArrayOptional(
     'Show Vehicle Filters',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
+  is_bus_collage: enumArrayOptional(
+    'Is Bus Collage',
     YesNo,
     getAllEnums(YesNo),
   ),
@@ -822,6 +831,7 @@ export const toUserOrganisationPayload = (row: UserOrganisation): UserOrganisati
   // Operations
   is_sync_gps_data_from_utrack: row.is_sync_gps_data_from_utrack || YesNo.No,
   show_vehicle_filters: row.show_vehicle_filters || YesNo.Yes,
+  is_bus_collage: row.is_bus_collage || YesNo.No,
 
   industry_id: row.industry_id,
   country_id: row.country_id,
@@ -884,6 +894,7 @@ export const newUserOrganisationPayload = (): UserOrganisationDTO => ({
   // Operations
   is_sync_gps_data_from_utrack: YesNo.No,
   show_vehicle_filters: YesNo.Yes,
+  is_bus_collage: YesNo.No,
 
   industry_id: '',
   country_id: '',
