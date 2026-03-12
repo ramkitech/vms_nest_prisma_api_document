@@ -583,44 +583,44 @@ export interface StudentGuardianLoginPush extends Record<string, unknown> {
 
 // Student Create/Update Schema
 export const StudentSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 
-    program_id: single_select_optional('MasterProgram'), // Single-Selection -> MasterProgram
-    stream_id: single_select_optional('MasterStream'), // Single-Selection -> MasterStream
-    year_id: single_select_optional('MasterYear'), // Single-Selection -> MasterYear
-    semester_id: single_select_optional('MasterSemester'), // Single-Selection -> MasterSemester
-    class_id: single_select_optional('MasterClass'), // Single-Selection -> MasterClass
-    section_id: single_select_optional('MasterSection'), // Single-Selection -> MasterSection
+  program_id: single_select_optional('MasterProgram'), // Single-Selection -> MasterProgram
+  stream_id: single_select_optional('MasterStream'), // Single-Selection -> MasterStream
+  year_id: single_select_optional('MasterYear'), // Single-Selection -> MasterYear
+  semester_id: single_select_optional('MasterSemester'), // Single-Selection -> MasterSemester
+  class_id: single_select_optional('MasterClass'), // Single-Selection -> MasterClass
+  section_id: single_select_optional('MasterSection'), // Single-Selection -> MasterSection
 
-    // Profile Image/Logo
-    photo_url: stringOptional('Photo URL', 0, 300),
-    photo_key: stringOptional('Photo Key', 0, 300),
-    photo_name: stringOptional('Photo Name', 0, 300),
+  // Profile Image/Logo
+  photo_url: stringOptional('Photo URL', 0, 300),
+  photo_key: stringOptional('Photo Key', 0, 300),
+  photo_name: stringOptional('Photo Name', 0, 300),
 
-    admission_number: stringOptional('Admission Number', 0, 100),
-    roll_number: stringOptional('Roll Number', 0, 100),
+  admission_number: stringOptional('Admission Number', 0, 100),
+  roll_number: stringOptional('Roll Number', 0, 100),
 
-    first_name: stringMandatory('First Name', 3, 100),
-    last_name: stringOptional('Last Name', 0, 100),
-    mobile_number: stringOptional('Mobile Number', 0, 15),
-    email: stringOptional('Email', 0, 100),
+  first_name: stringMandatory('First Name', 3, 100),
+  last_name: stringOptional('Last Name', 0, 100),
+  mobile_number: stringOptional('Mobile Number', 0, 15),
+  email: stringOptional('Email', 0, 100),
 
-    date_of_birth: dateOptional('Date Of Birth'),
-    gender: enumOptional('Gender', Gender, Gender.PreferNotToSay),
-    blood_group: enumOptional('Blood Group', BloodGroup, BloodGroup.Unknown),
-    special_notes: stringOptional('Special Notes', 0, 500),
+  date_of_birth: dateOptional('Date Of Birth'),
+  gender: enumOptional('Gender', Gender, Gender.PreferNotToSay),
+  blood_group: enumOptional('Blood Group', BloodGroup, BloodGroup.Unknown),
+  special_notes: stringOptional('Special Notes', 0, 500),
 
-    // Admin Will Update
-    transport_plan_type: enumOptional(
-        'Transport Plan Type',
-        TransportPlanType,
-        TransportPlanType.Both,
-    ),
+  // Admin Will Update
+  transport_plan_type: enumOptional(
+    'Transport Plan Type',
+    TransportPlanType,
+    TransportPlanType.Both,
+  ),
 
-    // Other
-    status: enumMandatory('Status', Status, Status.Active),
-    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+  // Other
+  status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type StudentDTO = z.infer<typeof StudentSchema>;
 
