@@ -11,7 +11,7 @@ import {
     single_select_optional,
     multi_select_optional,
     enumMandatory,
-    dateMandatory,
+    dateTimeMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -62,20 +62,20 @@ export interface OrganisationNoticeBoard extends Record<string, unknown> {
 
 // OrganisationNoticeBoard Create/Update Schema
 export const OrganisationNoticeBoardSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_optional('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 
-    notice_date_time: dateMandatory('Notice Date Time'),
+  notice_date_time: dateTimeMandatory('Notice Date Time'),
 
-    notice_subject: stringMandatory('Notice Subject', 3, 100),
-    notice_description: stringOptional('Notice Description', 0, 500),
+  notice_subject: stringMandatory('Notice Subject', 3, 100),
+  notice_description: stringOptional('Notice Description', 0, 500),
 
-    // Other
-    status: enumMandatory('Status', Status, Status.Active),
-    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+  // Other
+  status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type OrganisationNoticeBoardDTO = z.infer<
-    typeof OrganisationNoticeBoardSchema
+  typeof OrganisationNoticeBoardSchema
 >;
 
 // OrganisationNoticeBoard Query Schema

@@ -59,6 +59,8 @@ export interface OrganisationCalendar extends Record<string, unknown> {
 
   organisation_branch_id?: string;
   OrganisationBranch?: OrganisationBranch;
+  branch_name?: string;
+  branch_city?: string;
 }
 
 // OrganisationCalendar Create/Update Schema
@@ -82,16 +84,18 @@ export type OrganisationCalendarDTO = z.infer<
 
 // OrganisationCalendar Query Schema
 export const OrganisationCalendarQuerySchema = BaseQuerySchema.extend({
-  calendar_ids: multi_select_optional('OrganisationCalendar'), // ✅ Multi-selection -> OrganisationCalendar
+  calendar_ids: multi_select_optional('OrganisationCalendar'), // Multi-selection -> OrganisationCalendar
 
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
 
   holiday_type: enumArrayOptional(
     'Holiday Type',
     HolidayType,
     getAllEnums(HolidayType),
   ),
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
 });
 export type OrganisationCalendarQueryDTO = z.infer<
   typeof OrganisationCalendarQuerySchema

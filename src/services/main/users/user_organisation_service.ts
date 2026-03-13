@@ -41,7 +41,7 @@ import { OrganisationColor } from '../../../services/master/organisation/organis
 import { OrganisationGroup } from '../../../services/master/organisation/organisation_group_service';
 import { OrganisationSubCompany } from '../../../services/master/organisation/organisation_sub_company_service';
 import { OrganisationTag } from '../../../services/master/organisation/organisation_tag_service';
-import { OrganisationCalendar } from 'src/services/fleet/bus_mangement/calender';
+import { OrganisationCalendar } from 'src/services/fleet/bus_mangement/calendar';
 
 import { BookMark } from 'src/services/account/bookmark_service';
 import { OrganisationNotificationPreference } from 'src/services/account/notification_preferences.service';
