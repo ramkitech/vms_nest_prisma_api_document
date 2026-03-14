@@ -82,7 +82,7 @@ const ENDPOINTS = {
     create_guardian_link: `${URL}/guardian_link`,
     update_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
     update_guardian_details: (id: string): string => `${URL}/guardian_details/${id}`,
-    update_guardian_mobile_number: (id: string): string => `${URL}/guardian_mobile_number/${id}`,
+    update_guardian_mobile_number: `${URL}/guardian_mobile_number`,
     remove_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
     find_guardian_autofill_details: `${URL}/guardian_autofill/search`,
 
@@ -717,7 +717,6 @@ export const StudentAddressQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
     organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
     student_ids: multi_select_optional('Student'), // Multi-selection -> Student
-    bus_stop_ids: multi_select_optional('BusStop'), // Multi-selection -> BusStop
 
     is_default: enumArrayOptional('Is Active', YesNo, getAllEnums(YesNo)),
 });
@@ -1213,11 +1212,11 @@ export const deleteStudent = async (id: string): Promise<SBR> => {
 
 // Student No-Route helpers (pickup/drop)
 export const findStudentsWithNoRoutePickup = async (data: StudentNoRouteQueryDTO): Promise<FBR<Student[]>> => {
-    return apiPost<FBR<Student[]>, StudentNoRouteQueryDTO>(`${URL}/no_route_pickup/search`, data);
+    return apiPost<FBR<Student[]>, StudentNoRouteQueryDTO>(ENDPOINTS.find_students_with_no_route_pickup, data);
 };
 
 export const findStudentsWithNoRouteDrop = async (data: StudentNoRouteQueryDTO): Promise<FBR<Student[]>> => {
-    return apiPost<FBR<Student[]>, StudentNoRouteQueryDTO>(`${URL}/no_route_drop/search`, data);
+    return apiPost<FBR<Student[]>, StudentNoRouteQueryDTO>(ENDPOINTS.find_students_with_no_route_drop, data);
 };
 
 export const updateProfilePicture = async (id: string, data: StudentProfilePictureDTO): Promise<SBR> => {
@@ -1262,16 +1261,16 @@ export const updateGuardianDetails = async (id: string, data: GuardianDetailsDTO
     return apiPatch<SBR, GuardianDetailsDTO>(ENDPOINTS.update_guardian_details(id), data);
 };
 
-export const updateGuardianMobileNumber = async (id: string, data: GuardianMobileNumberDTO): Promise<SBR> => {
-    return apiPatch<SBR, GuardianMobileNumberDTO>(ENDPOINTS.update_guardian_mobile_number(id), data);
+export const updateGuardianMobileNumber = async (data: GuardianMobileNumberDTO): Promise<SBR> => {
+    return apiPatch<SBR, GuardianMobileNumberDTO>(ENDPOINTS.update_guardian_mobile_number, data);
 };
 
-export const deleteStudentGuardian = async (id: string): Promise<SBR> => {
+export const deleteStudentGuardianLink = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_guardian_link(id));
 };
 
-export const findStudentGuardianAutofillDetails = async (data: StudentGuardianAutofillQueryDTO): Promise<FBR<StudentGuardianLink[]>> => {
-    return apiPost<FBR<StudentGuardianLink[]>, StudentGuardianAutofillQueryDTO>(ENDPOINTS.find_guardian_autofill_details, data);
+export const findStudentGuardianAutofillDetails = async (data: StudentGuardianAutofillQueryDTO): Promise<FBR<StudentGuardian[]>> => {
+    return apiPost<FBR<StudentGuardian[]>, StudentGuardianAutofillQueryDTO>(ENDPOINTS.find_guardian_autofill_details, data);
 };
 
 // StudentLeaveRequest APIs
