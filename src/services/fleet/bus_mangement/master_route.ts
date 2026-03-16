@@ -37,12 +37,12 @@ const ENDPOINTS = {
     remove_route: (id: string): string => `${URL}/route/${id}`,
 
     // MasterRouteStop APIs
-    create_stops_first_time_route: `${URL}/create_stops_first_time_route`,
     append_route_stop: `${URL}/append_route_stop`,
-    update_route_stop: (id: string): string => `${URL}/route_stop/${id}`,
+    update_route_stop: (id: string): string => `${URL}/update_route_stop/${id}`,
     reorder_route_stops: `${URL}/reorder_route_stops`,
     delete_route_stops_all: `${URL}/delete_route_stops_all`,
     delete_route_stop_reorder: `${URL}/delete_route_stop_reorder`,
+    update_journey_time: `${URL}/update_journey_time`,
 };
 
 // MasterRoute Interface
@@ -259,6 +259,15 @@ export type MasterRouteStopDeleteDTO = z.infer<
     typeof MasterRouteStopDeleteAllSchema
 >;
 
+export const MasterRouteJourneyTimeSchema = z.object({
+  route_id: single_select_mandatory('MasterRoute'),
+  leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
+  journey_time_in_minutes: numberMandatory('Journey Time In Minutes'),
+});
+export type MasterRouteJourneyTimeDTO = z.infer<
+  typeof MasterRouteJourneyTimeSchema
+>;
+
 // Convert MasterRoute Data to API Payload
 export const toMasterRoutePayload = (row: MasterRoute): MasterRouteDTO => ({
     organisation_id: row.organisation_id || '',
@@ -317,10 +326,6 @@ export const deleteMasterRoute = async (id: string): Promise<SBR> => {
 };
 
 // MasterRouteStop APIs
-export const createStopsFirstTimeRoute = async (data: MasterRouteStopCreateDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStopCreateDTO>(ENDPOINTS.create_stops_first_time_route, data);
-};
-
 export const appendRouteStop = async (data: MasterRouteStopCreateDTO): Promise<SBR> => {
     return apiPost<SBR, MasterRouteStopCreateDTO>(ENDPOINTS.append_route_stop, data);
 };
@@ -339,6 +344,10 @@ export const deleteRouteStopsAll = async (data: MasterRouteStopDeleteDTO): Promi
 
 export const deleteRouteStopReorder = async (data: MasterRouteStopDeleteReOrderDTO): Promise<SBR> => {
     return apiPost<SBR, MasterRouteStopDeleteReOrderDTO>(ENDPOINTS.delete_route_stop_reorder, data);
+};
+
+export const update_journey_time = async (data: MasterRouteJourneyTimeDTO): Promise<SBR> => {
+    return apiPost<SBR, MasterRouteJourneyTimeDTO>(ENDPOINTS.update_journey_time, data);
 };
 
 
