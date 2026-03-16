@@ -14,6 +14,7 @@ import {
     numberOptional,
     dateOptional,
     getAllEnums,
+    stringOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -66,10 +67,8 @@ export interface MasterFixedSchedule extends Record<string, unknown> {
     is_stops_finalized: YesNo;
     schedule_type: BusLeg;
 
-    start_hour?: number;
-    start_minute?: number;
-    end_hour?: number;
-    end_minute?: number;
+    start_time?: string;
+    end_time?: string;
 
     schedule_plan_start_date?: string;
     schedule_plan_end_date?: string;
@@ -164,112 +163,110 @@ export interface MasterRouteStudent extends Record<string, unknown> {
 
 // MasterFixedSchedule Create/Update Schema
 export const MasterFixedScheduleSchema = z.object({
-    organisation_id: single_select_mandatory('UserOrganisation'), // ✅ Single-Selection -> UserOrganisation
-    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // ✅ Single-Selection -> OrganisationBranch
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 
-    vehicle_id: single_select_optional('MasterVehicle'), // ✅ Single-Selection -> MasterVehicle
-    driver_id: single_select_optional('Driver'), // ✅ Single-Selection -> MasterDriver
-    attendant_id: single_select_optional('Attendant'), // ✅ Single-Selection -> MasterDriver
+  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
+  vehicle_id: single_select_optional('MasterVehicle'), // Single-Selection -> MasterVehicle
+  driver_id: single_select_optional('Driver'), // Single-Selection -> MasterDriver
+  attendant_id: single_select_optional('Attendant'), // Single-Selection -> MasterDriver
 
-    schedule_name: stringMandatory('Schedule Name', 3, 100),
-    schedule_status: enumMandatory('Schedule Status', Status, Status.Active),
-    is_stops_finalized: enumMandatory('Is Stops Finalized', YesNo, YesNo.No),
-    schedule_type: enumMandatory('Schedule Type', BusLeg, BusLeg.Pickup),
+  schedule_name: stringMandatory('Schedule Name', 3, 100),
+  schedule_status: enumMandatory('Schedule Status', Status, Status.Active),
+  is_stops_finalized: enumMandatory('Is Stops Finalized', YesNo, YesNo.No),
+  schedule_type: enumMandatory('Schedule Type', BusLeg, BusLeg.Pickup),
 
-    start_hour: numberOptional('Start Hour'),
-    start_minute: numberOptional('Start Minute'),
-    end_hour: numberOptional('End Hour'),
-    end_minute: numberOptional('End Minute'),
+  start_time: stringMandatory('Start Time'),
+  end_time: stringMandatory('End Time'),
 
-    schedule_plan_start_date: dateOptional('Schedule Plan Start Date'),
-    schedule_plan_end_date: dateOptional('Schedule Plan End Date'),
+  schedule_plan_start_date: dateOptional('Schedule Plan Start Date'),
+  schedule_plan_end_date: dateOptional('Schedule Plan End Date'),
 
-    sunday: enumMandatory('Sunday', YesNo, YesNo.No),
-    monday: enumMandatory('Monday', YesNo, YesNo.Yes),
-    tuesday: enumMandatory('Tuesday', YesNo, YesNo.Yes),
-    wednesday: enumMandatory('Wednesday', YesNo, YesNo.Yes),
-    thursday: enumMandatory('Thursday', YesNo, YesNo.Yes),
-    friday: enumMandatory('Friday', YesNo, YesNo.Yes),
-    saturday: enumMandatory('Saturday', YesNo, YesNo.Yes),
+  sunday: enumMandatory('Sunday', YesNo, YesNo.No),
+  monday: enumMandatory('Monday', YesNo, YesNo.Yes),
+  tuesday: enumMandatory('Tuesday', YesNo, YesNo.Yes),
+  wednesday: enumMandatory('Wednesday', YesNo, YesNo.Yes),
+  thursday: enumMandatory('Thursday', YesNo, YesNo.Yes),
+  friday: enumMandatory('Friday', YesNo, YesNo.Yes),
+  saturday: enumMandatory('Saturday', YesNo, YesNo.Yes),
 
-    // Other
-    status: enumMandatory('Status', Status, Status.Active),
-    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+  // Other
+  status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type MasterFixedScheduleDTO = z.infer<typeof MasterFixedScheduleSchema>;
 
 // MasterFixedSchedule Query Schema
 export const MasterFixedScheduleQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-selection -> UserOrganisation
-    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // ✅ Multi-selection -> OrganisationBranch
-    route_ids: multi_select_optional('MasterRoute'), // ✅ Multi-selection -> MasterRoute
-    vehicle_ids: multi_select_optional('MasterVehicle'), // ✅ Multi-selection -> MasterVehicle
-    driver_ids: multi_select_optional('Driver'), // ✅ Multi-selection -> MasterDriver
-    attendant_ids: multi_select_optional('Attendant'), // ✅ Multi-selection -> MasterDriver
-    fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // ✅ Multi-selection -> MasterFixedSchedule
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
+  route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('Driver'), // Multi-selection -> MasterDriver
+  attendant_ids: multi_select_optional('Attendant'), // Multi-selection -> MasterDriver
+  fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
 
-    schedule_status: enumArrayOptional(
-        'Schedule Status',
-        Status,
-        getAllEnums(Status),
-    ),
-    is_stops_finalized: enumArrayOptional(
-        'Is Stops Finalized',
-        YesNo,
-        getAllEnums(YesNo),
-    ),
-    schedule_type: enumArrayOptional(
-        'Schedule Type',
-        BusLeg,
-        getAllEnums(BusLeg),
-    ),
+  schedule_status: enumArrayOptional(
+    'Schedule Status',
+    Status,
+    getAllEnums(Status),
+  ),
+  is_stops_finalized: enumArrayOptional(
+    'Is Stops Finalized',
+    YesNo,
+    getAllEnums(YesNo),
+  ),
+  schedule_type: enumArrayOptional(
+    'Schedule Type',
+    BusLeg,
+    getAllEnums(BusLeg),
+  ),
 });
 export type MasterFixedScheduleQueryDTO = z.infer<
-    typeof MasterFixedScheduleQuerySchema
+  typeof MasterFixedScheduleQuerySchema
 >;
 
-// StudentNoRoute Query Schema
+// Student NoRoute Query Schema
 export const StudentNoStopQuerySchema = BaseQuerySchema.extend({
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
+  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
 });
 export type StudentNoStopQueryDTO = z.infer<typeof StudentNoStopQuerySchema>;
 
-// StudentNoSchedule Query Schema
+// Student NoRoute Query Schema
 export const StudentNoScheduleQuerySchema = BaseQuerySchema.extend({
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
+  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
 });
 export type StudentNoScheduleQueryDTO = z.infer<
-    typeof StudentNoScheduleQuerySchema
+  typeof StudentNoScheduleQuerySchema
 >;
 
-// MasterRouteStudentAssignRemove Schema
+// MasterRouteStudent assign remove Schema
 export const MasterRouteStudentAssignRemoveSchema = z.object({
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
-    student_ids: multi_select_optional('Student'), // Multi selection -> Student
+  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
+  student_ids: multi_select_optional('Student'), // Multi selection -> Student
 });
 export type MasterRouteStudentAssignRemoveDTO = z.infer<
-    typeof MasterRouteStudentAssignRemoveSchema
+  typeof MasterRouteStudentAssignRemoveSchema
 >;
 
-// MasterRouteStudentAssignRemove Schema
+// MasterRouteStudent assign remove Schema
 export const MasterRouteStudentStopAssignRemoveSchema = z.object({
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
-    route_stop_id: single_select_mandatory('MasterRouteStop'), // ✅ Single-Selection -> MasterRouteStop
-    route_student_ids: multi_select_optional('MasterRouteStudent'), // Multi selection -> MasterRouteStudent
+  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
+  route_stop_id: single_select_mandatory('MasterRouteStop'), // Single-Selection -> MasterRouteStop
+  route_student_ids: multi_select_optional('MasterRouteStudent'), // Multi selection -> MasterRouteStudent
 });
 export type MasterRouteStudentStopAssignRemoveDTO = z.infer<
-    typeof MasterRouteStudentStopAssignRemoveSchema
+  typeof MasterRouteStudentStopAssignRemoveSchema
 >;
 
-// MasterRouteStudentAssignRemove Schema
+// MasterRouteStudent assign remove Schema
 export const MasterRouteStudentScheduleAssignRemoveSchema = z.object({
-    route_id: single_select_mandatory('MasterRoute'), // ✅ Single-Selection -> MasterRoute
-    fixed_schedule_id: single_select_mandatory('MasterFixedSchedule'), // ✅ Single-Selection -> MasterFixedSchedule
-    route_student_ids: multi_select_optional('MasterRouteStudent'), // Multi selection -> MasterRouteStudent
+  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
+  fixed_schedule_id: single_select_mandatory('MasterFixedSchedule'), // Single-Selection -> MasterFixedSchedule
+  route_student_ids: multi_select_optional('MasterRouteStudent'), // Multi selection -> MasterRouteStudent
 });
 export type MasterRouteStudentScheduleAssignRemoveDTO = z.infer<
-    typeof MasterRouteStudentScheduleAssignRemoveSchema
+  typeof MasterRouteStudentScheduleAssignRemoveSchema
 >;
 
 // Convert MasterFixedSchedule Data to API Payload
@@ -287,10 +284,8 @@ export const toMasterFixedSchedulePayload = (row: MasterFixedSchedule): MasterFi
     is_stops_finalized: row.is_stops_finalized || YesNo.No,
     schedule_type: row.schedule_type || BusLeg.Pickup,
 
-    start_hour: row.start_hour || 0,
-    start_minute: row.start_minute || 0,
-    end_hour: row.end_hour || 0,
-    end_minute: row.end_minute || 0,
+    start_time: row.start_time || "00:00",
+    end_time: row.end_time || "00:00",
 
     schedule_plan_start_date: row.schedule_plan_start_date || '',
     schedule_plan_end_date: row.schedule_plan_end_date || '',
@@ -318,10 +313,8 @@ export const newMasterFixedSchedulePayload = (): MasterFixedScheduleDTO => ({
     is_stops_finalized: YesNo.No,
     schedule_type: BusLeg.Pickup,
 
-    start_hour: 0,
-    start_minute: 0,
-    end_hour: 0,
-    end_minute: 0,
+    start_time: "00:00",
+    end_time: "00:00",
 
     schedule_plan_start_date: '',
     schedule_plan_end_date: '',
