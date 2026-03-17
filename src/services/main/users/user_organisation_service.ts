@@ -116,7 +116,7 @@ import { MasterVehicleStatusType } from 'src/services/master/vehicle/master_vehi
 import { MasterVehicleSubModel } from 'src/services/master/vehicle/master_vehicle_sub_model_service';
 import { MasterVehicleType } from 'src/services/master/vehicle/master_vehicle_type_service';
 import { MasterMainUnitDistance } from 'src/services/master/main/master_main_unit_distance_service';
-import { MasterFixedSchedule, MasterRouteStudent } from 'src/services/fleet/bus_mangement/master_schedule';
+import { MasterFixedSchedule, MasterFixedScheduleStudent } from 'src/services/fleet/bus_mangement/master_schedule';
 
 const URL = 'user/organisation';
 
@@ -397,7 +397,7 @@ export interface UserOrganisation extends Record<string, unknown> {
 
   MasterRoute?: MasterRoute[]
   MasterRouteStop?: MasterRouteStop[]
-  MasterRouteStudent?: MasterRouteStudent[]
+  MasterFixedScheduleStudent?: MasterFixedScheduleStudent[]
   MasterFixedSchedule?: MasterFixedSchedule[]
   // FixedScheduleDayRun?: FixedScheduleDayRun[]
   // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[]
@@ -581,7 +581,7 @@ export interface UserOrganisation extends Record<string, unknown> {
 
     MasterRoute?: number;
     MasterRouteStop?: number;
-    MasterRouteStudent?: number;
+    MasterFixedScheduleStudent?: number;
     MasterFixedSchedule?: number;
     // FixedScheduleDayRun?: FixedScheduleDayRun[]
     // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[]
