@@ -117,6 +117,7 @@ import { MasterVehicleSubModel } from 'src/services/master/vehicle/master_vehicl
 import { MasterVehicleType } from 'src/services/master/vehicle/master_vehicle_type_service';
 import { MasterMainUnitDistance } from 'src/services/master/main/master_main_unit_distance_service';
 import { MasterFixedSchedule, MasterFixedScheduleStudent } from 'src/services/fleet/bus_mangement/master_schedule';
+import { FixedScheduleDayRun, FixedScheduleDayRunStop, FixedScheduleDayRunStudent } from 'src/services/fleet/bus_mangement/day_run';
 
 const URL = 'user/organisation';
 
@@ -397,11 +398,13 @@ export interface UserOrganisation extends Record<string, unknown> {
 
   MasterRoute?: MasterRoute[]
   MasterRouteStop?: MasterRouteStop[]
-  MasterFixedScheduleStudent?: MasterFixedScheduleStudent[]
+
   MasterFixedSchedule?: MasterFixedSchedule[]
-  // FixedScheduleDayRun?: FixedScheduleDayRun[]
-  // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[]
-  // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[]
+  MasterFixedScheduleStudent?: MasterFixedScheduleStudent[]
+
+  FixedScheduleDayRun?: FixedScheduleDayRun[]
+  FixedScheduleDayRunStop?: FixedScheduleDayRunStop[]
+  FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[]
 
   // Child - GPS
   GPSLiveTrackShareLink?: GPSLiveTrackShareLink[]
@@ -581,11 +584,13 @@ export interface UserOrganisation extends Record<string, unknown> {
 
     MasterRoute?: number;
     MasterRouteStop?: number;
-    MasterFixedScheduleStudent?: number;
+
     MasterFixedSchedule?: number;
-    // FixedScheduleDayRun?: FixedScheduleDayRun[]
-    // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[]
-    // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[]
+    MasterFixedScheduleStudent?: number;
+
+    FixedScheduleDayRun?: number[]
+    FixedScheduleDayRunStop?: number[]
+    FixedScheduleDayRunStudent?: number[]
 
     // Child - GPS
     GPSLiveTrackShareLink?: number;
