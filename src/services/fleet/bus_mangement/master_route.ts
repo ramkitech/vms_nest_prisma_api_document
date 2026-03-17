@@ -1,5 +1,5 @@
 // Axios
-import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { apiPost, apiPatch, apiDelete, apiGet } from '../../../core/apiCall';
 import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
@@ -12,7 +12,6 @@ import {
     multi_select_optional,
     enumMandatory,
     enumArrayOptional,
-    numberOptional,
     numberMandatory,
     nestedArrayOfObjectsOptional,
     getAllEnums,
@@ -20,12 +19,14 @@ import {
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, BusLeg } from '../../../core/Enums';
+import { Status, BusLeg, GeofenceType } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
 import { BusStop } from './bus_stop';
+import { MasterFixedSchedule, MasterFixedScheduleStudent } from './master_schedule';
+import { FixedScheduleDayRun, FixedScheduleDayRunStop, FixedScheduleDayRunStudent } from './day_run';
 
 const URL = 'master_route';
 
@@ -40,22 +41,21 @@ const ENDPOINTS = {
     append_route_stop: `${URL}/append_route_stop`,
     update_route_stop: (id: string): string => `${URL}/update_route_stop/${id}`,
     reorder_route_stops: `${URL}/reorder_route_stops`,
-    delete_route_stops_all: `${URL}/delete_route_stops_all`,
     delete_route_stop_reorder: `${URL}/delete_route_stop_reorder`,
+    delete_route_stops_all: `${URL}/delete_route_stops_all`,
     update_journey_time: `${URL}/update_journey_time`,
+
+    find_route_stop_cache: (route_id: string): string => `${URL}/route_stop/cache/${route_id}`,
 };
 
 // MasterRoute Interface
 export interface MasterRoute extends Record<string, unknown> {
-    // Primary Field
     route_id: string;
 
-    // Main Field Details
     route_name: string;
     route_notes?: string;
     route_status: Status;
 
-    // Journey Time
     pickup_journey_time_in_minutes?: number;
     drop_journey_time_in_minutes?: number;
 
@@ -93,24 +93,41 @@ export interface MasterRoute extends Record<string, unknown> {
 
     // Relations - Child
     MasterRouteStop?: MasterRouteStop[];
+    MasterFixedSchedule?: MasterFixedSchedule[];
+    MasterFixedScheduleStudent?: MasterFixedScheduleStudent[];
+
+    FixedScheduleDayRun?: FixedScheduleDayRun[];
+    FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
+    FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
 
     // Relations - Child Count
     _count?: {
         MasterRouteStop?: number;
+        MasterFixedSchedule?: number;
+        MasterFixedScheduleStudent?: number;
+
+        FixedScheduleDayRun?: number;
+        FixedScheduleDayRunStop?: number;
+        FixedScheduleDayRunStudent?: number;
     };
 }
 
 // MasterRouteStop Interface
 export interface MasterRouteStop extends Record<string, unknown> {
-
-    // Primary Field
     route_stop_id: string;
 
-    // Main Field Details
     leg: BusLeg;
     order_no: number;
-    stop_duration_seconds: number;
-    travel_seconds_to_next_stop: number;
+    stop_duration_seconds?: number;
+    travel_seconds_to_next_stop?: number;
+
+    stop_name?: string;
+    geofence_type?: GeofenceType;
+    radius_m?: number;
+    radius_km?: number;
+    latitude?: number;
+    longitude?: number;
+    poliline_data?: unknown[];
 
     // Metadata
     status: Status;
@@ -134,12 +151,13 @@ export interface MasterRouteStop extends Record<string, unknown> {
 
     bus_stop_id: string;
     BusStop?: BusStop;
-    stop_name?: string;
 
     // Relations - Child
+    MasterFixedScheduleStudent?: MasterFixedScheduleStudent[];
 
     // Relations - Child Count
     _count?: {
+        MasterFixedScheduleStudent?: number;
     };
 }
 
@@ -153,11 +171,6 @@ export const MasterRouteSchema = z.object({
     route_name: stringMandatory('Route Name', 3, 100),
     route_notes: stringOptional('Route Notes', 0, 500),
     route_status: enumMandatory('Route Status', Status, Status.Active),
-
-    pickup_journey_time_in_minutes: numberOptional(
-        'Pickup Journey Time In Minutes',
-    ),
-    drop_journey_time_in_minutes: numberOptional('Drop Journey Time In Minutes'),
 
     // Stops Info
     pickup_start_stop_id: single_select_optional('Pickup_Start_BusStop'), // Single-Selection -> BusStop
@@ -260,12 +273,12 @@ export type MasterRouteStopDeleteDTO = z.infer<
 >;
 
 export const MasterRouteJourneyTimeSchema = z.object({
-  route_id: single_select_mandatory('MasterRoute'),
-  leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
-  journey_time_in_minutes: numberMandatory('Journey Time In Minutes'),
+    route_id: single_select_mandatory('MasterRoute'),
+    leg: enumMandatory('Leg', BusLeg, BusLeg.Pickup),
+    journey_time_in_minutes: numberMandatory('Journey Time In Minutes'),
 });
 export type MasterRouteJourneyTimeDTO = z.infer<
-  typeof MasterRouteJourneyTimeSchema
+    typeof MasterRouteJourneyTimeSchema
 >;
 
 // Convert MasterRoute Data to API Payload
@@ -276,9 +289,6 @@ export const toMasterRoutePayload = (row: MasterRoute): MasterRouteDTO => ({
     route_name: row.route_name || '',
     route_notes: row.route_notes || '',
     route_status: row.route_status || Status.Active,
-
-    pickup_journey_time_in_minutes: row.pickup_journey_time_in_minutes || 0,
-    drop_journey_time_in_minutes: row.drop_journey_time_in_minutes || 0,
 
     pickup_start_stop_id: row.pickup_start_stop_id || '',
     pickup_end_stop_id: row.pickup_end_stop_id || '',
@@ -296,9 +306,6 @@ export const newMasterRoutePayload = (): MasterRouteDTO => ({
     route_name: '',
     route_notes: '',
     route_status: Status.Active,
-
-    pickup_journey_time_in_minutes: 0,
-    drop_journey_time_in_minutes: 0,
 
     pickup_start_stop_id: '',
     pickup_end_stop_id: '',
@@ -338,16 +345,20 @@ export const reorderRouteStops = async (data: MasterRouteStopReorderDTO): Promis
     return apiPost<SBR, MasterRouteStopReorderDTO>(ENDPOINTS.reorder_route_stops, data);
 };
 
-export const deleteRouteStopsAll = async (data: MasterRouteStopDeleteDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStopDeleteDTO>(ENDPOINTS.delete_route_stops_all, data);
-};
-
 export const deleteRouteStopReorder = async (data: MasterRouteStopDeleteReOrderDTO): Promise<SBR> => {
     return apiPost<SBR, MasterRouteStopDeleteReOrderDTO>(ENDPOINTS.delete_route_stop_reorder, data);
 };
 
+export const deleteRouteStopsAll = async (data: MasterRouteStopDeleteDTO): Promise<SBR> => {
+    return apiPost<SBR, MasterRouteStopDeleteDTO>(ENDPOINTS.delete_route_stops_all, data);
+};
+
 export const update_journey_time = async (data: MasterRouteJourneyTimeDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteJourneyTimeDTO>(ENDPOINTS.update_journey_time, data);
+    return apiPatch<SBR, MasterRouteJourneyTimeDTO>(ENDPOINTS.update_journey_time, data);
+};
+
+export const findRouteStopCache = async (route_id: string): Promise<FBR<MasterRouteStop[]>> => {
+    return apiGet<FBR<MasterRouteStop[]>>(ENDPOINTS.find_route_stop_cache(route_id));
 };
 
 

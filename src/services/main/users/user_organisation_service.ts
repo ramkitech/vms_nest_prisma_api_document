@@ -399,7 +399,6 @@ export interface UserOrganisation extends Record<string, unknown> {
   MasterRouteStop?: MasterRouteStop[]
   MasterRouteStudent?: MasterRouteStudent[]
   MasterFixedSchedule?: MasterFixedSchedule[]
-  // MasterRouteStudentChangeHistory?: MasterRouteStudentChangeHistory[]
   // FixedScheduleDayRun?: FixedScheduleDayRun[]
   // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[]
   // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[]
@@ -584,7 +583,6 @@ export interface UserOrganisation extends Record<string, unknown> {
     MasterRouteStop?: number;
     MasterRouteStudent?: number;
     MasterFixedSchedule?: number;
-    // MasterRouteStudentChangeHistory?: MasterRouteStudentChangeHistory[]
     // FixedScheduleDayRun?: FixedScheduleDayRun[]
     // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[]
     // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[]

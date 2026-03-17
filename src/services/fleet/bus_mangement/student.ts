@@ -47,7 +47,8 @@ import { MasterYear } from 'src/services/master/bus/master_year_service';
 import { MasterRelationship } from 'src/services/master/bus/master_relationship_service';
 import { MasterRoute, MasterRouteStop } from './master_route';
 import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
-import { MasterFixedSchedule, MasterRouteStudent } from './master_schedule';
+import { MasterFixedSchedule, MasterFixedScheduleStudent } from './master_schedule';
+import { FixedScheduleDayRunStudent } from './day_run';
 
 const URL = 'student';
 
@@ -66,10 +67,11 @@ const ENDPOINTS = {
     // Student APIs
     find: `${URL}/search`,
     create: URL,
-    find_students_with_no_route_pickup: `${URL}/no_route_pickup/search`,
-    find_students_with_no_route_drop: `${URL}/no_route_drop/search`,
     update: (id: string): string => `${URL}/${id}`,
     remove: (id: string): string => `${URL}/${id}`,
+    school_dashboard: `${URL}/school_dashboard`,
+    find_students_with_no_fixed_schedule_pickup: `${URL}/students_with_no_fixed_schedule_pickup/search`,
+    find_students_with_no_fixed_schedule_drop: `${URL}/students_with_no_fixed_schedule_drop/search`,
 
     // StudentAddress APIs
     find_address: `${URL}/address/search`,
@@ -90,7 +92,6 @@ const ENDPOINTS = {
     find_leave_request: `${URL}/leave_request/search`,
     create_leave_request: `${URL}/leave_request`,
     update_leave_request: (id: string): string => `${URL}/leave_request/${id}`,
-    approve_leave_request: (id: string): string => `${URL}/approve_leave_request/${id}`,
     remove_leave_request: (id: string): string => `${URL}/leave_request/${id}`,
 
     // StudentStopChangeRequest APIs
@@ -102,10 +103,16 @@ const ENDPOINTS = {
 
     // StudentTransportPlanTypeChangeHistory APIs
     find_student_transport_plan_type_change_history: `${URL}/student_transport_plan_type_change_history/search`,
-
-    // Dashboard
-    school_dashboard: `${URL}/school_dashboard`,
 };
+
+export interface SchoolDashboard {
+    main_counts: {
+        noticeboard: number;
+        students: number;
+        leave_requests: number;
+        route_change_requests: number;
+    };
+}
 
 // Student Interface
 export interface Student extends Record<string, unknown> {
@@ -130,7 +137,6 @@ export interface Student extends Record<string, unknown> {
     blood_group?: BloodGroup;
     special_notes?: string;
 
-    // Admin Will Update
     transport_plan_type: TransportPlanType;
 
     pickup_route_id?: string;
@@ -161,8 +167,8 @@ export interface Student extends Record<string, unknown> {
 
     // Metadata
     status: Status;
-    added_date_time: string;
-    modified_date_time: string;
+    added_date_time?: string;
+    modified_date_time?: string;
 
     // Relations - Parent
     organisation_id: string;
@@ -170,7 +176,7 @@ export interface Student extends Record<string, unknown> {
     organisation_name?: string;
     organisation_code?: string;
 
-    organisation_branch_id?: string;
+    organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
     branch_name?: string;
     branch_city?: string;
@@ -199,8 +205,7 @@ export interface Student extends Record<string, unknown> {
     MasterSection?: MasterSection;
     section_name?: string;
 
-    // Children
-    // Child - Fleet
+    // Relations - Child
     StudentAddress?: StudentAddress[];
     StudentGuardianLink?: StudentGuardianLink[];
     StudentLeaveRequest?: StudentLeaveRequest[];
@@ -208,9 +213,8 @@ export interface Student extends Record<string, unknown> {
     StudentTransportPlanTypeChangeHistory?: StudentTransportPlanTypeChangeHistory[];
 
     StudentLoginPush?: StudentLoginPush[];
-    MasterRouteStudent?: MasterRouteStudent[];
-    // MasterRouteStudentChangeHistory?: MasterRouteStudentChangeHistory[];
-    // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
+    MasterFixedScheduleStudent?: MasterFixedScheduleStudent[];
+    FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
 
     // Relations - Child Count
     _count?: {
@@ -219,20 +223,9 @@ export interface Student extends Record<string, unknown> {
         StudentLeaveRequest?: number;
         StudentStopChangeRequest?: number;
         StudentTransportPlanTypeChangeHistory?: number;
-
         StudentLoginPush?: number;
-        MasterRouteStudent?: number;
-        MasterRouteStudentChangeHistory?: number;
+        MasterFixedScheduleStudent?: number;
         FixedScheduleDayRunStudent?: number;
-    };
-}
-
-export interface SchoolDashboard {
-    main_counts: {
-        noticeboard: number;
-        students: number;
-        leave_requests: number;
-        route_change_requests: number;
     };
 }
 
@@ -240,7 +233,6 @@ export interface SchoolDashboard {
 export interface StudentAddress extends Record<string, unknown> {
     student_address_id: string;
 
-    // Address
     address_line1?: string;
     address_line2?: string;
     locality_landmark?: string;
@@ -252,7 +244,6 @@ export interface StudentAddress extends Record<string, unknown> {
     country?: string;
     country_code?: string;
 
-    // Location Details
     latitude?: number;
     longitude?: number;
     google_location?: string;
@@ -267,8 +258,8 @@ export interface StudentAddress extends Record<string, unknown> {
 
     // Metadata
     status: Status;
-    added_date_time: string;
-    modified_date_time: string;
+    added_date_time?: string;
+    modified_date_time?: string;
 
     // Relations - Parent
     organisation_id: string;
@@ -289,8 +280,7 @@ export interface StudentAddress extends Record<string, unknown> {
     mobile_number?: string;
 
     // Relations - Child
-    // Child - Fleet
-    StudentStopChangeRequest?: StudentStopChangeRequest[]
+    StudentStopChangeRequest?: StudentStopChangeRequest[];
 
     // Relations - Child Count
     _count?: {
@@ -298,7 +288,7 @@ export interface StudentAddress extends Record<string, unknown> {
     };
 }
 
-// StudentGuardianLink Interface
+// StudentGuardian Interface
 export interface StudentGuardian extends Record<string, unknown> {
     guardian_id: string;
 
@@ -313,8 +303,8 @@ export interface StudentGuardian extends Record<string, unknown> {
 
     // Metadata
     status: Status;
-    added_date_time: string;
-    modified_date_time: string;
+    added_date_time?: string;
+    modified_date_time?: string;
 
     // Relations - Parent
     organisation_id: string;
@@ -328,14 +318,11 @@ export interface StudentGuardian extends Record<string, unknown> {
     branch_city?: string;
 
     // Relations - Child
-    // Child - Fleet
     StudentGuardianLink?: StudentGuardianLink[];
-    StudentGuardianLoginPush?: StudentGuardianLoginPush[];
 
     // Relations - Child Count
     _count?: {
         StudentGuardianLink?: number;
-        StudentGuardianLoginPush?: number;
     };
 }
 
@@ -348,8 +335,8 @@ export interface StudentGuardianLink extends Record<string, unknown> {
 
     // Metadata
     status: Status;
-    added_date_time: string;
-    modified_date_time: string;
+    added_date_time?: string;
+    modified_date_time?: string;
 
     // Relations - Parent
     organisation_id: string;
@@ -375,33 +362,25 @@ export interface StudentGuardianLink extends Record<string, unknown> {
     mobile?: string;
 
     relationship_id: string;
-    MasterRelationship?: MasterRelationship
+    MasterRelationship?: MasterRelationship;
     relationship_name?: string;
 }
 
 // StudentLeaveRequest Interface
 export interface StudentLeaveRequest extends Record<string, unknown> {
-    // Primary Field
     student_leave_request_id: string;
 
-    // Main Field Details
     date_from: string;
-    date_from_f: string;
+    date_from_f?: string;
     date_to: string;
-    date_to_f: string;
+    date_to_f?: string;
     leave_type: StudentLeaveType;
     reason?: string;
 
-    // Approval Details
-    approval_status: ApprovalStatus;
-    approval_notes?: string;
-    approval_date?: string;
-    approval_date_f?: string;
-
     // Metadata
     status: Status;
-    added_date_time: string;
-    modified_date_time: string;
+    added_date_time?: string;
+    modified_date_time?: string;
 
     // Relations - Parent
     organisation_id: string;
@@ -424,21 +403,17 @@ export interface StudentLeaveRequest extends Record<string, unknown> {
 
 // StudentStopChangeRequest Interface
 export interface StudentStopChangeRequest extends Record<string, unknown> {
-    // Primary Field
     student_stop_change_request_id: string;
 
-    // Main Field Details
     change_pickup: YesNo;
     change_drop: YesNo;
     is_temporary: YesNo;
-    reason?: string;
-
     apply_from: string;
     apply_from_f?: string;
     apply_until?: string;
     apply_until_f?: string;
+    reason?: string;
 
-    // Approval Details
     approval_status: ApprovalStatus;
     approval_notes?: string;
     approval_date?: string;
@@ -446,8 +421,8 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
 
     // Metadata
     status: Status;
-    added_date_time: string;
-    modified_date_time: string;
+    added_date_time?: string;
+    modified_date_time?: string;
 
     // Relations - Parent
     organisation_id: string;
@@ -473,10 +448,8 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
 
 // StudentTransportPlanTypeChangeHistory Interface
 export interface StudentTransportPlanTypeChangeHistory extends Record<string, unknown> {
-    // Primary Field
     student_transport_plan_type_change_history_id: string;
 
-    // Main Field Details
     from_type: TransportPlanType;
     to_type: TransportPlanType;
     change_reason?: string;
@@ -485,8 +458,8 @@ export interface StudentTransportPlanTypeChangeHistory extends Record<string, un
 
     // Metadata
     status: Status;
-    added_date_time: string;
-    modified_date_time: string;
+    added_date_time?: string;
+    modified_date_time?: string;
 
     // Relations - Parent
     organisation_id: string;
@@ -511,58 +484,43 @@ export interface StudentTransportPlanTypeChangeHistory extends Record<string, un
 export interface StudentLoginPush extends Record<string, unknown> {
     student_login_push_id: string;
 
+    fcm_token: string;
+    platform: LoginFrom;
+    user_agent?: string;
+    ip_address?: string;
+
+    device_id?: string;
+    device_model?: string;
+    os_name?: string;
+    os_version?: string;
+    browser_name?: string;
+    browser_version?: string;
+    app_version?: string;
+
+    // Metadata
+    status: Status;
+    added_date_time?: string;
+    modified_date_time?: string;
+
     // Relations - Parent
+    organisation_id: string;
+    UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
+    organisation_code?: string;
+
     student_id: string;
     Student?: Student;
     roll_number?: string;
     first_name?: string;
     last_name?: string;
     mobile_number?: string;
-
-    organisation_id: string;
-    UserOrganisation?: UserOrganisation;
-    organisation_name?: string;
-    organisation_code?: string;
-
-    // Device / Push
-    fcm_token: string;
-
-    platform: LoginFrom;
-    user_agent?: string;
-    ip_address?: string;
-
-    device_id?: string;
-    device_model?: string;
-    os_name?: string;
-    os_version?: string;
-    browser_name?: string;
-    browser_version?: string;
-    app_version?: string;
-
-    // Metadata
-    status: Status;
-    added_date_time: string;
-    modified_date_time: string;
 }
 
 // StudentGuardianLoginPush Interface
 export interface StudentGuardianLoginPush extends Record<string, unknown> {
     guardian_login_push_id: string;
 
-    // Relations - Parent
-    guardian_id: string;
-    StudentGuardian?: StudentGuardian;
-    name?: string;
-    mobile?: string;
-
-    organisation_id: string;
-    UserOrganisation?: UserOrganisation;
-    organisation_name?: string;
-    organisation_code?: string;
-
-    // Device / Push
     fcm_token: string;
-
     platform: LoginFrom;
     user_agent?: string;
     ip_address?: string;
@@ -577,50 +535,61 @@ export interface StudentGuardianLoginPush extends Record<string, unknown> {
 
     // Metadata
     status: Status;
-    added_date_time: string;
-    modified_date_time: string;
+    added_date_time?: string;
+    modified_date_time?: string;
+
+    // Relations - Parent
+    organisation_id: string;
+    UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
+    organisation_code?: string;
+
+    guardian_id: string;
+    StudentGuardian?: StudentGuardian;
+    name?: string;
+    mobile?: string;
 }
 
 // Student Create/Update Schema
 export const StudentSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 
-  program_id: single_select_optional('MasterProgram'), // Single-Selection -> MasterProgram
-  stream_id: single_select_optional('MasterStream'), // Single-Selection -> MasterStream
-  year_id: single_select_optional('MasterYear'), // Single-Selection -> MasterYear
-  semester_id: single_select_optional('MasterSemester'), // Single-Selection -> MasterSemester
-  class_id: single_select_optional('MasterClass'), // Single-Selection -> MasterClass
-  section_id: single_select_optional('MasterSection'), // Single-Selection -> MasterSection
+    program_id: single_select_optional('MasterProgram'), // Single-Selection -> MasterProgram
+    stream_id: single_select_optional('MasterStream'), // Single-Selection -> MasterStream
+    year_id: single_select_optional('MasterYear'), // Single-Selection -> MasterYear
+    semester_id: single_select_optional('MasterSemester'), // Single-Selection -> MasterSemester
+    class_id: single_select_optional('MasterClass'), // Single-Selection -> MasterClass
+    section_id: single_select_optional('MasterSection'), // Single-Selection -> MasterSection
 
-  // Profile Image/Logo
-  photo_url: stringOptional('Photo URL', 0, 300),
-  photo_key: stringOptional('Photo Key', 0, 300),
-  photo_name: stringOptional('Photo Name', 0, 300),
+    // Profile Image/Logo
+    photo_url: stringOptional('Photo URL', 0, 300),
+    photo_key: stringOptional('Photo Key', 0, 300),
+    photo_name: stringOptional('Photo Name', 0, 300),
 
-  admission_number: stringOptional('Admission Number', 0, 100),
-  roll_number: stringOptional('Roll Number', 0, 100),
+    admission_number: stringOptional('Admission Number', 0, 100),
+    roll_number: stringOptional('Roll Number', 0, 100),
 
-  first_name: stringMandatory('First Name', 3, 100),
-  last_name: stringOptional('Last Name', 0, 100),
-  mobile_number: stringOptional('Mobile Number', 0, 15),
-  email: stringOptional('Email', 0, 100),
+    first_name: stringMandatory('First Name', 3, 100),
+    last_name: stringOptional('Last Name', 0, 100),
+    mobile_number: stringOptional('Mobile Number', 0, 15),
+    email: stringOptional('Email', 0, 100),
 
-  date_of_birth: dateOptional('Date Of Birth'),
-  gender: enumOptional('Gender', Gender, Gender.PreferNotToSay),
-  blood_group: enumOptional('Blood Group', BloodGroup, BloodGroup.Unknown),
-  special_notes: stringOptional('Special Notes', 0, 500),
+    date_of_birth: dateOptional('Date Of Birth'),
+    gender: enumOptional('Gender', Gender, Gender.PreferNotToSay),
+    blood_group: enumOptional('Blood Group', BloodGroup, BloodGroup.Unknown),
+    special_notes: stringOptional('Special Notes', 0, 500),
 
-  // Admin Will Update
-  transport_plan_type: enumOptional(
-    'Transport Plan Type',
-    TransportPlanType,
-    TransportPlanType.Both,
-  ),
+    // Admin Will Update
+    transport_plan_type: enumOptional(
+        'Transport Plan Type',
+        TransportPlanType,
+        TransportPlanType.Both,
+    ),
 
-  // Other
-  status: enumMandatory('Status', Status, Status.Active),
-  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+    // Other
+    status: enumMandatory('Status', Status, Status.Active),
+    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type StudentDTO = z.infer<typeof StudentSchema>;
 
@@ -664,21 +633,14 @@ export const StudentQuerySchema = BaseQuerySchema.extend({
 });
 export type StudentQueryDTO = z.infer<typeof StudentQuerySchema>;
 
-// SchoolDashBoard Query Schema
-export const SchoolDashBoardQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_mandatory('UserOrganisation'), // Multi-Selection -> UserOrganisation
-    organisation_branch_ids: multi_select_mandatory('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
-});
-export type SchoolDashBoardQueryDTO = z.infer<
-    typeof SchoolDashBoardQuerySchema
->;
-
-// Student NoRoute Query Schema
-export const StudentNoRouteQuerySchema = BaseQuerySchema.extend({
+// Student NoFixedSchedule Query Schema
+export const StudentNoFixedScheduleQuerySchema = BaseQuerySchema.extend({
     organisation_id: single_select_mandatory('UserOrganisation'), // Multi-selection -> UserOrganisation
     organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 });
-export type StudentNoRouteQueryDTO = z.infer<typeof StudentNoRouteQuerySchema>;
+export type StudentNoFixedScheduleQueryDTO = z.infer<
+    typeof StudentNoFixedScheduleQuerySchema
+>;
 
 // StudentAddress Create/Update Schema
 export const StudentAddressSchema = z.object({
@@ -821,33 +783,12 @@ export const StudentLeaveRequestSchema = z.object({
 });
 export type StudentLeaveRequestDTO = z.infer<typeof StudentLeaveRequestSchema>;
 
-// StudentLeaveRequest Approval Schema
-export const StudentLeaveRequestApprovalSchema = z.object({
-    approval_status: enumMandatory(
-        'Approval Status',
-        ApprovalStatus,
-        ApprovalStatus.Pending,
-    ),
-    approval_notes: stringOptional('Approval Notes', 0, 500),
-
-    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
-});
-export type StudentLeaveRequestApprovalDTO = z.infer<
-    typeof StudentLeaveRequestApprovalSchema
->;
-
 // StudentLeaveRequest Query Schema
 export const StudentLeaveRequestQuerySchema = BaseQuerySchema.extend({
     organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
     organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
     student_ids: multi_select_optional('Student'), // Multi-selection -> Student
     student_leave_request_ids: multi_select_optional('StudentLeaveRequest'), // Multi-selection -> StudentLeaveRequest
-
-    approval_status: enumArrayOptional(
-        'Approval Status',
-        ApprovalStatus,
-        getAllEnums(ApprovalStatus),
-    ),
 });
 export type StudentLeaveRequestQueryDTO = z.infer<
     typeof StudentLeaveRequestQuerySchema
@@ -923,6 +864,15 @@ export const StudentTransportPlanTypeChangeHistoryQuerySchema =
     });
 export type StudentTransportPlanTypeChangeHistoryQueryDTO = z.infer<
     typeof StudentTransportPlanTypeChangeHistoryQuerySchema
+>;
+
+// SchoolDashBoard Query Schema
+export const SchoolDashBoardQuerySchema = BaseQuerySchema.extend({
+    organisation_ids: multi_select_mandatory('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    organisation_branch_ids: multi_select_mandatory('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
+});
+export type SchoolDashBoardQueryDTO = z.infer<
+    typeof SchoolDashBoardQuerySchema
 >;
 
 // Convert Student Data to API Payload
@@ -1210,17 +1160,16 @@ export const deleteStudent = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove(id));
 };
 
-// Student No-Route helpers (pickup/drop)
-export const findStudentsWithNoRoutePickup = async (data: StudentNoRouteQueryDTO): Promise<FBR<Student[]>> => {
-    return apiPost<FBR<Student[]>, StudentNoRouteQueryDTO>(ENDPOINTS.find_students_with_no_route_pickup, data);
+export const school_dashboard = async (data: SchoolDashBoardQueryDTO,): Promise<FBR<SchoolDashboard[]>> => {
+    return apiPost<FBR<SchoolDashboard[]>, SchoolDashBoardQueryDTO>(ENDPOINTS.school_dashboard, data);
 };
 
-export const findStudentsWithNoRouteDrop = async (data: StudentNoRouteQueryDTO): Promise<FBR<Student[]>> => {
-    return apiPost<FBR<Student[]>, StudentNoRouteQueryDTO>(ENDPOINTS.find_students_with_no_route_drop, data);
+export const find_students_with_no_fixed_schedule_pickup = async (data: StudentNoFixedScheduleQueryDTO): Promise<FBR<Student[]>> => {
+    return apiPost<FBR<Student[]>, StudentNoFixedScheduleQueryDTO>(ENDPOINTS.find_students_with_no_fixed_schedule_pickup, data);
 };
 
-export const updateProfilePicture = async (id: string, data: StudentProfilePictureDTO): Promise<SBR> => {
-    return apiPatch<SBR, StudentProfilePictureDTO>(ENDPOINTS.update_profile_picture(id), data);
+export const find_students_with_no_fixed_schedule_drop = async (data: StudentNoFixedScheduleQueryDTO): Promise<FBR<Student[]>> => {
+    return apiPost<FBR<Student[]>, StudentNoFixedScheduleQueryDTO>(ENDPOINTS.find_students_with_no_fixed_schedule_drop, data);
 };
 
 // StudentAddress APIs
@@ -1286,10 +1235,6 @@ export const updateStudentLeaveRequest = async (id: string, data: StudentLeaveRe
     return apiPatch<SBR, StudentLeaveRequestDTO>(ENDPOINTS.update_leave_request(id), data);
 };
 
-export const approveLeaveRequest = async (id: string, data: StudentLeaveRequestApprovalDTO): Promise<SBR> => {
-    return apiPatch<SBR, StudentLeaveRequestApprovalDTO>(ENDPOINTS.approve_leave_request(id), data);
-};
-
 export const deleteStudentLeaveRequest = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_leave_request(id));
 };
@@ -1319,10 +1264,4 @@ export const deleteStudentStopChangeRequest = async (id: string): Promise<SBR> =
 export const findStudentTransportPlanTypeChangeHistory = async (data: StudentTransportPlanTypeChangeHistoryQueryDTO): Promise<FBR<StudentTransportPlanTypeChangeHistory[]>> => {
     return apiPost<FBR<StudentTransportPlanTypeChangeHistory[]>, StudentTransportPlanTypeChangeHistoryQueryDTO>(ENDPOINTS.find_student_transport_plan_type_change_history, data);
 };
-
-// DashBoard
-export const school_dashboard = async (data: SchoolDashBoardQueryDTO,): Promise<FBR<SchoolDashboard[]>> => {
-    return apiPost<FBR<SchoolDashboard[]>, SchoolDashBoardQueryDTO>(ENDPOINTS.school_dashboard, data);
-};
-
 

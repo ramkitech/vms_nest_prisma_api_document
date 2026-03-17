@@ -11,10 +11,10 @@ import {
     multi_select_optional,
     enumMandatory,
     enumArrayOptional,
-    numberOptional,
     dateOptional,
     getAllEnums,
     stringOptional,
+    numberMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -28,50 +28,40 @@ import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 import { Student } from './student';
 import { MasterRoute, MasterRouteStop } from './master_route';
+import { FixedScheduleDayRun, FixedScheduleDayRunStop, FixedScheduleDayRunStudent } from './day_run';
 
 const URL = 'master_schedule';
 
 const ENDPOINTS = {
 
     // MasterFixedSchedule APIs
-    find_schedule: `${URL}/schedule/search`,
-    create_schedule: `${URL}/schedule`,
-    update_schedule: (id: string): string => `${URL}/schedule/${id}`,
-    remove_schedule: (id: string): string => `${URL}/schedule/${id}`,
+    find_schedule: `${URL}/fixed_schedule/search`,
+    create_schedule: `${URL}/fixed_schedule`,
+    update_schedule: (id: string): string => `${URL}/fixed_schedule/${id}`,
+    remove_schedule: (id: string): string => `${URL}/fixed_schedule/${id}`,
 
-    // MasterRouteStudent assign/unassign APIs
-    find_students_with_no_stop_pickup: `${URL}/students_with_no_stop_pickup/search`,
-    find_students_with_no_stop_drop: `${URL}/students_with_no_stop_drop/search`,
-    find_students_with_no_schedule_pickup: `${URL}/students_with_no_schedule_pickup/search`,
-    find_students_with_no_schedule_drop: `${URL}/students_with_no_schedule_drop/search`,
-
-    assign_route_students_pickup: `${URL}/assign_route_students_pickup`,
-    assign_route_students_drop: `${URL}/assign_route_students_drop`,
-    remove_route_students_pickup: `${URL}/remove_route_students_pickup`,
-    remove_route_students_drop: `${URL}/remove_route_students_drop`,
-    assign_master_route_student_stop_to_students_pickup: `${URL}/assign_master_route_student_stop_to_students_pickup`,
-    assign_master_route_student_stop_to_students_drop: `${URL}/assign_master_route_student_stop_to_students_drop`,
-    remove_master_route_student_stop_to_students_pickup: `${URL}/remove_master_route_student_stop_to_students_pickup`,
-    remove_master_route_student_stop_to_students_drop: `${URL}/remove_master_route_student_stop_to_students_drop`,
-    assign_master_route_student_schedule_to_students_pickup: `${URL}/assign_master_route_student_schedule_to_students_pickup`,
-    assign_master_route_student_schedule_to_students_drop: `${URL}/assign_master_route_student_schedule_to_students_drop`,
-    remove_master_route_student_schedule_to_students_pickup: `${URL}/remove_master_route_student_schedule_to_students_pickup`,
-    remove_master_route_student_schedule_to_students_drop: `${URL}/remove_master_route_student_schedule_to_students_drop`,
+    assign_fixed_schedule_to_students: `${URL}/fixed_schedule/assign_fixed_schedule_to_students`,
+    remove_fixed_schedule_to_students: `${URL}/fixed_schedule/remove_fixed_schedule_to_students`,
+    update_stop: `${URL}/fixed_schedule/update_stop`,
 };
 
 // MasterFixedSchedule Interface
 export interface MasterFixedSchedule extends Record<string, unknown> {
     fixed_schedule_id: string;
+
     schedule_name: string;
     schedule_status: Status;
-    is_stops_finalized: YesNo;
     schedule_type: BusLeg;
+
+    max_seating_count: number;
 
     start_time?: string;
     end_time?: string;
 
     schedule_plan_start_date?: string;
+    schedule_plan_start_date_f?: string;
     schedule_plan_end_date?: string;
+    schedule_plan_end_date_f?: string;
 
     sunday: YesNo;
     monday: YesNo;
@@ -80,57 +70,6 @@ export interface MasterFixedSchedule extends Record<string, unknown> {
     thursday: YesNo;
     friday: YesNo;
     saturday: YesNo;
-    status: Status;
-    added_date_time?: string;
-    modified_date_time?: string;
-
-    // Relations - Parent
-    organisation_id: string;
-    UserOrganisation?: UserOrganisation;
-    organisation_name?: string;
-    organisation_code?: string;
-
-    organisation_branch_id: string;
-    OrganisationBranch?: OrganisationBranch;
-    branch_name?: string;
-    branch_city?: string;
-
-    route_id: string;
-    MasterRoute?: MasterRoute;
-
-    vehicle_id?: string;
-    MasterVehicle?: MasterVehicle;
-    vehicle_number?: string;
-    vehicle_type?: string;
-
-    driver_id?: string;
-    MasterDriver?: MasterDriver;
-    driver_details?: string;
-
-    attendant_id?: string;
-    Attendant?: MasterDriver;
-    attendant_details?: string;
-
-    // Relations - Child
-    // Child - Fleet
-    MasterRouteStudent?: MasterRouteStudent[];
-    // FixedScheduleDayRun?: FixedScheduleDayRun[];
-    // FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
-    // FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
-
-    // Relations - Child Count
-    _count?: {
-        MasterRouteStudent?: number;
-        FixedScheduleDayRun?: number;
-        FixedScheduleDayRunStop?: number;
-        FixedScheduleDayRunStudent?: number;
-    };
-}
-
-// MasterRouteStudent Interface
-export interface MasterRouteStudent extends Record<string, unknown> {
-    route_student_id: string;
-    leg: BusLeg | string;
 
     // Metadata
     status: Status;
@@ -150,124 +89,168 @@ export interface MasterRouteStudent extends Record<string, unknown> {
 
     route_id: string;
     MasterRoute?: MasterRoute;
+    route_name?: string;
 
-    student_id?: string;
+    vehicle_id: string;
+    MasterVehicle?: MasterVehicle;
+    vehicle_number?: string;
+    vehicle_type?: string;
+
+    driver_id?: string;
+    Driver?: MasterDriver;
+    driver_details?: string;
+
+    attendant_id?: string;
+    Attendant?: MasterDriver;
+    attendant_details?: string;
+
+    // Relations - Child
+    MasterFixedScheduleStudent?: MasterFixedScheduleStudent[];
+
+    FixedScheduleDayRun?: FixedScheduleDayRun[];
+    FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
+    FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
+
+    // Relations - Child Count
+    _count?: {
+        MasterFixedScheduleStudent?: number;
+        FixedScheduleDayRun?: number;
+        FixedScheduleDayRunStop?: number;
+        FixedScheduleDayRunStudent?: number;
+    };
+}
+
+// MasterFixedScheduleStudent Interface
+export interface MasterFixedScheduleStudent extends Record<string, unknown> {
+    fixed_schedule_student_id: string;
+
+    leg: BusLeg;
+
+    // Metadata
+    status: Status;
+    added_date_time?: string;
+    modified_date_time?: string;
+
+    // Relations - Parent
+    organisation_id: string;
+    UserOrganisation?: UserOrganisation;
+    organisation_name?: string;
+    organisation_code?: string;
+
+    organisation_branch_id: string;
+    OrganisationBranch?: OrganisationBranch;
+    branch_name?: string;
+    branch_city?: string;
+
+    student_id: string;
     Student?: Student;
+    roll_number?: string;
+    first_name?: string;
+    last_name?: string;
+    mobile_number?: string;
+
+    fixed_schedule_id: string;
+    MasterFixedSchedule?: MasterFixedSchedule;
+    schedule_name?: string;
+
+    route_id: string;
+    MasterRoute?: MasterRoute;
+    route_name?: string;
 
     route_stop_id?: string;
     MasterRouteStop?: MasterRouteStop;
-
-    fixed_schedule_id?: string;
-    MasterFixedSchedule?: MasterFixedSchedule;
+    order_no?: string;
+    stop_name?: string;
 }
 
 // MasterFixedSchedule Create/Update Schema
 export const MasterFixedScheduleSchema = z.object({
-  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    organisation_branch_id: single_select_mandatory('OrganisationBranch'), // Single-Selection -> OrganisationBranch
 
-  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
-  vehicle_id: single_select_optional('MasterVehicle'), // Single-Selection -> MasterVehicle
-  driver_id: single_select_optional('Driver'), // Single-Selection -> MasterDriver
-  attendant_id: single_select_optional('Attendant'), // Single-Selection -> MasterDriver
+    route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
+    vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+    driver_id: single_select_optional('Driver'), // Single-Selection -> MasterDriver
+    attendant_id: single_select_optional('Attendant'), // Single-Selection -> MasterDriver
 
-  schedule_name: stringMandatory('Schedule Name', 3, 100),
-  schedule_status: enumMandatory('Schedule Status', Status, Status.Active),
-  is_stops_finalized: enumMandatory('Is Stops Finalized', YesNo, YesNo.No),
-  schedule_type: enumMandatory('Schedule Type', BusLeg, BusLeg.Pickup),
+    schedule_name: stringMandatory('Schedule Name', 3, 100),
+    schedule_status: enumMandatory('Schedule Status', Status, Status.Active),
+    schedule_type: enumMandatory('Schedule Type', BusLeg, BusLeg.Pickup),
+    max_seating_count: numberMandatory('Max Seating Count'),
 
-  start_time: stringMandatory('Start Time'),
-  end_time: stringMandatory('End Time'),
+    start_time: stringOptional('Start Time'),
+    end_time: stringOptional('End Time'),
 
-  schedule_plan_start_date: dateOptional('Schedule Plan Start Date'),
-  schedule_plan_end_date: dateOptional('Schedule Plan End Date'),
+    schedule_plan_start_date: dateOptional('Schedule Plan Start Date'),
+    schedule_plan_end_date: dateOptional('Schedule Plan End Date'),
 
-  sunday: enumMandatory('Sunday', YesNo, YesNo.No),
-  monday: enumMandatory('Monday', YesNo, YesNo.Yes),
-  tuesday: enumMandatory('Tuesday', YesNo, YesNo.Yes),
-  wednesday: enumMandatory('Wednesday', YesNo, YesNo.Yes),
-  thursday: enumMandatory('Thursday', YesNo, YesNo.Yes),
-  friday: enumMandatory('Friday', YesNo, YesNo.Yes),
-  saturday: enumMandatory('Saturday', YesNo, YesNo.Yes),
+    sunday: enumMandatory('Sunday', YesNo, YesNo.No),
+    monday: enumMandatory('Monday', YesNo, YesNo.Yes),
+    tuesday: enumMandatory('Tuesday', YesNo, YesNo.Yes),
+    wednesday: enumMandatory('Wednesday', YesNo, YesNo.Yes),
+    thursday: enumMandatory('Thursday', YesNo, YesNo.Yes),
+    friday: enumMandatory('Friday', YesNo, YesNo.Yes),
+    saturday: enumMandatory('Saturday', YesNo, YesNo.Yes),
 
-  // Other
-  status: enumMandatory('Status', Status, Status.Active),
-  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+    // Other
+    status: enumMandatory('Status', Status, Status.Active),
+    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type MasterFixedScheduleDTO = z.infer<typeof MasterFixedScheduleSchema>;
 
 // MasterFixedSchedule Query Schema
 export const MasterFixedScheduleQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
-  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
-  route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
-  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
-  driver_ids: multi_select_optional('Driver'), // Multi-selection -> MasterDriver
-  attendant_ids: multi_select_optional('Attendant'), // Multi-selection -> MasterDriver
-  fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
+    // Self Table
+    fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
 
-  schedule_status: enumArrayOptional(
-    'Schedule Status',
-    Status,
-    getAllEnums(Status),
-  ),
-  is_stops_finalized: enumArrayOptional(
-    'Is Stops Finalized',
-    YesNo,
-    getAllEnums(YesNo),
-  ),
-  schedule_type: enumArrayOptional(
-    'Schedule Type',
-    BusLeg,
-    getAllEnums(BusLeg),
-  ),
+    // Relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
+
+    route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
+    vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+    driver_ids: multi_select_optional('Driver'), // Multi-selection -> MasterDriver
+    attendant_ids: multi_select_optional('Attendant'), // Multi-selection -> MasterDriver
+
+    // Enums
+    schedule_status: enumArrayOptional(
+        'Schedule Status',
+        Status,
+        getAllEnums(Status),
+    ),
+    schedule_type: enumArrayOptional(
+        'Schedule Type',
+        BusLeg,
+        getAllEnums(BusLeg),
+    ),
 });
 export type MasterFixedScheduleQueryDTO = z.infer<
-  typeof MasterFixedScheduleQuerySchema
+    typeof MasterFixedScheduleQuerySchema
 >;
 
-// Student NoRoute Query Schema
-export const StudentNoStopQuerySchema = BaseQuerySchema.extend({
-  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
+export const AssignFixedScheduleToStudentsSchema = z.object({
+    fixed_schedule_id: single_select_mandatory('MasterFixedSchedule'),
+    student_ids: multi_select_optional('Student'),
 });
-export type StudentNoStopQueryDTO = z.infer<typeof StudentNoStopQuerySchema>;
-
-// Student NoRoute Query Schema
-export const StudentNoScheduleQuerySchema = BaseQuerySchema.extend({
-  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
-});
-export type StudentNoScheduleQueryDTO = z.infer<
-  typeof StudentNoScheduleQuerySchema
+export type AssignFixedScheduleToStudentsDTO = z.infer<
+    typeof AssignFixedScheduleToStudentsSchema
 >;
 
-// MasterRouteStudent assign remove Schema
-export const MasterRouteStudentAssignRemoveSchema = z.object({
-  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
-  student_ids: multi_select_optional('Student'), // Multi selection -> Student
+export const RemoveFixedScheduleToStudentsSchema = z.object({
+    fixed_schedule_id: single_select_mandatory('MasterFixedSchedule'),
+    student_ids: multi_select_optional('Student'),
 });
-export type MasterRouteStudentAssignRemoveDTO = z.infer<
-  typeof MasterRouteStudentAssignRemoveSchema
+export type RemoveFixedScheduleToStudentsDTO = z.infer<
+    typeof RemoveFixedScheduleToStudentsSchema
 >;
 
-// MasterRouteStudent assign remove Schema
-export const MasterRouteStudentStopAssignRemoveSchema = z.object({
-  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
-  route_stop_id: single_select_mandatory('MasterRouteStop'), // Single-Selection -> MasterRouteStop
-  route_student_ids: multi_select_optional('MasterRouteStudent'), // Multi selection -> MasterRouteStudent
+export const UpdateStopSchema = z.object({
+    fixed_schedule_student_id: single_select_mandatory(
+        'MasterFixedScheduleStudent',
+    ),
+    route_stop_id: single_select_mandatory('MasterRouteStop'),
 });
-export type MasterRouteStudentStopAssignRemoveDTO = z.infer<
-  typeof MasterRouteStudentStopAssignRemoveSchema
->;
-
-// MasterRouteStudent assign remove Schema
-export const MasterRouteStudentScheduleAssignRemoveSchema = z.object({
-  route_id: single_select_mandatory('MasterRoute'), // Single-Selection -> MasterRoute
-  fixed_schedule_id: single_select_mandatory('MasterFixedSchedule'), // Single-Selection -> MasterFixedSchedule
-  route_student_ids: multi_select_optional('MasterRouteStudent'), // Multi selection -> MasterRouteStudent
-});
-export type MasterRouteStudentScheduleAssignRemoveDTO = z.infer<
-  typeof MasterRouteStudentScheduleAssignRemoveSchema
->;
+export type UpdateStopDTO = z.infer<typeof UpdateStopSchema>;
 
 // Convert MasterFixedSchedule Data to API Payload
 export const toMasterFixedSchedulePayload = (row: MasterFixedSchedule): MasterFixedScheduleDTO => ({
@@ -281,8 +264,8 @@ export const toMasterFixedSchedulePayload = (row: MasterFixedSchedule): MasterFi
 
     schedule_name: row.schedule_name || '',
     schedule_status: row.schedule_status || Status.Active,
-    is_stops_finalized: row.is_stops_finalized || YesNo.No,
     schedule_type: row.schedule_type || BusLeg.Pickup,
+    max_seating_count: row.max_seating_count || 0,
 
     start_time: row.start_time || "00:00",
     end_time: row.end_time || "00:00",
@@ -310,8 +293,8 @@ export const newMasterFixedSchedulePayload = (): MasterFixedScheduleDTO => ({
 
     schedule_name: '',
     schedule_status: Status.Active,
-    is_stops_finalized: YesNo.No,
     schedule_type: BusLeg.Pickup,
+    max_seating_count: 0,
 
     start_time: "00:00",
     end_time: "00:00",
@@ -335,18 +318,6 @@ export const newMasterFixedSchedulePayload = (): MasterFixedScheduleDTO => ({
     time_zone_id: '', // Needs to be provided manually
 });
 
-// Convert MasterRouteStudentAssign Data to API Payload
-export const toMasterRouteStudentAssignPayload = (row: MasterRouteStudent): MasterRouteStudentAssignRemoveDTO => ({
-    route_id: row.route_id || '',
-    student_ids: [],
-});
-
-// Create New MasterRouteStudentAssign Payload
-export const newMasterRouteStudentAssignPayload = (): MasterRouteStudentAssignRemoveDTO => ({
-    route_id: '',
-    student_ids: [],
-});
-
 // MasterFixedSchedule APIs
 export const findMasterFixedSchedule = async (data: MasterFixedScheduleQueryDTO): Promise<FBR<MasterFixedSchedule[]>> => {
     return apiPost<FBR<MasterFixedSchedule[]>, MasterFixedScheduleQueryDTO>(ENDPOINTS.find_schedule, data);
@@ -364,69 +335,16 @@ export const deleteMasterFixedSchedule = async (id: string): Promise<SBR> => {
     return apiDelete<SBR>(ENDPOINTS.remove_schedule(id));
 };
 
-// MasterRouteStudent assign/unassign APIs
-export const findStudentsWithNoStopPickup = async (data: StudentNoStopQueryDTO): Promise<FBR<MasterRouteStudent[]>> => {
-    return apiPost<FBR<MasterRouteStudent[]>, StudentNoStopQueryDTO>(ENDPOINTS.find_students_with_no_stop_pickup, data);
+export const assignFixedScheduleToStudents = async (data: AssignFixedScheduleToStudentsDTO): Promise<SBR> => {
+    return apiPost<SBR, AssignFixedScheduleToStudentsDTO>(ENDPOINTS.assign_fixed_schedule_to_students, data);
 };
 
-export const findStudentsWithNoStopDrop = async (data: StudentNoStopQueryDTO): Promise<FBR<MasterRouteStudent[]>> => {
-    return apiPost<FBR<MasterRouteStudent[]>, StudentNoStopQueryDTO>(ENDPOINTS.find_students_with_no_stop_drop, data);
+export const removeFixedScheduleToStudents = async (data: RemoveFixedScheduleToStudentsDTO): Promise<SBR> => {
+    return apiPost<SBR, RemoveFixedScheduleToStudentsDTO>(ENDPOINTS.remove_fixed_schedule_to_students, data);
 };
 
-export const findStudentsWithNoSchedulePickup = async (data: StudentNoScheduleQueryDTO): Promise<FBR<MasterRouteStudent[]>> => {
-    return apiPost<FBR<MasterRouteStudent[]>, StudentNoScheduleQueryDTO>(ENDPOINTS.find_students_with_no_schedule_pickup, data);
-};
-
-export const findStudentsWithNoScheduleDrop = async (data: StudentNoScheduleQueryDTO): Promise<FBR<MasterRouteStudent[]>> => {
-    return apiPost<FBR<MasterRouteStudent[]>, StudentNoScheduleQueryDTO>(ENDPOINTS.find_students_with_no_schedule_drop, data);
+export const updateStop = async (data: UpdateStopDTO): Promise<SBR> => {
+    return apiPost<SBR, UpdateStopDTO>(ENDPOINTS.update_stop, data);
 };
 
 
-export const assignRouteStudentsPickup = async (data: MasterRouteStudentAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentAssignRemoveDTO>(ENDPOINTS.assign_route_students_pickup, data);
-};
-
-export const assignRouteStudentsDrop = async (data: MasterRouteStudentAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentAssignRemoveDTO>(ENDPOINTS.assign_route_students_drop, data);
-};
-
-export const removeRouteStudentsPickup = async (data: MasterRouteStudentAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentAssignRemoveDTO>(ENDPOINTS.remove_route_students_pickup, data);
-};
-
-export const removeRouteStudentsDrop = async (data: MasterRouteStudentAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentAssignRemoveDTO>(ENDPOINTS.remove_route_students_drop, data);
-};
-
-
-export const assignMasterRouteStudentStopToStudentsPickup = async (data: MasterRouteStudentStopAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentStopAssignRemoveDTO>(ENDPOINTS.assign_master_route_student_stop_to_students_pickup, data);
-};
-
-export const assignMasterRouteStudentStopToStudentsDrop = async (data: MasterRouteStudentStopAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentStopAssignRemoveDTO>(ENDPOINTS.assign_master_route_student_stop_to_students_drop, data);
-};
-
-export const removeMasterRouteStudentStopToStudentsPickup = async (data: MasterRouteStudentStopAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentStopAssignRemoveDTO>(ENDPOINTS.remove_master_route_student_stop_to_students_pickup, data);
-};
-
-export const removeMasterRouteStudentStopToStudentsDrop = async (data: MasterRouteStudentStopAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentStopAssignRemoveDTO>(ENDPOINTS.remove_master_route_student_stop_to_students_drop, data);
-};
-
-export const assignMasterRouteStudentScheduleToStudentsPickup = async (data: MasterRouteStudentScheduleAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentScheduleAssignRemoveDTO>(ENDPOINTS.assign_master_route_student_schedule_to_students_pickup, data);
-};
-
-export const assignMasterRouteStudentScheduleToStudentDrop = async (data: MasterRouteStudentScheduleAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentScheduleAssignRemoveDTO>(ENDPOINTS.assign_master_route_student_schedule_to_students_drop, data);
-};
-
-export const removeMasterRouteStudentScheduleToStudentPickup = async (data: MasterRouteStudentScheduleAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentScheduleAssignRemoveDTO>(ENDPOINTS.remove_master_route_student_schedule_to_students_pickup, data);
-};
-
-export const removeMasterRouteStudentScheduleToStudentDrop = async (data: MasterRouteStudentScheduleAssignRemoveDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterRouteStudentScheduleAssignRemoveDTO>(ENDPOINTS.remove_master_route_student_schedule_to_students_drop, data);
-};

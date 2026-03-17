@@ -903,6 +903,43 @@ export enum StudentLeaveType {
   DropOnly = 'DropOnly',
 }
 
+export enum DayRunStatus {
+    Planned = 'Planned',
+    InProgress = 'InProgress',
+    Completed = 'Completed',
+    Cancelled = 'Cancelled',
+}
+
+export enum DayRunRunningStatus {
+    OnTime = 'OnTime',
+    Delayed = 'Delayed',
+}
+
+export enum DayRunStopStatus {
+    Pending = 'Pending',
+    Arrived = 'Arrived',
+    Departed = 'Departed',
+    Skipped = 'Skipped',
+}
+
+export enum StudentLegStatus {
+    Planned = 'Planned',
+    PlannedAbsent = 'PlannedAbsent',
+    UnplannedAbsent = 'UnplannedAbsent',
+    Boarded = 'Boarded',
+    Handovered = 'Handovered',
+}
+
+export enum AttendanceMethod {
+    None = 'None',
+    QRCode = 'QRCode',
+    NFC = 'NFC',
+    ParentAppCode = 'ParentAppCode',
+    OTP = 'OTP',
+    Photo = 'Photo',
+    Manual = 'Manual',
+}
+
 export enum HolidayType {
   FullDay = 'FullDay',
   HalfDay = 'HalfDay',
