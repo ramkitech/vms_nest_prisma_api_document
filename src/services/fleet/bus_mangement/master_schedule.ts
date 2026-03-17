@@ -40,6 +40,7 @@ const ENDPOINTS = {
     update_schedule: (id: string): string => `${URL}/fixed_schedule/${id}`,
     remove_schedule: (id: string): string => `${URL}/fixed_schedule/${id}`,
 
+    find_schedule_student: `${URL}/fixed_schedule_student/search`,
     assign_fixed_schedule_to_students: `${URL}/fixed_schedule/assign_fixed_schedule_to_students`,
     remove_fixed_schedule_to_students: `${URL}/fixed_schedule/remove_fixed_schedule_to_students`,
     update_stop: `${URL}/fixed_schedule/update_stop`,
@@ -228,6 +229,30 @@ export type MasterFixedScheduleQueryDTO = z.infer<
     typeof MasterFixedScheduleQuerySchema
 >;
 
+// MasterFixedScheduleStudent Query Schema
+export const MasterFixedScheduleStudentQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  fixed_schedule_student_ids: multi_select_optional(
+    'MasterFixedScheduleStudent',
+  ), // Multi-selection -> MasterFixedScheduleStudent
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
+
+  student_ids: multi_select_optional('Student'), // Multi-selection -> Student
+  fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
+
+  route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
+  route_stop_ids: multi_select_optional('MasterRouteStop'), // Multi-selection -> MasterRouteStop
+
+  // Enums
+  leg: enumArrayOptional('Leg', BusLeg, getAllEnums(BusLeg)),
+});
+export type MasterFixedScheduleStudentQueryDTO = z.infer<
+  typeof MasterFixedScheduleStudentQuerySchema
+>;
+
 export const AssignFixedScheduleToStudentsSchema = z.object({
     fixed_schedule_id: single_select_mandatory('MasterFixedSchedule'),
     student_ids: multi_select_optional('Student'),
@@ -321,6 +346,10 @@ export const newMasterFixedSchedulePayload = (): MasterFixedScheduleDTO => ({
 // MasterFixedSchedule APIs
 export const findMasterFixedSchedule = async (data: MasterFixedScheduleQueryDTO): Promise<FBR<MasterFixedSchedule[]>> => {
     return apiPost<FBR<MasterFixedSchedule[]>, MasterFixedScheduleQueryDTO>(ENDPOINTS.find_schedule, data);
+};
+
+export const findMasterFixedScheduleStudent = async (data: MasterFixedScheduleStudentQueryDTO): Promise<FBR<MasterFixedScheduleStudent[]>> => {
+    return apiPost<FBR<MasterFixedScheduleStudent[]>, MasterFixedScheduleStudentQueryDTO>(ENDPOINTS.find_schedule_student, data);
 };
 
 export const createMasterFixedSchedule = async (data: MasterFixedScheduleDTO): Promise<SBR> => {
