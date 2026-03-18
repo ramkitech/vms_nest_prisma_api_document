@@ -24,7 +24,7 @@ const URL = 'day_run';
 
 const ENDPOINTS = {
     // AWS S3 PRESIGNED
-    get_student_attendance_presigned_url: (fileName: string): string => `${URL}/get_student_attendance_presigned_url/${fileName}`,
+    get_student_attendance_presigned_url: (fileName: string): string => `${URL}/student_attendance_presigned_url/${fileName}`,
 
     // FixedScheduleDayRun APIs
     update_fixed_schedule_day_run: (id: string): string => `${URL}/update_fixed_schedule_day_run/${id}`,
