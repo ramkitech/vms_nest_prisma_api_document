@@ -474,6 +474,8 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
 
   latitude: number;
   longitude: number;
+
+  organisation_branch_id: string
 }
 
 // MasterVehicleFile Interface
