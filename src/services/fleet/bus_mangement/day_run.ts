@@ -15,7 +15,7 @@ import { Student } from './student';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import z from 'zod';
-import { dateTimeMandatory, dateTimeOptional, enumArrayOptional, enumMandatory, getAllEnums, multi_select_optional, single_select_mandatory, single_select_optional, stringOptional } from 'src/zod_utils/zod_utils';
+import { dateMandatory, dateTimeMandatory, dateTimeOptional, enumArrayOptional, enumMandatory, getAllEnums, multi_select_optional, single_select_mandatory, single_select_optional, stringOptional } from 'src/zod_utils/zod_utils';
 import { BaseQuerySchema } from 'src/zod_utils/zod_base_schema';
 import { AWSPresignedUrl, BR, FBR, SBR } from 'src/core/BaseResponse';
 import { apiGet, apiPatch, apiPost } from 'src/core/apiCall';
@@ -265,38 +265,42 @@ export type FixedScheduleDayRunCancelDTO = z.infer<
 
 // FixedScheduleDayRun Query Schema
 export const FixedScheduleDayRunQuerySchema = BaseQuerySchema.extend({
-    // Self Table
-    fixed_schedule_day_run_ids: multi_select_optional('FixedScheduleDayRun'), // Multi-selection -> FixedScheduleDayRun
+  // Self Table
+  fixed_schedule_day_run_ids: multi_select_optional('FixedScheduleDayRun'), // Multi-selection -> FixedScheduleDayRun
 
-    // Relations - Parent
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
-    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
 
-    route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
-    fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
-    vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
-    driver_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
-    attendant_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
+  route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
+  fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
+  driver_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
+  attendant_ids: multi_select_optional('MasterDriver'), // Multi-selection -> MasterDriver
 
-    // Enums
-    schedule_type: enumArrayOptional(
-        'Schedule Type',
-        BusLeg,
-        getAllEnums(BusLeg),
-    ),
-    day_run_status: enumArrayOptional(
-        'Day Run Status',
-        DayRunStatus,
-        getAllEnums(DayRunStatus),
-    ),
-    running_status: enumArrayOptional(
-        'Running Status',
-        DayRunRunningStatus,
-        getAllEnums(DayRunRunningStatus),
-    ),
+  // Enums
+  schedule_type: enumArrayOptional(
+    'Schedule Type',
+    BusLeg,
+    getAllEnums(BusLeg),
+  ),
+  day_run_status: enumArrayOptional(
+    'Day Run Status',
+    DayRunStatus,
+    getAllEnums(DayRunStatus),
+  ),
+  running_status: enumArrayOptional(
+    'Running Status',
+    DayRunRunningStatus,
+    getAllEnums(DayRunRunningStatus),
+  ),
+
+  // Other
+  from_date: dateMandatory('From Date'),
+  to_date: dateMandatory('To Date'),
 });
 export type FixedScheduleDayRunQueryDTO = z.infer<
-    typeof FixedScheduleDayRunQuerySchema
+  typeof FixedScheduleDayRunQuerySchema
 >;
 
 // FixedScheduleDayRunStudent Update Schema
