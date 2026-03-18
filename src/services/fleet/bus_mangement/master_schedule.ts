@@ -15,6 +15,7 @@ import {
     getAllEnums,
     stringOptional,
     numberMandatory,
+    enumOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -185,13 +186,13 @@ export const MasterFixedScheduleSchema = z.object({
     schedule_plan_start_date: dateOptional('Schedule Plan Start Date'),
     schedule_plan_end_date: dateOptional('Schedule Plan End Date'),
 
-    sunday: enumMandatory('Sunday', YesNo, YesNo.No),
-    monday: enumMandatory('Monday', YesNo, YesNo.Yes),
-    tuesday: enumMandatory('Tuesday', YesNo, YesNo.Yes),
-    wednesday: enumMandatory('Wednesday', YesNo, YesNo.Yes),
-    thursday: enumMandatory('Thursday', YesNo, YesNo.Yes),
-    friday: enumMandatory('Friday', YesNo, YesNo.Yes),
-    saturday: enumMandatory('Saturday', YesNo, YesNo.Yes),
+    sunday: enumOptional('Sunday', YesNo, YesNo.No),
+    monday: enumOptional('Monday', YesNo, YesNo.Yes),
+    tuesday: enumOptional('Tuesday', YesNo, YesNo.Yes),
+    wednesday: enumOptional('Wednesday', YesNo, YesNo.Yes),
+    thursday: enumOptional('Thursday', YesNo, YesNo.Yes),
+    friday: enumOptional('Friday', YesNo, YesNo.Yes),
+    saturday: enumOptional('Saturday', YesNo, YesNo.Yes),
 
     // Other
     status: enumMandatory('Status', Status, Status.Active),
@@ -231,26 +232,26 @@ export type MasterFixedScheduleQueryDTO = z.infer<
 
 // MasterFixedScheduleStudent Query Schema
 export const MasterFixedScheduleStudentQuerySchema = BaseQuerySchema.extend({
-  // Self Table
-  fixed_schedule_student_ids: multi_select_optional(
-    'MasterFixedScheduleStudent',
-  ), // Multi-selection -> MasterFixedScheduleStudent
+    // Self Table
+    fixed_schedule_student_ids: multi_select_optional(
+        'MasterFixedScheduleStudent',
+    ), // Multi-selection -> MasterFixedScheduleStudent
 
-  // Relations - Parent
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
-  organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
+    // Relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+    organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-selection -> OrganisationBranch
 
-  student_ids: multi_select_optional('Student'), // Multi-selection -> Student
-  fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
+    student_ids: multi_select_optional('Student'), // Multi-selection -> Student
+    fixed_schedule_ids: multi_select_optional('MasterFixedSchedule'), // Multi-selection -> MasterFixedSchedule
 
-  route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
-  route_stop_ids: multi_select_optional('MasterRouteStop'), // Multi-selection -> MasterRouteStop
+    route_ids: multi_select_optional('MasterRoute'), // Multi-selection -> MasterRoute
+    route_stop_ids: multi_select_optional('MasterRouteStop'), // Multi-selection -> MasterRouteStop
 
-  // Enums
-  leg: enumArrayOptional('Leg', BusLeg, getAllEnums(BusLeg)),
+    // Enums
+    leg: enumArrayOptional('Leg', BusLeg, getAllEnums(BusLeg)),
 });
 export type MasterFixedScheduleStudentQueryDTO = z.infer<
-  typeof MasterFixedScheduleStudentQuerySchema
+    typeof MasterFixedScheduleStudentQuerySchema
 >;
 
 export const AssignFixedScheduleToStudentsSchema = z.object({
