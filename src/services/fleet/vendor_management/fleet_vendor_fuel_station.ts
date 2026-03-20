@@ -13,6 +13,7 @@ import {
     enumArrayOptional,
     doubleOptionalLatLng,
     numberOptional,
+    single_select_optional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -25,6 +26,7 @@ import { FleetVendor } from './fleet_vendor_service';
 import { MasterFuelCompany } from 'src/services/master/expense/master_fuel_company_service';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
 import { FleetFuelRefill } from '../fuel_management/fleet_fuel_refill_service';
+import { User } from 'src/services/main/users/user_service';
 
 const URL = 'fleet/vendor_management/fuel_station';
 
@@ -51,8 +53,7 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
 
     // Notes
     is_preferred_station: YesNo;
-    station_notes?: string;
-    station_feedback?: string;
+    notes?: string;
 
     // Rating 
     rating?: number;
@@ -71,9 +72,8 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     air_check_available: YesNo;
 
     // Contact Info
-    station_email?: string;
-    station_mobile?: string;
-    station_phone?: string;
+    contact_email?: string;
+    contact_number?: string;
     website_url?: string;
 
     // Address
@@ -109,6 +109,10 @@ export interface FleetVendorFuelStation extends Record<string, unknown> {
     organisation_name?: string;
     organisation_code?: string;
 
+    user_id?: string;
+    User?: User;
+    user_details?: string;
+
     vendor_id: string;
     FleetVendor?: FleetVendor;
     vendor_name?: string;
@@ -142,84 +146,84 @@ export interface FleetVendorFuelStationSimple extends Record<string, unknown> {
 
 // FleetVendorFuelStation Create/Update Schema
 export const FleetVendorFuelStationSchema = z.object({
-    // Relations - Parent
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
-    fuel_company_id: single_select_mandatory('MasterFuelCompany'), // Single-Selection -> MasterFuelCompany
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
+  vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
+  fuel_company_id: single_select_mandatory('MasterFuelCompany'), // Single-Selection -> MasterFuelCompany
 
-    // Main Field Details
-    // Basic Info
-    fuel_station_name: stringMandatory('Fuel Station Name', 3, 100),
-    fuel_station_code: stringOptional('FuelStation Code', 0, 100),
-    is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
-    is_preferred_station: enumMandatory('Is Preferred Station', YesNo, YesNo.No),
+  // Main Field Details
+  // Basic Info
+  fuel_station_name: stringMandatory('Fuel Station Name', 3, 100),
+  fuel_station_code: stringOptional('FuelStation Code', 0, 100),
+  is_company_owned: enumMandatory('Is Company Owned', YesNo, YesNo.No),
 
-    // Rating
-    rating: numberOptional('Rating'),
-    rating_comments: stringOptional('Rating Comments', 0, 2000),
+  // Notes
+  is_preferred_station: enumMandatory('Is Preferred Station', YesNo, YesNo.No),
+  notes: stringOptional('Notes', 0, 2000),
 
-    // Operational Details
-    operating_hours: stringOptional('Operating Hours', 0, 100),
-    is_24x7: enumMandatory('Is 24x7', YesNo, YesNo.No),
-    supports_credit: enumMandatory('Supports Credit', YesNo, YesNo.No),
-    fuel_card_supported: enumMandatory('Fuel Card Supported', YesNo, YesNo.No),
-    accepted_payment_modes: stringOptional('Accepted Payment Modes', 0, 500),
-    supported_fuel_types: stringOptional('Supported Fuel Types', 0, 500),
+  // Rating
+  rating: numberOptional('Rating'),
+  rating_comments: stringOptional('Rating Comments', 0, 2000),
 
-    offers_service: enumMandatory('Offers Service', YesNo, YesNo.No),
-    has_weighbridge: enumMandatory('Has Weighbridge', YesNo, YesNo.No),
-    air_check_available: enumMandatory('Air Check Available', YesNo, YesNo.Yes),
+  // Contact Info
+  contact_email: stringOptional('Contact Email', 0, 100),
+  contact_number: stringOptional('Contact Number', 0, 15),
+  website_url: stringOptional('Website URL', 0, 200),
 
-    // Contact Info
-    station_email: stringOptional('Station Email', 0, 100),
-    station_mobile: stringOptional('Station Mobile', 0, 15),
-    station_phone: stringOptional('Station Phone', 0, 15),
-    website_url: stringOptional('Website URL', 0, 200),
+  // Operational Details
+  operating_hours: stringOptional('Operating Hours', 0, 100),
+  is_24x7: enumMandatory('Is 24x7', YesNo, YesNo.No),
+  supports_credit: enumMandatory('Supports Credit', YesNo, YesNo.No),
+  fuel_card_supported: enumMandatory('Fuel Card Supported', YesNo, YesNo.No),
+  accepted_payment_modes: stringOptional('Accepted Payment Modes', 0, 500),
+  supported_fuel_types: stringOptional('Supported Fuel Types', 0, 500),
 
-    // Address
-    address_line1: stringOptional('Address Line 1', 0, 150),
-    address_line2: stringOptional('Address Line 2', 0, 150),
-    locality_landmark: stringOptional('Locality / Landmark', 0, 150),
-    neighborhood: stringOptional('Neighborhood', 0, 100),
-    town_city: stringOptional('Town / City', 0, 100),
-    district_county: stringOptional('District / County', 0, 100),
-    state_province_region: stringOptional('State / Province / Region', 0, 100),
-    postal_code: stringOptional('Postal Code', 0, 20),
-    country: stringOptional('Country', 0, 100),
-    country_code: stringOptional('Country Code', 0, 5),
+  offers_service: enumMandatory('Offers Service', YesNo, YesNo.No),
+  has_weighbridge: enumMandatory('Has Weighbridge', YesNo, YesNo.No),
+  air_check_available: enumMandatory('Air Check Available', YesNo, YesNo.Yes),
 
-    // Location Details
-    latitude: doubleOptionalLatLng('Latitude'),
-    longitude: doubleOptionalLatLng('Longitude'),
-    google_location: stringOptional('Google Location', 0, 500),
+  // Address
+  address_line1: stringOptional('Address Line 1', 0, 150),
+  address_line2: stringOptional('Address Line 2', 0, 150),
+  locality_landmark: stringOptional('Locality / Landmark', 0, 150),
+  neighborhood: stringOptional('Neighborhood', 0, 100),
+  town_city: stringOptional('Town / City', 0, 100),
+  district_county: stringOptional('District / County', 0, 100),
+  state_province_region: stringOptional('State / Province / Region', 0, 100),
+  postal_code: stringOptional('Postal Code', 0, 20),
+  country: stringOptional('Country', 0, 100),
+  country_code: stringOptional('Country Code', 0, 5),
 
-    // Notes & Feedback
-    station_notes: stringOptional('Station Notes', 0, 2000),
-    station_feedback: stringOptional('Station Feedback', 0, 2000),
+  // Location Details
+  latitude: doubleOptionalLatLng('Latitude'),
+  longitude: doubleOptionalLatLng('Longitude'),
+  google_location: stringOptional('Google Location', 0, 500),
 
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetVendorFuelStationDTO = z.infer<
-    typeof FleetVendorFuelStationSchema
+  typeof FleetVendorFuelStationSchema
 >;
 
 // FleetVendorFuelStation Query Schema
 export const FleetVendorFuelStationQuerySchema = BaseQuerySchema.extend({
-    // self table
-    fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // Single-Selection -> FleetVendorFuelStation
+  // self table
+  fuel_station_ids: multi_select_optional('FleetVendorFuelStation'), // Single-Selection -> FleetVendorFuelStation
 
-    // relations - Parent
-    organisation_ids: multi_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
-    vendor_ids: multi_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
-    fuel_company_ids: multi_select_optional('MasterFuelCompany'), // Single-Selection -> MasterFuelCompany
+  // relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Single-Selection -> User
+  vendor_ids: multi_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
+  fuel_company_ids: multi_select_optional('MasterFuelCompany'), // Single-Selection -> MasterFuelCompany
 
-    // enums
-    is_company_owned: enumArrayOptional('Is Company Owned', YesNo),
-    is_preferred_station: enumArrayOptional('Is Preferred Station', YesNo),
+  // enums
+  is_company_owned: enumArrayOptional('Is Company Owned', YesNo),
+  is_preferred_station: enumArrayOptional('Is Preferred Station', YesNo),
 });
 export type FleetVendorFuelStationQueryDTO = z.infer<
-    typeof FleetVendorFuelStationQuerySchema
+  typeof FleetVendorFuelStationQuerySchema
 >;
 
 // Convert FleetVendorFuelStation Data to API Payload
@@ -228,15 +232,19 @@ export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): Fl
     fuel_station_name: row.fuel_station_name || '',
     fuel_station_code: row.fuel_station_code || '',
     is_company_owned: row.is_company_owned || YesNo.No,
+
+    // Notes
     is_preferred_station: row.is_preferred_station || YesNo.No,
+    notes: row.notes || '',
 
     // Rating
     rating: row.rating || 0,
     rating_comments: row.rating_comments || '',
 
-    // Notes & Feedback
-    station_notes: row.station_notes || '',
-    station_feedback: row.station_feedback || '',
+    // Contact Info
+    contact_email: row.contact_email || '',
+    contact_number: row.contact_number || '',
+    website_url: row.website_url || '',
 
     // Operational Details
     operating_hours: row.operating_hours || '',
@@ -249,12 +257,6 @@ export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): Fl
     offers_service: row.offers_service || YesNo.No,
     has_weighbridge: row.has_weighbridge || YesNo.No,
     air_check_available: row.air_check_available || YesNo.Yes,
-
-    // Contact Info
-    station_email: row.station_email || '',
-    station_mobile: row.station_mobile || '',
-    station_phone: row.station_phone || '',
-    website_url: row.website_url || '',
 
     // Address Details
     address_line1: row.address_line1 || '',
@@ -274,6 +276,7 @@ export const toFleetVendorFuelStationPayload = (row: FleetVendorFuelStation): Fl
     google_location: row.google_location || '',
 
     organisation_id: row.organisation_id || '',
+    user_id: row.user_id || '',
     vendor_id: row.vendor_id || '',
     fuel_company_id: row.fuel_company_id || '',
 
@@ -285,13 +288,19 @@ export const newFleetVendorFuelStationPayload = (): FleetVendorFuelStationDTO =>
     fuel_station_name: '',
     fuel_station_code: '',
     is_company_owned: YesNo.No,
-    is_preferred_station: YesNo.No,
 
+    // Notes
+    is_preferred_station: YesNo.No,
+    notes: '',
+
+    // Rating
     rating: 0,
     rating_comments: '',
 
-    station_notes: '',
-    station_feedback: '',
+    // Contact Info
+    contact_email: '',
+    contact_number: '',
+    website_url: '',
 
     operating_hours: '',
     is_24x7: YesNo.No,
@@ -303,11 +312,6 @@ export const newFleetVendorFuelStationPayload = (): FleetVendorFuelStationDTO =>
     offers_service: YesNo.No,
     has_weighbridge: YesNo.No,
     air_check_available: YesNo.Yes,
-
-    station_email: '',
-    station_mobile: '',
-    station_phone: '',
-    website_url: '',
 
     address_line1: '',
     address_line2: '',
@@ -325,6 +329,7 @@ export const newFleetVendorFuelStationPayload = (): FleetVendorFuelStationDTO =>
     google_location: '',
 
     organisation_id: '',
+    user_id: '',
     vendor_id: '',
     fuel_company_id: '',
 

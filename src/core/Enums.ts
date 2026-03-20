@@ -998,6 +998,18 @@ export enum FleetVendorAddressLabel {
   OTHER = 'OTHER',
 }
 
+export enum BankAccountType {
+  SavingsAccount = 'SavingsAccount',
+  CurrentAccount = 'CurrentAccount',
+  BusinessAccount = 'BusinessAccount',
+  SalaryAccount = 'SalaryAccount',
+  TrustAccount = 'TrustAccount',
+  ForeignCurrencyAccount = 'ForeignCurrencyAccount',
+  CashCreditAccount = 'CashCreditAccount',
+  OverdraftAccount = 'OverdraftAccount',
+  Other = 'Other',
+}
+
 export enum IncidentTime {
   EarlyMorning = 'EarlyMorning',
   Morning = 'Morning',

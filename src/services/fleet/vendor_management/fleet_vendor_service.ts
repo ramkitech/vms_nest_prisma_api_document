@@ -22,7 +22,7 @@ import {
 import { BaseFileSchema, BaseQuerySchema, FilePresignedUrlDTO } from '../../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, YesNo, FleetVendorAddressLabel, FileType } from '../../../core/Enums';
+import { Status, YesNo, FleetVendorAddressLabel, FileType, BankAccountType } from '../../../core/Enums';
 
 // Other Models
 import { MasterVendorType } from 'src/services/master/expense/master_vendor_type_service';
@@ -135,6 +135,10 @@ export interface FleetVendor extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+
+    user_id?: string;
+    User?: User;
+    user_details?: string;
 
     // Relations - Child Main
     // Child - Fleet
@@ -265,6 +269,10 @@ export interface FleetVendorAddress extends Record<string, unknown> {
     organisation_name?: string;
     organisation_code?: string;
 
+    user_id?: string;
+    User?: User;
+    user_details?: string;
+
     vendor_id: string;
     FleetVendor?: FleetVendor;
     vendor_name?: string;
@@ -277,9 +285,10 @@ export interface FleetVendorBankAccount extends Record<string, unknown> {
 
     // Main Field Details
     bank_name?: string;
-    bank_branch_name?: string;
-    bank_account_name?: string;
-    bank_account_number?: string;
+    branch_name?: string;
+    account_holder_name?: string;
+    account_number?: string;
+    account_type: BankAccountType;
     ifsc_code?: string;
     swift_code?: string;
     iban_number?: string;
@@ -297,6 +306,10 @@ export interface FleetVendorBankAccount extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+
+    user_id?: string;
+    User?: User;
+    user_details?: string;
 
     vendor_id: string;
     FleetVendor?: FleetVendor;
@@ -336,6 +349,10 @@ export interface FleetVendorContactPersons extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+
+    user_id?: string;
+    User?: User;
+    user_details?: string;
 
     vendor_id: string;
     FleetVendor?: FleetVendor;
@@ -438,345 +455,334 @@ export interface FleetVendorDocumentFile extends BaseCommonFile {
 
 // FleetVendor Logo Schema
 export const FleetVendorLogoSchema = z.object({
-    // Profile Image/Logo
-    logo_url: stringMandatory('Logo URL', 0, 300),
-    logo_key: stringMandatory('Logo Key', 0, 300),
-    logo_name: stringMandatory('Logo Name', 0, 300),
+  // Profile Image/Logo
+  logo_url: stringMandatory('Logo URL', 0, 300),
+  logo_key: stringMandatory('Logo Key', 0, 300),
+  logo_name: stringMandatory('Logo Name', 0, 300),
 });
 export type FleetVendorLogoDTO = z.infer<typeof FleetVendorLogoSchema>;
 
 // FleetVendorContactPerson Logo Schema
 export const FleetVendorContactPersonsLogoSchema = z.object({
-    // Profile Image/Logo
-    image_url: stringMandatory('Image URL', 0, 300),
-    image_key: stringMandatory('Image Key', 0, 300),
-    image_name: stringMandatory('Image Name', 0, 300),
+  // Profile Image/Logo
+  image_url: stringMandatory('Image URL', 0, 300),
+  image_key: stringMandatory('Image Key', 0, 300),
+  image_name: stringMandatory('Image Name', 0, 300),
 });
 export type FleetVendorContactPersonsLogoDTO = z.infer<
-    typeof FleetVendorContactPersonsLogoSchema
+  typeof FleetVendorContactPersonsLogoSchema
 >;
 
 // FleetVendorDocumentFile Schema
 export const FleetVendorDocumentFileSchema = BaseFileSchema.extend({
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    fleet_vendor_document_id: single_select_mandatory('FleetVendorDocument'), // Single-Selection -> FleetVendorDocument
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  fleet_vendor_document_id: single_select_mandatory('FleetVendorDocument'), // Single-Selection -> FleetVendorDocument
 });
 export type FleetVendorDocumentFileDTO = z.infer<
-    typeof FleetVendorDocumentFileSchema
->;
-
-// FleetVendorAddress Create/Update Schema
-export const FleetVendorAddressSchema = z.object({
-    // Relations - Parent
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
-
-    // Main Field Details
-    vendor_address_label: enumMandatory(
-        'Fleet Vendor Address Label',
-        FleetVendorAddressLabel,
-        FleetVendorAddressLabel.OTHER,
-    ),
-
-    // Address Details
-    address_line1: stringOptional('Address Line 1', 0, 150),
-    address_line2: stringOptional('Address Line 2', 0, 150),
-    locality_landmark: stringOptional('Locality / Landmark', 0, 150),
-    neighborhood: stringOptional('Neighborhood', 0, 100),
-    town_city: stringOptional('Town / City', 0, 100),
-    district_county: stringOptional('District / County', 0, 100),
-    state_province_region: stringOptional('State / Province / Region', 0, 100),
-    postal_code: stringOptional('Postal Code', 0, 20),
-    country: stringOptional('Country', 0, 100),
-    country_code: stringOptional('Country Code', 0, 5),
-
-    // Location Details
-    latitude: doubleOptionalLatLng('Latitude'),
-    longitude: doubleOptionalLatLng('Longitude'),
-    google_location: stringOptional('Google Location', 0, 500),
-
-    is_default: enumMandatory('Is Default', YesNo, YesNo.No),
-    notes: stringOptional('Notes', 0, 2000),
-
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
-});
-export type FleetVendorAddressDTO = z.infer<typeof FleetVendorAddressSchema>;
-
-// FleetVendorAddress Query Schema
-export const FleetVendorAddressQuerySchema = BaseQuerySchema.extend({
-    // self table
-    vendor_address_ids: multi_select_optional('FleetVendorAddress'), // Multi-Selection -> FleetVendorAddress
-
-    // relations - Parent
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
-    vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
-
-    vendor_address_label: enumArrayOptional(
-        'Vendor Address Label',
-        FleetVendorAddressLabel,
-        getAllEnums(FleetVendorAddressLabel),
-    ),
-
-    // enums
-    is_default: enumArrayOptional('Is Default', YesNo, getAllEnums(YesNo)),
-});
-export type FleetVendorAddressQueryDTO = z.infer<
-    typeof FleetVendorAddressQuerySchema
->;
-
-// FleetVendorBankAccount Create/Update Schema
-export const FleetVendorBankAccountSchema = z.object({
-    // Relations - Parent
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
-
-    // Main Field Details
-    bank_name: stringOptional('Bank Name', 0, 100),
-    bank_branch_name: stringOptional('Bank Branch Name', 0, 100),
-    bank_account_name: stringOptional('Bank Account Name', 0, 100),
-    bank_account_number: stringMandatory('Bank Account Number', 1, 50),
-    ifsc_code: stringOptional('IFSC Code', 0, 20),
-    swift_code: stringOptional('Swift Code', 0, 20),
-    iban_number: stringOptional('IBAN Number', 0, 34),
-    upi_id: stringOptional('UPI ID', 0, 100),
-    is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
-    notes: stringOptional('Notes', 0, 2000),
-
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
-});
-export type FleetVendorBankAccountDTO = z.infer<
-    typeof FleetVendorBankAccountSchema
->;
-
-// FleetVendorBankAccount Query Schema
-export const FleetVendorBankAccountQuerySchema = BaseQuerySchema.extend({
-    // self table
-    vendor_bank_account_ids: multi_select_optional('FleetVendorBankAccount'), // Multi-Selection -> FleetVendorBankAccount
-
-    // relations - Parent
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
-    vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
-
-    // enums
-    is_primary: enumArrayOptional('Is Primary', YesNo, getAllEnums(YesNo)),
-});
-export type FleetVendorBankAccountQueryDTO = z.infer<
-    typeof FleetVendorBankAccountQuerySchema
->;
-
-// FleetVendorContactPersons Create/Update Schema
-export const FleetVendorContactPersonsSchema = z.object({
-    // Relations - Parent
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
-
-    // Profile Image/Logo
-    image_url: stringOptional('Image URL', 0, 300),
-    image_key: stringOptional('Image Key', 0, 300),
-    image_name: stringOptional('Image Name', 0, 300),
-
-    // Main Field Details
-    name: stringMandatory('Name', 3, 100),
-    mobile: stringOptional('Mobile', 0, 15),
-    alternative_mobile: stringOptional('Alternative Mobile', 0, 15),
-    email: stringOptional('Email', 0, 100),
-    designation: stringOptional('Designation', 0, 50),
-
-    // Additional Details
-    branch_name: stringOptional('Branch Name', 0, 100),
-    preferred_language: stringOptional('Preferred Language', 0, 50),
-    is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
-    notes: stringOptional('Notes', 0, 2000),
-
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
-});
-export type FleetVendorContactPersonsDTO = z.infer<
-    typeof FleetVendorContactPersonsSchema
->;
-
-// FleetVendorContactPersons Query Schema
-export const FleetVendorContactPersonsQuerySchema = BaseQuerySchema.extend({
-    // self table
-    contact_person_ids: multi_select_optional('FleetVendorContactPersons'), // Multi-Selection -> FleetVendorContactPersons
-
-    // relations - Parent
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
-    vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
-
-    // enums
-    is_primary: enumArrayOptional('Is Primary', YesNo, getAllEnums(YesNo)),
-});
-export type FleetVendorContactPersonsQueryDTO = z.infer<
-    typeof FleetVendorContactPersonsQuerySchema
->;
-
-// FleetVendorReview Create/Update Schema
-export const FleetVendorReviewSchema = z.object({
-    // Relations - Parent
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
-    user_id: single_select_optional('User'), // Single-Selection -> User
-
-    // Main Field Details
-    rating: numberMandatory('Rating'),
-    rating_comments: stringOptional('Rating Comments', 0, 2000),
-
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
-});
-export type FleetVendorReviewDTO = z.infer<typeof FleetVendorReviewSchema>;
-
-// FleetVendorReview Query Schema
-export const FleetVendorReviewQuerySchema = BaseQuerySchema.extend({
-    // self table
-    vendor_review_ids: multi_select_optional('FleetVendorReview'), // Multi-Selection -> FleetVendorReview
-
-    // relations - Parent
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
-    vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
-});
-export type FleetVendorReviewQueryDTO = z.infer<
-    typeof FleetVendorReviewQuerySchema
->;
-
-// FleetVendorDocument Create/Update Schema
-export const FleetVendorDocumentSchema = z.object({
-    // Relations - Parent
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-    user_id: single_select_optional('User'), // Single-Selection -> User
-    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
-    document_type_id: single_select_mandatory('MasterVendorDocumentType'), // Single-Selection -> MasterVendorDocumentType
-
-    // Main Field Details
-    document_name: stringOptional('Document Name', 0, 150),
-    document_number: stringOptional('Document Number', 0, 150),
-    issuing_authority: stringOptional('Issuing Authority', 0, 150),
-    issue_date: dateOptional('Issue Date'),
-    expiry_date: dateOptional('Expiry Date'),
-    remarks: stringOptional('Remarks', 0, 150),
-
-    // Other
-    time_zone_id: single_select_mandatory('MasterMainTimeZone'),
-
-    FleetVendorDocumentFileSchema: nestedArrayOfObjectsOptional(
-        'FleetVendorDocumentFileSchema',
-        FleetVendorDocumentFileSchema,
-        [],
-    ),
-
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
-});
-export type FleetVendorDocumentDTO = z.infer<typeof FleetVendorDocumentSchema>;
-
-// FleetVendorDocument Query Schema
-export const FleetVendorDocumentQuerySchema = BaseQuerySchema.extend({
-    // self table
-    fleet_vendor_document_ids: multi_select_optional('FleetVendorDocument'), // Multi-selection -> FleetVendorDocument
-
-    // relations - Parent
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
-    vendor_ids: multi_select_optional('FleetVendor'), // Multi-selection -> FleetVendor
-    document_type_ids: multi_select_optional('MasterVendorDocumentType'), // Multi-selection -> MasterVendorDocumentType
-});
-export type FleetVendorDocumentQueryDTO = z.infer<
-    typeof FleetVendorDocumentQuerySchema
+  typeof FleetVendorDocumentFileSchema
 >;
 
 // FleetVendor Create/Update Schema
 export const FleetVendorSchema = z.object({
-    // Relations - Parent
-    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
 
-    // Profile Image/Logo
-    logo_url: stringOptional('Logo URL', 0, 300),
-    logo_key: stringOptional('Logo Key', 0, 300),
-    logo_name: stringOptional('Logo Name', 0, 300),
+  // Profile Image/Logo
+  logo_url: stringOptional('Logo URL', 0, 300),
+  logo_key: stringOptional('Logo Key', 0, 300),
+  logo_name: stringOptional('Logo Name', 0, 300),
 
-    // Main Field Details
-    vendor_name: stringMandatory('Vendor Name', 3, 100),
-    vendor_code: stringOptional('Vendor Code', 0, 100),
-    business_mobile: stringOptional('Business Mobile', 0, 15),
-    business_email: stringOptional('Business Email', 0, 100),
+  // Main Field Details
+  vendor_name: stringMandatory('Vendor Name', 3, 100),
+  vendor_code: stringOptional('Vendor Code', 0, 100),
+  business_mobile: stringOptional('Business Mobile', 0, 15),
+  business_email: stringOptional('Business Email', 0, 100),
 
-    // Business Details
-    gst_number: stringOptional('GST Number', 0, 15),
-    pan_number: stringOptional('PAN Number', 0, 10),
-    tax_id_number: stringOptional('Tax ID Number', 0, 50),
-    vat_number: stringOptional('VAT Number', 0, 50),
-    business_registration_number: stringOptional(
-        'Business Registration Number',
-        0,
-        50,
-    ),
+  // Business Details
+  gst_number: stringOptional('GST Number', 0, 15),
+  pan_number: stringOptional('PAN Number', 0, 10),
+  tax_id_number: stringOptional('Tax ID Number', 0, 50),
+  vat_number: stringOptional('VAT Number', 0, 50),
+  business_registration_number: stringOptional(
+    'Business Registration Number',
+    0,
+    50,
+  ),
 
-    // Financial Details
-    payment_terms: stringOptional('Payment Terms', 0, 2000),
-    financial_notes: stringOptional('Financial Notes', 0, 2000),
+  // Financial Details
+  payment_terms: stringOptional('Payment Terms', 0, 2000),
+  financial_notes: stringOptional('Financial Notes', 0, 2000),
 
-    // Additional Information
-    additional_details_1: stringOptional('Additional Details 1', 0, 2000),
-    additional_details_2: stringOptional('Additional Details 2', 0, 2000),
-    additional_details_3: stringOptional('Additional Details 3', 0, 2000),
+  // Additional Information
+  additional_details_1: stringOptional('Additional Details 1', 0, 2000),
+  additional_details_2: stringOptional('Additional Details 2', 0, 2000),
+  additional_details_3: stringOptional('Additional Details 3', 0, 2000),
 
-    vendor_type_ids: multi_select_optional('MasterVendorType'), // Multi selection -> MasterVendorType
-    vendor_tag_ids: multi_select_optional('MasterVendorTag'), // Multi selection -> MasterVendorTag
+  vendor_type_ids: multi_select_optional('MasterVendorType'), // Multi selection -> MasterVendorType
+  vendor_tag_ids: multi_select_optional('MasterVendorTag'), // Multi selection -> MasterVendorTag
 
-    // Childs Arrays
-    FleetVendorAddressSchema: nestedArrayOfObjectsOptional(
-        'FleetVendorAddressSchema',
-        FleetVendorAddressSchema,
-        [],
-    ),
-
-    FleetVendorBankAccountSchema: nestedArrayOfObjectsOptional(
-        'FleetVendorBankAccountSchema',
-        FleetVendorBankAccountSchema,
-        [],
-    ),
-
-    FleetVendorContactPersonsSchema: nestedArrayOfObjectsOptional(
-        'FleetVendorContactPersonsSchema',
-        FleetVendorContactPersonsSchema,
-        [],
-    ),
-
-    FleetVendorReviewSchema: nestedArrayOfObjectsOptional(
-        'FleetVendorReviewSchema',
-        FleetVendorReviewSchema,
-        [],
-    ),
-
-    FleetVendorDocumentSchema: nestedArrayOfObjectsOptional(
-        'FleetVendorDocumentSchema',
-        FleetVendorDocumentSchema,
-        [],
-    ),
-
-    // Metadata
-    status: enumMandatory('Status', Status, Status.Active),
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
 });
 export type FleetVendorDTO = z.infer<typeof FleetVendorSchema>;
 
 // FleetVendor Query Schema
 export const FleetVendorQuerySchema = BaseQuerySchema.extend({
-    // self table
-    vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
+  // self table
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
 
-    // relations - Parent
-    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  // relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
 });
 export type FleetVendorQueryDTO = z.infer<typeof FleetVendorQuerySchema>;
 
+// FleetVendorAddress Create/Update Schema
+export const FleetVendorAddressSchema = z.object({
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
+  vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
+
+  // Main Field Details
+  vendor_address_label: enumMandatory(
+    'Fleet Vendor Address Label',
+    FleetVendorAddressLabel,
+    FleetVendorAddressLabel.OTHER,
+  ),
+
+  // Address Details
+  address_line1: stringOptional('Address Line 1', 0, 150),
+  address_line2: stringOptional('Address Line 2', 0, 150),
+  locality_landmark: stringOptional('Locality / Landmark', 0, 150),
+  neighborhood: stringOptional('Neighborhood', 0, 100),
+  town_city: stringOptional('Town / City', 0, 100),
+  district_county: stringOptional('District / County', 0, 100),
+  state_province_region: stringOptional('State / Province / Region', 0, 100),
+  postal_code: stringOptional('Postal Code', 0, 20),
+  country: stringOptional('Country', 0, 100),
+  country_code: stringOptional('Country Code', 0, 5),
+
+  // Location Details
+  latitude: doubleOptionalLatLng('Latitude'),
+  longitude: doubleOptionalLatLng('Longitude'),
+  google_location: stringOptional('Google Location', 0, 500),
+
+  is_default: enumMandatory('Is Default', YesNo, YesNo.No),
+  notes: stringOptional('Notes', 0, 2000),
+
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetVendorAddressDTO = z.infer<typeof FleetVendorAddressSchema>;
+
+// FleetVendorAddress Query Schema
+export const FleetVendorAddressQuerySchema = BaseQuerySchema.extend({
+  // self table
+  vendor_address_ids: multi_select_optional('FleetVendorAddress'), // Multi-Selection -> FleetVendorAddress
+
+  // relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
+
+  vendor_address_label: enumArrayOptional(
+    'Vendor Address Label',
+    FleetVendorAddressLabel,
+    getAllEnums(FleetVendorAddressLabel),
+  ),
+
+  // enums
+  is_default: enumArrayOptional('Is Default', YesNo, getAllEnums(YesNo)),
+});
+export type FleetVendorAddressQueryDTO = z.infer<
+  typeof FleetVendorAddressQuerySchema
+>;
+
+// FleetVendorBankAccount Create/Update Schema
+export const FleetVendorBankAccountSchema = z.object({
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
+  vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
+
+  // Main Field Details
+  bank_name: stringOptional('Bank Name', 0, 100),
+  branch_name: stringOptional('Branch Name', 0, 100),
+  account_holder_name: stringOptional('Account Holder Name', 0, 100),
+  account_number: stringMandatory('Account Number', 1, 50),
+  account_type: enumMandatory(
+    'Account Type',
+    BankAccountType,
+    BankAccountType.Other,
+  ),
+  ifsc_code: stringOptional('IFSC Code', 0, 20),
+  swift_code: stringOptional('Swift Code', 0, 20),
+  iban_number: stringOptional('IBAN Number', 0, 34),
+  upi_id: stringOptional('UPI ID', 0, 100),
+  is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
+  notes: stringOptional('Notes', 0, 2000),
+
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetVendorBankAccountDTO = z.infer<
+  typeof FleetVendorBankAccountSchema
+>;
+
+// FleetVendorBankAccount Query Schema
+export const FleetVendorBankAccountQuerySchema = BaseQuerySchema.extend({
+  // self table
+  vendor_bank_account_ids: multi_select_optional('FleetVendorBankAccount'), // Multi-Selection -> FleetVendorBankAccount
+
+  // relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
+
+  // enums
+  is_primary: enumArrayOptional('Is Primary', YesNo, getAllEnums(YesNo)),
+  account_type: enumArrayOptional(
+    'Account Type',
+    BankAccountType,
+    getAllEnums(BankAccountType),
+  ),
+});
+export type FleetVendorBankAccountQueryDTO = z.infer<
+  typeof FleetVendorBankAccountQuerySchema
+>;
+
+// FleetVendorContactPersons Create/Update Schema
+export const FleetVendorContactPersonsSchema = z.object({
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
+  vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
+
+  // Profile Image/Logo
+  image_url: stringOptional('Image URL', 0, 300),
+  image_key: stringOptional('Image Key', 0, 300),
+  image_name: stringOptional('Image Name', 0, 300),
+
+  // Main Field Details
+  name: stringMandatory('Name', 3, 100),
+  mobile: stringOptional('Mobile', 0, 15),
+  alternative_mobile: stringOptional('Alternative Mobile', 0, 15),
+  email: stringOptional('Email', 0, 100),
+  designation: stringOptional('Designation', 0, 50),
+
+  // Additional Details
+  branch_name: stringOptional('Branch Name', 0, 100),
+  preferred_language: stringOptional('Preferred Language', 0, 50),
+  is_primary: enumMandatory('Is Primary', YesNo, YesNo.No),
+  notes: stringOptional('Notes', 0, 2000),
+
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetVendorContactPersonsDTO = z.infer<
+  typeof FleetVendorContactPersonsSchema
+>;
+
+// FleetVendorContactPersons Query Schema
+export const FleetVendorContactPersonsQuerySchema = BaseQuerySchema.extend({
+  // self table
+  contact_person_ids: multi_select_optional('FleetVendorContactPersons'), // Multi-Selection -> FleetVendorContactPersons
+
+  // relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
+
+  // enums
+  is_primary: enumArrayOptional('Is Primary', YesNo, getAllEnums(YesNo)),
+});
+export type FleetVendorContactPersonsQueryDTO = z.infer<
+  typeof FleetVendorContactPersonsQuerySchema
+>;
+
+// FleetVendorReview Create/Update Schema
+export const FleetVendorReviewSchema = z.object({
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
+  user_id: single_select_optional('User'), // Single-Selection -> User
+
+  // Main Field Details
+  rating: numberMandatory('Rating'),
+  rating_comments: stringOptional('Rating Comments', 0, 2000),
+
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetVendorReviewDTO = z.infer<typeof FleetVendorReviewSchema>;
+
+// FleetVendorReview Query Schema
+export const FleetVendorReviewQuerySchema = BaseQuerySchema.extend({
+  // self table
+  vendor_review_ids: multi_select_optional('FleetVendorReview'), // Multi-Selection -> FleetVendorReview
+
+  // relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
+});
+export type FleetVendorReviewQueryDTO = z.infer<
+  typeof FleetVendorReviewQuerySchema
+>;
+
+// FleetVendorDocument Create/Update Schema
+export const FleetVendorDocumentSchema = z.object({
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
+  vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
+  document_type_id: single_select_mandatory('MasterVendorDocumentType'), // Single-Selection -> MasterVendorDocumentType
+
+  // Main Field Details
+  document_name: stringOptional('Document Name', 0, 150),
+  document_number: stringOptional('Document Number', 0, 150),
+  issuing_authority: stringOptional('Issuing Authority', 0, 150),
+  issue_date: dateOptional('Issue Date'),
+  expiry_date: dateOptional('Expiry Date'),
+  remarks: stringOptional('Remarks', 0, 150),
+
+  // Other
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
+
+  FleetVendorDocumentFileSchema: nestedArrayOfObjectsOptional(
+    'FleetVendorDocumentFileSchema',
+    FleetVendorDocumentFileSchema,
+    [],
+  ),
+
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type FleetVendorDocumentDTO = z.infer<typeof FleetVendorDocumentSchema>;
+
+// FleetVendorDocument Query Schema
+export const FleetVendorDocumentQuerySchema = BaseQuerySchema.extend({
+  // self table
+  fleet_vendor_document_ids: multi_select_optional('FleetVendorDocument'), // Multi-selection -> FleetVendorDocument
+
+  // relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-selection -> User
+  vendor_ids: multi_select_optional('FleetVendor'), // Multi-selection -> FleetVendor
+  document_type_ids: multi_select_optional('MasterVendorDocumentType'), // Multi-selection -> MasterVendorDocumentType
+});
+export type FleetVendorDocumentQueryDTO = z.infer<
+  typeof FleetVendorDocumentQuerySchema
+>;
+
 // FleetVendorDashBoard Query Schema
 export const FleetVendorDashBoardQuerySchema = BaseQuerySchema.extend({
-    organisation_ids: multi_select_mandatory('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  organisation_ids: multi_select_mandatory('UserOrganisation'), // Multi-Selection -> UserOrganisation
 });
 export type FleetVendorDashBoardQueryDTO = z.infer<
-    typeof FleetVendorDashBoardQuerySchema
+  typeof FleetVendorDashBoardQuerySchema
 >;
 
 // Convert FleetVendor Data to API Payload
@@ -808,15 +814,10 @@ export const toFleetVendorPayload = (row: FleetVendor): FleetVendorDTO => ({
 
     // Relations
     organisation_id: row.organisation_id || '',
+    user_id: row.user_id || '',
 
     vendor_type_ids: row.FleetVendorTypeLink?.map((v) => v.vendor_type_id) || [],
     vendor_tag_ids: row.FleetVendorTagLink?.map((v) => v.vendor_tag_id) || [],
-
-    FleetVendorAddressSchema: [],
-    FleetVendorBankAccountSchema: [],
-    FleetVendorContactPersonsSchema: [],
-    FleetVendorReviewSchema: [],
-    FleetVendorDocumentSchema: [],
 
     status: row.status || Status.Active,
 });
@@ -846,15 +847,10 @@ export const newFleetVendorPayload = (): FleetVendorDTO => ({
     additional_details_3: '',
 
     organisation_id: '',
+    user_id: '',
 
     vendor_type_ids: [],
     vendor_tag_ids: [],
-
-    FleetVendorAddressSchema: [],
-    FleetVendorBankAccountSchema: [],
-    FleetVendorContactPersonsSchema: [],
-    FleetVendorReviewSchema: [],
-    FleetVendorDocumentSchema: [],
 
     status: Status.Active,
 
@@ -882,6 +878,7 @@ export const toFleetVendorAddressPayload = (row: FleetVendorAddress): FleetVendo
     google_location: row.google_location || '',
 
     organisation_id: row.organisation_id || '',
+    user_id: row.user_id || '',
     vendor_id: row.vendor_id || '',
 
     is_default: row.is_default || YesNo.No,
@@ -910,6 +907,7 @@ export const newFleetVendorAddressPayload = (): FleetVendorAddressDTO => ({
     google_location: '',
 
     organisation_id: '',
+    user_id: '',
     vendor_id: '',
 
     is_default: YesNo.No,
@@ -921,9 +919,10 @@ export const newFleetVendorAddressPayload = (): FleetVendorAddressDTO => ({
 // Convert FleetVendorBankAccount Data to API Payload
 export const toFleetVendorBankAccountPayload = (row: FleetVendorBankAccount): FleetVendorBankAccountDTO => ({
     bank_name: row.bank_name || '',
-    bank_branch_name: row.bank_branch_name || '',
-    bank_account_name: row.bank_account_name || '',
-    bank_account_number: row.bank_account_number || '',
+    branch_name: row.branch_name || '',
+    account_holder_name: row.account_holder_name || '',
+    account_number: row.account_number || '',
+    account_type: row.account_type || BankAccountType.Other,
     ifsc_code: row.ifsc_code || '',
     swift_code: row.swift_code || '',
     iban_number: row.iban_number || '',
@@ -933,6 +932,7 @@ export const toFleetVendorBankAccountPayload = (row: FleetVendorBankAccount): Fl
 
     // Relations
     organisation_id: row.organisation_id || '',
+    user_id: row.user_id || '',
     vendor_id: row.vendor_id || '',
 
     status: row.status || Status.Active,
@@ -941,9 +941,10 @@ export const toFleetVendorBankAccountPayload = (row: FleetVendorBankAccount): Fl
 // Create New FleetVendorBankAccount Payload
 export const newFleetVendorBankAccountPayload = (): FleetVendorBankAccountDTO => ({
     bank_name: '',
-    bank_branch_name: '',
-    bank_account_name: '',
-    bank_account_number: '',
+    branch_name: '',
+    account_holder_name: '',
+    account_number: '',
+    account_type: BankAccountType.Other,
     ifsc_code: '',
     swift_code: '',
     iban_number: '',
@@ -951,8 +952,9 @@ export const newFleetVendorBankAccountPayload = (): FleetVendorBankAccountDTO =>
     is_primary: YesNo.No,
     notes: '',
 
-    vendor_id: '',
     organisation_id: '',
+    user_id: '',
+    vendor_id: '',
 
     status: Status.Active,
 });
@@ -978,6 +980,7 @@ export const toFleetVendorContactPersonsPayload = (row: FleetVendorContactPerson
     notes: row.notes || '',
 
     organisation_id: row.organisation_id || '',
+    user_id: row.user_id || '',
     vendor_id: row.vendor_id || '',
 
     status: row.status || Status.Active,
@@ -1001,6 +1004,7 @@ export const newFleetVendorContactPersonsPayload = (): FleetVendorContactPersons
     notes: '',
 
     organisation_id: '',
+    user_id: '',
     vendor_id: '',
 
     status: Status.Active,
