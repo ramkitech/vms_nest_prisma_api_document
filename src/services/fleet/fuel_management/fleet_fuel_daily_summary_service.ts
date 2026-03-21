@@ -86,7 +86,7 @@ export interface FleetFuelDailySummary extends Record<string, unknown> {
   MasterDriver?: MasterDriver;
   driver_details?: string;
 
-  device_id: string;
+  device_id?: string;
   MasterDevice?: MasterDevice;
   device_identifier?: string;
 }
@@ -272,8 +272,4 @@ export const fuel_dashboard = async (data: FleetFuelDailySummaryDashBoardQueryDT
 
 export const findFleetFuelMonthlySummary = async (data: FleetFuelDailyMonthlySummaryQueryDTO): Promise<FBR<FuelConsumptionMonthly[]>> => {
   return apiPost<FBR<FuelConsumptionMonthly[]>, FleetFuelDailyMonthlySummaryQueryDTO>(ENDPOINTS.find_monthly, data);
-};
-
-export const findVehicleFuelSummary = async (data: AllVehiclesFuelDailySummaryDTO): Promise<FBR<FleetFuelDailySummary[]>> => {
-  return apiPost<FBR<FleetFuelDailySummary[]>, AllVehiclesFuelDailySummaryDTO>(ENDPOINTS.find_vehicle_fuel_summary, data);
 };
