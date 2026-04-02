@@ -31,7 +31,6 @@ import { MasterMainUnitMileage } from '../../../services/master/main/master_main
 import { MasterMainUnitVolume } from '../../../services/master/main/master_main_unit_volume_service';
 
 // Other Models Childs
-import { MasterVehicle, MasterVehicleFile, VehicleDocument, VehicleDocumentExpiry, VehicleDocumentFile, VehicleOdometerHistory } from '../../../services/main/vehicle/master_vehicle_service';
 import { DriverLoginPush, MasterDriver, MasterDriverFile } from '../../../services/main/drivers/master_driver_service';
 import { MasterDevice } from '../../../services/main/devices/master_device_service';
 import { User, UserLoginPush } from '../../../services/main/users/user_service';
@@ -119,6 +118,7 @@ import { MasterFleetServiceTask } from 'src/services/master/fleet/master_fleet_s
 import { MasterFleetServicePart } from 'src/services/master/fleet/master_fleet_service_part_service';
 import { FleetIncident, FleetIncidentCost, FleetIncidentFile } from 'src/services/fleet/incident_management/incident_management_service';
 import { FleetIssue, FleetIssueComment, FleetIssueFile } from 'src/services/fleet/issue_management/issue_management_service';
+import { MasterVehicle, MasterVehicleFile, VehicleOdometerHistory } from '../vehicle/master_vehicle_service';
 
 const URL = 'user/organisation';
 
@@ -261,9 +261,6 @@ export interface UserOrganisation extends Record<string, unknown> {
   MasterVehicle?: MasterVehicle[]
   MasterVehicleFile?: MasterVehicleFile[]
   VehicleOdometerHistory?: VehicleOdometerHistory[]
-  VehicleDocument?: VehicleDocument[]
-  VehicleDocumentFile?: VehicleDocumentFile[]
-  VehicleDocumentExpiry?: VehicleDocumentExpiry[]
 
   // Child - Master
   OrganisationSubCompany?: OrganisationSubCompany[]

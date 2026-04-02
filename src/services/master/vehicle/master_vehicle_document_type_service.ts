@@ -18,7 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { VehicleDocument } from 'src/services/main/vehicle/master_vehicle_service';
+import { FleetDocument, FleetDocumentExpiry } from 'src/services/fleet/document_management/document_management_service';
 
 const URL = 'master/vehicle/vehicle_document_type';
 
@@ -55,11 +55,15 @@ export interface MasterVehicleDocumentType extends Record<string, unknown> {
 
   // Relations - Child
   // Child - Main
-  VehicleDocument?: VehicleDocument[];
+  FleetDocument?: FleetDocument[];
+  FleetDocumentExpiry?: FleetDocumentExpiry[];
+
+
 
   // Relations - Child Count
   _count?: {
-    VehicleDocument?: number;
+    FleetDocument?: number;
+    FleetDocumentExpiry?: number;
   };
 }
 
@@ -107,7 +111,7 @@ export const newMasterVehicleDocumentTypePayload = (): MasterVehicleDocumentType
 
   document_type: '',
   description: '',
-  
+
   status: Status.Active,
 });
 

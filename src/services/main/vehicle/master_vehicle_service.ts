@@ -88,7 +88,7 @@ import { GPSGeofenceTransactionSummary } from 'src/services/gps/features/geofenc
 import { TripGeofenceToGeofence } from 'src/services/gps/features/geofence/trip_geofence_to_geofence_service';
 import { GPSLiveTrackShareLink } from 'src/services/gps/features/gps_live_track_share_link_service';
 import { GPSTrackHistoryShareLink } from 'src/services/gps/features/gps_track_history_share_link_service';
-import { UserVehicleLink } from '../users/user_service';
+import { User, UserVehicleLink } from '../users/user_service';
 import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
 import { MasterFixedSchedule } from 'src/services/fleet/bus_mangement/master_schedule';
 import { FleetIssue } from 'src/services/fleet/issue_management/issue_management_service';
@@ -100,7 +100,6 @@ const ENDPOINTS = {
   // AWS S3 PRESIGNED
   vehicle_file_presigned_url: `${URL}/vehicle_file_presigned_url`,
   device_file_presigned_url: `${URL}/device_file_presigned_url`,
-  vehicle_document_file_presigned_url: `${URL}/vehicle_document_file_presigned_url`,
   calibration_file_presigned_url: (fileName: string): string => `${URL}/calibration_file_presigned_url/${fileName}`,
 
   // File Uploads
@@ -108,10 +107,8 @@ const ENDPOINTS = {
   remove_file_vehicle: (id: string): string => `${URL}/remove_file_vehicle/${id}`,
   create_file_device: `${URL}/create_file_device`,
   remove_file_device: (id: string): string => `${URL}/remove_file_device/${id}`,
-  create_file_vehicle_document: `${URL}/create_file_vehicle_document`,
-  remove_file_vehicle_document: (id: string): string => `${URL}/remove_file_vehicle_document/${id}`,
   update_calibration_file: (id: string): string => `${URL}/update_calibration_file/${id}`,
-  delete_calibration_file: (id: string): string => `${URL}/delete_calibration_file/${id}`,
+  remove_calibration_file: (id: string): string => `${URL}/remove_calibration_file/${id}`,
 
   // MasterVehicle APIs
   find: `${URL}/search`,
@@ -140,18 +137,6 @@ const ENDPOINTS = {
   vehicle_device_unlink: `${URL}/vehicle_device_unlink`,
   vehicle_device_link_history_by_vehicle: (id: string): string => `${URL}/vehicle_device_link_history_by_vehicle/${id}`,
   vehicle_device_link_history_by_device: (id: string): string => `${URL}/vehicle_device_link_history_by_device/${id}`,
-
-  // VehicleDocument APIs
-  create_vehicle_document: `${URL}/vehicle_document`,
-  find_vehicle_document: `${URL}/vehicle_document/search`,
-  update_vehicle_document: (id: string): string => `${URL}/vehicle_document/${id}`,
-  remove_vehicle_document: (id: string): string => `${URL}/vehicle_document/${id}`,
-
-  // VehicleDocumentExpiry APIs
-  create_vehicle_document_expiry: `${URL}/vehicle_document_expiry`,
-  find_vehicle_document_expiry: `${URL}/vehicle_document_expiry/search`,
-  update_vehicle_document_expiry: (id: string): string => `${URL}/vehicle_document_expiry/${id}`,
-  remove_vehicle_document_expiry: (id: string): string => `${URL}/vehicle_document_expiry/${id}`,
 
   // Cache APIs
   find_cache: `${URL}/cache/:organisation_id`,
@@ -245,6 +230,10 @@ export interface MasterVehicle extends Record<string, unknown> {
   organisation_code?: string;
   vehicles_count?: number;
 
+  user_id?: string;
+  User?: User;
+  user_details?: string;
+
   organisation_sub_company_id?: string;
   OrganisationSubCompany?: OrganisationSubCompany;
   sub_company_name?: string;
@@ -321,9 +310,7 @@ export interface MasterVehicle extends Record<string, unknown> {
 
   // Relations - Child
   // Child - Main
-  VehicleDocument?: VehicleDocument[]
   MasterVehicleFile?: MasterVehicleFile[]
-  VehicleDocumentExpiry?: VehicleDocumentExpiry[]
 
   // Child - Master
   VehicleOrganisationGroupLink?: VehicleOrganisationGroupLink[]
@@ -488,6 +475,10 @@ export interface MasterVehicleFile extends BaseCommonFile {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+
+  user_id?: string;
+  User?: User;
+  user_details?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -958,111 +949,6 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   vehicle_type?: string;
 }
 
-// VehicleDocument Interface
-export interface VehicleDocument extends Record<string, unknown> {
-  // Primary Fields
-  vehicle_document_id: string;
-  sub_vehicle_document_id: number;
-  vehicle_document_code?: string;
-
-  // Document Details
-  document_number?: string;
-  document_authorized_name?: string;
-  document_cost?: number;
-  document_issue_date?: string;
-  document_issue_date_f?: string;
-  document_valid_till_date?: string;
-  document_valid_till_date_f?: string;
-  document_renewal_date?: string;
-  document_renewal_date_f?: string;
-  document_validity_status: DocumentValidityStatus;
-  document_status: DocumentStatus;
-  document_details_1?: string;
-  document_details_2?: string;
-  document_details_3?: string;
-  document_details_4?: string;
-  document_notes?: string;
-
-  //  Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // Relations - Parent
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-  organisation_name?: string;
-  organisation_code?: string;
-
-  vehicle_id: string;
-  MasterVehicle?: MasterVehicle;
-  vehicle_number?: string;
-  vehicle_type?: string;
-
-  document_type_id: string;
-  MasterVehicleDocumentType?: MasterVehicleDocumentType;
-  document_type?: string;
-
-  vendor_id?: string;
-  FleetVendor?: FleetVendor;
-  vendor_name?: string;
-
-  // Relations - Child
-  VehicleDocumentFile?: VehicleDocumentFile[];
-  VehicleDocumentExpiry?: VehicleDocumentExpiry[];
-
-  // Relations - Child Count
-  _count?: {
-    VehicleDocumentFile?: number;
-    VehicleDocumentExpiry?: number;
-  };
-}
-
-// VehicleDocumentFile Interface
-export interface VehicleDocumentFile extends BaseCommonFile {
-  // Primary Field
-  vehicle_document_file_id: string;
-
-  // Relations - Parent
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-  organisation_name?: string;
-  organisation_code?: string;
-
-  vehicle_document_id: string;
-  VehicleDocument?: VehicleDocument;
-
-  // Usage Type -> Document Images, Document PDF
-}
-
-// VehicleDocumentExpiry Interface
-export interface VehicleDocumentExpiry extends Record<string, unknown> {
-  // Primary Fields
-  document_expiry_id: string;
-
-  // Main Field Details
-  expiry_type: ExpiryType;
-
-  // Metadata
-  status: Status;
-  added_date_time: string;
-  modified_date_time: string;
-
-  // Relations - Parent
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-  organisation_name?: string;
-  organisation_code?: string;
-
-  vehicle_id: string;
-  MasterVehicle?: MasterVehicle;
-  vehicle_number?: string;
-  vehicle_type?: string;
-
-  vehicle_document_id: string
-  VehicleDocument?: VehicleDocument;
-}
-
 // VehicleOdometerHistory Interface
 export interface VehicleOdometerHistory extends Record<string, unknown> {
   // Primary Fields
@@ -1094,6 +980,7 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
 // MasterVehicleFile Schema
 export const MasterVehicleFileSchema = BaseFileSchema.extend({
   organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
   vehicle_id: single_select_optional('MasterVehicle'), // Single-Selection -> MasterVehicle
 });
 export type MasterVehicleFileDTO = z.infer<typeof MasterVehicleFileSchema>;
@@ -1111,6 +998,8 @@ export type CalibrationFileDTO = z.infer<typeof CalibrationFileSchema>;
 export const VehicleSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+
+  user_id: single_select_optional('User'), // Single-Selection -> User
 
   organisation_sub_company_id: single_select_optional(
     'Organisation Sub Company ID',
@@ -1227,7 +1116,8 @@ export type VehicleBulkDTO = z.infer<typeof VehicleBulkSchema>;
 // MasterDeviceFile Schema -> DeviceImage/VehicleImage/SimImage/Other
 export const MasterDeviceFileSchema = BaseFileSchema.extend({
   organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
-  device_id: single_select_optional('MasterVehicle'), // Single-Selection -> MasterVehicle
+  user_id: single_select_optional('User'), // Single-Selection -> User
+  device_id: single_select_optional('MasterDevice'), // Single-Selection -> MasterDevice
 });
 export type MasterDeviceFileDTO = z.infer<typeof MasterDeviceFileSchema>;
 
@@ -1240,6 +1130,7 @@ export const VehicleDeviceLinkSchema = z.object({
   device_type_id: single_select_mandatory('MasterDeviceType'), // Single-Selection -> MasterDeviceType
 
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
   country_id: single_select_mandatory('MasterMainCountry'), // Single-Selection -> MasterMainCountry
   time_zone_id: single_select_mandatory('MasterMainTimeZone'), // Single-Selection -> MasterMainTimeZone
   vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
@@ -1343,7 +1234,7 @@ export type VehicleDetailGPSSensorDTO = z.infer<
 export const VehicleDetailTripSchema = z.object({
   // Main Field Details
   trip_name: stringOptional('Trip Name', 0, 100),
-  trip_no: stringOptional('Trip Name', 0, 100),
+  trip_no: stringOptional('Trip No', 0, 100),
   eway_bill_number: stringOptional('E-Way Bill Number', 0, 100),
   route_name: stringOptional('Route Name', 0, 100),
 
@@ -1527,7 +1418,7 @@ export const VehicleDetailLifeCycleSchema = z.object({
 
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type VehicleDetailLifeCycleDto = z.infer<
+export type VehicleDetailLifeCycleDTO = z.infer<
   typeof VehicleDetailLifeCycleSchema
 >;
 
@@ -1591,112 +1482,6 @@ export type VehicleDetailPurchaseDTO = z.infer<
   typeof VehicleDetailPurchaseSchema
 >;
 
-// VehicleDocumentFile Schema
-export const VehicleDocumentFileSchema = BaseFileSchema.extend({
-  // Relations - Parent
-  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
-  vehicle_document_id: single_select_optional('VehicleDocument'), // Single-Selection -> VehicleDocument
-});
-export type VehicleDocumentFileDTO = z.infer<typeof VehicleDocumentFileSchema>;
-
-// VehicleDocument Schema
-export const VehicleDocumentSchema = z.object({
-  // Relations - Parent
-  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
-
-  document_type_id: single_select_mandatory('MasterVehicleDocumentType'), // Single-Selection -> MasterVehicleDocumentType
-  vendor_id: single_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
-
-  // Main Field Details
-  document_number: stringOptional('vehicle Document Code', 0, 100),
-  document_authorized_name: stringOptional('vehicle Document Code', 0, 100),
-  document_cost: doubleOptional('Document Cost'),
-  document_issue_date: dateOptional('Document Issue Date'),
-  document_valid_till_date: dateOptional('Document Valid Till Date'),
-  document_renewal_date: dateOptional('Document Renewal Date'),
-  document_validity_status: enumMandatory(
-    'DocumentValidityStatus',
-    DocumentValidityStatus,
-    DocumentValidityStatus.Valid,
-  ),
-  document_status: enumMandatory(
-    'DocumentStatus',
-    DocumentStatus,
-    DocumentStatus.Active,
-  ),
-  document_details_1: stringOptional('Document Details 1', 0, 200),
-  document_details_2: stringOptional('Document Details 2', 0, 200),
-  document_details_3: stringOptional('Document Details 3', 0, 200),
-  document_details_4: stringOptional('Document Details 4', 0, 200),
-  document_notes: stringOptional('Document Notes', 0, 2000),
-
-  // Metadata
-  status: enumMandatory('Status', Status, Status.Active),
-
-  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
-
-  VehicleDocumentFileSchema: nestedArrayOfObjectsOptional(
-    'VehicleDocumentFileSchema',
-    VehicleDocumentFileSchema,
-    [],
-  ),
-});
-export type VehicleDocumentDTO = z.infer<typeof VehicleDocumentSchema>;
-
-// VehicleDocument Query Schema
-export const VehicleDocumentQuerySchema = BaseQuerySchema.extend({
-  // Self Table
-  vehicle_document_ids: multi_select_optional('VehicleDocument'), // Multi-Selection -> VehicleDocument
-
-  // Relations - Parent
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
-  document_type_ids: multi_select_optional('MasterVehicleDocumentType'), // Multi-Selection -> MasterVehicleDocumentType
-  vendor_ids: multi_select_optional('FleetVendor'), // Multi-Selection -> FleetVendor
-});
-export type VehicleDocumentQueryDTO = z.infer<
-  typeof VehicleDocumentQuerySchema
->;
-
-// VehicleDocumentExpiry Schema
-export const VehicleDocumentExpirySchema = z.object({
-  // Relations - Parent
-  organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
-  vehicle_id: single_select_optional('MasterVehicle'), // Single-Selection -> MasterVehicle
-  vehicle_document_id: single_select_optional('VehicleDocument'), // Single-Selection -> VehicleDocument
-
-  // Main Field Details
-  expiry_type: enumMandatory('Expiry Type', ExpiryType, ExpiryType.Expiring),
-
-  // Metadata
-  status: enumMandatory('Status', Status, Status.Active),
-});
-export type VehicleDocumentExpiryDTO = z.infer<
-  typeof VehicleDocumentExpirySchema
->;
-
-// VehicleDocumentExpiry Query Schema
-export const VehicleDocumentExpiryQuerySchema = BaseQuerySchema.extend({
-  // Self Table
-  document_expiry_ids: multi_select_optional('VehicleDocumentExpiry'), // Multi-selection -> VehicleDocumentExpiry
-
-  // Relations - Parent
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
-  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-selection -> MasterVehicle
-  vehicle_document_ids: multi_select_optional('VehicleDocument'), // Multi-selection -> VehicleDocument
-
-  // Main Field Details
-  expiry_type: enumArrayOptional(
-    'Expiry Type',
-    ExpiryType,
-    getAllEnums(ExpiryType),
-  ),
-});
-export type VehicleDocumentExpiryQueryDTO = z.infer<
-  typeof VehicleDocumentExpiryQuerySchema
->;
-
 // Vehicle Query Schema
 export const VehicleQuerySchema = BaseQuerySchema.extend({
   // Self Table
@@ -1704,6 +1489,7 @@ export const VehicleQuerySchema = BaseQuerySchema.extend({
 
   // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
   driver_ids: multi_select_optional('MasterDriver'), // Multi-Selection -> MasterDriver
   device_ids: multi_select_optional('MasterDevice'), // Multi-Selection -> MasterDevice
 
@@ -1763,6 +1549,7 @@ export type VehicleGPSQueryDTO = z.infer<typeof VehicleGPSQuerySchema>;
 // Convert Vehicle Data to API Payload
 export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
   organisation_id: row.organisation_id || '',
+  user_id: row.user_id || '',
 
   vehicle_number: row.vehicle_number || '',
   vehicle_name: row.vehicle_name || '',
@@ -1826,6 +1613,7 @@ export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
     modified_date_time: file.modified_date_time,
 
     organisation_id: file.organisation_id ?? '',
+    user_id: file.user_id ?? '',
     vehicle_id: file.vehicle_id ?? '',
   })) ?? [],
 });
@@ -1833,6 +1621,7 @@ export const toVehiclePayload = (row: MasterVehicle): VehicleDTO => ({
 // Create New Vehicle Payload
 export const newVehiclePayload = (): VehicleDTO => ({
   organisation_id: '',
+  user_id: '',
 
   vehicle_number: '',
   vehicle_name: '',
@@ -1878,6 +1667,7 @@ export const newVehiclePayload = (): VehicleDTO => ({
   status: Status.Active,
 
   MasterVehicleFileSchema: [],
+
 });
 
 // Convert VehicleDetailGPS Data to API Payload
@@ -2002,7 +1792,7 @@ export const toVehicleDetailsBodyPayload = (vehicleBody?: VehicleDetailBody): Ve
 });
 
 // Convert VehicleDetailLifeCycle Data to API Payload
-export const toVehicleDetailLifeCyclePayload = (vehicleLifeCycle?: VehicleDetailLifeCycle): VehicleDetailLifeCycleDto => ({
+export const toVehicleDetailLifeCyclePayload = (vehicleLifeCycle?: VehicleDetailLifeCycle): VehicleDetailLifeCycleDTO => ({
   // Lifecycle Start
   service_start_date: vehicleLifeCycle?.service_start_date || '',
   service_start_odometer_reading: vehicleLifeCycle?.service_start_odometer_reading || 0,
@@ -2067,105 +1857,6 @@ export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPu
   lease_vendor_id: vehiclePurchase?.lease_vendor_id || '',
 });
 
-// Convert VehicleDocument Data to API Payload
-export const toVehicleDocumentPayload = (row: VehicleDocument): VehicleDocumentDTO => ({
-  organisation_id: row.organisation_id || '',
-  vehicle_id: row.vehicle_id || '',
-  vendor_id: row.vendor_id || '',
-  document_type_id: row.document_type_id || '',
-
-  document_number: row.document_number || '',
-  document_authorized_name: row.document_authorized_name || '',
-  document_cost: row.document_cost || 0,
-  document_issue_date: row.document_issue_date || '',
-  document_valid_till_date: row.document_valid_till_date || '',
-  document_renewal_date: row.document_renewal_date || '',
-  document_validity_status: row.document_validity_status || DocumentValidityStatus.Valid,
-  document_status: row.document_status || DocumentStatus.Active,
-
-  document_details_1: row.document_details_1 || '',
-  document_details_2: row.document_details_2 || '',
-  document_details_3: row.document_details_3 || '',
-  document_details_4: row.document_details_4 || '',
-  document_notes: row.document_notes || '',
-
-  status: row.status || Status.Active,
-  time_zone_id: '', // Needs to be provided manually
-
-  VehicleDocumentFileSchema: row.VehicleDocumentFile?.map((file) => ({
-    vehicle_document_file_id: file.vehicle_document_file_id ?? '',
-
-    usage_type: file.usage_type,
-
-    file_type: file.file_type,
-    file_url: file.file_url || '',
-    file_key: file.file_key || '',
-    file_name: file.file_name || '',
-    file_description: file.file_description || '',
-    file_size: file.file_size ?? 0,
-    file_metadata: file.file_metadata ?? {},
-
-    status: file.status,
-    added_date_time: file.added_date_time,
-    modified_date_time: file.modified_date_time,
-
-    organisation_id: file.organisation_id ?? '',
-    vehicle_document_id: file.vehicle_document_id ?? '',
-  })) ?? [],
-});
-
-// Create New VehicleDocument Payload
-export const newVehicleDocumentPayload = (): VehicleDocumentDTO => ({
-
-  organisation_id: '',
-  vehicle_id: '',
-  vendor_id: '',
-  document_type_id: '',
-
-  document_number: '',
-  document_authorized_name: '',
-  document_cost: 0,
-  document_issue_date: '',
-  document_valid_till_date: '',
-  document_renewal_date: '',
-  document_validity_status: DocumentValidityStatus.Valid,
-  document_status: DocumentStatus.Active,
-
-  document_details_1: '',
-  document_details_2: '',
-  document_details_3: '',
-  document_details_4: '',
-  document_notes: '',
-
-  status: Status.Active,
-  time_zone_id: '', // Needs to be provided manually
-
-  VehicleDocumentFileSchema: []
-});
-
-// Convert VehicleDocumentExpiry Data to API Payload
-export const toVehicleDocumentExpiryPayload = (row: VehicleDocumentExpiry): VehicleDocumentExpiryDTO => ({
-  organisation_id: row.organisation_id || '',
-  vehicle_id: row.vehicle_id || '',
-  vehicle_document_id: row.vehicle_document_id || '',
-
-  expiry_type: row.expiry_type || ExpiryType.Expiring,
-
-  status: row.status || Status.Active,
-});
-
-// Create New VehicleDocumentExpiry Payload
-export const newVehicleDocumentExpiryPayload = (): VehicleDocumentExpiryDTO => ({
-  organisation_id: '',
-
-  vehicle_id: '',
-  vehicle_document_id: '',
-
-  expiry_type: ExpiryType.Expiring,
-
-  status: Status.Active,
-});
-
 
 // AWS S3 PRESIGNED
 export const get_vehicle_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
@@ -2174,10 +1865,6 @@ export const get_vehicle_file_presigned_url = async (data: FilePresignedUrlDTO):
 
 export const get_device_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
   return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.device_file_presigned_url, data);
-};
-
-export const get_vehicle_document_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.vehicle_document_file_presigned_url, data);
 };
 
 export const get_calibration_file_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
@@ -2201,20 +1888,12 @@ export const remove_file_device = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_file_device(id));
 };
 
-export const create_file_vehicle_document = async (payload: VehicleDocumentFileDTO): Promise<SBR> => {
-  return apiPost<SBR, VehicleDocumentFileDTO>(ENDPOINTS.create_file_vehicle_document, payload);
-};
-
-export const remove_file_vehicle_document = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_file_vehicle_document(id));
-};
-
 export const update_calibration_file = async (id: string, data: CalibrationFileDTO): Promise<SBR> => {
   return apiPatch<SBR, CalibrationFileDTO>(ENDPOINTS.update_calibration_file(id), data);
 };
 
 export const delete_calibration_file = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_calibration_file(id));
+  return apiDelete<SBR>(ENDPOINTS.remove_calibration_file(id));
 };
 
 // Vehicle APIs
@@ -2259,8 +1938,8 @@ export const updateVehicleBodyDetails = async (id: string, payload: VehicleDetai
   return apiPatch<SBR, VehicleDetailBodyDTO>(ENDPOINTS.update_details_body(id), payload);
 };
 
-export const updateVehicleLifeCycleDetails = async (id: string, payload: VehicleDetailLifeCycleDto): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDetailLifeCycleDto>(ENDPOINTS.update_details_life_cycle(id), payload);
+export const updateVehicleLifeCycleDetails = async (id: string, payload: VehicleDetailLifeCycleDTO): Promise<SBR> => {
+  return apiPatch<SBR, VehicleDetailLifeCycleDTO>(ENDPOINTS.update_details_life_cycle(id), payload);
 };
 
 export const updateVehiclePurchaseDetails = async (id: string, payload: VehicleDetailPurchaseDTO): Promise<SBR> => {
@@ -2299,40 +1978,6 @@ export const getDeviceLinkHistoryByVehicle = async (id: string, params: BaseQuer
 
 export const getDeviceLinkHistoryByDevice = async (id: string, params: BaseQueryDTO): Promise<FBR<AssignRemoveDeviceHistory[]>> => {
   return apiGet<FBR<AssignRemoveDeviceHistory[]>>(ENDPOINTS.vehicle_device_link_history_by_device(id), params);
-};
-
-// VehicleDocument APIs
-export const createVehicleDocument = async (payload: VehicleDocumentDTO): Promise<SBR> => {
-  return apiPost<SBR, VehicleDocumentDTO>(ENDPOINTS.create_vehicle_document, payload);
-};
-
-export const findVehicleDocument = async (payload: VehicleDocumentQueryDTO): Promise<FBR<VehicleDocument[]>> => {
-  return apiPost<FBR<VehicleDocument[]>, VehicleDocumentQueryDTO>(ENDPOINTS.find_vehicle_document, payload);
-};
-
-export const updateVehicleDocument = async (id: string, payload: VehicleDocumentDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDocumentDTO>(ENDPOINTS.update_vehicle_document(id), payload);
-};
-
-export const removeVehicleDocument = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_vehicle_document(id));
-};
-
-// VehicleDocumentExpiry APIs
-export const createVehicleDocumentExpiry = async (payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
-  return apiPost<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.create_vehicle_document_expiry, payload);
-};
-
-export const findVehicleDocumentExpiry = async (payload: VehicleDocumentExpiryQueryDTO): Promise<FBR<VehicleDocumentExpiry[]>> => {
-  return apiPost<FBR<VehicleDocumentExpiry[]>, VehicleDocumentExpiryQueryDTO>(ENDPOINTS.find_vehicle_document_expiry, payload);
-};
-
-export const updateVehicleDocumentExpiry = async (id: string, payload: VehicleDocumentExpiryDTO): Promise<SBR> => {
-  return apiPatch<SBR, VehicleDocumentExpiryDTO>(ENDPOINTS.update_vehicle_document_expiry(id), payload);
-};
-
-export const removeVehicleDocumentExpiry = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_vehicle_document_expiry(id));
 };
 
 // Cache APIs
