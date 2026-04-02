@@ -11,6 +11,8 @@ import {
   enumMandatory,
   stringOptional,
   stringUUIDMandatory,
+  numberOptional,
+  doubleOptional,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -44,6 +46,13 @@ export interface MasterTyreModel extends Record<string, unknown> {
   // Main Field Details
   tyre_model: string;
   description?: string;
+
+  warranty_months?: number;
+  warranty_kms?: number;
+  tyre_size?: string;
+  tread_depth?: number;
+  recommended_min_tread_depth?: number;
+  recommended_max_run_kms?: number;
 
   // Metadata
   status: Status;
@@ -79,6 +88,13 @@ export const MasterTyreModelSchema = z.object({
   tyre_model: stringMandatory('Tyre Model', 3, 100),
   description: stringOptional('Description', 0, 300),
 
+  warranty_months: numberOptional('Warranty Months'),
+  warranty_kms: doubleOptional('Warranty Kms'),
+  tyre_size: stringOptional('Tyre Size', 0, 100),
+  tread_depth: doubleOptional('Tread Depth'),
+  recommended_min_tread_depth: doubleOptional('Recommended Min Tread Depth'),
+  recommended_max_run_kms: doubleOptional('Recommended Max Run Kms'),
+
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
@@ -110,6 +126,13 @@ export const toMasterTyreModelPayload = (row: MasterTyreModel): MasterTyreModelD
   tyre_model: row.tyre_model || '',
   description: row.description || '',
 
+  warranty_months: row.warranty_months || 0,
+  warranty_kms: row.warranty_kms || 0,
+  tyre_size: row.tyre_size || '',
+  tread_depth: row.tread_depth || 0,
+  recommended_min_tread_depth: row.recommended_min_tread_depth || 0,
+  recommended_max_run_kms: row.recommended_max_run_kms || 0,
+
   status: row.status || Status.Active,
 });
 
@@ -120,6 +143,13 @@ export const newMasterTyreModelPayload = (): MasterTyreModelDTO => ({
 
   tyre_model: '',
   description: '',
+
+  warranty_months: 0,
+  warranty_kms: 0,
+  tyre_size: '',
+  tread_depth: 0,
+  recommended_min_tread_depth: 0,
+  recommended_max_run_kms: 0,
 
   status: Status.Active,
 });

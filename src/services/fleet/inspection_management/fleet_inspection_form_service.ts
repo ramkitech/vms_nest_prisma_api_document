@@ -1,16 +1,17 @@
 // Imports
-import { apiPost, apiPatch, apiDelete, apiGet } from '../../../core/apiCall';
-import { SBR, FBR, BR } from '../../../core/BaseResponse';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
 import { z } from 'zod';
 import {
-  dynamicJsonSchema,
   enumMandatory,
-  multi_select_optional,
   single_select_mandatory,
+  single_select_optional,
+  multi_select_optional,
   stringMandatory,
   stringOptional,
+  dynamicJsonSchema,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -19,6 +20,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
+import { User } from 'src/services/main/users/user_service';
 import { FleetInspection } from './fleet_inspection_management_service';
 
 const URL = 'fleet/inspection_management/inspection_form';
@@ -31,19 +33,18 @@ const ENDPOINTS = {
   update_form_data: (id: string): string => `${URL}/update_form_data/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
-  // Cache APIs
+  // FleetInspectionForm Cache
   cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
-
 // FleetInspectionForm Interface
 export interface FleetInspectionForm extends Record<string, unknown> {
-  // Primary Fields
+  // Primary Field
   inspection_form_id: string;
 
   // Main Field Details
   inspection_form_name: string;
-  inspection_form_notes: string;
+  inspection_form_notes?: string;
   inspection_form_data: Record<string, unknown>;
 
   // Metadata
@@ -57,6 +58,10 @@ export interface FleetInspectionForm extends Record<string, unknown> {
   organisation_name?: string;
   organisation_code?: string;
 
+  user_id?: string;
+  User?: User;
+  user_details?: string;
+
   // Relations - Child
   // Child - Fleet
   FleetInspection?: FleetInspection[];
@@ -67,15 +72,20 @@ export interface FleetInspectionForm extends Record<string, unknown> {
   };
 }
 
+// FleetInspectionFormSimple Interface
 export interface FleetInspectionFormSimple extends Record<string, unknown> {
   inspection_form_id: string;
   inspection_form_name: string;
-};
+
+  // Relations - Child Count
+  _count?: {};
+}
 
 // FleetInspectionForm Schema
 export const FleetInspectionFormSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
 
   // Main Field Details
   inspection_form_name: stringMandatory('Inspection Form Name', 3, 100),
@@ -94,40 +104,40 @@ export const FleetInspectionFormQuerySchema = BaseQuerySchema.extend({
 
   // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
 });
-export type FleetInspectionFormQueryDTO = z.infer<
-  typeof FleetInspectionFormQuerySchema
->;
+export type FleetInspectionFormQueryDTO = z.infer<typeof FleetInspectionFormQuerySchema>;
 
 // FleetInspectionForm Update Fields Schema
 export const FleetInspectionFormFieldsSchema = z.object({
   inspection_form_data: dynamicJsonSchema('Inspection Form Data', {}),
 });
-export type FleetInspectionFormFieldsDTO = z.infer<
-  typeof FleetInspectionFormFieldsSchema
->;
+export type FleetInspectionFormFieldsDTO = z.infer<typeof FleetInspectionFormFieldsSchema>;
 
 // Convert FleetInspectionForm Data to API Payload
 export const toFleetInspectionFormPayload = (row: FleetInspectionForm): FleetInspectionFormDTO => ({
   organisation_id: row.organisation_id || '',
+  user_id: row.user_id || '',
 
   inspection_form_name: row.inspection_form_name || '',
   inspection_form_notes: row.inspection_form_notes || '',
   inspection_form_data: row.inspection_form_data || {},
 
-  status: row.status || Status.Active
+  status: row.status || Status.Active,
 });
 
 // Create New FleetInspectionForm Payload
 export const newFleetInspectionFormPayload = (): FleetInspectionFormDTO => ({
   organisation_id: '',
+  user_id: '',
 
   inspection_form_name: '',
   inspection_form_notes: '',
   inspection_form_data: {},
 
-  status: Status.Active
+  status: Status.Active,
 });
+
 // FleetInspectionForm APIs
 export const findFleetInspectionForm = async (data: FleetInspectionFormQueryDTO): Promise<FBR<FleetInspectionForm[]>> => {
   return apiPost<FBR<FleetInspectionForm[]>, FleetInspectionFormQueryDTO>(ENDPOINTS.find, data);
@@ -149,7 +159,7 @@ export const deleteFleetInspectionForm = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
-// Cache APIs
-export const getFleetInspectionFormCacheSimple = async (organisation_id: string): Promise<BR<FleetInspectionFormSimple[]>> => {
-  return apiGet<BR<FleetInspectionFormSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
+// FleetInspectionForm Cache
+export const find_inspection_form_cache_simple = async (organisation_id: string): Promise<FBR<FleetInspectionFormSimple[]>> => {
+  return apiGet<FBR<FleetInspectionFormSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
 };

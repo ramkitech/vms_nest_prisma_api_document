@@ -5,14 +5,13 @@ import { SBR, FBR } from '../../../core/BaseResponse';
 // Zod
 import { z } from 'zod';
 import {
-  dateMandatory,
-  dateOptional,
   enumMandatory,
-  multi_select_optional,
   single_select_mandatory,
   single_select_optional,
+  multi_select_optional,
   stringMandatory,
   stringOptional,
+  dateMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -23,7 +22,6 @@ import { ServiceScheduleStatus, Status } from '../../../core/Enums';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
 import { User } from 'src/services/main/users/user_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
-import { FleetServiceManagement } from './fleet_service_management_service';
 
 const URL = 'fleet/service_management/service_schedule';
 
@@ -37,7 +35,7 @@ const ENDPOINTS = {
 
 // FleetServiceSchedule Interface
 export interface FleetServiceSchedule extends Record<string, unknown> {
-  // Primary Fields
+  // Primary Field
   service_schedule_id: string;
 
   // Main Field Details
@@ -99,6 +97,11 @@ export interface FleetServiceScheduleVehicleLink extends Record<string, unknown>
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
+
+  // Relations - Child
+
+  // Relations - Child Count
+  _count?: {};
 }
 
 // FleetServiceSchedule Create/Update Schema
@@ -109,23 +112,19 @@ export const FleetServiceScheduleSchema = z.object({
 
   // Main Field Details
   service_schedule_name: stringMandatory('Service Schedule Name', 3, 100),
-  service_schedule_description: stringOptional(
-    'Service Schedule Description',
-    0,
-    2000,
-  ),
+  service_schedule_description: stringOptional('Service Schedule Description', 0, 2000),
   service_schedule_start_date: dateMandatory('Service Schedule Start Date'),
   service_schedule_due_date: dateMandatory('Service Schedule Due Date'),
 
-  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
 
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
+
+  // Other
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
-export type FleetServiceScheduleDTO = z.infer<
-  typeof FleetServiceScheduleSchema
->;
+export type FleetServiceScheduleDTO = z.infer<typeof FleetServiceScheduleSchema>;
 
 // FleetServiceSchedule Query Schema
 export const FleetServiceScheduleQuerySchema = BaseQuerySchema.extend({
@@ -136,12 +135,10 @@ export const FleetServiceScheduleQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
   user_ids: multi_select_optional('User'), // Multi-Selection -> User
 });
-export type FleetServiceScheduleQueryDTO = z.infer<
-  typeof FleetServiceScheduleQuerySchema
->;
+export type FleetServiceScheduleQueryDTO = z.infer<typeof FleetServiceScheduleQuerySchema>;
 
 // Convert FleetServiceSchedule Data to API Payload
-export const toFleetServiceSchedulePayload = (row: FleetServiceSchedule): FleetServiceScheduleDTO => ({
+export const toFleetServiceSchedulePayload = (row: FleetServiceSchedule,): FleetServiceScheduleDTO => ({
   organisation_id: row.organisation_id || '',
   user_id: row.user_id || '',
 
@@ -151,10 +148,11 @@ export const toFleetServiceSchedulePayload = (row: FleetServiceSchedule): FleetS
   service_schedule_due_date: row.service_schedule_due_date || '',
 
   vehicle_ids:
-    row.FleetServiceScheduleVehicleLink?.map((v) => v.vehicle_id) || [],
+    row.FleetServiceScheduleVehicleLink?.map((l) => l.vehicle_id) || [],
 
   status: row.status || Status.Active,
-  time_zone_id: '', // Needs to be provided manually
+
+  time_zone_id: '',
 });
 
 // Create New FleetServiceSchedule Payload
@@ -170,19 +168,20 @@ export const newFleetServiceSchedulePayload = (): FleetServiceScheduleDTO => ({
   vehicle_ids: [],
 
   status: Status.Active,
-  time_zone_id: '', // Needs to be provided manually
+
+  time_zone_id: '',
 });
 
 // FleetServiceSchedule APIs
-export const findFleetServiceSchedule = async (data: FleetServiceScheduleQueryDTO): Promise<FBR<FleetServiceSchedule[]>> => {
-  return apiPost<FBR<FleetServiceSchedule[]>, FleetServiceScheduleQueryDTO>(ENDPOINTS.find, data);
+export const findFleetServiceSchedule = async (data: FleetServiceScheduleQueryDTO,): Promise<FBR<FleetServiceSchedule[]>> => {
+  return apiPost<FBR<FleetServiceSchedule[]>, FleetServiceScheduleQueryDTO>(ENDPOINTS.find, data,);
 };
 
-export const createFleetServiceSchedule = async (data: FleetServiceScheduleDTO): Promise<SBR> => {
+export const createFleetServiceSchedule = async (data: FleetServiceScheduleDTO,): Promise<SBR> => {
   return apiPost<SBR, FleetServiceScheduleDTO>(ENDPOINTS.create, data);
 };
 
-export const updateFleetServiceSchedule = async (id: string, data: FleetServiceScheduleDTO): Promise<SBR> => {
+export const updateFleetServiceSchedule = async (id: string, data: FleetServiceScheduleDTO,): Promise<SBR> => {
   return apiPatch<SBR, FleetServiceScheduleDTO>(ENDPOINTS.update(id), data);
 };
 

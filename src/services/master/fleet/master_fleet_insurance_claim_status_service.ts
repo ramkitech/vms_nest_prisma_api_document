@@ -18,8 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
-//import { FleetIncidentManagement } from "@api/services/fleet/fleet_incident_management_service";
+import { FleetIncident } from 'src/services/fleet/incident_management/incident_management_service';
 
 const URL = 'master/fleet/insurance_claim_status';
 
@@ -57,11 +56,11 @@ export interface MasterFleetInsuranceClaimStatus
 
   // Relations - Child
   // Child - Fleet
-  FleetIncidentManagement?: FleetIncidentManagement[]
+  FleetIncident?: FleetIncident[]
 
   // Relations - Child Count
   _count?: {
-    FleetIncidentManagement?: number;
+    FleetIncident?: number;
   };
 }
 

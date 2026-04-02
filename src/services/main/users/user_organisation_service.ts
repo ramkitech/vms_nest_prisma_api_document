@@ -55,21 +55,18 @@ import { Student, StudentAddress, StudentGuardianLink, StudentLeaveRequest, Stud
 import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
 import { FleetFuelRefill, FleetFuelRefillFile } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
 import { FleetFuelRemoval, FleetFuelRemovalFile } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
-import { FleetIncidentManagement, FleetIncidentManagementCost, FleetIncidentManagementFile } from 'src/services/fleet/incident_management/incident_management_service';
 import { FleetInspectionForm } from 'src/services/fleet/inspection_management/fleet_inspection_form_service';
 import { FleetInspection, FleetInspectionFile } from 'src/services/fleet/inspection_management/fleet_inspection_management_service';
 import { FleetInspectionSchedule } from 'src/services/fleet/inspection_management/fleet_inspection_schedule_service';
-import { FleetIssueManagement, FleetIssueManagementComment, FleetIssueManagementFile } from 'src/services/fleet/issue_management/issue_management_service';
-import { FleetServiceManagement, FleetServiceManagementFile, FleetServiceReminder } from 'src/services/fleet/service_management/fleet_service_management_service';
+import { FleetService, FleetServiceFile, FleetServiceReminder } from 'src/services/fleet/service_management/fleet_service_service';
 import { FleetVendorFuelStation } from 'src/services/fleet/vendor_management/fleet_vendor_fuel_station';
-import { FleetVendor, FleetVendorAddress, FleetVendorBankAccount, FleetVendorContactPersons, FleetVendorReview, FleetVendorDocument, FleetVendorDocumentFile } from 'src/services/fleet/vendor_management/fleet_vendor_service';
+import { FleetVendor, FleetVendorAddress, FleetVendorBankAccount, FleetVendorReview, FleetVendorDocument, FleetVendorDocumentFile, FleetVendorContactPerson } from 'src/services/fleet/vendor_management/fleet_vendor_service';
 import { FleetVendorServiceCenter } from 'src/services/fleet/vendor_management/fleet_vendor_service_center';
 
 import { MasterFleetIncidentSeverity } from 'src/services/master/fleet/master_fleet_incident_severity_service';
 import { MasterFleetIncidentStatus } from 'src/services/master/fleet/master_fleet_incident_status_service';
 import { MasterFleetIncidentType } from 'src/services/master/fleet/master_fleet_incident_type_service';
 import { MasterFleetInsuranceClaimStatus } from 'src/services/master/fleet/master_fleet_insurance_claim_status_service';
-import { MasterFleetServiceTask } from 'src/services/master/fleet/master_fleet_service_task_service';
 
 import { GPSGeofence } from 'src/services/gps/features/geofence/gps_geofence_service';
 import { GPSGeofenceTransaction } from 'src/services/gps/features/geofence/gps_geofence_transaction_service';
@@ -118,6 +115,10 @@ import { MasterVehicleType } from 'src/services/master/vehicle/master_vehicle_ty
 import { MasterMainUnitDistance } from 'src/services/master/main/master_main_unit_distance_service';
 import { MasterFixedSchedule, MasterFixedScheduleStudent } from 'src/services/fleet/bus_mangement/master_schedule';
 import { FixedScheduleDayRun, FixedScheduleDayRunStop, FixedScheduleDayRunStudent } from 'src/services/fleet/bus_mangement/day_run';
+import { MasterFleetServiceTask } from 'src/services/master/fleet/master_fleet_service_task_service';
+import { MasterFleetServicePart } from 'src/services/master/fleet/master_fleet_service_part_service';
+import { FleetIncident, FleetIncidentCost, FleetIncidentFile } from 'src/services/fleet/incident_management/incident_management_service';
+import { FleetIssue, FleetIssueComment, FleetIssueFile } from 'src/services/fleet/issue_management/issue_management_service';
 
 const URL = 'user/organisation';
 
@@ -291,6 +292,7 @@ export interface UserOrganisation extends Record<string, unknown> {
   MasterFleetIncidentSeverity?: MasterFleetIncidentSeverity[]
   MasterFleetInsuranceClaimStatus?: MasterFleetInsuranceClaimStatus[]
   MasterFleetServiceTask?: MasterFleetServiceTask[]
+  MasterFleetServicePart?: MasterFleetServicePart[]
 
   MasterExpenseName?: MasterExpenseName[]
   MasterExpenseType?: MasterExpenseType[]
@@ -321,7 +323,7 @@ export interface UserOrganisation extends Record<string, unknown> {
   FleetVendor?: FleetVendor[]
   FleetVendorAddress?: FleetVendorAddress[]
   FleetVendorBankAccount?: FleetVendorBankAccount[]
-  FleetVendorContactPersons?: FleetVendorContactPersons[]
+  FleetVendorContactPerson?: FleetVendorContactPerson[]
   FleetVendorReview?: FleetVendorReview[]
   FleetVendorDocument?: FleetVendorDocument[]
   FleetVendorDocumentFile?: FleetVendorDocumentFile[]
@@ -333,21 +335,21 @@ export interface UserOrganisation extends Record<string, unknown> {
   FleetFuelRefillFile?: FleetFuelRefillFile[]
   FleetFuelRemovalFile?: FleetFuelRemovalFile[]
 
-  VehicleIncident?: FleetIncidentManagement[]
-  FleetIncidentManagementCost?: FleetIncidentManagementCost[]
-  IncidentManagementFile?: FleetIncidentManagementFile[]
+  FleetIncident?: FleetIncident[]
+  FleetIncidentCost?: FleetIncidentCost[]
+  FleetIncidentFile?: FleetIncidentFile[]
 
   FleetInspectionForm?: FleetInspectionForm[]
   FleetInspectionSchedule?: FleetInspectionSchedule[]
   FleetInspection?: FleetInspection[]
   FleetInspectionFile?: FleetInspectionFile[]
 
-  VehicleIssues?: FleetIssueManagement[]
-  FleetIssueManagementComment?: FleetIssueManagementComment[]
-  FleetIssueManagementFile?: FleetIssueManagementFile[]
+  FleetIssue?: FleetIssue[]
+  FleetIssueComment?: FleetIssueComment[]
+  FleetIssueFile?: FleetIssueFile[]
 
-  FleetServiceManagement?: FleetServiceManagement[]
-  FleetServiceManagementFile?: FleetServiceManagementFile[]
+  FleetServiceManagement?: FleetService[]
+  FleetServiceManagementFile?: FleetServiceFile[]
   FleetServiceReminder?: FleetServiceReminder[]
 
   // FleetSpareParts?: FleetSpareParts[]

@@ -17,8 +17,8 @@ import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 import { Status } from '../../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { FleetServiceManagementTask } from 'src/services/fleet/service_management/fleet_service_management_service';
+import { UserOrganisation } from '../../main/users/user_organisation_service';
+import { FleetServiceTask } from 'src/services/fleet/service_management/fleet_service_service';
 
 const URL = 'master/fleet/service_task';
 
@@ -54,14 +54,11 @@ export interface MasterFleetServiceTask extends Record<string, unknown> {
   organisation_code?: string;
 
   // Relations - Child
-  // Child - Main
-  FleetServiceManagementTask?: FleetServiceManagementTask[]
-  // FleetServiceJobCardTask?: FleetServiceJobCardTask[]
+  FleetServiceTask?: FleetServiceTask[];
 
   // Relations - Child Count
   _count?: {
-    FleetServiceManagementTask?: number;
-    FleetServiceJobCardTask?: number;
+    FleetServiceTask?: number;
   };
 }
 

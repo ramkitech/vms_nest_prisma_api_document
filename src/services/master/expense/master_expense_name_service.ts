@@ -19,7 +19,6 @@ import { ExpenseCategory, Status } from '../../../core/Enums';
 
 //Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { FleetIncidentManagementCost } from 'src/services/fleet/incident_management/incident_management_service';
 
 const URL = 'master/expense/expense_name';
 

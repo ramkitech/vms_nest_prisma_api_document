@@ -18,7 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
+import { FleetIncident } from 'src/services/fleet/incident_management/incident_management_service';
 
 const URL = 'master/fleet/incident_severity';
 
@@ -55,11 +55,11 @@ export interface MasterFleetIncidentSeverity extends Record<string, unknown> {
 
   // Relations - Child
   // Child - Fleet
-  FleetIncidentManagement?: FleetIncidentManagement[];
+  FleetIncident?: FleetIncident[];
 
   // Relations - Child Count
   _count?: {
-    FleetIncidentManagement?: number;
+    FleetIncident?: number;
   };
 }
 

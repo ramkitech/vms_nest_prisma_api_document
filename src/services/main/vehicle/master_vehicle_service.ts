@@ -79,11 +79,9 @@ import { OrganisationReportPreferenceVehicleLink, OrganisationReportAutomationMa
 import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
 import { FleetFuelRefill } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
 import { FleetFuelRemoval } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
-import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
 import { FleetInspection } from 'src/services/fleet/inspection_management/fleet_inspection_management_service';
 import { FleetInspectionScheduleVehicleLink } from 'src/services/fleet/inspection_management/fleet_inspection_schedule_service';
-import { FleetIssueManagement } from 'src/services/fleet/issue_management/issue_management_service';
-import { FleetServiceManagement, FleetServiceReminder } from 'src/services/fleet/service_management/fleet_service_management_service';
+import { FleetService, FleetServiceReminder } from 'src/services/fleet/service_management/fleet_service_service';
 import { FleetServiceScheduleVehicleLink } from 'src/services/fleet/service_management/fleet_service_schedule_service';
 import { GPSGeofenceTransaction } from 'src/services/gps/features/geofence/gps_geofence_transaction_service';
 import { GPSGeofenceTransactionSummary } from 'src/services/gps/features/geofence/gps_geofence_transaction_summary_service';
@@ -93,6 +91,8 @@ import { GPSTrackHistoryShareLink } from 'src/services/gps/features/gps_track_hi
 import { UserVehicleLink } from '../users/user_service';
 import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
 import { MasterFixedSchedule } from 'src/services/fleet/bus_mangement/master_schedule';
+import { FleetIssue } from 'src/services/fleet/issue_management/issue_management_service';
+import { FleetIncident } from 'src/services/fleet/incident_management/incident_management_service';
 
 const URL = 'main/master_vehicle';
 
@@ -335,11 +335,11 @@ export interface MasterVehicle extends Record<string, unknown> {
   FleetInspection?: FleetInspection[]
   FleetInspectionScheduleVehicleLink?: FleetInspectionScheduleVehicleLink[]
 
-  VehicleIncident?: FleetIncidentManagement[]
+  FleetIncident?: FleetIncident[]
 
-  VehicleIssues?: FleetIssueManagement[]
+  FleetIssue?: FleetIssue[]
 
-  FleetServiceManagement?: FleetServiceManagement[]
+  FleetServiceManagement?: FleetService[]
   FleetServiceScheduleVehicleLink?: FleetServiceScheduleVehicleLink[]
   FleetServiceReminder?: FleetServiceReminder[]
   // FleetServiceJobCard?: FleetServiceJobCard[]

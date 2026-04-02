@@ -34,14 +34,14 @@ import { Ticket } from 'src/services/account/ticket_service';
 import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
 import { FleetFuelRefill } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
 import { FleetFuelRemoval } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
-import { FleetIncidentManagement } from 'src/services/fleet/incident_management/incident_management_service';
 import { FleetInspection } from 'src/services/fleet/inspection_management/fleet_inspection_management_service';
 import { FleetInspectionSchedule } from 'src/services/fleet/inspection_management/fleet_inspection_schedule_service';
-import { FleetIssueManagement } from 'src/services/fleet/issue_management/issue_management_service';
-import { FleetServiceManagement } from 'src/services/fleet/service_management/fleet_service_management_service';
+import { FleetService } from 'src/services/fleet/service_management/fleet_service_service';
 import { FleetServiceSchedule } from 'src/services/fleet/service_management/fleet_service_schedule_service';
 import { FleetVendorDocument, FleetVendorReview } from 'src/services/fleet/vendor_management/fleet_vendor_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
+import { FleetIncident } from 'src/services/fleet/incident_management/incident_management_service';
+import { FleetIssue } from 'src/services/fleet/issue_management/issue_management_service';
 
 const URL = 'user/user';
 
@@ -147,11 +147,11 @@ export interface User extends Record<string, unknown> {
   InspectorUser?: FleetInspection[]
   ApprovedUser?: FleetInspection[]
 
-  IncidentManagement?: FleetIncidentManagement[]
+  FleetIncident?: FleetIncident[]
 
-  IssueManagement?: FleetIssueManagement[]
+  FleetIssue?: FleetIssue[]
 
-  FleetServiceManagement?: FleetServiceManagement[]
+  FleetServiceManagement?: FleetService[]
 
   // FleetWorkshop?: FleetWorkshop[]
 

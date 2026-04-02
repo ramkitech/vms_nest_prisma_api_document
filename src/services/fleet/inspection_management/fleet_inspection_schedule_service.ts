@@ -5,13 +5,13 @@ import { SBR, FBR } from '../../../core/BaseResponse';
 // Zod
 import { z } from 'zod';
 import {
-  dateMandatory,
   enumMandatory,
-  multi_select_optional,
   single_select_mandatory,
   single_select_optional,
+  multi_select_optional,
   stringMandatory,
   stringOptional,
+  dateMandatory,
 } from '../../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../../zod_utils/zod_base_schema';
 
@@ -41,9 +41,9 @@ export interface FleetInspectionSchedule extends Record<string, unknown> {
   // Main Field Details
   inspection_schedule_name: string;
   inspection_schedule_description?: string;
-  inspection_schedule_start_date?: string;
+  inspection_schedule_start_date: string;
   inspection_schedule_start_date_f?: string;
-  inspection_schedule_due_date?: string;
+  inspection_schedule_due_date: string;
   inspection_schedule_due_date_f?: string;
 
   // Metadata
@@ -97,6 +97,9 @@ export interface FleetInspectionScheduleVehicleLink extends Record<string, unkno
   MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
+
+  // Relations - Child Count
+  _count?: {};
 }
 
 // FleetInspectionSchedule Create/Update Schema
@@ -107,25 +110,19 @@ export const FleetInspectionScheduleSchema = z.object({
 
   // Main Field Details
   inspection_schedule_name: stringMandatory('Inspection Schedule Name', 3, 100),
-  inspection_schedule_description: stringOptional(
-    'Inspection Schedule Description',
-    0,
-    2000,
-  ),
-  inspection_schedule_start_date: dateMandatory(
-    'Inspection Schedule Start Date',
-  ),
+  inspection_schedule_description: stringOptional('Inspection Schedule Description', 0, 2000),
+  inspection_schedule_start_date: dateMandatory('Inspection Schedule Start Date'),
   inspection_schedule_due_date: dateMandatory('Inspection Schedule Due Date'),
 
-  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> MasterVehicle
 
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
+
+  // Other
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
-export type FleetInspectionScheduleDTO = z.infer<
-  typeof FleetInspectionScheduleSchema
->;
+export type FleetInspectionScheduleDTO = z.infer<typeof FleetInspectionScheduleSchema>;
 
 // FleetInspectionSchedule Query Schema
 export const FleetInspectionScheduleQuerySchema = BaseQuerySchema.extend({
@@ -136,9 +133,7 @@ export const FleetInspectionScheduleQuerySchema = BaseQuerySchema.extend({
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
   user_ids: multi_select_optional('User'), // Multi-Selection -> User
 });
-export type FleetInspectionScheduleQueryDTO = z.infer<
-  typeof FleetInspectionScheduleQuerySchema
->;
+export type FleetInspectionScheduleQueryDTO = z.infer<typeof FleetInspectionScheduleQuerySchema>;
 
 // Convert FleetInspectionSchedule Data to API Payload
 export const toFleetInspectionSchedulePayload = (row: FleetInspectionSchedule): FleetInspectionScheduleDTO => ({
@@ -150,11 +145,10 @@ export const toFleetInspectionSchedulePayload = (row: FleetInspectionSchedule): 
   inspection_schedule_start_date: row.inspection_schedule_start_date || '',
   inspection_schedule_due_date: row.inspection_schedule_due_date || '',
 
-  vehicle_ids:
-    row.FleetInspectionScheduleVehicleLink?.map((v) => v.vehicle_id) || [],
+  vehicle_ids: row.FleetInspectionScheduleVehicleLink?.map((l) => l.vehicle_id) || [],
 
   status: row.status || Status.Active,
-  time_zone_id: '', // Needs to be provided manually
+  time_zone_id: '',
 });
 
 // Create New FleetInspectionSchedule Payload
@@ -170,7 +164,7 @@ export const newFleetInspectionSchedulePayload = (): FleetInspectionScheduleDTO 
   vehicle_ids: [],
 
   status: Status.Active,
-  time_zone_id: '', // Needs to be provided manually
+  time_zone_id: '',
 });
 
 // FleetInspectionSchedule APIs
