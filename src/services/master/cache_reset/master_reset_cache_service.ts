@@ -179,7 +179,7 @@ export interface BusAllCache extends Record<string, unknown> {
   MasterClass: MasterClass[];
   MasterProgram: MasterProgram[];
   MasterSemester: MasterSemester[];
-  MasterRelationShip: MasterRelationship[];
+  MasterRelationship: MasterRelationship[];
   MasterSection: MasterSection[];
   MasterStream: MasterStream[];
   MasterYear: MasterYear[];

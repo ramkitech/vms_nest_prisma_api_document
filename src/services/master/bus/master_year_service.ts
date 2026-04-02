@@ -54,7 +54,7 @@ export interface MasterYear extends Record<string, unknown> {
   organisation_name?: string;
   organisation_code?: string;
 
-  // Relations - Children
+  // Relations - Child
   // Child - Fleet
   Student?: Student[];
 
@@ -130,7 +130,7 @@ export const getMasterYearCache = async (organisation_id: string): Promise<FBR<M
   return apiGet<FBR<MasterYear[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterYearCacheCount = async (organisation_id: string): Promise<FBR<MasterYear>> => {
-  return apiGet<FBR<MasterYear>>(ENDPOINTS.cache_count(organisation_id));
+export const getMasterYearCacheCount = async (organisation_id: string): Promise<FBR<MasterYear[]>> => {
+  return apiGet<FBR<MasterYear[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 

@@ -70,7 +70,7 @@ export const MasterRelationshipSchema = z.object({
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
 
   // Main Field Details
-  relationship_name: stringMandatory('RelationShip Name', 3, 100),
+  relationship_name: stringMandatory('Relationship Name', 3, 100),
   description: stringOptional('Description', 0, 300),
 
   // Metadata
@@ -132,7 +132,7 @@ export const getMasterRelationshipCache = async (organisation_id: string): Promi
   return apiGet<FBR<MasterRelationship[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterRelationshipCacheCount = async (organisation_id: string): Promise<FBR<MasterRelationship>> => {
-  return apiGet<FBR<MasterRelationship>>(ENDPOINTS.cache_count(organisation_id));
+export const getMasterRelationshipCacheCount = async (organisation_id: string): Promise<FBR<MasterRelationship[]>> => {
+  return apiGet<FBR<MasterRelationship[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 

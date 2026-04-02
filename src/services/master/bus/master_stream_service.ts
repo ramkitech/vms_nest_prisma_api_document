@@ -130,7 +130,7 @@ export const getMasterStreamCache = async (organisation_id: string): Promise<FBR
   return apiGet<FBR<MasterStream[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterStreamCacheCount = async (organisation_id: string): Promise<FBR<MasterStream>> => {
-  return apiGet<FBR<MasterStream>>(ENDPOINTS.cache_count(organisation_id));
+export const getMasterStreamCacheCount = async (organisation_id: string): Promise<FBR<MasterStream[]>> => {
+  return apiGet<FBR<MasterStream[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 

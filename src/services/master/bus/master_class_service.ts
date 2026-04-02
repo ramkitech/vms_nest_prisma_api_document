@@ -130,7 +130,7 @@ export const getMasterClassCache = async (organisation_id: string): Promise<FBR<
   return apiGet<FBR<MasterClass[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterClassCacheCount = async (organisation_id: string): Promise<FBR<MasterClass>> => {
-  return apiGet<FBR<MasterClass>>(ENDPOINTS.cache_count(organisation_id));
+export const getMasterClassCacheCount = async (organisation_id: string): Promise<FBR<MasterClass[]>> => {
+  return apiGet<FBR<MasterClass[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 

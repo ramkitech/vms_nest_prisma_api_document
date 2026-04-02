@@ -130,7 +130,7 @@ export const getMasterSectionCache = async (organisation_id: string): Promise<FB
   return apiGet<FBR<MasterSection[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterSectionCacheCount = async (organisation_id: string): Promise<FBR<MasterSection>> => {
-  return apiGet<FBR<MasterSection>>(ENDPOINTS.cache_count(organisation_id));
+export const getMasterSectionCacheCount = async (organisation_id: string): Promise<FBR<MasterSection[]>> => {
+  return apiGet<FBR<MasterSection[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 

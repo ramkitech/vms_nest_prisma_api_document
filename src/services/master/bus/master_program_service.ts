@@ -130,7 +130,7 @@ export const getMasterProgramCache = async (organisation_id: string): Promise<FB
   return apiGet<FBR<MasterProgram[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterProgramCacheCount = async (organisation_id: string): Promise<FBR<MasterProgram>> => {
-  return apiGet<FBR<MasterProgram>>(ENDPOINTS.cache_count(organisation_id));
+export const getMasterProgramCacheCount = async (organisation_id: string): Promise<FBR<MasterProgram[]>> => {
+  return apiGet<FBR<MasterProgram[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 

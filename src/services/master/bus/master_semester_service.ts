@@ -131,7 +131,7 @@ export const getMasterSemesterCache = async (organisation_id: string): Promise<F
   return apiGet<FBR<MasterSemester[]>>(ENDPOINTS.cache(organisation_id));
 };
 
-export const getMasterSemesterCacheCount = async (organisation_id: string): Promise<FBR<MasterSemester>> => {
-  return apiGet<FBR<MasterSemester>>(ENDPOINTS.cache_count(organisation_id));
+export const getMasterSemesterCacheCount = async (organisation_id: string): Promise<FBR<MasterSemester[]>> => {
+  return apiGet<FBR<MasterSemester[]>>(ENDPOINTS.cache_count(organisation_id));
 };
 
