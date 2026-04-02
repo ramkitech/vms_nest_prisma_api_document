@@ -20,7 +20,7 @@ import { Status } from '../../../core/Enums';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
 import { FleetBreakdown } from 'src/services/fleet/breakdown_management/breakdown_management_service';
 
-const URL = 'breakdown_type';
+const URL = 'master/fleet/breakdown_type';
 
 const ENDPOINTS = {
   // MasterFleetBreakdownType APIs

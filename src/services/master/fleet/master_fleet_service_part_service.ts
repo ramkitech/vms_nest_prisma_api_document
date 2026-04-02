@@ -20,7 +20,7 @@ import { Status } from '../../../core/Enums';
 import { UserOrganisation } from 'src/services/main/users/user_organisation_service';
 import { FleetServiceTask } from 'src/services/fleet/service_management/fleet_service_service';
 
-const URL = 'service_part';
+const URL = 'master/fleet/service_part';
 
 const ENDPOINTS = {
   // MasterFleetServicePart APIs
