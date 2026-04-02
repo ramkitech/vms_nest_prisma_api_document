@@ -261,7 +261,6 @@ export const FleetDocumentExpirySchema = z.object({
     organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
     vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
     document_id: single_select_mandatory('FleetDocument'), // Single-Selection -> FleetDocument
-    document_type_id: single_select_mandatory('MasterVehicleDocumentType'), // Single-Selection -> MasterVehicleDocumentType
 
     // Main Field Details
     expiry_type: enumMandatory('Expiry Type', ExpiryType, ExpiryType.Expiring),
@@ -378,7 +377,6 @@ export const toFleetDocumentExpiryPayload = (row: FleetDocumentExpiry): FleetDoc
     organisation_id: row.organisation_id || '',
     vehicle_id: row.vehicle_id || '',
     document_id: row.document_id || '',
-    document_type_id: row.document_type_id || '',
 
     expiry_type: row.expiry_type || ExpiryType.Expiring,
 
@@ -390,7 +388,6 @@ export const newFleetDocumentExpiryPayload = (): FleetDocumentExpiryDTO => ({
     organisation_id: '',
     vehicle_id: '',
     document_id: '',
-    document_type_id: '',
 
     expiry_type: ExpiryType.Expiring,
 
