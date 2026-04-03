@@ -71,7 +71,6 @@ import { MasterVehicleType } from '../../../services/master/vehicle/master_vehic
 import { MasterVehicleFuelType } from '../../../services/master/vehicle/master_vehicle_fuel_type_service';
 import { MasterVehicleAssociatedTo } from 'src/services/master/vehicle/master_vehicle_associated_to_service';
 import { MasterVehicleFuelUnit } from 'src/services/master/vehicle/master_vehicle_fuel_unit_service';
-import { MasterVehicleDocumentType } from 'src/services/master/vehicle/master_vehicle_document_type_service';
 
 import { FleetVendor } from 'src/services/fleet/vendor_management/fleet_vendor_service';
 import { OrganisationNotificationPreferenceVehicleLink } from 'src/services/account/notification_preferences.service';
@@ -200,6 +199,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   MasterMainTimeZone?: MasterMainTimeZone;
   time_zone_code?: string;
   time_zone_identifier?: string;
+  time_zone_offset?: string;
 
   // Relations - Odometer
   odometer_reading?: number;

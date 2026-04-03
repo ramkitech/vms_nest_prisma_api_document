@@ -1,5 +1,5 @@
 // Imports
-import { apiPost, apiPatch, apiDelete } from '../../../core/apiCall';
+import { apiPost, apiPatch, apiDelete, apiGet } from '../../../core/apiCall';
 import { SBR, FBR } from '../../../core/BaseResponse';
 
 // Zod
@@ -34,6 +34,9 @@ const ENDPOINTS = {
     delete: (id: string): string => `${URL}/${id}`,
 
     fleet_workshop_dashboard: `${URL}/fleet_workshop_dashboard`,
+
+    // FleetWorkshop Cache
+    cache_simple: (organisation_id: string): string => `${URL}/cache_simple/${organisation_id}`,
 };
 
 // FleetWorkshop Interface
@@ -100,6 +103,16 @@ export interface WorkshopDashboard extends Record<string, unknown> {
     onhold_services: number;
     cancelled_services: number;
     completed_services: number;
+
+    // Relations - Child Count
+    _count?: {};
+}
+
+// FleetWorkshopSimple Interface
+export interface FleetWorkshopSimple extends Record<string, unknown> {
+    workshop_id: string;
+    workshop_name: string;
+    workshop_description?: string;
 
     // Relations - Child Count
     _count?: {};
@@ -192,4 +205,9 @@ export const deleteFleetWorkshop = async (id: string): Promise<SBR> => {
 
 export const fleet_workshop_dashboard = async (data: FleetWorkshopDashBoardQueryDTO): Promise<FBR<WorkshopDashboard[]>> => {
     return apiPost<FBR<WorkshopDashboard[]>, FleetWorkshopDashBoardQueryDTO>(ENDPOINTS.fleet_workshop_dashboard, data);
+};
+
+// FleetWorkshop Cache
+export const find_workshop_cache_simple = async (organisation_id: string): Promise<FBR<FleetWorkshopSimple[]>> => {
+    return apiGet<FBR<FleetWorkshopSimple[]>>(ENDPOINTS.cache_simple(organisation_id));
 };
