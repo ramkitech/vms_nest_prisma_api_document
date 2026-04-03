@@ -38,6 +38,7 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
   vehicle_odometer_history_id: string;
   odometer_reading: number;
   odometer_date: string;
+  odometer_date_f?: string;
   odometer_source: OdometerSource;
 
   // Metadata
@@ -55,30 +56,56 @@ export interface VehicleOdometerHistory extends Record<string, unknown> {
   MasterVehicle?: MasterVehicle;
 }
 
-// ✅ Vehicle Odometer History Create/Update Schema
+// VehicleOdometerHistory Create/Update Schema
 export const VehicleOdometerHistorySchema = z.object({
-  organisation_id: single_select_mandatory('Organisation ID'),
-  vehicle_id: single_select_mandatory('Vehicle ID'),
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+
+  // Main Field Details
   odometer_reading: numberMandatory('Odometer Reading'),
   odometer_date: dateMandatory('Odometer Date'),
   odometer_source: enumMandatory(
     'Odometer Source',
     OdometerSource,
-    OdometerSource.Direct
+    OdometerSource.Direct,
   ),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type VehicleOdometerHistoryDTO = z.infer<
   typeof VehicleOdometerHistorySchema
 >;
 
-// ✅ Vehicle Odometer History Query Schema
-export const OdometerHistoryQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation IDs'),
-  vehicle_ids: multi_select_optional('Vehicle IDs'),
-  vehicle_odometer_history_ids: multi_select_optional(
-    'Vehicle Odometer History IDs'
+export const VehicleOdometerHistoryInternalSchema = z.object({
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  vehicle_id: single_select_mandatory('MasterVehicle'), // Single-Selection -> MasterVehicle
+
+  // Main Field Details
+  odometer_reading: numberMandatory('Odometer Reading'),
+  odometer_source: enumMandatory(
+    'Odometer Source',
+    OdometerSource,
+    OdometerSource.Direct,
   ),
+});
+export type VehicleOdometerHistoryInternalDTO = z.infer<
+  typeof VehicleOdometerHistoryInternalSchema
+>;
+
+// Vehicle Odometer History Query Schema
+export const OdometerHistoryQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  vehicle_odometer_history_ids: multi_select_optional('VehicleOdometerHistory'), // Multi-Selection -> VehicleOdometerHistory
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  vehicle_ids: multi_select_optional('MasterVehicle'), // Multi-Selection -> Vehicle
+
+  // Main Field Details
   odometer_source: enumArrayOptional('Odometer Source', OdometerSource),
 });
 export type OdometerHistoryQueryDTO = z.infer<
@@ -91,10 +118,13 @@ export const toVehicleOdometerHistoryPayload = (
 ): VehicleOdometerHistoryDTO => ({
   organisation_id: history.organisation_id,
   vehicle_id: history.vehicle_id,
+
   odometer_reading: history.odometer_reading,
   odometer_date: history.odometer_date,
   odometer_source: history.odometer_source,
+
   status: history.status,
+  time_zone_id: ''
 });
 
 // Generate a new payload with default values
@@ -102,10 +132,13 @@ export const newVehicleOdometerHistoryPayload =
   (): VehicleOdometerHistoryDTO => ({
     organisation_id: '',
     vehicle_id: '',
+
     odometer_reading: 0,
     odometer_date: new Date().toISOString(),
     odometer_source: OdometerSource.Other,
+
     status: Status.Active,
+    time_zone_id: ''
   });
 
 // API Methods
