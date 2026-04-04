@@ -25,17 +25,17 @@ import { Status, BusLeg, GeofenceType } from '../../../core/Enums';
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
 import { BusStop } from './bus_stop';
-import { MasterFixedSchedule, MasterFixedScheduleStudent } from './master_schedule';
+import { MasterFixedSchedule, MasterFixedScheduleStudent, MasterSpecialSchedule, MasterSpecialScheduleStudent } from './master_schedule';
 import { FixedScheduleDayRun, FixedScheduleDayRunStop, FixedScheduleDayRunStudent } from './day_run';
 
-const URL = 'master_route';
+const URL = 'fleet/bus_management/master_route';
 
 const ENDPOINTS = {
     // MasterRoute APIs
     find_route: `${URL}/route/search`,
     create_route: `${URL}/route`,
     update_route: (id: string): string => `${URL}/route/${id}`,
-    remove_route: (id: string): string => `${URL}/route/${id}`,
+    delete_route: (id: string): string => `${URL}/route/${id}`,
 
     // MasterRouteStop APIs
     append_route_stop: `${URL}/append_route_stop`,
@@ -96,6 +96,9 @@ export interface MasterRoute extends Record<string, unknown> {
     MasterFixedSchedule?: MasterFixedSchedule[];
     MasterFixedScheduleStudent?: MasterFixedScheduleStudent[];
 
+    MasterSpecialSchedule?: MasterSpecialSchedule[];
+    MasterSpecialScheduleStudent?: MasterSpecialScheduleStudent[];
+
     FixedScheduleDayRun?: FixedScheduleDayRun[];
     FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
     FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
@@ -105,6 +108,9 @@ export interface MasterRoute extends Record<string, unknown> {
         MasterRouteStop?: number;
         MasterFixedSchedule?: number;
         MasterFixedScheduleStudent?: number;
+
+        MasterSpecialSchedule?: number;
+        MasterSpecialScheduleStudent?: number;
 
         FixedScheduleDayRun?: number;
         FixedScheduleDayRunStop?: number;
@@ -154,10 +160,12 @@ export interface MasterRouteStop extends Record<string, unknown> {
 
     // Relations - Child
     MasterFixedScheduleStudent?: MasterFixedScheduleStudent[];
+    MasterSpecialScheduleStudent?: MasterSpecialScheduleStudent[];
 
     // Relations - Child Count
     _count?: {
         MasterFixedScheduleStudent?: number;
+        MasterSpecialScheduleStudent?: number;
     };
 }
 
@@ -329,7 +337,7 @@ export const updateMasterRoute = async (id: string, data: MasterRouteDTO): Promi
 };
 
 export const deleteMasterRoute = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_route(id));
+    return apiDelete<SBR>(ENDPOINTS.delete_route(id));
 };
 
 // MasterRouteStop APIs

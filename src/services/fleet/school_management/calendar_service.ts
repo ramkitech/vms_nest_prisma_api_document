@@ -24,7 +24,7 @@ import { HolidayType, Status } from '../../../core/Enums';
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
 
-const URL = 'calendar';
+const URL = 'fleet/school_management/calendar';
 
 const ENDPOINTS = {
   // OrganisationCalendar APIs
@@ -61,6 +61,9 @@ export interface OrganisationCalendar extends Record<string, unknown> {
   OrganisationBranch?: OrganisationBranch;
   branch_name?: string;
   branch_city?: string;
+
+    // Relations - Child Count
+  _count?: {};
 }
 
 // OrganisationCalendar Create/Update Schema
@@ -74,8 +77,10 @@ export const OrganisationCalendarSchema = z.object({
   title: stringMandatory('Title', 3, 100),
   notes: stringOptional('Notes', 0, 500),
 
-  // Other
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
+
+  // Other
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type OrganisationCalendarDTO = z.infer<

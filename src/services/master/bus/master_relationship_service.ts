@@ -18,7 +18,7 @@ import { Status } from '../../../core/Enums';
 
 // Other Models
 import { UserOrganisation } from '../../main/users/user_organisation_service';
-import { StudentGuardianLink } from 'src/services/fleet/bus_mangement/student';
+import { StudentGuardianLink } from 'src/services/fleet/school_management/student_service';
 
 const URL = 'master/bus/relationship';
 

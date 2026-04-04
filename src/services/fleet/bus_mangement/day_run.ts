@@ -11,7 +11,7 @@ import { OrganisationBranch } from 'src/services/master/organisation/organisatio
 import { MasterRoute, MasterRouteStop } from './master_route';
 import { MasterFixedSchedule } from './master_schedule';
 import { BusStop } from './bus_stop';
-import { Student } from './student';
+import { Student } from '../school_management/student_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import z from 'zod';

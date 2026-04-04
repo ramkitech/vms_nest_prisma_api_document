@@ -45,12 +45,12 @@ import { MasterSemester } from 'src/services/master/bus/master_semester_service'
 import { MasterStream } from 'src/services/master/bus/master_stream_service';
 import { MasterYear } from 'src/services/master/bus/master_year_service';
 import { MasterRelationship } from 'src/services/master/bus/master_relationship_service';
-import { MasterRoute, MasterRouteStop } from './master_route';
+import { MasterRoute, MasterRouteStop } from '../bus_mangement/master_route';
 import { MasterMainLandMark } from 'src/services/master/main/master_main_landmark_service';
-import { MasterFixedSchedule, MasterFixedScheduleStudent } from './master_schedule';
-import { FixedScheduleDayRunStudent } from './day_run';
+import { MasterFixedSchedule, MasterFixedScheduleStudent } from '../bus_mangement/master_schedule';
+import { FixedScheduleDayRunStudent } from '../bus_mangement/day_run';
 
-const URL = 'student';
+const URL = 'fleet/school_management/student';
 
 const ENDPOINTS = {
     // AWS S3 PRESIGNED
@@ -59,10 +59,10 @@ const ENDPOINTS = {
 
     // File Uploads
     update_profile_picture: (id: string): string => `${URL}/update_profile_picture/${id}`,
-    delete_profile_picture: (id: string): string => `${URL}/delete_profile_picture/${id}`,
+    remove_profile_picture: (id: string): string => `${URL}/remove_profile_picture/${id}`,
 
     update_guardian_profile_picture: (id: string): string => `${URL}/update_guardian_profile_picture/${id}`,
-    delete_guardian_profile_picture: (id: string): string => `${URL}/delete_guardian_profile_picture/${id}`,
+    remove_guardian_profile_picture: (id: string): string => `${URL}/remove_guardian_profile_picture/${id}`,
 
     // Student APIs
     find: `${URL}/search`,
@@ -364,6 +364,9 @@ export interface StudentGuardianLink extends Record<string, unknown> {
     relationship_id: string;
     MasterRelationship?: MasterRelationship;
     relationship_name?: string;
+
+    // Relations - Child Count
+    _count?: {};
 }
 
 // StudentLeaveRequest Interface
@@ -399,6 +402,9 @@ export interface StudentLeaveRequest extends Record<string, unknown> {
     first_name?: string;
     last_name?: string;
     mobile_number?: string;
+
+    // Relations - Child Count
+    _count?: {};
 }
 
 // StudentStopChangeRequest Interface
@@ -444,6 +450,9 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
 
     student_address_id: string;
     StudentAddress?: StudentAddress;
+
+    // Relations - Child Count
+    _count?: {};
 }
 
 // StudentTransportPlanTypeChangeHistory Interface
@@ -478,6 +487,9 @@ export interface StudentTransportPlanTypeChangeHistory extends Record<string, un
     first_name?: string;
     last_name?: string;
     mobile_number?: string;
+
+    // Relations - Child Count
+    _count?: {};
 }
 
 // StudentLoginPush Interface
@@ -514,6 +526,9 @@ export interface StudentLoginPush extends Record<string, unknown> {
     first_name?: string;
     last_name?: string;
     mobile_number?: string;
+
+    // Relations - Child Count
+    _count?: {};
 }
 
 // StudentGuardianLoginPush Interface
@@ -548,6 +563,9 @@ export interface StudentGuardianLoginPush extends Record<string, unknown> {
     StudentGuardian?: StudentGuardian;
     name?: string;
     mobile?: string;
+
+    // Relations - Child Count
+    _count?: {};
 }
 
 // Student Create/Update Schema
@@ -1131,16 +1149,16 @@ export const update_profile_picture = async (id: string, data: StudentProfilePic
     return apiPatch<SBR, StudentProfilePictureDTO>(ENDPOINTS.update_profile_picture(id), data);
 };
 
-export const delete_profile_picture = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.delete_profile_picture(id));
+export const remove_profile_picture = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.remove_profile_picture(id));
 };
 
 export const update_guardian_profile_picture = async (id: string, data: GuardianProfilePictureDTO): Promise<SBR> => {
     return apiPatch<SBR, GuardianProfilePictureDTO>(ENDPOINTS.update_guardian_profile_picture(id), data);
 };
 
-export const delete_guardian_profile_picture = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.delete_guardian_profile_picture(id));
+export const remove_guardian_profile_picture = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.remove_guardian_profile_picture(id));
 };
 
 // Student APIs

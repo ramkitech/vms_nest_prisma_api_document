@@ -27,35 +27,35 @@ import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
 import { MasterDriver } from 'src/services/main/drivers/master_driver_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
-import { Student } from './student';
+import { Student } from '../school_management/student_service';
 import { MasterRoute, MasterRouteStop } from './master_route';
 import { FixedScheduleDayRun, FixedScheduleDayRunStop, FixedScheduleDayRunStudent } from './day_run';
 
-const URL = 'master_schedule';
+const URL = 'fleet/bus_management/master_schedule';
 
 const ENDPOINTS = {
 
     // MasterFixedSchedule APIs
-    find_schedule: `${URL}/fixed_schedule/search`,
-    create_schedule: `${URL}/fixed_schedule`,
-    update_schedule: (id: string): string => `${URL}/fixed_schedule/${id}`,
-    remove_schedule: (id: string): string => `${URL}/fixed_schedule/${id}`,
+    find_fixed_schedule: `${URL}/fixed_schedule/search`,
+    create_fixed_schedule: `${URL}/fixed_schedule`,
+    update_fixed_schedule: (id: string): string => `${URL}/fixed_schedule/${id}`,
+    delete_fixed_schedule: (id: string): string => `${URL}/fixed_schedule/${id}`,
 
-    find_schedule_student: `${URL}/fixed_schedule_student/search`,
+    find_fixed_schedule_student: `${URL}/fixed_schedule_student/search`,
     assign_fixed_schedule_to_students: `${URL}/fixed_schedule/assign_fixed_schedule_to_students`,
     remove_fixed_schedule_to_students: `${URL}/fixed_schedule/remove_fixed_schedule_to_students`,
-    update_stop: `${URL}/fixed_schedule/update_stop`,
+    update_fixed_schedule_stop: `${URL}/fixed_schedule/update_stop`,
 
     // MasterSpecialSchedule APIs
     find_special_schedule: `${URL}/special_schedule/search`,
     create_special_schedule: `${URL}/special_schedule`,
     update_special_schedule: (id: string): string => `${URL}/special_schedule/${id}`,
-    remove_special_schedule: (id: string): string => `${URL}/special_schedule/${id}`,
+    delete_special_schedule: (id: string): string => `${URL}/special_schedule/${id}`,
 
     find_special_schedule_student: `${URL}/special_schedule_student/search`,
     assign_special_schedule_to_students: `${URL}/special_schedule/assign_special_schedule_to_students`,
     remove_special_schedule_to_students: `${URL}/special_schedule/remove_special_schedule_to_students`,
-    update_special_stop: `${URL}/special_schedule/update_stop`,
+    update_special_schedule_stop: `${URL}/special_schedule/update_stop`,
 };
 
 // MasterFixedSchedule Interface
@@ -174,6 +174,10 @@ export interface MasterFixedScheduleStudent extends Record<string, unknown> {
     MasterRouteStop?: MasterRouteStop;
     order_no?: string;
     stop_name?: string;
+
+    // Relations - Child Count
+    _count?: {
+    };
 }
 
 // MasterSpecialSchedule Interface
@@ -285,6 +289,10 @@ export interface MasterSpecialScheduleStudent extends Record<string, unknown> {
     MasterRouteStop?: MasterRouteStop;
     order_no?: string;
     stop_name?: string;
+
+    // Relations - Child Count
+    _count?: {
+    };
 }
 
 // MasterFixedSchedule Create/Update Schema
@@ -392,13 +400,15 @@ export type RemoveFixedScheduleToStudentsDTO = z.infer<
     typeof RemoveFixedScheduleToStudentsSchema
 >;
 
-export const UpdateStopSchema = z.object({
+export const UpdateFixedScheduleStopSchema = z.object({
     fixed_schedule_student_id: single_select_mandatory(
         'MasterFixedScheduleStudent',
     ),
     route_stop_id: single_select_mandatory('MasterRouteStop'),
 });
-export type UpdateStopDTO = z.infer<typeof UpdateStopSchema>;
+export type UpdateFixedScheduleStopDTO = z.infer<
+    typeof UpdateFixedScheduleStopSchema
+>;
 
 // MasterSpecialSchedule Create/Update Schema
 export const MasterSpecialScheduleSchema = z.object({
@@ -507,13 +517,15 @@ export type RemoveSpecialScheduleToStudentsDTO = z.infer<
     typeof RemoveSpecialScheduleToStudentsSchema
 >;
 
-export const UpdateSpecialStopSchema = z.object({
+export const UpdateSpecialScheduleStopSchema = z.object({
     special_schedule_student_id: single_select_mandatory(
         'MasterSpecialScheduleStudent',
     ),
     route_stop_id: single_select_mandatory('MasterRouteStop'),
 });
-export type UpdateSpecialStopDTO = z.infer<typeof UpdateSpecialStopSchema>;
+export type UpdateSpecialScheduleStopDTO = z.infer<
+    typeof UpdateSpecialScheduleStopSchema
+>;
 
 // Convert MasterFixedSchedule Data to API Payload
 export const toMasterFixedSchedulePayload = (row: MasterFixedSchedule): MasterFixedScheduleDTO => ({
@@ -649,23 +661,23 @@ export const newMasterSpecialSchedulePayload = (): MasterSpecialScheduleDTO => (
 
 // MasterFixedSchedule APIs
 export const findMasterFixedSchedule = async (data: MasterFixedScheduleQueryDTO): Promise<FBR<MasterFixedSchedule[]>> => {
-    return apiPost<FBR<MasterFixedSchedule[]>, MasterFixedScheduleQueryDTO>(ENDPOINTS.find_schedule, data);
-};
-
-export const findMasterFixedScheduleStudent = async (data: MasterFixedScheduleStudentQueryDTO): Promise<FBR<MasterFixedScheduleStudent[]>> => {
-    return apiPost<FBR<MasterFixedScheduleStudent[]>, MasterFixedScheduleStudentQueryDTO>(ENDPOINTS.find_schedule_student, data);
+    return apiPost<FBR<MasterFixedSchedule[]>, MasterFixedScheduleQueryDTO>(ENDPOINTS.find_fixed_schedule, data);
 };
 
 export const createMasterFixedSchedule = async (data: MasterFixedScheduleDTO): Promise<SBR> => {
-    return apiPost<SBR, MasterFixedScheduleDTO>(ENDPOINTS.create_schedule, data);
+    return apiPost<SBR, MasterFixedScheduleDTO>(ENDPOINTS.create_fixed_schedule, data);
 };
 
 export const updateMasterFixedSchedule = async (id: string, data: MasterFixedScheduleDTO): Promise<SBR> => {
-    return apiPatch<SBR, MasterFixedScheduleDTO>(ENDPOINTS.update_schedule(id), data);
+    return apiPatch<SBR, MasterFixedScheduleDTO>(ENDPOINTS.update_fixed_schedule(id), data);
 };
 
 export const deleteMasterFixedSchedule = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_schedule(id));
+    return apiDelete<SBR>(ENDPOINTS.delete_fixed_schedule(id));
+};
+
+export const findMasterFixedScheduleStudent = async (data: MasterFixedScheduleStudentQueryDTO): Promise<FBR<MasterFixedScheduleStudent[]>> => {
+    return apiPost<FBR<MasterFixedScheduleStudent[]>, MasterFixedScheduleStudentQueryDTO>(ENDPOINTS.find_fixed_schedule_student, data);
 };
 
 export const assignFixedScheduleToStudents = async (data: AssignFixedScheduleToStudentsDTO): Promise<SBR> => {
@@ -676,17 +688,13 @@ export const removeFixedScheduleToStudents = async (data: RemoveFixedScheduleToS
     return apiPost<SBR, RemoveFixedScheduleToStudentsDTO>(ENDPOINTS.remove_fixed_schedule_to_students, data);
 };
 
-export const updateStop = async (data: UpdateStopDTO): Promise<SBR> => {
-    return apiPost<SBR, UpdateStopDTO>(ENDPOINTS.update_stop, data);
+export const updateFixedScheduleStop = async (data: UpdateFixedScheduleStopDTO): Promise<SBR> => {
+    return apiPost<SBR, UpdateFixedScheduleStopDTO>(ENDPOINTS.update_fixed_schedule_stop, data);
 };
 
 // MasterSpecialSchedule APIs
 export const findMasterSpecialSchedule = async (data: MasterSpecialScheduleQueryDTO): Promise<FBR<MasterSpecialSchedule[]>> => {
     return apiPost<FBR<MasterSpecialSchedule[]>, MasterSpecialScheduleQueryDTO>(ENDPOINTS.find_special_schedule, data);
-};
-
-export const findMasterSpecialScheduleStudent = async (data: MasterSpecialScheduleStudentQueryDTO): Promise<FBR<MasterSpecialScheduleStudent[]>> => {
-    return apiPost<FBR<MasterSpecialScheduleStudent[]>, MasterSpecialScheduleStudentQueryDTO>(ENDPOINTS.find_special_schedule_student, data);
 };
 
 export const createMasterSpecialSchedule = async (data: MasterSpecialScheduleDTO): Promise<SBR> => {
@@ -698,7 +706,11 @@ export const updateMasterSpecialSchedule = async (id: string, data: MasterSpecia
 };
 
 export const deleteMasterSpecialSchedule = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_special_schedule(id));
+    return apiDelete<SBR>(ENDPOINTS.delete_special_schedule(id));
+};
+
+export const findMasterSpecialScheduleStudent = async (data: MasterSpecialScheduleStudentQueryDTO): Promise<FBR<MasterSpecialScheduleStudent[]>> => {
+    return apiPost<FBR<MasterSpecialScheduleStudent[]>, MasterSpecialScheduleStudentQueryDTO>(ENDPOINTS.find_special_schedule_student, data);
 };
 
 export const assignSpecialScheduleToStudents = async (data: AssignSpecialScheduleToStudentsDTO): Promise<SBR> => {
@@ -709,6 +721,6 @@ export const removeSpecialScheduleToStudents = async (data: RemoveSpecialSchedul
     return apiPost<SBR, RemoveSpecialScheduleToStudentsDTO>(ENDPOINTS.remove_special_schedule_to_students, data);
 };
 
-export const updateSpecialStop = async (data: UpdateSpecialStopDTO): Promise<SBR> => {
-    return apiPost<SBR, UpdateSpecialStopDTO>(ENDPOINTS.update_special_stop, data);
+export const updateSpecialScheduleStop = async (data: UpdateSpecialScheduleStopDTO): Promise<SBR> => {
+    return apiPost<SBR, UpdateSpecialScheduleStopDTO>(ENDPOINTS.update_special_schedule_stop, data);
 };

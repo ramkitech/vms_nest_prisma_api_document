@@ -15,7 +15,6 @@ import {
   doubleOptionalLatLng,
   doubleMandatoryLatLng,
   nestedArrayOfObjectsOptional,
-  numberOptional,
   getAllEnums,
   multi_select_mandatory,
 } from '../../../zod_utils/zod_utils';
@@ -28,18 +27,19 @@ import { BusStopType, GeofenceType, Status } from '../../../core/Enums';
 import { UserOrganisation } from '../../main/users/user_organisation_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
 import { MasterRouteStop } from './master_route';
+import { FixedScheduleDayRunStop } from './day_run';
 
-const URL = 'bus_stop';
+const URL = 'fleet/bus_management/bus_stop';
 
 const ENDPOINTS = {
   // BusStop APIs
   find: `${URL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
-  remove: (id: string): string => `${URL}/${id}`,
+  delete: (id: string): string => `${URL}/${id}`,
 
   // DASHBOARD
-   bus_dashboard: `${URL}/bus_dashboard`,
+  bus_dashboard: `${URL}/bus_dashboard`,
 };
 
 // BusStopPolygonData Interface
@@ -92,24 +92,28 @@ export interface BusStop extends Record<string, unknown> {
   organisation_name?: string;
   organisation_code?: string;
 
-  organisation_branch_id?: string;
+  organisation_branch_id: string;
   OrganisationBranch?: OrganisationBranch;
+  branch_name?: string;
+  branch_city?: string;
 
   // Relations - Child
   MasterRouteStop?: MasterRouteStop[];
+  FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
 
   // Relations - Child Count
   _count?: {
     MasterRouteStop?: number;
+    FixedScheduleDayRunStop?: number;
   };
 }
 
 export interface BusDashboard {
-    main_counts: {
-        bus_stops: number;
-        bus_routes: number;
-        bus_schedules: number;
-    };
+  main_counts: {
+    bus_stops: number;
+    bus_routes: number;
+    bus_schedules: number;
+  };
 }
 
 // BusStop Polygon Data Create/Update Schema
@@ -277,9 +281,9 @@ export const updateBusStop = async (id: string, data: BusStopDTO): Promise<SBR> 
 };
 
 export const deleteBusStop = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove(id));
+  return apiDelete<SBR>(ENDPOINTS.delete(id));
 };
 
 export const bus_dashboard = async (data: BusDashBoardQueryDTO,): Promise<FBR<BusDashboard[]>> => {
-    return apiPost<FBR<BusDashboard[]>, BusDashBoardQueryDTO>(ENDPOINTS.bus_dashboard, data);
+  return apiPost<FBR<BusDashboard[]>, BusDashBoardQueryDTO>(ENDPOINTS.bus_dashboard, data);
 };

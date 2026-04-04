@@ -40,7 +40,7 @@ import { OrganisationColor } from '../../../services/master/organisation/organis
 import { OrganisationGroup } from '../../../services/master/organisation/organisation_group_service';
 import { OrganisationSubCompany } from '../../../services/master/organisation/organisation_sub_company_service';
 import { OrganisationTag } from '../../../services/master/organisation/organisation_tag_service';
-import { OrganisationCalendar } from 'src/services/fleet/bus_mangement/calendar';
+import { OrganisationCalendar } from 'src/services/fleet/school_management/calendar_service';
 
 import { BookMark } from 'src/services/account/bookmark_service';
 import { OrganisationNotificationPreference } from 'src/services/account/notification_preferences.service';
@@ -48,8 +48,8 @@ import { OrganisationReportPreference, OrganisationReportAutomationMail } from '
 import { Ticket, TicketFile } from 'src/services/account/ticket_service';
 import { BusStop } from 'src/services/fleet/bus_mangement/bus_stop';
 import { MasterRoute, MasterRouteStop } from 'src/services/fleet/bus_mangement/master_route';
-import { OrganisationNoticeBoard } from 'src/services/fleet/bus_mangement/notice_board';
-import { Student, StudentAddress, StudentGuardianLink, StudentLeaveRequest, StudentStopChangeRequest } from 'src/services/fleet/bus_mangement/student';
+import { OrganisationNoticeBoard } from 'src/services/fleet/school_management/notice_board_service';
+import { Student, StudentAddress, StudentGuardianLink, StudentLeaveRequest, StudentStopChangeRequest } from 'src/services/fleet/school_management/student_service';
 
 import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
 import { FleetFuelRefill, FleetFuelRefillFile } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
