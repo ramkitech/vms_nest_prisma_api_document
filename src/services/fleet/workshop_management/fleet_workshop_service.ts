@@ -72,6 +72,7 @@ export interface FleetWorkshop extends Record<string, unknown> {
     user_id?: string;
     User?: User;
     user_details?: string;
+    user_image_url?: string;
 
     // Relations - Child
     // Child - Fleet

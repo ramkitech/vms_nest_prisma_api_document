@@ -115,6 +115,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -124,6 +125,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 
   device_id?: string;
   MasterDevice?: MasterDevice;

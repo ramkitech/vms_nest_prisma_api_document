@@ -100,10 +100,12 @@ export interface FixedScheduleDayRun extends Record<string, unknown> {
     driver_id?: string;
     Driver?: MasterDriver;
     driver_details?: string;
+    driver_image_url?: string;
 
     attendant_id?: string;
     Attendant?: MasterDriver;
     attendant_details?: string;
+    attendant_image_url?: string;
 
     // Relations - Child
     FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
@@ -230,10 +232,8 @@ export interface FixedScheduleDayRunStudent extends Record<string, unknown> {
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 }
 
 // FixedScheduleDayRun Update Schema

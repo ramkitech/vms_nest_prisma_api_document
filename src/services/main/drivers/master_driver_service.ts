@@ -200,6 +200,7 @@ export interface MasterDriverFile extends BaseCommonFile {
   driver_id: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 
   // Usage Type -> Aadhaar Front Image, Aadhaar Back Image,  Pan Image, License Front Image, License Back Image
 }
@@ -229,6 +230,7 @@ export interface AssignRemoveDriverHistory extends Record<string, unknown> {
   driver_id: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 }
 
 // DriverLoginPush Interface
@@ -265,6 +267,7 @@ export interface DriverLoginPush extends Record<string, unknown> {
   driver_id: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 }
 
 // MasterDriver File Schema

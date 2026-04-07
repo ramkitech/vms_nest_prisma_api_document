@@ -177,6 +177,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
   assign_driver_date?: string;
   assign_driver_date_f?: string;
   AssignRemoveDriverHistory?: AssignRemoveDriverHistory[];
@@ -233,6 +234,7 @@ export interface MasterVehicle extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   organisation_sub_company_id?: string;
   OrganisationSubCompany?: OrganisationSubCompany;
@@ -479,6 +481,7 @@ export interface MasterVehicleFile extends BaseCommonFile {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;

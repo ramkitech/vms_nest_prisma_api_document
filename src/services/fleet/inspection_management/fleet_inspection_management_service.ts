@@ -93,6 +93,7 @@ export interface FleetInspection extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -102,6 +103,7 @@ export interface FleetInspection extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 
   inspection_form_id?: string;
   FleetInspectionForm?: FleetInspectionForm;
@@ -139,6 +141,7 @@ export interface FleetInspectionFile extends BaseCommonFile {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   inspection_id: string;
   FleetInspection?: FleetInspection;

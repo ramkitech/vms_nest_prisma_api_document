@@ -138,6 +138,7 @@ export interface FleetVendor extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   // Relations - Child
   // Child - Fleet
@@ -258,6 +259,7 @@ export interface FleetVendorAddress extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
@@ -299,6 +301,7 @@ export interface FleetVendorBankAccount extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
@@ -345,6 +348,7 @@ export interface FleetVendorContactPerson extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
@@ -377,6 +381,7 @@ export interface FleetVendorReview extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
@@ -415,6 +420,7 @@ export interface FleetVendorDocument extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
@@ -450,6 +456,7 @@ export interface FleetVendorDocumentFile extends BaseCommonFile {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   fleet_vendor_document_id: string;
   FleetVendorDocument?: FleetVendorDocument;

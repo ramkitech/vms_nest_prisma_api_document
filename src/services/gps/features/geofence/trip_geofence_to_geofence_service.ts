@@ -74,6 +74,7 @@ export interface TripGeofenceToGeofence extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 
   from_geofence_id: string;
   FromGeofence?: TripGeofenceToGeofence;

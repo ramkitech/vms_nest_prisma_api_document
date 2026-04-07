@@ -65,6 +65,7 @@ export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 
   gps_geofence_id: string;
   GPSGeofenceData?: GPSGeofence;

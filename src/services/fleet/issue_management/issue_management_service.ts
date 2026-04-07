@@ -95,6 +95,7 @@ export interface FleetIssue extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -104,6 +105,7 @@ export interface FleetIssue extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 
   incident_id?: string;
   FleetIncident?: FleetIncident;
@@ -147,6 +149,7 @@ export interface FleetIssueFile extends BaseCommonFile {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   issue_id: string;
   FleetIssue?: FleetIssue;
@@ -202,6 +205,7 @@ export interface FleetIssueComment extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   issue_id: string;
   FleetIssue?: FleetIssue;

@@ -103,6 +103,7 @@ export interface FleetBreakdown extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -112,6 +113,7 @@ export interface FleetBreakdown extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 
   fleet_breakdown_type_id: string;
   MasterFleetBreakdownType?: MasterFleetBreakdownType;
@@ -147,6 +149,7 @@ export interface FleetBreakdownFile extends BaseCommonFile {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   breakdown_id: string;
   FleetBreakdown?: FleetBreakdown;
@@ -180,6 +183,7 @@ export interface FleetBreakdownCost extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   breakdown_id: string;
   FleetBreakdown?: FleetBreakdown;

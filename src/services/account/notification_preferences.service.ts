@@ -144,6 +144,7 @@ export interface OrganisationNotificationPreferenceUserLink extends Record<strin
   user_id: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   // Relations - Child
 

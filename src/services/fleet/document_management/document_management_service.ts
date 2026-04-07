@@ -92,6 +92,7 @@ export interface FleetDocument extends Record<string, unknown> {
     user_id?: string;
     User?: User;
     user_details?: string;
+    user_image_url?: string;
 
     vehicle_id: string;
     MasterVehicle?: MasterVehicle;
@@ -134,6 +135,7 @@ export interface FleetDocumentFile extends BaseCommonFile {
     user_id?: string;
     User?: User;
     user_details?: string;
+    user_image_url?: string;
 
     document_id: string;
     FleetDocument?: FleetDocument;

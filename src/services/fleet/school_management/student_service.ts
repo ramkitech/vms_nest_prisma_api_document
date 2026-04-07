@@ -122,6 +122,8 @@ export interface Student extends Record<string, unknown> {
     photo_key?: string;
     photo_name?: string;
 
+    student_details?: string;
+
     admission_number?: string;
     roll_number?: string;
 
@@ -274,10 +276,8 @@ export interface StudentAddress extends Record<string, unknown> {
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 
     // Relations - Child
     StudentStopChangeRequest?: StudentStopChangeRequest[];
@@ -295,6 +295,8 @@ export interface StudentGuardian extends Record<string, unknown> {
     photo_url?: string;
     photo_key?: string;
     photo_name?: string;
+
+    guardian_details?: string;
 
     name: string;
     mobile: string;
@@ -351,15 +353,13 @@ export interface StudentGuardianLink extends Record<string, unknown> {
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 
     guardian_id: string;
     StudentGuardian?: StudentGuardian;
-    name?: string;
-    mobile?: string;
+    guardian_details?: string;
+    guardian_photo_url?: string;
 
     relationship_id: string;
     MasterRelationship?: MasterRelationship;
@@ -398,10 +398,8 @@ export interface StudentLeaveRequest extends Record<string, unknown> {
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 
     // Relations - Child Count
     _count?: {};
@@ -443,10 +441,8 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 
     student_address_id: string;
     StudentAddress?: StudentAddress;
@@ -483,10 +479,8 @@ export interface StudentTransportPlanTypeChangeHistory extends Record<string, un
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 
     // Relations - Child Count
     _count?: {};
@@ -522,10 +516,8 @@ export interface StudentLoginPush extends Record<string, unknown> {
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 
     // Relations - Child Count
     _count?: {};
@@ -561,8 +553,8 @@ export interface StudentGuardianLoginPush extends Record<string, unknown> {
 
     guardian_id: string;
     StudentGuardian?: StudentGuardian;
-    name?: string;
-    mobile?: string;
+    guardian_details?: string;
+    guardian_photo_url?: string;
 
     // Relations - Child Count
     _count?: {};

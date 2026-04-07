@@ -112,10 +112,12 @@ export interface MasterFixedSchedule extends Record<string, unknown> {
     driver_id?: string;
     Driver?: MasterDriver;
     driver_details?: string;
+    driver_image_url?: string;
 
     attendant_id?: string;
     Attendant?: MasterDriver;
     attendant_details?: string;
+    attendant_image_url?: string;
 
     // Relations - Child
     MasterFixedScheduleStudent?: MasterFixedScheduleStudent[];
@@ -157,10 +159,8 @@ export interface MasterFixedScheduleStudent extends Record<string, unknown> {
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 
     fixed_schedule_id: string;
     MasterFixedSchedule?: MasterFixedSchedule;
@@ -234,10 +234,12 @@ export interface MasterSpecialSchedule extends Record<string, unknown> {
     driver_id?: string;
     Driver?: MasterDriver;
     driver_details?: string;
+    driver_image_url?: string;
 
     attendant_id?: string;
     Attendant?: MasterDriver;
     attendant_details?: string;
+    attendant_image_url?: string;
 
     // Relations - Child
     MasterSpecialScheduleStudent?: MasterSpecialScheduleStudent[];
@@ -272,10 +274,8 @@ export interface MasterSpecialScheduleStudent extends Record<string, unknown> {
 
     student_id: string;
     Student?: Student;
-    roll_number?: string;
-    first_name?: string;
-    last_name?: string;
-    mobile_number?: string;
+    student_details?: string;
+    student_photo_url?: string;
 
     special_schedule_id: string;
     MasterSpecialSchedule?: MasterSpecialSchedule;

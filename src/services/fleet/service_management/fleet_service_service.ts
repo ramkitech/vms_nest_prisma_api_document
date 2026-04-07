@@ -151,6 +151,7 @@ export interface FleetService extends Record<string, unknown> {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -160,6 +161,7 @@ export interface FleetService extends Record<string, unknown> {
   driver_id?: string;
   MasterDriver?: MasterDriver;
   driver_details?: string;
+  driver_image_url?: string;
 
   vendor_id?: string;
   FleetVendor?: FleetVendor;
@@ -176,6 +178,7 @@ export interface FleetService extends Record<string, unknown> {
   assigned_user_id?: string;
   AssignedUser?: User;
   assigned_user_details?: string;
+  assigned_user_image_url?: string;
 
   // Relations - Child
   // Child - Fleet
@@ -261,6 +264,7 @@ export interface FleetServiceFile extends BaseCommonFile {
   user_id?: string;
   User?: User;
   user_details?: string;
+  user_image_url?: string;
 
   service_id: string;
   FleetService?: FleetService;
