@@ -430,8 +430,9 @@ export interface MasterVehicleDropdown extends Record<string, unknown> {
   vn: string;
   vt: string;
 
-  dr_f: string;
   dr_id: string;
+  dr_f?: string;
+  dr_url?: string;
 
   dv_id: string;
   imei: string;

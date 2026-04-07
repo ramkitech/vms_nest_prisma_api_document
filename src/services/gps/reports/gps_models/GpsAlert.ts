@@ -50,5 +50,6 @@ export interface GpsAlert extends Record<string, unknown> {
   vn_f?: string;
   vt?: string;
   dr_f?: string;
+  dr_url?: string;
   ge_f?: string;
 }

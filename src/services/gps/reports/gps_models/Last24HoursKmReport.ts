@@ -3,8 +3,9 @@ export interface Last24HoursKmReport extends Record<string, unknown> {
   v_id: string;
   vn_f: string;
   vt: string;
-  dr_f: string;
   dr_id: string;
+  dr_f?: string;
+  dr_url?: string;
 
   dm: number;
   m_on_ts: number;

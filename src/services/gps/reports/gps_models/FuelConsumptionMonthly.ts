@@ -41,5 +41,6 @@ export interface FuelConsumptionMonthly extends Record<string, unknown> {
   v_id: string;
   vn_f: string;
   d_id: string;
-  dr_f: string;
+  dr_f?: string;
+  dr_url?: string;
 }

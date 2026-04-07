@@ -21,7 +21,8 @@ export interface GpsAnalytics extends Record<string, unknown> {
   date_f: string;
   vn_f: string;
   vt: string;
-  dr_f: string;
+  dr_f?: string;
+  dr_url?: string;
   night_driving_final: NightDrivingData;
 }
 

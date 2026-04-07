@@ -4,7 +4,8 @@ export interface HourlyKmAnalysis extends Record<string, unknown> {
   d_id: string;
   date: string;
   vn_f: string;
-  dr_f: string;
+  dr_f?: string;
+  dr_url?: string;
   id: string;
   day: string;
   hour: string;
