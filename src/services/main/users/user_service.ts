@@ -25,23 +25,32 @@ import { MasterUserStatus } from '../../../services/master/user/master_user_stat
 import { MasterMainLanguage } from '../../../services/master/main/master_main_language_service';
 import { MasterMainDateFormat } from '../../../services/master/main/master_main_date_format_service';
 import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
-import { MasterVehicle } from '../vehicle/master_vehicle_service';
+import { MasterVehicle, MasterVehicleFile } from '../vehicle/master_vehicle_service';
 
 import { BookMark } from 'src/services/account/bookmark_service';
 import { OrganisationNotificationPreferenceUserLink } from 'src/services/account/notification_preferences.service';
-import { Ticket } from 'src/services/account/ticket_service';
+import { Ticket, TicketFile } from 'src/services/account/ticket_service';
 
 import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
-import { FleetFuelRefill } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
-import { FleetFuelRemoval } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
-import { FleetInspection } from 'src/services/fleet/inspection_management/fleet_inspection_management_service';
+import { FleetFuelRefill, FleetFuelRefillFile } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
+import { FleetFuelRemoval, FleetFuelRemovalFile } from 'src/services/fleet/fuel_management/fleet_fuel_removal_service';
+import { FleetInspection, FleetInspectionFile } from 'src/services/fleet/inspection_management/fleet_inspection_management_service';
 import { FleetInspectionSchedule } from 'src/services/fleet/inspection_management/fleet_inspection_schedule_service';
-import { FleetService } from 'src/services/fleet/service_management/fleet_service_service';
+import { FleetService, FleetServiceFile } from 'src/services/fleet/service_management/fleet_service_service';
 import { FleetServiceSchedule } from 'src/services/fleet/service_management/fleet_service_schedule_service';
-import { FleetVendorDocument, FleetVendorReview } from 'src/services/fleet/vendor_management/fleet_vendor_service';
+import { FleetVendor, FleetVendorAddress, FleetVendorBankAccount, FleetVendorContactPerson, FleetVendorDocument, FleetVendorDocumentFile, FleetVendorReview } from 'src/services/fleet/vendor_management/fleet_vendor_service';
 import { OrganisationBranch } from 'src/services/master/organisation/organisation_branch_service';
-import { FleetIncident } from 'src/services/fleet/incident_management/incident_management_service';
-import { FleetIssue } from 'src/services/fleet/issue_management/issue_management_service';
+import { FleetIncident, FleetIncidentCost, FleetIncidentFile } from 'src/services/fleet/incident_management/incident_management_service';
+import { FleetIssue, FleetIssueComment, FleetIssueFile } from 'src/services/fleet/issue_management/issue_management_service';
+import { MasterDriver, MasterDriverFile } from '../drivers/master_driver_service';
+import { Invoice, InvoiceFile } from 'src/services/account/invoice_service';
+import { FleetBreakdown, FleetBreakdownCost, FleetBreakdownFile } from 'src/services/fleet/breakdown_management/breakdown_management_service';
+import { FleetDocument, FleetDocumentFile } from 'src/services/fleet/document_management/document_management_service';
+import { FleetInspectionForm } from 'src/services/fleet/inspection_management/fleet_inspection_form_service';
+import { FleetVendorFuelStation } from 'src/services/fleet/vendor_management/fleet_vendor_fuel_station';
+import { FleetVendorServiceCenter } from 'src/services/fleet/vendor_management/fleet_vendor_service_center';
+import { FleetWorkshop } from 'src/services/fleet/workshop_management/fleet_workshop_service';
+import { MasterDevice, MasterDeviceFile } from '../devices/master_device_service';
 
 const URL = 'user/user';
 
@@ -51,7 +60,7 @@ const ENDPOINTS = {
 
   // File Uploads
   update_user_image: (id: string): string => `${URL}/update_user_image/${id}`,
-  delete_user_image: (id: string): string => `${URL}/delete_user_image/${id}`,
+  remove_user_image: (id: string): string => `${URL}/remove_user_image/${id}`,
 
   // User APIs
   find: `${URL}/search`,
@@ -136,103 +145,180 @@ export interface User extends Record<string, unknown> {
 
   // Relations - Child
 
-  // Child - Fleet
-  FleetVendorDocument?: FleetVendorDocument[]
-  FleetVendorReview?: FleetVendorReview[]
-
-  FleetFuelRefill?: FleetFuelRefill[]
-  FleetFuelRemoval?: FleetFuelRemoval[]
-
-  InspectionSchedule?: FleetInspectionSchedule[]
-  InspectorUser?: FleetInspection[]
-  ApprovedUser?: FleetInspection[]
-
-  FleetIncident?: FleetIncident[]
-
-  FleetIssue?: FleetIssue[]
-
-  FleetServiceManagement?: FleetService[]
-
-  // FleetWorkshop?: FleetWorkshop[]
-
-  // AssignedUser?: FleetServiceJobCard[]
-  // RatingUser?: FleetServiceJobCard[]
-  FleetServiceSchedule?: FleetServiceSchedule[]
-
-  // FleetTripParty?: FleetTripParty[]
-  // FleetTripPartyGroup?: FleetTripPartyGroup[]
-
-  // FleetSparePartsUsage?: FleetSparePartsUsage[]
-  // FleetSparePartsPurchaseOrders?: FleetSparePartsPurchaseOrders[]
-
-  // FleetTyreInspectionSchedule?: FleetTyreInspectionSchedule[]
-  // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[]
-  // FleetTyreInspection?: FleetTyreInspection[]
-
-  // Child - GPS
-  FleetFuelDailySummary?: FleetFuelDailySummary[]
-
-  // GpsLockRelayLog?: GPSLockRelayLog[]
-  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
+  // Child - Main
+  MasterVehicle?: MasterVehicle[];
+  MasterVehicleFile?: MasterVehicleFile[];
+  MasterDriver?: MasterDriver[];
+  MasterDriverFile?: MasterDriverFile[];
+  MasterDevice?: MasterDevice[];
+  MasterDeviceFile?: MasterDeviceFile[];
 
   // Child - Account
-  Ticket?: Ticket[]
-  BookMark?: BookMark[]
-  // FasttagDetails?: FasttagDetails[]
-  // EWayBillDetails?: EWayBillDetails[]
-  UserLoginPush?: UserLoginPush[]
-  UserVehicleLink?: UserVehicleLink[]
-  OrganisationNotificationPreferenceUserLink?: OrganisationNotificationPreferenceUserLink[]
+  Invoice?: Invoice[];
+  InvoiceFile?: InvoiceFile[];
+  Ticket?: Ticket[];
+  TicketFile?: TicketFile[];
+  BookMark?: BookMark[];
+  // FasttagDetails?: FasttagDetails[];
+  // EWayBillDetails?: EWayBillDetails[];
+  UserLoginPush?: UserLoginPush[];
+  UserVehicleLink?: UserVehicleLink[];
+  OrganisationNotificationPreferenceUserLink?: OrganisationNotificationPreferenceUserLink[];
 
-  // Relations - Child Count
+  // Child - Fleet Vendor
+  FleetVendor?: FleetVendor[];
+  FleetVendorAddress?: FleetVendorAddress[];
+  FleetVendorBankAccount?: FleetVendorBankAccount[];
+  FleetVendorContactPerson?: FleetVendorContactPerson[];
+  FleetVendorReview?: FleetVendorReview[];
+  FleetVendorDocument?: FleetVendorDocument[];
+  FleetVendorDocumentFile?: FleetVendorDocumentFile[];
+  FleetVendorServiceCenter?: FleetVendorServiceCenter[];
+  FleetVendorFuelStation?: FleetVendorFuelStation[];
+
+  // Child - Fleet Document
+  FleetDocument?: FleetDocument[];
+  FleetDocumentFile?: FleetDocumentFile[];
+
+  // Child - Fleet Fuel
+  FleetFuelRefill?: FleetFuelRefill[];
+  FleetFuelRemoval?: FleetFuelRemoval[];
+  FleetFuelRefillFile?: FleetFuelRefillFile[];
+  FleetFuelRemovalFile?: FleetFuelRemovalFile[];
+
+  // Child - Fleet Issue
+  FleetIssue?: FleetIssue[];
+  FleetIssueComment?: FleetIssueComment[];
+  FleetIssueFile?: FleetIssueFile[];
+
+  // Child - Fleet Service
+  FleetServiceSchedule?: FleetServiceSchedule[];
+  FleetService?: FleetService[];
+  AssignedUser?: FleetService[];
+  FleetServiceFile?: FleetServiceFile[];
+
+  // Child - Fleet Inspection
+  FleetInspectionForm?: FleetInspectionForm[];
+  FleetInspectionSchedule?: FleetInspectionSchedule[];
+  FleetInspection?: FleetInspection[];
+  FleetInspectionFile?: FleetInspectionFile[];
+
+  // Child - Fleet Breakdown
+  FleetBreakdown?: FleetBreakdown[];
+  FleetBreakdownCost?: FleetBreakdownCost[];
+  FleetBreakdownFile?: FleetBreakdownFile[];
+
+  // Child - Fleet Incident
+  FleetIncident?: FleetIncident[];
+  FleetIncidentCost?: FleetIncidentCost[];
+  FleetIncidentFile?: FleetIncidentFile[];
+
+  // Child - Fleet Workshop
+  FleetWorkshop?: FleetWorkshop[];
+
+  // Child - Fleet Trip
+  // FleetTripParty?: FleetTripParty[];
+  // FleetTripPartyGroup?: FleetTripPartyGroup[];
+
+  // Child - Fleet Spare Parts
+  // FleetSparePartsUsage?: FleetSparePartsUsage[];
+  // FleetSparePartsPurchaseOrders?: FleetSparePartsPurchaseOrders[];
+
+  // Child - Fleet Tyre
+  // FleetTyreInventory?: FleetTyreInventory[];
+  // FleetTyreRetreading?: FleetTyreRetreading[];
+  // RetreadingAssignedUser?: FleetTyreRetreading[];
+  // FleetTyreDamageRepair?: FleetTyreDamageRepair[];
+  // DamageRepairAssignedUser?: FleetTyreDamageRepair[];
+  // FleetTyreInspectionSchedule?: FleetTyreInspectionSchedule[];
+  // FleetTyreInspection?: FleetTyreInspection[];
+  // FleetTyreInspectionFile?: FleetTyreInspectionFile[];
+
+  // Child - GPS
+  FleetFuelDailySummary?: FleetFuelDailySummary[];
+  // GpsLockRelayLog?: GPSLockRelayLog[];
+  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[];
+
+  // _count
   _count?: {
-    // Child - Fleet
-    FleetVendorDocument?: number;
-    FleetVendorReview?: number;
+    MasterVehicle?: number;
+    MasterVehicleFile?: number;
+    MasterDriver?: number;
+    MasterDriverFile?: number;
+    MasterDevice?: number;
+    MasterDeviceFile?: number;
 
-    FleetFuelRefill?: number;
-    FleetFuelRemoval?: number;
-
-    InspectionSchedule?: number;
-    InspectorUser?: number;
-    ApprovedUser?: number;
-
-    IncidentManagement?: number;
-
-    IssueManagement?: number;
-
-    FleetServiceManagement?: number;
-
-    // FleetWorkshop?: FleetWorkshop[]
-
-    // AssignedUser?: FleetServiceJobCard[]
-    // RatingUser?: FleetServiceJobCard[]
-    FleetServiceSchedule?: number;
-
-    // FleetTripParty?: FleetTripParty[]
-    // FleetTripPartyGroup?: FleetTripPartyGroup[]
-
-    // FleetSparePartsUsage?: FleetSparePartsUsage[]
-    // FleetSparePartsPurchaseOrders?: FleetSparePartsPurchaseOrders[]
-
-    // FleetTyreInspectionSchedule?: FleetTyreInspectionSchedule[]
-    // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[]
-    // FleetTyreInspection?: FleetTyreInspection[]
-
-    // Child - GPS
-    FleetFuelDailySummary?: number;
-
-    // GpsLockRelayLog?: GPSLockRelayLog[]
-    // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
-
-    // Child - Account
+    Invoice?: number;
+    InvoiceFile?: number;
     Ticket?: number;
+    TicketFile?: number;
     BookMark?: number;
-    // FasttagDetails?: FasttagDetails[]
-    // EWayBillDetails?: EWayBillDetails[]
+    FasttagDetails?: number;
+    EWayBillDetails?: number;
     UserLoginPush?: number;
     UserVehicleLink?: number;
     OrganisationNotificationPreferenceUserLink?: number;
+
+    FleetVendor?: number;
+    FleetVendorAddress?: number;
+    FleetVendorBankAccount?: number;
+    FleetVendorContactPerson?: number;
+    FleetVendorReview?: number;
+    FleetVendorDocument?: number;
+    FleetVendorDocumentFile?: number;
+    FleetVendorServiceCenter?: number;
+    FleetVendorFuelStation?: number;
+
+    FleetDocument?: number;
+    FleetDocumentFile?: number;
+
+    FleetFuelRefill?: number;
+    FleetFuelRemoval?: number;
+    FleetFuelRefillFile?: number;
+    FleetFuelRemovalFile?: number;
+
+    FleetIssue?: number;
+    FleetIssueComment?: number;
+    FleetIssueFile?: number;
+
+    FleetServiceSchedule?: number;
+    FleetService?: number;
+    AssignedUser?: number;
+    FleetServiceFile?: number;
+
+    FleetInspectionForm?: number;
+    FleetInspectionSchedule?: number;
+    FleetInspection?: number;
+    FleetInspectionFile?: number;
+
+    FleetBreakdown?: number;
+    FleetBreakdownCost?: number;
+    FleetBreakdownFile?: number;
+
+    FleetIncident?: number;
+    FleetIncidentCost?: number;
+    FleetIncidentFile?: number;
+
+    FleetWorkshop?: number;
+
+    FleetTripParty?: number;
+    FleetTripPartyGroup?: number;
+
+    FleetSparePartsUsage?: number;
+    FleetSparePartsPurchaseOrders?: number;
+
+    FleetTyreInventory?: number;
+    FleetTyreRetreading?: number;
+    RetreadingAssignedUser?: number;
+    FleetTyreDamageRepair?: number;
+    DamageRepairAssignedUser?: number;
+    FleetTyreInspectionSchedule?: number;
+    FleetTyreInspection?: number;
+    FleetTyreInspectionFile?: number;
+
+    FleetFuelDailySummary?: number;
+    GpsLockRelayLog?: number;
+    GPSLockDigitalDoorLog?: number;
   };
 }
 
@@ -249,7 +335,8 @@ export interface UserVehicleLink extends Record<string, unknown> {
   // Relations - Parent
   user_id: string;
   User?: User;
-  User_details?: string;
+  user_details?: string;
+  user_image_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -290,7 +377,8 @@ export interface UserLoginPush extends Record<string, unknown> {
 
   user_id: string;
   User?: User;
-  User_details?: string;
+  user_details?: string;
+  user_image_url?: string;
 }
 
 // User Create/Update Schema
@@ -351,9 +439,9 @@ export type UserQueryDTO = z.infer<typeof UserQuerySchema>;
 // User Logo Schema
 export const UserLogoSchema = z.object({
   // Profile Image/Logo
-  user_image_url: stringMandatory('User Image URL', 0, 300),
-  user_image_key: stringMandatory('User Image Key', 0, 300),
-  user_image_name: stringMandatory('User Image Name', 0, 300),
+  user_image_url: stringMandatory('User Image URL', 1, 300),
+  user_image_key: stringMandatory('User Image Key', 1, 300),
+  user_image_name: stringMandatory('User Image Name', 1, 300),
 });
 export type UserLogoDTO = z.infer<typeof UserLogoSchema>;
 
@@ -476,8 +564,8 @@ export const update_user_image = async (id: string, data: UserLogoDTO): Promise<
   return apiPatch<SBR, UserLogoDTO>(ENDPOINTS.update_user_image(id), data);
 };
 
-export const delete_user_image = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_user_image(id));
+export const remove_user_image = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_user_image(id));
 };
 
 // User APIs

@@ -39,17 +39,19 @@ import { FleetService } from 'src/services/fleet/service_management/fleet_servic
 import { GPSGeofenceTransaction } from 'src/services/gps/features/geofence/gps_geofence_transaction_service';
 import { GPSGeofenceTransactionSummary } from 'src/services/gps/features/geofence/gps_geofence_transaction_summary_service';
 import { TripGeofenceToGeofence } from 'src/services/gps/features/geofence/trip_geofence_to_geofence_service';
+import { User } from '../users/user_service';
+import { FleetBreakdown } from 'src/services/fleet/breakdown_management/breakdown_management_service';
 
 const URL = 'main/master_driver';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  master_driver_logo_presigned_url: (fileName: string): string => `${URL}/master_driver_logo_presigned_url/${fileName}`,
+  master_driver_image_presigned_url: (fileName: string): string => `${URL}/master_driver_image_presigned_url/${fileName}`,
   master_driver_file_presigned_url: `${URL}/master_driver_file_presigned_url`,
 
   // File Uploads
-  update_master_driver_logo: (id: string): string => `${URL}/update_master_driver_logo/${id}`,
-  delete_master_driver_logo: (id: string): string => `${URL}/delete_master_driver_logo/${id}`,
+  update_master_driver_image: (id: string): string => `${URL}/update_master_driver_image/${id}`,
+  remove_master_driver_image: (id: string): string => `${URL}/remove_master_driver_image/${id}`,
 
   create_master_driver_file: `${URL}/create_master_driver_file`,
   remove_master_driver_file: (id: string): string => `${URL}/remove_master_driver_file/${id}`,
@@ -60,8 +62,6 @@ const ENDPOINTS = {
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
 
-  update_logo: (id: string): string => `${URL}/update_logo/${id}`,
-  delete_logo: (id: string): string => `${URL}/delete_logo/${id}`,
   update_profile: (id: string): string => `${URL}/update_profile/${id}`,
 
   // Cache APIs
@@ -116,6 +116,11 @@ export interface MasterDriver extends Record<string, unknown> {
   organisation_name?: string;
   organisation_code?: string;
 
+  user_id?: string;
+  User?: User;
+  user_details?: string;
+  user_image_url?: string;
+
   organisation_sub_company_id?: string;
   OrganisationSubCompany?: OrganisationSubCompany;
   sub_company_name?: string;
@@ -137,9 +142,6 @@ export interface MasterDriver extends Record<string, unknown> {
   // Relations - Child
   DriverLoginPush?: DriverLoginPush[]
   MasterDriverFile?: MasterDriverFile[]
-  // Child - Fleet
-  FleetFuelRefill?: FleetFuelRefill[]
-  FleetFuelRemoval?: FleetFuelRemoval[]
 
   TripGeofenceToGeofence?: TripGeofenceToGeofence[]
   GPSGeofenceTransaction?: GPSGeofenceTransaction[]
@@ -149,19 +151,23 @@ export interface MasterDriver extends Record<string, unknown> {
   // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
   GPSGeofenceTransactionSummary?: GPSGeofenceTransactionSummary[]
 
-  Inspection?: FleetInspection[]
+  // Child - Fleet
+  FleetIssue?: FleetIssue[];
 
-  FleetIncident?: FleetIncident[]
+  FleetBreakdown?: FleetBreakdown[];
 
-  FleetIssue?: FleetIssue[]
+  FleetIncident?: FleetIncident[];
 
-  FleetServiceManagement?: FleetService[]
+  FleetInspection?: FleetInspection[];
 
-  // FleetServiceJobCard?: FleetServiceJobCard[]
+  FleetService?: FleetService[];
 
-  // FleetTyreDamageRepair?: FleetTyreDamageRepair[]
+  FleetFuelRefill?: FleetFuelRefill[];
+  FleetFuelRemoval?: FleetFuelRemoval[];
 
-  // FleetTyreRotation?: FleetTyreRotation[]
+  // FleetTyreInspection?:   FleetTyreInspection[];
+  // FleetTyreDamageRepair?: FleetTyreDamageRepair[];
+  // FleetTyreRotation?: FleetTyreRotation[];
 
   // // Relations - Child Count
   _count?: {
@@ -170,19 +176,25 @@ export interface MasterDriver extends Record<string, unknown> {
     DriverLoginPush?: number;
     MasterDriverFile?: number;
 
-    FleetFuelRefill?: number;
-    FleetFuelRemoval?: number;
-
     TripGeofenceToGeofence?: number;
     GPSGeofenceTransaction?: number;
     FleetFuelDailySummary?: number;
 
+    GPSLockRelayLog?: number;
+    GPSLockDigitalDoorLog?: number;
     GPSGeofenceTransactionSummary?: number;
-    Inspection?: number;
-    IncidentManagement?: number;
 
-    IssueManagement?: number;
-    FleetServiceManagement?: number;
+    // Child - Fleet
+    FleetIssue?: number;
+    FleetBreakdown?: number;
+    FleetIncident?: number;
+    FleetInspection?: number;
+    FleetService?: number;
+    FleetFuelRefill?: number;
+    FleetFuelRemoval?: number;
+    FleetTyreInspection?: number;
+    FleetTyreDamageRepair?: number;
+    FleetTyreRotation?: number;
   };
 }
 
@@ -196,6 +208,11 @@ export interface MasterDriverFile extends BaseCommonFile {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+
+  user_id?: string;
+  User?: User;
+  user_details?: string;
+  user_image_url?: string;
 
   driver_id: string;
   MasterDriver?: MasterDriver;
@@ -223,7 +240,7 @@ export interface AssignRemoveDriverHistory extends Record<string, unknown> {
 
   // Relations - Parent
   vehicle_id: string;
-  Vehicle?: MasterVehicle;
+  MasterVehicle?: MasterVehicle;
   vehicle_number?: string;
   vehicle_type?: string;
 
@@ -274,6 +291,7 @@ export interface DriverLoginPush extends Record<string, unknown> {
 export const MasterDriverFileSchema = BaseFileSchema.extend({
   // Relations - Parent
   organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
   driver_id: single_select_optional('MasterDriver'), // Single-Selection -> MasterDriver
 });
 export type MasterDriverFileDTO = z.infer<typeof MasterDriverFileSchema>;
@@ -282,6 +300,7 @@ export type MasterDriverFileDTO = z.infer<typeof MasterDriverFileSchema>;
 export const MasterDriverSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
   organisation_sub_company_id: single_select_optional('OrganisationSubCompany'), // Single-Selection -> OrganisationSubCompany
   organisation_branch_id: single_select_optional('OrganisationBranch'), // Single-Selection -> OrganisationBranch
   organisation_color_id: single_select_optional('OrganisationColor'), // Single-Selection -> OrganisationColor
@@ -325,6 +344,7 @@ export const MasterDriverQuerySchema = BaseQuerySchema.extend({
 
   // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+  user_ids: multi_select_optional('User'), // Multi-Selection -> User
   organisation_sub_company_ids: multi_select_optional('OrganisationSubCompany'), // Multi-Selection -> OrganisationSubCompany
   organisation_branch_ids: multi_select_optional('OrganisationBranch'), // Multi-Selection -> OrganisationBranch
   organisation_color_ids: multi_select_optional('OrganisationColor'), // Multi-Selection -> OrganisationColor
@@ -339,7 +359,7 @@ export const MasterDriverQuerySchema = BaseQuerySchema.extend({
     getAllEnums(DriverType),
   ),
   is_vehicle_assigned: enumArrayOptional(
-    'Iss Vehicle Assigned',
+    'Is Vehicle Assigned',
     YesNo,
     getAllEnums(YesNo),
   ),
@@ -349,9 +369,9 @@ export type MasterDriverQueryDTO = z.infer<typeof MasterDriverQuerySchema>;
 // MasterDriver Logo Schema
 export const MasterDriverLogoSchema = z.object({
   // Profile Image/Logo
-  driver_image_url: stringMandatory('Driver Image URL', 0, 300),
-  driver_image_key: stringMandatory('Driver Image Key', 0, 300),
-  driver_image_name: stringMandatory('Driver Image Name', 0, 300),
+  driver_image_url: stringMandatory('Driver Image URL', 1, 300),
+  driver_image_key: stringMandatory('Driver Image Key', 1, 300),
+  driver_image_name: stringMandatory('Driver Image Name', 1, 300),
 });
 export type MasterDriverLogoDTO = z.infer<typeof MasterDriverLogoSchema>;
 
@@ -371,13 +391,6 @@ export const MasterDriverProfileSchema = z.object({
   driver_license: stringOptional('Driver License', 0, 20),
   driver_pan: stringOptional('Driver PAN', 0, 10),
   driver_aadhaar: stringOptional('Driver Aadhaar', 0, 12),
-
-  // Additional Files
-  MasterDriverFileSchema: nestedArrayOfObjectsOptional(
-    'MasterDriverFileSchema',
-    MasterDriverFileSchema,
-    [],
-  ),
 });
 export type MasterDriverProfileDTO = z.infer<typeof MasterDriverProfileSchema>;
 
@@ -401,6 +414,7 @@ export const toDriverPayload = (row: MasterDriver): MasterDriverDTO => ({
   driver_image_name: row.driver_image_name || '',
 
   organisation_id: row.organisation_id || '',
+  user_id: row.user_id || '',
   organisation_sub_company_id: row.organisation_sub_company_id || '',
   organisation_branch_id: row.organisation_branch_id || '',
   organisation_color_id: row.organisation_color_id || '',
@@ -426,8 +440,9 @@ export const toDriverPayload = (row: MasterDriver): MasterDriverDTO => ({
     modified_date_time: file.modified_date_time,
 
     organisation_id: file.organisation_id ?? '',
+    user_id: file.user_id ?? '',
     driver_id: file.driver_id ?? '',
-  })) ?? []
+  })) ?? [],
 });
 
 // Create New MasterDriver Payload
@@ -450,6 +465,7 @@ export const newDriverPayload = (): MasterDriverDTO => ({
   driver_image_name: '',
 
   organisation_id: '',
+  user_id: '',
   organisation_sub_company_id: '',
   organisation_branch_id: '',
   organisation_color_id: '',
@@ -474,32 +490,11 @@ export const toDriverProfilePayload = (row: MasterDriver): MasterDriverProfileDT
   driver_image_url: row.driver_image_url || '',
   driver_image_key: row.driver_image_key || '',
   driver_image_name: row.driver_image_name || '',
-
-  MasterDriverFileSchema: row.MasterDriverFile?.map((file) => ({
-    driver_file_id: file.driver_file_id || '',
-
-    usage_type: file.usage_type,
-
-    file_type: file.file_type,
-    file_url: file.file_url || '',
-    file_key: file.file_key || '',
-    file_name: file.file_name || '',
-    file_description: file.file_description || '',
-    file_size: file.file_size || 0,
-    file_metadata: file.file_metadata || {},
-
-    status: file.status,
-    added_date_time: file.added_date_time,
-    modified_date_time: file.modified_date_time,
-
-    organisation_id: file.organisation_id ?? '',
-    driver_id: file.driver_id ?? '',
-  })) ?? []
 });
 
 // AWS S3 PRESIGNED
-export const get_master_driver_logo_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.master_driver_logo_presigned_url(fileName));
+export const get_master_driver_image_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.master_driver_image_presigned_url(fileName));
 };
 
 export const get_master_driver_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
@@ -507,12 +502,12 @@ export const get_master_driver_file_presigned_url = async (data: FilePresignedUr
 };
 
 // File Uploads
-export const update_master_driver_logo = async (id: string, data: MasterDriverLogoDTO): Promise<SBR> => {
-  return apiPatch<SBR, MasterDriverLogoDTO>(ENDPOINTS.update_master_driver_logo(id), data);
+export const update_master_driver_image = async (id: string, data: MasterDriverLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterDriverLogoDTO>(ENDPOINTS.update_master_driver_image(id), data);
 };
 
-export const delete_master_driver_logo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_master_driver_logo(id));
+export const remove_master_driver_image = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_master_driver_image(id));
 };
 
 export const create_master_driver_file = async (data: MasterDriverFileDTO): Promise<SBR> => {
@@ -523,7 +518,7 @@ export const remove_master_driver_file = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_master_driver_file(id));
 };
 
-// AMasterDriver APIs
+// MasterDriver APIs
 export const findMasterDriver = async (data: MasterDriverQueryDTO): Promise<FBR<MasterDriver[]>> => {
   return apiPost<FBR<MasterDriver[]>, MasterDriverQueryDTO>(ENDPOINTS.find, data);
 };
@@ -538,14 +533,6 @@ export const updateMasterDriver = async (id: string, data: MasterDriverDTO): Pro
 
 export const deleteMasterDriver = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
-};
-
-export const updateMasterDriverLogo = async (id: string, data: MasterDriverLogoDTO): Promise<SBR> => {
-  return apiPatch<SBR, MasterDriverLogoDTO>(ENDPOINTS.update_logo(id), data);
-};
-
-export const deleteMasterDriverLogo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_logo(id));
 };
 
 export const updateMasterDriverProfile = async (id: string, data: MasterDriverProfileDTO): Promise<SBR> => {
