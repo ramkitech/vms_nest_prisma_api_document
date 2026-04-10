@@ -137,7 +137,7 @@ export const MasterMainLandmarkSchema = z.object({
   // GPS
   latitude: doubleOptionalLatLng('Latitude'),
   longitude: doubleOptionalLatLng('Longitude'),
-  google_location: stringOptional('Google Location', 0, 100),
+  google_location: stringOptional('Google Location', 0, 500),
 
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
