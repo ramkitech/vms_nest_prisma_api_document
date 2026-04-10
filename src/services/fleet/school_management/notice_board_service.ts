@@ -53,6 +53,7 @@ export interface OrganisationNoticeBoard extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     organisation_branch_id?: string;
     OrganisationBranch?: OrganisationBranch;

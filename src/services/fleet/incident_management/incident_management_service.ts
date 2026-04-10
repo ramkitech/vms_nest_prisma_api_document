@@ -126,6 +126,7 @@ export interface FleetIncident extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   user_id?: string;
   User?: User;
@@ -184,6 +185,7 @@ export interface FleetIncidentFile extends BaseCommonFile {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   user_id?: string;
   User?: User;
@@ -218,6 +220,7 @@ export interface FleetIncidentCost extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   user_id?: string;
   User?: User;

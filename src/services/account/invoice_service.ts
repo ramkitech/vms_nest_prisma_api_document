@@ -72,6 +72,7 @@ export interface Invoice extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   currency_id: string;
   MasterMainCurrency?: MasterMainCurrency;
@@ -98,6 +99,7 @@ export interface InvoiceFile extends BaseCommonFile {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   invoice_id: string;
   Invoice?: Invoice;

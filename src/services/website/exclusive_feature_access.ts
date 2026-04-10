@@ -41,6 +41,7 @@ export interface ExclusiveFeatureAccess extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     // Metadata
     status: Status;
@@ -50,30 +51,30 @@ export interface ExclusiveFeatureAccess extends Record<string, unknown> {
 
 // ExclusiveFeatureAccess Create/Update Schema
 export const ExclusiveFeatureAccessSchema = z.object({
-  // Relations - Parent
-  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+    // Relations - Parent
+    organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
 
-  // Main Field Details
-  subject: stringMandatory('Subject', 3, 100),
-  message: stringOptional('Message', 0, 500),
+    // Main Field Details
+    subject: stringMandatory('Subject', 3, 100),
+    message: stringOptional('Message', 0, 500),
 
-  // Metadata
-  status: enumMandatory('Status', Status, Status.Active),
+    // Metadata
+    status: enumMandatory('Status', Status, Status.Active),
 });
 export type ExclusiveFeatureAccessDTO = z.infer<
-  typeof ExclusiveFeatureAccessSchema
+    typeof ExclusiveFeatureAccessSchema
 >;
 
 // ExclusiveFeatureAccess Query Schema
 export const ExclusiveFeatureAccessQuerySchema = BaseQuerySchema.extend({
-  // Self Table
-  exclusive_feature_access_ids: multi_select_optional('ExclusiveFeatureAccess'), // Multi-selection -> ExclusiveFeatureAccess
+    // Self Table
+    exclusive_feature_access_ids: multi_select_optional('ExclusiveFeatureAccess'), // Multi-selection -> ExclusiveFeatureAccess
 
-  // Relations - Parent
-  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    // Relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
 });
 export type ExclusiveFeatureAccessQueryDTO = z.infer<
-  typeof ExclusiveFeatureAccessQuerySchema
+    typeof ExclusiveFeatureAccessQuerySchema
 >;
 
 // Convert existing data to a payload structure

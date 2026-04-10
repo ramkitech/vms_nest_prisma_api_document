@@ -111,6 +111,7 @@ export interface FleetFuelRemoval extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   user_id?: string;
   User?: User;
@@ -158,6 +159,7 @@ export interface FleetFuelRemovalFile extends BaseCommonFile {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   fleet_fuel_removal_id: string;
   FleetFuelRemoval?: FleetFuelRemoval;

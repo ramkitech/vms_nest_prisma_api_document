@@ -55,6 +55,7 @@ export interface GPSTrackHistoryShareLink extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -90,6 +91,8 @@ export interface GPSTrackHistoryShareLinkNotification extends Record<string, unk
   organisation_id: string;
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
+  organisation_code?: string;
+  organisation_logo_url?: string;
 
   gps_track_history_share_link_id: string;
   GPSTrackHistoryShareLink?: GPSTrackHistoryShareLink;

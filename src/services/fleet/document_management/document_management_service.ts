@@ -88,6 +88,7 @@ export interface FleetDocument extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     user_id?: string;
     User?: User;
@@ -131,6 +132,7 @@ export interface FleetDocumentFile extends BaseCommonFile {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     user_id?: string;
     User?: User;
@@ -162,6 +164,7 @@ export interface FleetDocumentExpiry extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     vehicle_id: string;
     MasterVehicle?: MasterVehicle;

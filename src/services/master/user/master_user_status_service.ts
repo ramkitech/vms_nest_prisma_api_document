@@ -53,6 +53,7 @@ export interface MasterUserStatus extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   // Relations - Child
   // Child - User

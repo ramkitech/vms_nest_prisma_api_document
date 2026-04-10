@@ -19,9 +19,7 @@ import { MasterMainCurrency } from '../../../services/master/main/master_main_cu
 import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
 import { MasterMainState } from '../../../services/master/main/master_main_state_service';
 import { UserOrganisation } from '../../../services/main/users/user_organisation_service';
-import { MasterFuelCompany } from '../expense/master_fuel_company_service';
 import { MasterVehicle } from 'src/services/main/vehicle/master_vehicle_service';
-import { MasterDevice } from 'src/services/main/devices/master_device_service';
 import { MasterMainLandMark } from './master_main_landmark_service';
 
 const URL = 'master/main/country';

@@ -56,6 +56,7 @@ export interface GPSGeofenceTransactionSummary extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;

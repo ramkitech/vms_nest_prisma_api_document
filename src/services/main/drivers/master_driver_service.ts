@@ -115,6 +115,7 @@ export interface MasterDriver extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   user_id?: string;
   User?: User;
@@ -208,6 +209,7 @@ export interface MasterDriverFile extends BaseCommonFile {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   user_id?: string;
   User?: User;
@@ -280,6 +282,7 @@ export interface DriverLoginPush extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   driver_id: string;
   MasterDriver?: MasterDriver;

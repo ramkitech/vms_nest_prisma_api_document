@@ -177,6 +177,7 @@ export interface Student extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -268,6 +269,7 @@ export interface StudentAddress extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -313,6 +315,7 @@ export interface StudentGuardian extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -345,6 +348,7 @@ export interface StudentGuardianLink extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -390,6 +394,7 @@ export interface StudentLeaveRequest extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -433,6 +438,7 @@ export interface StudentStopChangeRequest extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -471,6 +477,7 @@ export interface StudentTransportPlanTypeChangeHistory extends Record<string, un
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     organisation_branch_id: string;
     OrganisationBranch?: OrganisationBranch;
@@ -513,6 +520,7 @@ export interface StudentLoginPush extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     student_id: string;
     Student?: Student;
@@ -550,6 +558,7 @@ export interface StudentGuardianLoginPush extends Record<string, unknown> {
     UserOrganisation?: UserOrganisation;
     organisation_name?: string;
     organisation_code?: string;
+    organisation_logo_url?: string;
 
     guardian_id: string;
     StudentGuardian?: StudentGuardian;

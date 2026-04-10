@@ -65,6 +65,7 @@ export interface MasterFuelCompany extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   country_id: string;
   MasterMainCountry?: MasterMainCountry;

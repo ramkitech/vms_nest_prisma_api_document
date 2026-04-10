@@ -56,6 +56,7 @@ export interface GPSLiveTrackShareLink extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   vehicle_id: string;
   MasterVehicle?: MasterVehicle;
@@ -93,6 +94,7 @@ export interface GPSLiveTrackShareLinkNotification extends Record<string, unknow
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   gps_live_track_share_link_id: string;
   GPSLiveTrackShareLink?: GPSLiveTrackShareLink;

@@ -61,6 +61,7 @@ export interface OrganisationReportPreference extends Record<string, unknown> {
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   // Relations - Child
   OrganisationReportPreferenceVehicleLink: OrganisationReportPreferenceVehicleLink[]
@@ -125,6 +126,7 @@ export interface OrganisationReportAutomationMail extends Record<string, unknown
   UserOrganisation?: UserOrganisation;
   organisation_name?: string;
   organisation_code?: string;
+  organisation_logo_url?: string;
 
   report_preference_id: string;
   OrganisationReportPreference?: OrganisationReportPreference;
