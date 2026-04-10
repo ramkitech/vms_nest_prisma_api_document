@@ -32,7 +32,7 @@ import { MasterMainUnitVolume } from '../../../services/master/main/master_main_
 
 // Other Models Childs
 import { DriverLoginPush, MasterDriver, MasterDriverFile } from '../../../services/main/drivers/master_driver_service';
-import { MasterDevice } from '../../../services/main/devices/master_device_service';
+import { MasterDevice, MasterDeviceFile } from '../../../services/main/devices/master_device_service';
 import { User, UserLoginPush } from '../../../services/main/users/user_service';
 
 import { OrganisationBranch } from '../../../services/master/organisation/organisation_branch_service';
@@ -49,7 +49,7 @@ import { Ticket, TicketFile } from 'src/services/account/ticket_service';
 import { BusStop } from 'src/services/fleet/bus_mangement/bus_stop';
 import { MasterRoute, MasterRouteStop } from 'src/services/fleet/bus_mangement/master_route';
 import { OrganisationNoticeBoard } from 'src/services/fleet/school_management/notice_board_service';
-import { Student, StudentAddress, StudentGuardianLink, StudentLeaveRequest, StudentStopChangeRequest } from 'src/services/fleet/school_management/student_service';
+import { Student, StudentAddress, StudentGuardian, StudentGuardianLink, StudentGuardianLoginPush, StudentLeaveRequest, StudentLoginPush, StudentStopChangeRequest, StudentTransportPlanTypeChangeHistory } from 'src/services/fleet/school_management/student_service';
 
 import { FleetFuelDailySummary } from 'src/services/fleet/fuel_management/fleet_fuel_daily_summary_service';
 import { FleetFuelRefill, FleetFuelRefillFile } from 'src/services/fleet/fuel_management/fleet_fuel_refill_service';
@@ -112,13 +112,20 @@ import { MasterVehicleStatusType } from 'src/services/master/vehicle/master_vehi
 import { MasterVehicleSubModel } from 'src/services/master/vehicle/master_vehicle_sub_model_service';
 import { MasterVehicleType } from 'src/services/master/vehicle/master_vehicle_type_service';
 import { MasterMainUnitDistance } from 'src/services/master/main/master_main_unit_distance_service';
-import { MasterFixedSchedule, MasterFixedScheduleStudent } from 'src/services/fleet/bus_mangement/master_schedule';
+import { MasterFixedSchedule, MasterFixedScheduleStudent, MasterSpecialSchedule, MasterSpecialScheduleStudent } from 'src/services/fleet/bus_mangement/master_schedule';
 import { FixedScheduleDayRun, FixedScheduleDayRunStop, FixedScheduleDayRunStudent } from 'src/services/fleet/bus_mangement/day_run';
 import { MasterFleetServiceTask } from 'src/services/master/fleet/master_fleet_service_task_service';
 import { MasterFleetServicePart } from 'src/services/master/fleet/master_fleet_service_part_service';
 import { FleetIncident, FleetIncidentCost, FleetIncidentFile } from 'src/services/fleet/incident_management/incident_management_service';
 import { FleetIssue, FleetIssueComment, FleetIssueFile } from 'src/services/fleet/issue_management/issue_management_service';
 import { MasterVehicle, MasterVehicleFile, VehicleOdometerHistory } from '../vehicle/master_vehicle_service';
+import { Invoice, InvoiceFile } from 'src/services/account/invoice_service';
+import { ExclusiveFeatureAccess } from 'src/services/website/exclusive_feature_access';
+import { MasterFleetBreakdownType } from 'src/services/master/fleet/master_fleet_breakdown_type_service';
+import { FleetDocument, FleetDocumentExpiry, FleetDocumentFile } from 'src/services/fleet/document_management/document_management_service';
+import { FleetBreakdown, FleetBreakdownCost, FleetBreakdownFile } from 'src/services/fleet/breakdown_management/breakdown_management_service';
+import { FleetServiceSchedule } from 'src/services/fleet/service_management/fleet_service_schedule_service';
+import { FleetWorkshop } from 'src/services/fleet/workshop_management/fleet_workshop_service';
 
 const URL = 'user/organisation';
 
@@ -220,6 +227,7 @@ export interface UserOrganisation extends Record<string, unknown> {
   MasterMainCurrency?: MasterMainCurrency;
   currency_name?: string;
   currency_code?: string;
+  currency_symbol?: string;
 
   language_id?: string;
   MasterMainLanguage?: MasterMainLanguage;
@@ -230,6 +238,7 @@ export interface UserOrganisation extends Record<string, unknown> {
   MasterMainTimeZone?: MasterMainTimeZone;
   time_zone_code?: string;
   time_zone_identifier?: string;
+  time_zone_offset?: string;
 
   date_format_id?: string;
   MasterMainDateFormat?: MasterMainDateFormat;
@@ -252,202 +261,213 @@ export interface UserOrganisation extends Record<string, unknown> {
   volume_unit_code?: string;
 
   // Relations - Child
+
   // Child - Main
-  User?: User[]
-  MasterDriver?: MasterDriver[]
-  MasterDriverFile?: MasterDriverFile[]
-  MasterDevice?: MasterDevice[]
-  // MasterDeviceFile?: MasterDeviceFile[]
-  MasterVehicle?: MasterVehicle[]
-  MasterVehicleFile?: MasterVehicleFile[]
-  VehicleOdometerHistory?: VehicleOdometerHistory[]
+  Invoice?: Invoice[];
+  InvoiceFile?: InvoiceFile[];
+  User?: User[];
+  MasterDriver?: MasterDriver[];
+  MasterDriverFile?: MasterDriverFile[];
+  MasterDevice?: MasterDevice[];
+  MasterDeviceFile?: MasterDeviceFile[];
+  MasterVehicle?: MasterVehicle[];
+  MasterVehicleFile?: MasterVehicleFile[];
+  VehicleOdometerHistory?: VehicleOdometerHistory[];
+  ExclusiveFeatureAccess?: ExclusiveFeatureAccess[];
 
   // Child - Master
-  OrganisationSubCompany?: OrganisationSubCompany[]
-  OrganisationBranch?: OrganisationBranch[]
-  OrganisationColor?: OrganisationColor[]
-  OrganisationTag?: OrganisationTag[]
-  OrganisationGroup?: OrganisationGroup[]
+  OrganisationSubCompany?: OrganisationSubCompany[];
+  OrganisationBranch?: OrganisationBranch[];
+  OrganisationColor?: OrganisationColor[];
+  OrganisationTag?: OrganisationTag[];
+  OrganisationGroup?: OrganisationGroup[];
 
-  MasterVehicleType?: MasterVehicleType[]
-  MasterVehicleMake?: MasterVehicleMake[]
-  MasterVehicleModel?: MasterVehicleModel[]
-  MasterVehicleSubModel?: MasterVehicleSubModel[]
-  MasterVehicleStatusType?: MasterVehicleStatusType[]
-  MasterVehicleOwnershipType?: MasterVehicleOwnershipType[]
-  MasterVehicleAssociatedTo?: MasterVehicleAssociatedTo[]
-  MasterVehicleFuelType?: MasterVehicleFuelType[]
-  MasterVehicleFuelUnit?: MasterVehicleFuelUnit[]
-  MasterVehicleFuelRemovalReason?: MasterVehicleFuelRemovalReason[]
-  MasterVehicleDocumentType?: MasterVehicleDocumentType[]
+  MasterVehicleType?: MasterVehicleType[];
+  MasterVehicleMake?: MasterVehicleMake[];
+  MasterVehicleModel?: MasterVehicleModel[];
+  MasterVehicleSubModel?: MasterVehicleSubModel[];
+  MasterVehicleStatusType?: MasterVehicleStatusType[];
+  MasterVehicleOwnershipType?: MasterVehicleOwnershipType[];
+  MasterVehicleAssociatedTo?: MasterVehicleAssociatedTo[];
+  MasterVehicleFuelType?: MasterVehicleFuelType[];
+  MasterVehicleFuelUnit?: MasterVehicleFuelUnit[];
+  MasterVehicleFuelRemovalReason?: MasterVehicleFuelRemovalReason[];
+  MasterVehicleDocumentType?: MasterVehicleDocumentType[];
 
-  MasterUserRole?: MasterUserRole[]
-  MasterUserStatus?: MasterUserStatus[]
+  MasterUserRole?: MasterUserRole[];
+  MasterUserStatus?: MasterUserStatus[];
 
-  MasterFleetIncidentType?: MasterFleetIncidentType[]
-  MasterFleetIncidentStatus?: MasterFleetIncidentStatus[]
-  MasterFleetIncidentSeverity?: MasterFleetIncidentSeverity[]
-  MasterFleetInsuranceClaimStatus?: MasterFleetInsuranceClaimStatus[]
-  MasterFleetServiceTask?: MasterFleetServiceTask[]
-  MasterFleetServicePart?: MasterFleetServicePart[]
+  MasterFleetBreakdownType?: MasterFleetBreakdownType[];
+  MasterFleetIncidentType?: MasterFleetIncidentType[];
+  MasterFleetIncidentStatus?: MasterFleetIncidentStatus[];
+  MasterFleetIncidentSeverity?: MasterFleetIncidentSeverity[];
+  MasterFleetInsuranceClaimStatus?: MasterFleetInsuranceClaimStatus[];
+  MasterFleetServiceTask?: MasterFleetServiceTask[];
+  MasterFleetServicePart?: MasterFleetServicePart[];
 
-  MasterExpenseName?: MasterExpenseName[]
-  MasterExpenseType?: MasterExpenseType[]
-  MasterVendorType?: MasterVendorType[]
-  MasterVendorTag?: MasterVendorTag[]
-  MasterVendorDocumentType?: MasterVendorDocumentType[]
-  MasterFuelCompany?: MasterFuelCompany[]
+  MasterExpenseName?: MasterExpenseName[];
+  MasterExpenseType?: MasterExpenseType[];
+  MasterVendorType?: MasterVendorType[];
+  MasterVendorTag?: MasterVendorTag[];
+  MasterVendorDocumentType?: MasterVendorDocumentType[];
+  MasterFuelCompany?: MasterFuelCompany[];
 
-  MasterTyreGrade?: MasterTyreGrade[]
-  MasterTyreMake?: MasterTyreMake[]
-  MasterTyreModel?: MasterTyreModel[]
+  MasterTyreGrade?: MasterTyreGrade[];
+  MasterTyreMake?: MasterTyreMake[];
+  MasterTyreModel?: MasterTyreModel[];
 
-  MasterTripPartyType?: MasterTripPartyType[]
+  MasterTripPartyType?: MasterTripPartyType[];
 
-  MasterSparePartCategory?: MasterSparePartCategory[]
-  MasterSparePartSubCategory?: MasterSparePartSubCategory[]
-  MasterSparePartUnit?: MasterSparePartUnit[]
+  MasterSparePartCategory?: MasterSparePartCategory[];
+  MasterSparePartSubCategory?: MasterSparePartSubCategory[];
+  MasterSparePartUnit?: MasterSparePartUnit[];
 
-  MasterProgram?: MasterProgram[]
-  MasterStream?: MasterStream[]
-  MasterYear?: MasterYear[]
-  MasterSemester?: MasterSemester[]
-  MasterClass?: MasterClass[]
-  MasterSection?: MasterSection[]
-  MasterRelationship?: MasterRelationship[]
+  MasterProgram?: MasterProgram[];
+  MasterStream?: MasterStream[];
+  MasterYear?: MasterYear[];
+  MasterSemester?: MasterSemester[];
+  MasterClass?: MasterClass[];
+  MasterSection?: MasterSection[];
+  MasterRelationship?: MasterRelationship[];
 
   // Child - Fleet
-  FleetVendor?: FleetVendor[]
-  FleetVendorAddress?: FleetVendorAddress[]
-  FleetVendorBankAccount?: FleetVendorBankAccount[]
-  FleetVendorContactPerson?: FleetVendorContactPerson[]
-  FleetVendorReview?: FleetVendorReview[]
-  FleetVendorDocument?: FleetVendorDocument[]
-  FleetVendorDocumentFile?: FleetVendorDocumentFile[]
-  FleetVendorServiceCenter?: FleetVendorServiceCenter[]
-  FleetVendorFuelStation?: FleetVendorFuelStation[]
+  FleetVendor?: FleetVendor[];
+  FleetVendorAddress?: FleetVendorAddress[];
+  FleetVendorBankAccount?: FleetVendorBankAccount[];
+  FleetVendorContactPerson?: FleetVendorContactPerson[];
+  FleetVendorReview?: FleetVendorReview[];
+  FleetVendorDocument?: FleetVendorDocument[];
+  FleetVendorDocumentFile?: FleetVendorDocumentFile[];
+  FleetVendorServiceCenter?: FleetVendorServiceCenter[];
+  FleetVendorFuelStation?: FleetVendorFuelStation[];
 
-  FleetFuelRefill?: FleetFuelRefill[]
-  FleetFuelRemoval?: FleetFuelRemoval[]
-  FleetFuelRefillFile?: FleetFuelRefillFile[]
-  FleetFuelRemovalFile?: FleetFuelRemovalFile[]
+  FleetDocument?: FleetDocument[];
+  FleetDocumentFile?: FleetDocumentFile[];
+  FleetDocumentExpiry?: FleetDocumentExpiry[];
 
-  FleetIncident?: FleetIncident[]
-  FleetIncidentCost?: FleetIncidentCost[]
-  FleetIncidentFile?: FleetIncidentFile[]
+  FleetFuelRefill?: FleetFuelRefill[];
+  FleetFuelRemoval?: FleetFuelRemoval[];
+  FleetFuelRefillFile?: FleetFuelRefillFile[];
+  FleetFuelRemovalFile?: FleetFuelRemovalFile[];
 
-  FleetInspectionForm?: FleetInspectionForm[]
-  FleetInspectionSchedule?: FleetInspectionSchedule[]
-  FleetInspection?: FleetInspection[]
-  FleetInspectionFile?: FleetInspectionFile[]
+  FleetIssue?: FleetIssue[];
+  FleetIssueComment?: FleetIssueComment[];
+  FleetIssueFile?: FleetIssueFile[];
 
-  FleetIssue?: FleetIssue[]
-  FleetIssueComment?: FleetIssueComment[]
-  FleetIssueFile?: FleetIssueFile[]
+  FleetServiceSchedule?: FleetServiceSchedule[];
+  FleetService?: FleetService[];
+  FleetServiceFile?: FleetServiceFile[];
+  FleetServiceReminder?: FleetServiceReminder[];
 
-  FleetServiceManagement?: FleetService[]
-  FleetServiceManagementFile?: FleetServiceFile[]
-  FleetServiceReminder?: FleetServiceReminder[]
+  FleetInspectionForm?: FleetInspectionForm[];
+  FleetInspectionSchedule?: FleetInspectionSchedule[];
+  FleetInspection?: FleetInspection[];
+  FleetInspectionFile?: FleetInspectionFile[];
 
-  // FleetSpareParts?: FleetSpareParts[]
-  // FleetSparePartsInventory?: FleetSparePartsInventory[]
-  // FleetSparePartsPurchaseOrders?: FleetSparePartsPurchaseOrders[]
-  // FleetSparePartsPurchaseOrderDetails?: FleetSparePartsPurchaseOrderDetails[]
-  // FleetSparePartsUsage?: FleetSparePartsUsage[]
-  // FleetSparePartsUsageDetails?: FleetSparePartsUsageDetails[]
+  FleetBreakdown?: FleetBreakdown[];
+  FleetBreakdownCost?: FleetBreakdownCost[];
+  FleetBreakdownFile?: FleetBreakdownFile[];
 
-  // FleetTyreInventory?: FleetTyreInventory[]
-  // FleetAxleTemplate?: FleetAxleTemplate[]
-  // FleetAxlePosition?: FleetAxlePosition[]
-  // FleetTyrePosition?: FleetTyrePosition[]
-  // FleetTyreUsageHistory?: FleetTyreUsageHistory[]
-  // FleetTyreInspectionSchedule?: FleetTyreInspectionSchedule[]
-  // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[]
-  // FleetTyreInspection?: FleetTyreInspection[]
-  // FleetTyreRetreading?: FleetTyreRetreading[]
-  // FleetTyreDamageRepair?: FleetTyreDamageRepair[]
-  // FleetTyreRotation?: FleetTyreRotation[]
-  // FleetTyreRotationDetails?: FleetTyreRotationDetails[]
+  FleetIncident?: FleetIncident[];
+  FleetIncidentCost?: FleetIncidentCost[];
+  FleetIncidentFile?: FleetIncidentFile[];
 
-  // FleetWorkshop?: FleetWorkshop[]
+  FleetWorkshop?: FleetWorkshop[];
 
-  // FleetServiceJobCard?: FleetServiceJobCard[]
-  // FleetServiceJobCardFile?: FleetServiceJobCardFile[]
-  // FleetServiceSchedule?: FleetServiceSchedule[]
+  // FleetSpareParts?: FleetSpareParts[];
+  // FleetSparePartsInventory?: FleetSparePartsInventory[];
+  // FleetSparePartsPurchaseOrders?: FleetSparePartsPurchaseOrders[];
+  // FleetSparePartsPurchaseOrderDetails?: FleetSparePartsPurchaseOrderDetails[];
+  // FleetSparePartsUsage?: FleetSparePartsUsage[];
+  // FleetSparePartsUsageDetails?: FleetSparePartsUsageDetails[];
 
-  // FleetTripParty?: FleetTripParty[]
-  // FleetTripPartyGroup?: FleetTripPartyGroup[]
-  // FleetTripPartyContactPerson?: FleetTripPartyContactPerson[]
+  // FleetTyreInventory?: FleetTyreInventory[];
+  // FleetAxleTemplate?: FleetAxleTemplate[];
+  // FleetAxlePosition?: FleetAxlePosition[];
+  // FleetTyrePosition?: FleetTyrePosition[];
+  // FleetTyreUsageHistory?: FleetTyreUsageHistory[];
+  // FleetTyreInspectionSchedule?: FleetTyreInspectionSchedule[];
+  // FleetTyreInspection?: FleetTyreInspection[];
+  // FleetTyreInspectionFile?: FleetTyreInspectionFile[];
+  // FleetTyreRetreading?: FleetTyreRetreading[];
+  // FleetTyreDamageRepair?: FleetTyreDamageRepair[];
+  // FleetTyreRotation?: FleetTyreRotation[];
+  // FleetTyreRotationDetails?: FleetTyreRotationDetails[];
+
+  // FleetTripParty?: FleetTripParty[];
+  // FleetTripPartyGroup?: FleetTripPartyGroup[];
+  // FleetTripPartyContactPerson?: FleetTripPartyContactPerson[];
 
   // Child - Fleet - Bus
-  BusStop?: BusStop[]
-  // OrganisationBusManagementSettings?: OrganisationBusManagementSettings[]
-  OrganisationCalendar?: OrganisationCalendar[]
-  OrganisationNoticeBoard?: OrganisationNoticeBoard[]
+  BusStop?: BusStop[];
+  // OrganisationBusManagementSettings?: OrganisationBusManagementSettings[];
+  OrganisationCalendar?: OrganisationCalendar[];
+  OrganisationNoticeBoard?: OrganisationNoticeBoard[];
 
-  Student?: Student[]
-  StudentAddress?: StudentAddress[]
-  // StudentGuardian?: StudentGuardian[]
-  StudentGuardianLink?: StudentGuardianLink[]
-  StudentLeaveRequest?: StudentLeaveRequest[]
-  StudentStopChangeRequest?: StudentStopChangeRequest[]
-  // StudentEnrollmentStatusHistory?: StudentEnrollmentStatusHistory[]
-  // StudentLoginPush?: StudentLoginPush[]
-  // StudentGuardianLoginPush?: StudentGuardianLoginPush[]
+  Student?: Student[];
+  StudentAddress?: StudentAddress[];
+  StudentGuardian?: StudentGuardian[];
+  StudentGuardianLink?: StudentGuardianLink[];
+  StudentLeaveRequest?: StudentLeaveRequest[];
+  StudentStopChangeRequest?: StudentStopChangeRequest[];
+  StudentTransportPlanTypeChangeHistory?: StudentTransportPlanTypeChangeHistory[];
+  StudentLoginPush?: StudentLoginPush[];
+  StudentGuardianLoginPush?: StudentGuardianLoginPush[];
 
-  MasterRoute?: MasterRoute[]
-  MasterRouteStop?: MasterRouteStop[]
-
-  MasterFixedSchedule?: MasterFixedSchedule[]
-  MasterFixedScheduleStudent?: MasterFixedScheduleStudent[]
-
-  FixedScheduleDayRun?: FixedScheduleDayRun[]
-  FixedScheduleDayRunStop?: FixedScheduleDayRunStop[]
-  FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[]
+  MasterRoute?: MasterRoute[];
+  MasterRouteStop?: MasterRouteStop[];
+  MasterFixedSchedule?: MasterFixedSchedule[];
+  MasterFixedScheduleStudent?: MasterFixedScheduleStudent[];
+  FixedScheduleDayRun?: FixedScheduleDayRun[];
+  FixedScheduleDayRunStop?: FixedScheduleDayRunStop[];
+  FixedScheduleDayRunStudent?: FixedScheduleDayRunStudent[];
+  MasterSpecialSchedule?: MasterSpecialSchedule[];
+  MasterSpecialScheduleStudent?: MasterSpecialScheduleStudent[];
 
   // Child - GPS
-  GPSLiveTrackShareLink?: GPSLiveTrackShareLink[]
-  GPSLiveTrackShareLinkNotification?: GPSLiveTrackShareLinkNotification[]
-  GPSTrackHistoryShareLink?: GPSTrackHistoryShareLink[]
-  GPSTrackHistoryShareLinkNotification?: GPSTrackHistoryShareLinkNotification[]
-  // GPSLockRelayLog?: GPSLockRelayLog[]
-  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
-  GPSGeofence?: GPSGeofence[]
-  GPSGeofenceTransaction?: GPSGeofenceTransaction[]
-  GPSGeofenceTransactionSummary?: GPSGeofenceTransactionSummary[]
-  TripGeofenceToGeofence?: TripGeofenceToGeofence[]
-  FleetFuelDailySummary?: FleetFuelDailySummary[]
+  GPSLiveTrackShareLink?: GPSLiveTrackShareLink[];
+  GPSLiveTrackShareLinkNotification?: GPSLiveTrackShareLinkNotification[];
+  GPSTrackHistoryShareLink?: GPSTrackHistoryShareLink[];
+  GPSTrackHistoryShareLinkNotification?: GPSTrackHistoryShareLinkNotification[];
+  // GPSLockRelayLog?: GPSLockRelayLog[];
+  // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[];
+  GPSGeofence?: GPSGeofence[];
+  GPSGeofenceTransaction?: GPSGeofenceTransaction[];
+  GPSGeofenceTransactionSummary?: GPSGeofenceTransactionSummary[];
+  TripGeofenceToGeofence?: TripGeofenceToGeofence[];
+  FleetFuelDailySummary?: FleetFuelDailySummary[];
 
   // Child - Trip
-  // Trip?: Trip[]
+  // Trip?: Trip[];
 
   // Child - Account
-  BookMark?: BookMark[]
-  Ticket?: Ticket[]
-  TicketFile?: TicketFile[]
-  // FasttagDetails?: FasttagDetails[]
-  // EWayBillDetails?: EWayBillDetails[]
-  UserLoginPush?: UserLoginPush[]
-  DriverLoginPush?: DriverLoginPush[]
+  BookMark?: BookMark[];
+  Ticket?: Ticket[];
+  TicketFile?: TicketFile[];
+  // FasttagDetails?: FasttagDetails[];
+  // EWayBillDetails?: EWayBillDetails[];
+  UserLoginPush?: UserLoginPush[];
+  DriverLoginPush?: DriverLoginPush[];
 
   // Child - Notification and Reports
-  OrganisationNotificationPreference?: OrganisationNotificationPreference[]
-  OrganisationReportPreference?: OrganisationReportPreference[]
-  OrganisationReportAutomationMail?: OrganisationReportAutomationMail[]
+  OrganisationNotificationPreference?: OrganisationNotificationPreference[];
+  OrganisationReportPreference?: OrganisationReportPreference[];
+  OrganisationReportAutomationMail?: OrganisationReportAutomationMail[];
 
   // Relations - Child Count
   _count?: {
+    // Child - Main
+    Invoice?: number;
+    InvoiceFile?: number;
     User?: number;
     MasterDriver?: number;
     MasterDriverFile?: number;
     MasterDevice?: number;
-    // MasterDeviceFile?: number;
+    MasterDeviceFile?: number;
     MasterVehicle?: number;
     MasterVehicleFile?: number;
     VehicleOdometerHistory?: number;
-    VehicleDocument?: number;
-    VehicleDocumentFile?: number;
-    VehicleDocumentExpiry?: number;
+    ExclusiveFeatureAccess?: number;
 
     // Child - Master
     OrganisationSubCompany?: number;
@@ -471,11 +491,13 @@ export interface UserOrganisation extends Record<string, unknown> {
     MasterUserRole?: number;
     MasterUserStatus?: number;
 
+    MasterFleetBreakdownType?: number;
     MasterFleetIncidentType?: number;
     MasterFleetIncidentStatus?: number;
     MasterFleetIncidentSeverity?: number;
     MasterFleetInsuranceClaimStatus?: number;
     MasterFleetServiceTask?: number;
+    MasterFleetServicePart?: number;
 
     MasterExpenseName?: number;
     MasterExpenseType?: number;
@@ -506,98 +528,103 @@ export interface UserOrganisation extends Record<string, unknown> {
     FleetVendor?: number;
     FleetVendorAddress?: number;
     FleetVendorBankAccount?: number;
-    FleetVendorContactPersons?: number;
+    FleetVendorContactPerson?: number;
     FleetVendorReview?: number;
     FleetVendorDocument?: number;
     FleetVendorDocumentFile?: number;
     FleetVendorServiceCenter?: number;
     FleetVendorFuelStation?: number;
 
+    FleetDocument?: number;
+    FleetDocumentFile?: number;
+    FleetDocumentExpiry?: number;
+
     FleetFuelRefill?: number;
     FleetFuelRemoval?: number;
     FleetFuelRefillFile?: number;
     FleetFuelRemovalFile?: number;
 
-    VehicleIncident?: number;
-    FleetIncidentManagementCost?: number;
-    IncidentManagementFile?: number;
+    FleetIssue?: number;
+    FleetIssueComment?: number;
+    FleetIssueFile?: number;
+
+    FleetServiceSchedule?: number;
+    FleetService?: number;
+    FleetServiceFile?: number;
+    FleetServiceReminder?: number;
 
     FleetInspectionForm?: number;
     FleetInspectionSchedule?: number;
     FleetInspection?: number;
     FleetInspectionFile?: number;
 
-    VehicleIssues?: number;
-    FleetIssueManagementComment?: number;
-    FleetIssueManagementFile?: number;
+    FleetBreakdown?: number;
+    FleetBreakdownCost?: number;
+    FleetBreakdownFile?: number;
 
-    FleetServiceManagement?: number;
-    FleetServiceManagementFile?: number;
-    FleetServiceReminder?: number;
+    FleetIncident?: number;
+    FleetIncidentCost?: number;
+    FleetIncidentFile?: number;
 
-    // FleetSpareParts?: FleetSpareParts[]
-    // FleetSparePartsInventory?: FleetSparePartsInventory[]
-    // FleetSparePartsPurchaseOrders?: FleetSparePartsPurchaseOrders[]
-    // FleetSparePartsPurchaseOrderDetails?: FleetSparePartsPurchaseOrderDetails[]
-    // FleetSparePartsUsage?: FleetSparePartsUsage[]
-    // FleetSparePartsUsageDetails?: FleetSparePartsUsageDetails[]
+    FleetWorkshop?: number;
 
-    // FleetTyreInventory?: FleetTyreInventory[]
-    // FleetAxleTemplate?: FleetAxleTemplate[]
-    // FleetAxlePosition?: FleetAxlePosition[]
-    // FleetTyrePosition?: FleetTyrePosition[]
-    // FleetTyreUsageHistory?: FleetTyreUsageHistory[]
-    // FleetTyreInspectionSchedule?: FleetTyreInspectionSchedule[]
-    // FleetTyreInspectionScheduleTracking?: FleetTyreInspectionScheduleTracking[]
-    // FleetTyreInspection?: FleetTyreInspection[]
-    // FleetTyreRetreading?: FleetTyreRetreading[]
-    // FleetTyreDamageRepair?: FleetTyreDamageRepair[]
-    // FleetTyreRotation?: FleetTyreRotation[]
-    // FleetTyreRotationDetails?: FleetTyreRotationDetails[]
+    FleetSpareParts?: number;
+    FleetSparePartsInventory?: number;
+    FleetSparePartsPurchaseOrders?: number;
+    FleetSparePartsPurchaseOrderDetails?: number;
+    FleetSparePartsUsage?: number;
+    FleetSparePartsUsageDetails?: number;
 
-    // FleetWorkshop?: FleetWorkshop[]
+    FleetTyreInventory?: number;
+    FleetAxleTemplate?: number;
+    FleetAxlePosition?: number;
+    FleetTyrePosition?: number;
+    FleetTyreUsageHistory?: number;
+    FleetTyreInspectionSchedule?: number;
+    FleetTyreInspection?: number;
+    FleetTyreInspectionFile?: number;
+    FleetTyreRetreading?: number;
+    FleetTyreDamageRepair?: number;
+    FleetTyreRotation?: number;
+    FleetTyreRotationDetails?: number;
 
-    // FleetServiceJobCard?: FleetServiceJobCard[]
-    // FleetServiceJobCardFile?: FleetServiceJobCardFile[]
-    // FleetServiceSchedule?: FleetServiceSchedule[]
-
-    // FleetTripParty?: FleetTripParty[]
-    // FleetTripPartyGroup?: FleetTripPartyGroup[]
-    // FleetTripPartyContactPerson?: FleetTripPartyContactPerson[]
+    FleetTripParty?: number;
+    FleetTripPartyGroup?: number;
+    FleetTripPartyContactPerson?: number;
 
     // Child - Fleet - Bus
     BusStop?: number;
-    // OrganisationBusManagementSettings?: OrganisationBusManagementSettings[]
+    OrganisationBusManagementSettings?: number;
     OrganisationCalendar?: number;
     OrganisationNoticeBoard?: number;
 
     Student?: number;
     StudentAddress?: number;
-    // StudentGuardian?: StudentGuardian[]
+    StudentGuardian?: number;
     StudentGuardianLink?: number;
     StudentLeaveRequest?: number;
     StudentStopChangeRequest?: number;
-    // StudentEnrollmentStatusHistory?: StudentEnrollmentStatusHistory[]
-    // StudentLoginPush?: StudentLoginPush[]
-    // StudentGuardianLoginPush?: StudentGuardianLoginPush[]
+    StudentTransportPlanTypeChangeHistory?: number;
+    StudentLoginPush?: number;
+    StudentGuardianLoginPush?: number;
 
     MasterRoute?: number;
     MasterRouteStop?: number;
-
     MasterFixedSchedule?: number;
     MasterFixedScheduleStudent?: number;
-
-    FixedScheduleDayRun?: number[]
-    FixedScheduleDayRunStop?: number[]
-    FixedScheduleDayRunStudent?: number[]
+    FixedScheduleDayRun?: number;
+    FixedScheduleDayRunStop?: number;
+    FixedScheduleDayRunStudent?: number;
+    MasterSpecialSchedule?: number;
+    MasterSpecialScheduleStudent?: number;
 
     // Child - GPS
     GPSLiveTrackShareLink?: number;
     GPSLiveTrackShareLinkNotification?: number;
     GPSTrackHistoryShareLink?: number;
     GPSTrackHistoryShareLinkNotification?: number;
-    // GPSLockRelayLog?: GPSLockRelayLog[]
-    // GPSLockDigitalDoorLog?: GPSLockDigitalDoorLog[]
+    GPSLockRelayLog?: number;
+    GPSLockDigitalDoorLog?: number;
     GPSGeofence?: number;
     GPSGeofenceTransaction?: number;
     GPSGeofenceTransactionSummary?: number;
@@ -605,14 +632,14 @@ export interface UserOrganisation extends Record<string, unknown> {
     FleetFuelDailySummary?: number;
 
     // Child - Trip
-    // Trip?: Trip[]
+    Trip?: number;
 
     // Child - Account
     BookMark?: number;
     Ticket?: number;
     TicketFile?: number;
-    // FasttagDetails?: FasttagDetails[]
-    // EWayBillDetails?: EWayBillDetails[]
+    FasttagDetails?: number;
+    EWayBillDetails?: number;
     UserLoginPush?: number;
     DriverLoginPush?: number;
 
@@ -620,9 +647,8 @@ export interface UserOrganisation extends Record<string, unknown> {
     OrganisationNotificationPreference?: number;
     OrganisationReportPreference?: number;
     OrganisationReportAutomationMail?: number;
-  }
-};
-
+  };
+}
 
 // UserOrganisationSimple Interface
 export interface UserOrganisationSimple extends Record<string, unknown> {
