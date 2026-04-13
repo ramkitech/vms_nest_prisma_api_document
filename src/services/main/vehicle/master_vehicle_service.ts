@@ -1260,6 +1260,7 @@ export const VehicleDetailTripSchema = z.object({
 
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type VehicleDetailTripDTO = z.infer<typeof VehicleDetailTripSchema>;
 
@@ -1430,6 +1431,7 @@ export const VehicleDetailLifeCycleSchema = z.object({
   life_expiry_note: stringOptional('Life Expiry Note', 0, 2000),
 
   status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type VehicleDetailLifeCycleDTO = z.infer<
   typeof VehicleDetailLifeCycleSchema
@@ -1727,6 +1729,7 @@ export const toVehicleDetailsTripPayload = (trip?: VehicleDetailTrip): VehicleDe
   trip_notes_3: trip?.trip_notes_3 || '',
 
   status: trip ? trip.status : Status.Active,
+  time_zone_id: '',
 });
 
 // Convert VehicleDetailBody Data to API Payload
@@ -1827,6 +1830,7 @@ export const toVehicleDetailLifeCyclePayload = (vehicleLifeCycle?: VehicleDetail
   life_expiry_note: vehicleLifeCycle?.life_expiry_note || '',
 
   status: vehicleLifeCycle ? vehicleLifeCycle.status : Status.Active,
+  time_zone_id: '',
 });
 
 // Convert VehicleDetailPurchase Data to API Payload
