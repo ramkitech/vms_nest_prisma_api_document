@@ -135,7 +135,7 @@ const ENDPOINTS = {
 
   // File Uploads
   update_organisation_logo: (id: string): string => `${URL}/update_organisation_logo/${id}`,
-  delete_organisation_logo: (id: string): string => `${URL}/delete_organisation_logo/${id}`,
+  remove_organisation_logo: (id: string): string => `${URL}/remove_organisation_logo/${id}`,
 
   // UserOrganisation APIs
   find: `${URL}/search`,
@@ -950,8 +950,8 @@ export const update_organisation_logo = async (id: string, data: UserOrganisatio
   return apiPatch<SBR, UserOrganisationLogoDTO>(ENDPOINTS.update_organisation_logo(id), data);
 };
 
-export const delete_organisation_logo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_organisation_logo(id));
+export const remove_organisation_logo = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_organisation_logo(id));
 };
 
 // AMasterUserOrganisation APIs

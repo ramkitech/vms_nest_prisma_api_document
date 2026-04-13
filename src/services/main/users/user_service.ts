@@ -56,7 +56,7 @@ const URL = 'user/user';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  user_image_presigned_url: (fileName: string): string => `${URL}/user_image_presigned_url/${fileName}`,
+  get_user_image_presigned_url: (fileName: string): string => `${URL}/get_user_image_presigned_url/${fileName}`,
 
   // File Uploads
   update_user_image: (id: string): string => `${URL}/update_user_image/${id}`,
@@ -558,7 +558,7 @@ export const newUserPayload = (): UserDTO => ({
 
 // AWS S3 PRESIGNED
 export const get_user_image_presigned_url = async (fileName: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.user_image_presigned_url(fileName));
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.get_user_image_presigned_url(fileName));
 };
 
 // File Uploads

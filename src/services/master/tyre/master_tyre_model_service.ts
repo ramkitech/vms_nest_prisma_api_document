@@ -68,6 +68,7 @@ export interface MasterTyreModel extends Record<string, unknown> {
 
   tyre_make_id: string;
   MasterTyreMake?: MasterTyreMake;
+  tyre_make?: string;
 
   // Relations - Child
   // Child - Fleet
