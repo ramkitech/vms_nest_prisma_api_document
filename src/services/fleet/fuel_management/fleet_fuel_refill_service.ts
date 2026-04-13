@@ -153,7 +153,9 @@ export interface FleetFuelRefill extends Record<string, unknown> {
 
   vendor_id?: string;
   FleetVendor?: FleetVendor;
+  vendor_logo_url?: string;
   vendor_name?: string;
+  vendor_code?: string;
 
   fuel_station_id?: string;
   FleetVendorFuelStation?: FleetVendorFuelStation;

@@ -124,7 +124,9 @@ export interface FleetVendorServiceCenter extends Record<string, unknown> {
 
     vendor_id: string;
     FleetVendor?: FleetVendor;
+    vendor_logo_url?: string;
     vendor_name?: string;
+    vendor_code?: string;
 
     // Relations - Child
     // Child - Fleet

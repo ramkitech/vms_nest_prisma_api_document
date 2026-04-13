@@ -938,15 +938,21 @@ export interface VehicleDetailPurchase extends Record<string, unknown> {
   // Relations - Parent
   purchase_vendor_id?: string;
   PurchaseVendor?: FleetVendor;
+  purchase_vendor_logo_url?: string;
   purchase_vendor_name?: string;
+  purchase_vendor_code?: string;
 
-  loan_lender_id?: string;
-  LoanLender?: FleetVendor;
-  loan_lender_name?: string;
+  loan_vendor_id?: string;
+  LoanVendor?: FleetVendor;
+  loan_vendor_logo_url?: string;
+  loan_vendor_name?: string;
+  loan_vendor_code?: string;
 
   lease_vendor_id?: string;
   LeaseVendor?: FleetVendor;
+  lease_vendor_logo_url?: string;
   lease_vendor_name?: string;
+  lease_vendor_code?: string;
 
   // Relations - One To One
   vehicle_id?: string;
@@ -1479,7 +1485,7 @@ export const VehicleDetailPurchaseSchema = z.object({
   warranty_exchange_date: dateOptional('Warranty Exchange Date'),
 
   purchase_vendor_id: single_select_optional('Purchase Vendor ID'),
-  loan_lender_id: single_select_optional('Loan Lender ID'),
+  loan_vendor_id: single_select_optional('Loan Vendor ID'),
   lease_vendor_id: single_select_optional('Lease Vendor ID'),
 
   // Metadata
@@ -1859,7 +1865,7 @@ export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPu
   // Relations
   purchase_vendor_id: vehiclePurchase?.purchase_vendor_id || '',
 
-  loan_lender_id: vehiclePurchase?.loan_lender_id || '',
+  loan_vendor_id: vehiclePurchase?.loan_vendor_id || '',
 
   lease_vendor_id: vehiclePurchase?.lease_vendor_id || '',
 });

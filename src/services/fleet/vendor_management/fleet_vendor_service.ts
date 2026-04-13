@@ -180,7 +180,9 @@ export interface FleetVendorTypeLink extends Record<string, unknown> {
   // Relations - Parent
   vendor_id: string;
   FleetVendor?: FleetVendor;
+  vendor_logo_url?: string;
   vendor_name?: string;
+  vendor_code?: string;
 
   vendor_type_id: string;
   MasterVendorType?: MasterVendorType;
@@ -203,7 +205,9 @@ export interface FleetVendorTagLink extends Record<string, unknown> {
   // Relations - Parent
   vendor_id: string;
   FleetVendor?: FleetVendor;
+  vendor_logo_url?: string;
   vendor_name?: string;
+  vendor_code?: string;
 
   vendor_tag_id: string;
   MasterVendorTag?: MasterVendorTag;
@@ -265,7 +269,9 @@ export interface FleetVendorAddress extends Record<string, unknown> {
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
+  vendor_logo_url?: string;
   vendor_name?: string;
+  vendor_code?: string;
 
   // Relations - Child Count
   _count?: {};
@@ -308,7 +314,9 @@ export interface FleetVendorBankAccount extends Record<string, unknown> {
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
+  vendor_logo_url?: string;
   vendor_name?: string;
+  vendor_code?: string;
 
   // Relations - Child Count
   _count?: {};
@@ -356,7 +364,9 @@ export interface FleetVendorContactPerson extends Record<string, unknown> {
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
+  vendor_logo_url?: string;
   vendor_name?: string;
+  vendor_code?: string;
 
   // Relations - Child Count
   _count?: {};
@@ -390,7 +400,9 @@ export interface FleetVendorReview extends Record<string, unknown> {
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
+  vendor_logo_url?: string;
   vendor_name?: string;
+  vendor_code?: string;
 
   // Relations - Child Count
   _count?: {};
@@ -430,7 +442,9 @@ export interface FleetVendorDocument extends Record<string, unknown> {
 
   vendor_id: string;
   FleetVendor?: FleetVendor;
+  vendor_logo_url?: string;
   vendor_name?: string;
+  vendor_code?: string;
 
   document_type_id: string;
   MasterVendorDocumentType?: MasterVendorDocumentType;
