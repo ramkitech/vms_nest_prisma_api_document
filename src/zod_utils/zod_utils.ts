@@ -463,47 +463,67 @@ export const dateOptional = (
   fieldName: string,
   minDate?: string,
   maxDate?: string,
-  defaultValue: string = ''
 ) => {
-  const schema = z
-    .string()
-    .optional()
-    .transform((val) => (val === '' || val === null || val === undefined ? undefined : val))
-    .refine((val) => val === undefined || !isNaN(Date.parse(val)), {
-      message: `${fieldName} must be a valid ISO date.`,
-    })
-    .refine((val) => !minDate || val === undefined || new Date(val) >= new Date(minDate), {
-      message: `${fieldName} must be after ${minDate}.`,
-    })
-    .refine((val) => !maxDate || val === undefined || new Date(val) <= new Date(maxDate), {
-      message: `${fieldName} must be before ${maxDate}.`,
-    })
-    .default(defaultValue);
+  const base = z.string();
 
-  return schema;
+  const refinements: Array<{
+    check: (val: string) => boolean;
+    message: string;
+  }> = [
+      {
+        check: (val) => !val.trim() || !isNaN(Date.parse(val)),
+        message: `${fieldName} must be a valid ISO date.`,
+      },
+    ];
+
+  if (minDate) {
+    refinements.push({
+      check: (val) => !val.trim() || new Date(val) >= new Date(minDate),
+      message: `${fieldName} must be after ${minDate}.`,
+    });
+  }
+
+  if (maxDate) {
+    refinements.push({
+      check: (val) => !val.trim() || new Date(val) <= new Date(maxDate),
+      message: `${fieldName} must be before ${maxDate}.`,
+    });
+  }
+
+  let refined: z.ZodTypeAny = base;
+  for (const { check, message } of refinements) {
+    refined = (refined as z.ZodString).refine(check, { message });
+  }
+
+  return (refined as z.ZodEffects<z.ZodString, string, string>)
+    .optional()
+    .default('');
 };
 
 export const dateTimeMandatory = (
   fieldName: string,
   minDate?: string,
   maxDate?: string,
-  defaultValue: string = new Date().toISOString()
+  defaultValue: string = new Date().toISOString(),
 ) => {
   const schema = z
     .string()
-    .refine((val) => val !== '' && val !== null && val !== undefined, {
-      message: `Please select ${fieldName}.`,
-    })
     .refine((val) => !isNaN(Date.parse(val)), {
       message: `${fieldName} must be a valid ISO date.`,
     })
-    .refine((val) => !minDate || new Date(val) >= new Date(minDate), {
-      message: `${fieldName} must be after ${minDate}.`,
-    })
-    .refine((val) => !maxDate || new Date(val) <= new Date(maxDate), {
-      message: `${fieldName} must be before ${maxDate}.`,
-    })
     .transform((val) => handleNullOrUndefinedDate(val, defaultValue));
+
+  if (minDate) {
+    schema.refine((val) => new Date(val) >= new Date(minDate), {
+      message: `${fieldName} must be after ${minDate}.`,
+    });
+  }
+
+  if (maxDate) {
+    schema.refine((val) => new Date(val) <= new Date(maxDate), {
+      message: `${fieldName} must be before ${maxDate}.`,
+    });
+  }
 
   return schema;
 };
@@ -512,24 +532,41 @@ export const dateTimeOptional = (
   fieldName: string,
   minDate?: string,
   maxDate?: string,
-  defaultValue: string = ''
 ) => {
-  const schema = z
-    .string()
-    .optional()
-    .transform((val) => (val === '' || val === null || val === undefined ? undefined : val))
-    .refine((val) => val === undefined || !isNaN(Date.parse(val)), {
-      message: `${fieldName} must be a valid ISO date.`,
-    })
-    .refine((val) => !minDate || val === undefined || new Date(val) >= new Date(minDate), {
-      message: `${fieldName} must be after ${minDate}.`,
-    })
-    .refine((val) => !maxDate || val === undefined || new Date(val) <= new Date(maxDate), {
-      message: `${fieldName} must be before ${maxDate}.`,
-    })
-    .default(defaultValue);
+  const base = z.string();
 
-  return schema;
+  const refinements: Array<{
+    check: (val: string) => boolean;
+    message: string;
+  }> = [
+      {
+        check: (val) => !val.trim() || !isNaN(Date.parse(val)),
+        message: `${fieldName} must be a valid ISO date time.`,
+      },
+    ];
+
+  if (minDate) {
+    refinements.push({
+      check: (val) => !val.trim() || new Date(val) >= new Date(minDate),
+      message: `${fieldName} must be after ${minDate}.`,
+    });
+  }
+
+  if (maxDate) {
+    refinements.push({
+      check: (val) => !val.trim() || new Date(val) <= new Date(maxDate),
+      message: `${fieldName} must be before ${maxDate}.`,
+    });
+  }
+
+  let refined: z.ZodTypeAny = base;
+  for (const { check, message } of refinements) {
+    refined = (refined as z.ZodString).refine(check, { message });
+  }
+
+  return (refined as z.ZodEffects<z.ZodString, string, string>)
+    .optional()
+    .default('');
 };
 
 // Nested Object
