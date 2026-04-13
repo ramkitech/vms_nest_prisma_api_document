@@ -463,7 +463,7 @@ export const dateOptional = (
   fieldName: string,
   minDate?: string,
   maxDate?: string,
-  defaultValue: string = new Date().toISOString()
+  defaultValue: string = ''
 ) => {
   const schema = z
     .string()
