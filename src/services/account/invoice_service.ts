@@ -185,7 +185,7 @@ export const toInvoicePayload = (invoice: Invoice): InvoiceDTO => ({
   status: invoice.status || Status.Active,
 
   // Required by schema
-  time_zone_id: (invoice as any).time_zone_id ?? '',
+  time_zone_id: '',
 
   InvoiceFileSchema:
     invoice.InvoiceFile?.map((file) => ({

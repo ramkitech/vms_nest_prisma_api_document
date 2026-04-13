@@ -1490,6 +1490,7 @@ export const VehicleDetailPurchaseSchema = z.object({
 
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
+  time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type VehicleDetailPurchaseDTO = z.infer<
   typeof VehicleDetailPurchaseSchema
@@ -1868,6 +1869,8 @@ export const toVehicleDetailPurchasePayload = (vehiclePurchase?: VehicleDetailPu
   loan_vendor_id: vehiclePurchase?.loan_vendor_id || '',
 
   lease_vendor_id: vehiclePurchase?.lease_vendor_id || '',
+
+  time_zone_id: '',
 });
 
 
