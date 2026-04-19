@@ -45,8 +45,8 @@ const ENDPOINTS = {
   // File Uploads
   update_vendor_logo: (id: string): string => `${URL}/update_vendor_logo/${id}`,
   remove_vendor_logo: (id: string): string => `${URL}/remove_vendor_logo/${id}`,
-  update_vendor_contact_person_logo: (id: string): string => `${URL}/update_vendor_contact_person_logo/${id}`,
-  remove_vendor_contact_person_logo: (id: string): string => `${URL}/remove_vendor_contact_person_logo/${id}`,
+  update_vendor_contact_person_image: (id: string): string => `${URL}/update_vendor_contact_person_image/${id}`,
+  remove_vendor_contact_person_image: (id: string): string => `${URL}/remove_vendor_contact_person_image/${id}`,
   create_vendor_document_file: `${URL}/create_vendor_document_file`,
   remove_vendor_document_file: (id: string): string => `${URL}/remove_vendor_document_file/${id}`,
 
@@ -1123,12 +1123,12 @@ export const remove_vendor_logo = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.remove_vendor_logo(id));
 };
 
-export const update_vendor_contact_person_logo = async (id: string, data: FleetVendorContactPersonLogoDTO): Promise<SBR> => {
-  return apiPatch<SBR, FleetVendorContactPersonLogoDTO>(ENDPOINTS.update_vendor_contact_person_logo(id), data);
+export const update_vendor_contact_person_image = async (id: string, data: FleetVendorContactPersonLogoDTO): Promise<SBR> => {
+  return apiPatch<SBR, FleetVendorContactPersonLogoDTO>(ENDPOINTS.update_vendor_contact_person_image(id), data);
 };
 
-export const remove_vendor_contact_person_logo = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.remove_vendor_contact_person_logo(id));
+export const remove_vendor_contact_person_image = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_vendor_contact_person_image(id));
 };
 
 export const create_vendor_document_file = async (data: FleetVendorDocumentFileDTO): Promise<SBR> => {
