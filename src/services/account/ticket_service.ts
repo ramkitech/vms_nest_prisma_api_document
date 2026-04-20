@@ -73,7 +73,7 @@ export interface Ticket extends Record<string, unknown> {
 
   admin_id?: string;
   UserAdmin?: UserAdmin;
-  admin_name?: string;
+  admin_details?: string;
 
   // Child Relations
   TicketFile?: TicketFile[];

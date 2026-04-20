@@ -22,11 +22,11 @@ const URL = 'user/admin';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  admin_image_presigned_url: (fileName: string): string => `${URL}/admin_image_presigned_url/${fileName}`,
+  get_admin_image_presigned_url: (fileName: string): string => `${URL}/get_admin_image_presigned_url/${fileName}`,
 
   // File Uploads
   update_admin_image: (id: string): string => `${URL}/update_admin_image/${id}`,
-  delete_admin_image: (id: string): string => `${URL}/delete_admin_image/${id}`,
+  remove_admin_image: (id: string): string => `${URL}/remove_admin_image/${id}`,
 
   // UserAdmin APIs
   find: `${URL}/search`,
@@ -56,6 +56,8 @@ export interface UserAdmin extends Record<string, unknown> {
   password?: string;
   mobile?: string;
   admin_role: AdminRole;
+
+  admin_details?: string;
 
   // Metadata
   status: Status;
@@ -187,7 +189,7 @@ export const newUserAdminPayload = (): UserAdminDTO => ({
 
 // AWS S3 PRESIGNED
 export const get_admin_image_presigned_url = async (file_name: string): Promise<BR<AWSPresignedUrl>> => {
-  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.admin_image_presigned_url(file_name));
+  return apiGet<BR<AWSPresignedUrl>>(ENDPOINTS.get_admin_image_presigned_url(file_name));
 };
 
 // File Uploads
@@ -195,8 +197,8 @@ export const update_admin_image = async (id: string, data: UserAdminLogoDTO): Pr
   return apiPatch<SBR, UserAdminLogoDTO>(ENDPOINTS.update_admin_image(id), data);
 };
 
-export const delete_admin_image = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete_admin_image(id));
+export const remove_admin_image = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.remove_admin_image(id));
 };
 
 // AMasterAdmin APIs
