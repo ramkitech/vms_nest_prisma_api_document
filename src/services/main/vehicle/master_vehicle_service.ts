@@ -429,6 +429,7 @@ export interface MasterVehicle extends Record<string, unknown> {
 export interface MasterVehicleDropdown extends Record<string, unknown> {
   v_id: string;
   vn: string;
+  vnn: string;
   vt: string;
 
   dr_id: string;
