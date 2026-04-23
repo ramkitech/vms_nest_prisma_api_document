@@ -190,6 +190,11 @@ export interface FleetFuelRefillFile extends BaseCommonFile {
   organisation_code?: string;
   organisation_logo_url?: string;
 
+  user_id?: string;
+  User?: User;
+  user_details?: string;
+  user_image_url?: string;
+
   fleet_fuel_refill_id: string;
   FleetFuelRefill?: FleetFuelRefill;
 
@@ -200,6 +205,7 @@ export interface FleetFuelRefillFile extends BaseCommonFile {
 export const FleetFuelRefillFileSchema = BaseFileSchema.extend({
   // Relations - Parent
   organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> User
   fleet_fuel_refill_id: single_select_optional('FleetFuelRefill'), // Single-Selection -> FleetFuelRefill
 });
 export type FleetFuelRefillFileDTO = z.infer<typeof FleetFuelRefillFileSchema>;
@@ -429,6 +435,7 @@ export const toFleetFuelRefillPayload = (row: FleetFuelRefill): FleetFuelRefillD
 
   FleetFuelRefillFile: row.FleetFuelRefillFile?.map((file) => ({
     organisation_id: file.organisation_id || '',
+    user_id: file.user_id || '',
     fleet_fuel_refill_id: file.fleet_fuel_refill_id || '',
     fleet_fuel_refill_file_id: file.fleet_fuel_refill_file_id || '',
 

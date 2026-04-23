@@ -161,6 +161,11 @@ export interface FleetFuelRemovalFile extends BaseCommonFile {
   organisation_code?: string;
   organisation_logo_url?: string;
 
+  user_id?: string;
+  User?: User;
+  user_details?: string;
+  user_image_url?: string;
+
   fleet_fuel_removal_id: string;
   FleetFuelRemoval?: FleetFuelRemoval;
 
@@ -171,6 +176,7 @@ export interface FleetFuelRemovalFile extends BaseCommonFile {
 export const FleetFuelRemovalFileSchema = BaseFileSchema.extend({
   // Relations - Parent
   organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_optional('User'), // Single-Selection -> Userss
   fleet_fuel_removal_id: single_select_optional('FleetFuelRemoval'), // Single-Selection -> FleetFuelRemoval
 });
 export type FleetFuelRemovalFileDTO = z.infer<
@@ -338,6 +344,8 @@ export const toFleetFuelRemovalPayload = (row: FleetFuelRemoval): FleetFuelRemov
   FleetFuelRemovalFileSchema:
     row.FleetFuelRemovalFile?.map((file) => ({
       organisation_id: file.organisation_id || '',
+      user_id: file.user_id || '',
+      
       fleet_fuel_removal_id: file.fleet_fuel_removal_id || '',
       fleet_fuel_removal_file_id: file.fleet_fuel_removal_file_id || '',
 
