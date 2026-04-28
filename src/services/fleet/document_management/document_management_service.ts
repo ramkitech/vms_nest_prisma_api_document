@@ -35,8 +35,8 @@ const ENDPOINTS = {
     fleet_document_file_presigned_url: `${URL}/fleet_document_file_presigned_url`,
 
     // File Uploads
-    create_file_fleet_document: `${URL}/create_file_fleet_document`,
-    remove_file_fleet_document: (id: string): string => `${URL}/remove_file_fleet_document/${id}`,
+    create_fleet_document_file: `${URL}/create_fleet_document_file`,
+    remove_fleet_document_file: (id: string): string => `${URL}/remove_fleet_document_file/${id}`,
 
     // FleetDocument APIs
     find: `${URL}/fleet_document/search`,
@@ -407,12 +407,12 @@ export const get_fleet_document_file_presigned_url = async (data: FilePresignedU
 };
 
 // File Uploads
-export const create_file_fleet_document = async (data: FleetDocumentFileDTO): Promise<SBR> => {
-    return apiPost<SBR, FleetDocumentFileDTO>(ENDPOINTS.create_file_fleet_document, data);
+export const create_fleet_document_file = async (data: FleetDocumentFileDTO): Promise<SBR> => {
+    return apiPost<SBR, FleetDocumentFileDTO>(ENDPOINTS.create_fleet_document_file, data);
 };
 
-export const remove_file_fleet_document = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_file_fleet_document(id));
+export const remove_fleet_document_file = async (id: string): Promise<SBR> => {
+    return apiDelete<SBR>(ENDPOINTS.remove_fleet_document_file(id));
 };
 
 // FleetDocument APIs

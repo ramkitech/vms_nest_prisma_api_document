@@ -27,7 +27,7 @@ import { MasterMainDateFormat } from '../../../services/master/main/master_main_
 import { MasterMainTimeZone } from '../../../services/master/main/master_main_timezone_service';
 import { MasterVehicle, MasterVehicleFile } from '../vehicle/master_vehicle_service';
 
-import { BookMark } from 'src/services/account/bookmark_service';
+import { BookMark } from 'src/services/account/master_bookmark_service';
 import { OrganisationNotificationPreferenceUserLink } from 'src/services/account/notification_preferences.service';
 import { Ticket, TicketFile } from 'src/services/account/ticket_service';
 

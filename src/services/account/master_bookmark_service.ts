@@ -19,8 +19,8 @@ import { BaseQuerySchema } from '../../zod_utils/zod_base_schema';
 import { Status, MenuType } from '../../core/Enums';
 
 // Other Models
-import { UserOrganisation } from '../../services/main/users/user_organisation_service';
-import { User } from '../../services/main/users/user_service';
+import { UserOrganisation } from '../main/users/user_organisation_service';
+import { User } from '../main/users/user_service';
 
 // URL and Endpoints
 const URL = 'account/bookmarks';
