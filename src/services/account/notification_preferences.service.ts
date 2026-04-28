@@ -51,7 +51,6 @@ export interface OrganisationNotificationPreference extends Record<string, unkno
   all_users: YesNo;
 
   notification_list: NotificationList[];
-  over_speed_limit?: number;
   all_geofences: YesNo;
 
   all_vehicles: YesNo;
@@ -152,10 +151,12 @@ export interface OrganisationNotificationPreferenceUserLink extends Record<strin
   // Count
 }
 
-// ✅ OrganisationNotificationPreference Create/Update Schema
+// OrganisationNotificationPreference Create/Update Schema
 export const OrganisationNotificationPreferenceSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'),
 
+  // Main Field Details
   notification_name: stringMandatory('Notification Name', 3, 100),
   notification_status: enumMandatory('Notification Status', OnOff, OnOff.On),
 
@@ -175,26 +176,31 @@ export const OrganisationNotificationPreferenceSchema = z.object({
     NotificationList,
     getAllEnums(NotificationList),
   ),
-  over_speed_limit: numberOptional('Over Speed Limit'),
   all_geofences: enumMandatory('All Geofences', YesNo, YesNo.No),
   gps_geofence_ids: multi_select_optional('GPSGeofence'), // Multi selection -> GPSGeofence
 
   all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.No),
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationNotificationPreferenceDTO = z.infer<
   typeof OrganisationNotificationPreferenceSchema
 >;
 
-// ✅ OrganisationNotificationPreference Query Schema
+// OrganisationNotificationPreference Query Schema
 export const OrganisationNotificationPreferenceQuerySchema =
   BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
+    // Self Table
     notification_preference_ids: multi_select_optional(
       'OrganisationNotificationPreference',
-    ), // ✅ Multi-Selection -> OrganisationNotificationPreference
+    ), // Multi-Selection -> OrganisationNotificationPreference
+
+    // Relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+
+    // Enums
     notification_status: enumArrayOptional(
       'Notification Status',
       OnOff,
@@ -229,7 +235,6 @@ export const toOrganisationNotificationPreferencePayload = (data: OrganisationNo
   all_users: data.all_users,
 
   notification_list: data.notification_list ?? [],
-  over_speed_limit: data.over_speed_limit ?? 60,
   all_geofences: data.all_geofences,
 
   all_vehicles: data.all_vehicles,
@@ -258,7 +263,6 @@ export const newOrganisationNotificationPreferencePayload = (): OrganisationNoti
   all_users: YesNo.Yes,
 
   notification_list: [],
-  over_speed_limit: 0,
   all_geofences: YesNo.Yes,
 
   all_vehicles: YesNo.Yes,

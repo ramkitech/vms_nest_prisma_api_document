@@ -164,16 +164,22 @@ export interface OrganisationReportAutomationMailVehicleLink extends Record<stri
   // Count
 }
 
-// ✅ OrganisationReportAutomationMail Query Schema
+
+// OrganisationReportAutomationMail Query Schema
 export const OrganisationReportAutomationMailQuerySchema =
   BaseQuerySchema.extend({
-    organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-    report_preference_ids: multi_select_optional(
-      'OrganisationReportPreference',
-    ), // ✅ Multi-Selection -> OrganisationReportPreference
+    // Self Table
     report_automation_mail_ids: multi_select_optional(
       'OrganisationReportAutomationMail',
-    ), // ✅ Multi-Selection -> OrganisationReportAutomationMail
+    ), // Multi-Selection -> OrganisationReportAutomationMail
+
+    // Relations - Parent
+    organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+    report_preference_ids: multi_select_optional(
+      'OrganisationReportPreference',
+    ), // Multi-Selection -> OrganisationReportPreference
+
+    // Enums
     report_type: enumArrayOptional(
       'Report Type',
       ReportType,
@@ -184,10 +190,12 @@ export type OrganisationReportAutomationMailQueryDTO = z.infer<
   typeof OrganisationReportAutomationMailQuerySchema
 >;
 
-// ✅ OrganisationReportPreference Create/Update Schema
+// OrganisationReportPreference Create/Update Schema
 export const OrganisationReportPreferenceSchema = z.object({
+  // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'),
 
+  // Main Field Details
   report_name: stringMandatory('Report Name', 3, 100),
   report_status: enumMandatory('Report Status', OnOff, OnOff.On),
   report_types: enumArrayMandatory(
@@ -213,16 +221,22 @@ export const OrganisationReportPreferenceSchema = z.object({
   all_vehicles: enumMandatory('All Vehicles', YesNo, YesNo.No),
   vehicle_ids: multi_select_optional('MasterVehicle'), // Multi selection -> MasterVehicle
 
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
 export type OrganisationReportPreferenceDTO = z.infer<
   typeof OrganisationReportPreferenceSchema
 >;
 
-// ✅ OrganisationReportPreference Query Schema
+// OrganisationReportPreference Query Schema
 export const OrganisationReportPreferenceQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('UserOrganisation'), // ✅ Multi-Selection -> UserOrganisation
-  report_preference_ids: multi_select_optional('OrganisationReportPreference'), // ✅ Multi-Selection -> OrganisationReportPreference
+  // Self Table
+  report_preference_ids: multi_select_optional('OrganisationReportPreference'), // Multi-Selection -> OrganisationReportPreference
+
+  // Relations - Parent
+  organisation_ids: multi_select_optional('UserOrganisation'), // Multi-Selection -> UserOrganisation
+
+  // Enums
   report_status: enumArrayOptional('Report Status', OnOff, getAllEnums(OnOff)),
   report_types: enumArrayOptional(
     'Report Type',
@@ -243,6 +257,7 @@ export const OrganisationReportPreferenceQuerySchema = BaseQuerySchema.extend({
 export type OrganisationReportPreferenceQueryDTO = z.infer<
   typeof OrganisationReportPreferenceQuerySchema
 >;
+
 
 // Payload Conversions
 export const toOrganisationReportPreferencePayload = (data: OrganisationReportPreference): OrganisationReportPreferenceDTO => ({
