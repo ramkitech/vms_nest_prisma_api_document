@@ -57,6 +57,8 @@ export interface Invoice extends Record<string, unknown> {
   invoice_generate_date_f?: string;
   invoice_due_date?: string;
   invoice_due_date_f?: string;
+  invoice_overdue_date?: string;
+  invoice_overdue_date_f?: string;
   payment_date?: string;
   payment_date_f?: string;
 
@@ -103,13 +105,12 @@ export interface InvoiceFile extends BaseCommonFile {
 
   invoice_id: string;
   Invoice?: Invoice;
-
   invoice_number?: string;
 
   // Usage Type -> Invoice Document, Invoice Receipt
 }
 
-// Invoice File Schema
+// InvoiceFile Schema
 export const InvoiceFileSchema = BaseFileSchema.extend({
   organisation_id: single_select_optional('UserOrganisation'), // Single-Selection -> UserOrganisation
   invoice_id: single_select_optional('Invoice'), // Single-Selection -> Invoice
@@ -118,49 +119,56 @@ export type InvoiceFileDTO = z.infer<typeof InvoiceFileSchema>;
 
 // Invoice Create/update Schema
 export const InvoiceSchema = z.object({
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  currency_id: single_select_mandatory('MasterMainCurrency'), // Single-Selection -> MasterMainCurrency
+
+  // Main Field Details
   invoice_number: stringMandatory('Invoice Number', 1, 100),
   invoice_month_year: stringMandatory('Invoice Month Year', 1, 100),
-
   invoice_amount: numberMandatory('Invoice Amount', 0),
-
   invoice_generate_date: dateMandatory('Invoice Generate Date'),
   invoice_due_date: dateMandatory('Invoice Due Date'),
+  invoice_overdue_date: dateMandatory('Invoice Over Due Date'),
   payment_date: dateOptional('Payment Date'),
-
   invoice_status: enumMandatory(
     'InvoiceStatus',
     InvoiceStatus,
     InvoiceStatus.InvoiceGenerated,
   ),
 
-  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
-  currency_id: single_select_mandatory('MasterMainCurrency'), // Single-Selection -> MasterMainCurrency
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
 
+  // Files
   InvoiceFileSchema: nestedArrayOfObjectsOptional(
     'InvoiceFileSchema',
     InvoiceFileSchema,
     [],
   ),
 
-  status: enumMandatory('Status', Status, Status.Active),
+  // Other
   time_zone_id: single_select_mandatory('MasterMainTimeZone'),
 });
 export type InvoiceDTO = z.infer<typeof InvoiceSchema>;
 
 // Invoice Query Schema
 export const InvoiceQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  invoice_ids: multi_select_optional('Invoice'), // Multi-selection -> Invoice
+
+  // Relations - Parent
   organisation_ids: multi_select_optional('UserOrganisation'), // Multi-selection -> UserOrganisation
   currency_ids: multi_select_optional('MasterMainCurrency'), // Multi-selection -> MasterMainCurrency
 
-  invoice_ids: multi_select_optional('Invoice'), // Multi-selection -> Invoice
-
+  // Enums
   invoice_status: enumArrayOptional(
     'Invoice Status',
     InvoiceStatus,
     getAllEnums(InvoiceStatus),
   ),
 
-  // Date Range Filter
+  // Date Filters
   from_date: dateMandatory('From Date'),
   to_date: dateMandatory('To Date'),
 });
@@ -178,6 +186,7 @@ export const toInvoicePayload = (invoice: Invoice): InvoiceDTO => ({
 
   invoice_generate_date: invoice.invoice_generate_date ?? '',
   invoice_due_date: invoice.invoice_due_date ?? '',
+  invoice_overdue_date: invoice.invoice_overdue_date ?? '',
   payment_date: invoice.payment_date ?? '',
 
   invoice_status: invoice.invoice_status ?? InvoiceStatus.InvoiceGenerated,
@@ -216,6 +225,8 @@ export const newInvoicePayload = (): InvoiceDTO => ({
 
   invoice_generate_date: '',
   invoice_due_date: '',
+  invoice_overdue_date: '',
+
   payment_date: '',
 
   invoice_status: InvoiceStatus.InvoiceGenerated,

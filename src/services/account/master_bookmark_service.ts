@@ -8,44 +8,72 @@ import {
   stringMandatory,
   stringOptional,
   enumMandatory,
-  enumArrayOptional,
-  getAllEnums,
   multi_select_optional,
   single_select_mandatory,
 } from '../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../zod_utils/zod_base_schema';
 
 // Enums
-import { Status, MenuType } from '../../core/Enums';
+import { Status } from '../../core/Enums';
+import { UserBookmark } from './user_bookmark_service';
 
 // Other Models
-import { UserOrganisation } from '../main/users/user_organisation_service';
-import { User } from '../main/users/user_service';
 
 // URL and Endpoints
-const URL = 'account/bookmarks';
+const URL = 'account/master_bookmarks';
 
 const ENDPOINTS = {
-  find: `${URL}/search`,
-  create: URL,
-  update: (id: string): string => `${URL}/${id}`,
-  delete: (id: string): string => `${URL}/${id}`,
+  create_module: `${URL}/module`,
+  find_module: `${URL}/module/search`,
+  update_module: (id: string) => `${URL}/module/${id}`,
+  delete_module: (id: string) => `${URL}/module/${id}`,
+
+  // Sub Module
+  create_sub_module: `${URL}/sub_module`,
+  find_sub_module: `${URL}/sub_module/search`,
+  update_sub_module: (id: string) => `${URL}/sub_module/${id}`,
+  delete_sub_module: (id: string) => `${URL}/sub_module/${id}`,
+
+  // Page
+  create_page: `${URL}/page`,
+  find_page: `${URL}/page/search`,
+  update_page: (id: string) => `${URL}/page/${id}`,
+  delete_page: (id: string) => `${URL}/page/${id}`,
 };
 
 // Bookmark Interface
-export interface BookMark extends Record<string, unknown> {
+export interface MasterBookmarkModule extends Record<string, unknown> {
   // Primary Fields
-  bookmark_id: string;
-  module_name: string; // Min: 3, Max: 100
-  menu_type: MenuType;
-  group_name: string; // Min: 3, Max: 50
-  group_name_language: string; // Min: 3, Max: 50
-  group_icon: string; // Min: 3, Max: 50
-  group_url: string; // Min: 3, Max: 200
-  sub_item_name?: string; // Max: 50
-  sub_item_name_language?: string; // Max: 50
-  sub_item_icon?: string; // Max: 50
-  sub_item_url?: string; // Max: 200
+  bookmark_module_id: string;
+  module_name: string;
+  module_icon_name: string;
+  sort_order: number;
+
+  // Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // Child Relations
+  MasterBookmarkSubModule?: MasterBookmarkSubModule[];
+  MasterBookmarkPage?: MasterBookmarkPage[];
+  UserBookmark?: UserBookmark[];
+
+  // Count
+  _count?: {
+    MasterBookmarkSubModule?: number;
+    MasterBookmarkPage?: number;
+    UserBookmark?: number;
+  };
+}
+
+export interface MasterBookmarkSubModule extends Record<string, unknown> {
+  // Primary Fields
+  bookmark_sub_module_id: string;
+
+  sub_module_name: string;
+  sub_module_icon_name: string;
+  sort_order: number;
 
   // Metadata
   status: Status;
@@ -53,102 +81,252 @@ export interface BookMark extends Record<string, unknown> {
   modified_date_time: string;
 
   // Relations - Parent
-  organisation_id: string;
-  UserOrganisation?: UserOrganisation;
-  organisation_name?: string;
-  organisation_code?: string;
-  organisation_logo_url?: string;
+  bookmark_module_id: string;
+  MasterBookmarkModule?: MasterBookmarkModule;
+  module_name?: string;
 
-  user_id: string;
-  User?: User;
+  // Child Relations
+  MasterBookmarkPage?: MasterBookmarkPage[];
+  UserBookmark?: UserBookmark[];
+
+  // Count
+  _count?: {
+    MasterBookmarkPage?: number;
+    UserBookmark?: number;
+  };
 }
 
-// ✅ Bookmark Create/Update Schema
-export const BookMarkSchema = z.object({
-  organisation_id: single_select_mandatory('Organisation'), // ✅ Single-selection -> UserOrganisation
-  user_id: single_select_mandatory('User'), // ✅ Single-selection -> User
-  module_name: stringMandatory('Module Name', 3, 100),
-  menu_type: enumMandatory('Menu Type', MenuType, MenuType.Group),
-  group_name: stringMandatory('Group Name', 3, 50),
-  group_name_language: stringMandatory('Group Name Language', 3, 50),
-  group_icon: stringMandatory('Group Icon', 3, 50),
-  group_url: stringMandatory('Group URL', 3, 200),
-  sub_item_name: stringOptional('Sub Item Name', 0, 50),
-  sub_item_name_language: stringOptional('Sub Item Name Language', 0, 50),
-  sub_item_icon: stringOptional('Sub Item Icon', 0, 50),
-  sub_item_url: stringOptional('Sub Item URL', 0, 200),
+export interface MasterBookmarkPage extends Record<string, unknown> {
+  // Primary Fields
+  bookmark_page_id: string;
+
+  page_name: string;
+  page_icon_name: string;
+  page_url: string;
+  sort_order: number;
+
+  // Metadata
+  status: Status;
+  added_date_time: string;
+  modified_date_time: string;
+
+  // Relations - Parent
+  bookmark_module_id: string;
+  MasterBookmarkModule?: MasterBookmarkModule;
+  module_name?: string;
+
+  bookmark_sub_module_id: string;
+  MasterBookmarkSubModule?: MasterBookmarkSubModule;
+  sub_module_name?: string;
+
+  // Child Relations
+  UserBookmark?: UserBookmark[];
+
+  // Count
+  _count?: {
+    UserBookmark?: number;
+  };
+}
+
+export const MasterBookmarkModuleSchema = z.object({
+  // Main Field Details
+  module_name: stringMandatory('Module Name', 1, 100),
+  module_icon_name: stringOptional('Module Icon Name', 0, 100),
+  sort_order: z.coerce.number().optional().default(0),
+
+  // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type BookMarkDTO = z.infer<typeof BookMarkSchema>;
+export type MasterBookmarkModuleDTO = z.infer<
+  typeof MasterBookmarkModuleSchema
+>;
 
-// ✅ Bookmark Query Schema
-export const BookMarkQuerySchema = BaseQuerySchema.extend({
-  organisation_ids: multi_select_optional('Organisation'), // ✅ Multi-selection -> Organisation
-  user_ids: multi_select_optional('User'), // ✅ Multi-selection -> User
-  bookmark_ids: multi_select_optional('Bookmark'), // ✅ Multi-selection -> Bookmark
-  menu_type: enumArrayOptional(
-    'Menu Type',
-    MenuType,
-    getAllEnums(MenuType),
-    0,
-    10,
-    true
-  ),
+export const MasterBookmarkSubModuleSchema = z.object({
+  // Relations - Parent
+  bookmark_module_id: single_select_mandatory('MasterBookmarkModule'),
+
+  // Main Field Details
+  sub_module_name: stringMandatory('Sub Module Name', 1, 100),
+  sub_module_icon_name: stringOptional('Sub Module Icon Name', 0, 100),
+  sort_order: z.coerce.number().optional().default(0),
+
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
 });
-export type BookMarkQueryDTO = z.infer<typeof BookMarkQuerySchema>;
+export type MasterBookmarkSubModuleDTO = z.infer<
+  typeof MasterBookmarkSubModuleSchema
+>;
 
-// Convert existing data to a payload structure
-export const toBookMarkPayload = (bookmark: BookMark): BookMarkDTO => ({
-  module_name: bookmark.module_name,
-  menu_type: bookmark.menu_type,
-  group_name: bookmark.group_name,
-  group_name_language: bookmark.group_name_language,
-  group_icon: bookmark.group_icon,
-  group_url: bookmark.group_url,
-  sub_item_name: bookmark.sub_item_name ?? '',
-  sub_item_name_language: bookmark.sub_item_name_language ?? '',
-  sub_item_icon: bookmark.sub_item_icon ?? '',
-  sub_item_url: bookmark.sub_item_url ?? '',
-  user_id: bookmark.user_id,
-  organisation_id: bookmark.organisation_id,
-  status: bookmark.status,
+export const MasterBookmarkPageSchema = z.object({
+  // Relations - Parent
+  bookmark_module_id: single_select_mandatory('MasterBookmarkModule'),
+  bookmark_sub_module_id: single_select_mandatory('MasterBookmarkSubModule'),
+
+  // Main Field Details
+  page_name: stringMandatory('Page Name', 1, 100),
+  page_icon_name: stringOptional('Page Icon Name', 0, 100),
+  page_url: stringMandatory('Page URL', 1, 300),
+  sort_order: z.coerce.number().optional().default(0),
+
+  // Metadata
+  status: enumMandatory('Status', Status, Status.Active),
+});
+export type MasterBookmarkPageDTO = z.infer<typeof MasterBookmarkPageSchema>;
+
+export const MasterBookmarkModuleQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  bookmark_module_ids: multi_select_optional('MasterBookmarkModule'),
+});
+export type MasterBookmarkModuleQueryDTO = z.infer<
+  typeof MasterBookmarkModuleQuerySchema
+>;
+
+export const MasterBookmarkSubModuleQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  bookmark_sub_module_ids: multi_select_optional('MasterBookmarkSubModule'),
+
+  // Relations - Parent
+  bookmark_module_ids: multi_select_optional('MasterBookmarkModule'),
+});
+export type MasterBookmarkSubModuleQueryDTO = z.infer<
+  typeof MasterBookmarkSubModuleQuerySchema
+>;
+
+export const MasterBookmarkPageQuerySchema = BaseQuerySchema.extend({
+  // Self Table
+  bookmark_page_ids: multi_select_optional('MasterBookmarkPage'),
+
+  // Relations - Parent
+  bookmark_module_ids: multi_select_optional('MasterBookmarkModule'),
+  bookmark_sub_module_ids: multi_select_optional('MasterBookmarkSubModule'),
+});
+export type MasterBookmarkPageQueryDTO = z.infer<
+  typeof MasterBookmarkPageQuerySchema
+>;
+
+// Convert MasterBookmarkModule Data to API Payload
+export const toMasterBookmarkModulePayload = (row: MasterBookmarkModule): MasterBookmarkModuleDTO => ({
+  module_name: row.module_name || '',
+  module_icon_name: row.module_icon_name || '',
+  sort_order: row.sort_order || 0,
+
+  status: row.status || Status.Active,
 });
 
-// Generate a new payload with default values
-export const newBookMarkPayload = (): BookMarkDTO => ({
+// Create New MasterBookmarkModule Payload
+export const newMasterBookmarkModulePayload = (): MasterBookmarkModuleDTO => ({
   module_name: '',
-  menu_type: MenuType.Group,
-  group_name: '',
-  group_name_language: '',
-  group_icon: '',
-  group_url: '',
-  sub_item_name: '',
-  sub_item_name_language: '',
-  sub_item_icon: '',
-  sub_item_url: '',
-  user_id: '',
-  organisation_id: '',
-  status: Status.Active,
+  module_icon_name: '',
+  sort_order: 0,
+
+  status: Status.Active
+});
+
+// Convert MasterBookmarkSubModule data to a payload structure
+export const toMasterBookmarkSubModulePayload = (row: MasterBookmarkSubModule): MasterBookmarkSubModuleDTO => ({
+  bookmark_module_id: row.bookmark_module_id || '',
+
+  sort_order: row.sort_order || 0,
+  sub_module_name: row.sub_module_name || '',
+  sub_module_icon_name: row.sub_module_icon_name || '',
+
+  status: row.status  || Status.Active,
+});
+
+// Generate New MasterBookmarkSubModule Payload
+export const newMasterBookmarkSubModulePayload = (): MasterBookmarkSubModuleDTO => ({
+  bookmark_module_id: '',
+
+  sub_module_name: '',
+  sub_module_icon_name: '',
+  sort_order: 0,
+
+  status: Status.Active
+});
+
+// Convert MasterBookmarkPage data to a payload structure
+export const toMasterBookmarkPagePayload = (row: MasterBookmarkPage): MasterBookmarkPageDTO => ({
+  bookmark_module_id: row.bookmark_module_id || '',
+  bookmark_sub_module_id: row.bookmark_sub_module_id || '',
+
+  sort_order: row.sort_order || 0,
+  
+  page_name: row.page_name || '',
+  page_icon_name: row.page_icon_name || '',
+  page_url: row.page_url || '', 
+
+  status: row.status || Status.Active
+});
+
+// Generate New MasterBookmarkPage Payload
+export const newMasterBookmarkPagePayload = (): MasterBookmarkPageDTO => ({
+  bookmark_module_id: '',
+  bookmark_sub_module_id: '',
+
+  sort_order: 0,
+  page_name: '',
+  page_icon_name: '',
+  page_url: '',
+
+  status: Status.Active
 });
 
 // API Methods
-export const findBookMarks = async (
-  data: BookMarkQueryDTO
-): Promise<FBR<BookMark[]>> => {
-  return apiPost<FBR<BookMark[]>, BookMarkQueryDTO>(ENDPOINTS.find, data);
+export const createMasterBookmarkModule = async (data: MasterBookmarkModuleDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterBookmarkModuleDTO>(ENDPOINTS.create_module, data);
 };
 
-export const createBookMark = async (data: BookMarkDTO): Promise<SBR> => {
-  return apiPost<SBR, BookMarkDTO>(ENDPOINTS.create, data);
+export const findMasterBookmarkModule = async (data: MasterBookmarkModuleQueryDTO): Promise<FBR<MasterBookmarkModule[]>> => {
+  return apiPost<FBR<MasterBookmarkModule[]>, MasterBookmarkModuleQueryDTO>(
+    ENDPOINTS.find_module,
+    data,
+  );
 };
 
-export const updateBookMark = async (
-  id: string,
-  data: BookMarkDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, BookMarkDTO>(ENDPOINTS.update(id), data);
+export const updateMasterBookmarkModule = async (id: string, data: MasterBookmarkModuleDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterBookmarkModuleDTO>(ENDPOINTS.update_module(id), data);
 };
 
-export const deleteBookMark = async (id: string): Promise<SBR> => {
-  return apiDelete<SBR>(ENDPOINTS.delete(id));
+export const deleteMasterBookmarkModule = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_module(id));
+};
+
+// MasterBookmarkSubModule APIs
+export const createMasterBookmarkSubModule = async (data: MasterBookmarkSubModuleDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterBookmarkSubModuleDTO>(ENDPOINTS.create_sub_module, data);
+};
+
+export const findMasterBookmarkSubModule = async (data: MasterBookmarkSubModuleQueryDTO): Promise<FBR<MasterBookmarkSubModule[]>> => {
+  return apiPost<FBR<MasterBookmarkSubModule[]>, MasterBookmarkSubModuleQueryDTO>(
+    ENDPOINTS.find_sub_module,
+    data,
+  );
+};
+
+export const updateMasterBookmarkSubModule = async (id: string, data: MasterBookmarkSubModuleDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterBookmarkSubModuleDTO>(ENDPOINTS.update_sub_module(id), data);
+};
+
+export const deleteMasterBookmarkSubModule = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_sub_module(id));
+};
+
+// MasterBookmarkPage APIs
+export const createMasterBookmarkPage = async (data: MasterBookmarkPageDTO): Promise<SBR> => {
+  return apiPost<SBR, MasterBookmarkPageDTO>(ENDPOINTS.create_page, data);
+};
+
+export const findMasterBookmarkPage = async (data: MasterBookmarkPageQueryDTO): Promise<FBR<MasterBookmarkPage[]>> => {
+  return apiPost<FBR<MasterBookmarkPage[]>, MasterBookmarkPageQueryDTO>(
+    ENDPOINTS.find_page,
+    data,
+  );
+};
+
+export const updateMasterBookmarkPage = async (id: string, data: MasterBookmarkPageDTO): Promise<SBR> => {
+  return apiPatch<SBR, MasterBookmarkPageDTO>(ENDPOINTS.update_page(id), data);
+};
+
+export const deleteMasterBookmarkPage = async (id: string): Promise<SBR> => {
+  return apiDelete<SBR>(ENDPOINTS.delete_page(id));
 };
