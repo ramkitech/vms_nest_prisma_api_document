@@ -143,9 +143,20 @@ export const TicketVerifySchema = z.object({
   // Relations - Parent
   admin_id: single_select_mandatory('UserAdmin'), // Single-Selection -> UserAdmin
 
+  // Relations - Parent
+  organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
+  user_id: single_select_mandatory('User'), // Single-Selection -> User
+
   // Main Field Details
   admin_message: stringOptional('Admin Message', 0, 500),
   ticket_status: enumMandatory('TicketStatus', TicketStatus, TicketStatus.Open),
+
+  // Files
+  TicketFileSchema: nestedArrayOfObjectsOptional(
+    'TicketFileSchema',
+    TicketFileSchema,
+    [],
+  ),
 });
 export type TicketVerifyDTO = z.infer<typeof TicketVerifySchema>;
 
@@ -211,17 +222,39 @@ export const newTicketPayload = (): TicketDTO => ({
 // Convert existing data to a payload structure
 export const newVerifyTicketPayload = (): TicketVerifyDTO => ({
   admin_id: '',
+  organisation_id: '',
+  user_id: '',
 
   admin_message: '',
   ticket_status: TicketStatus.Open,
+
+  TicketFileSchema: []
 });
 
 // Convert existing data to a payload structure
 export const toVerifyTicketPayload = (ticket: Ticket): TicketVerifyDTO => ({
   admin_id: ticket.admin_id ?? '',
+  organisation_id: ticket.organisation_id ?? '',
+  user_id: ticket.user_id ?? '',
 
   admin_message: ticket.admin_message ?? '',
   ticket_status: ticket.ticket_status,
+
+  TicketFileSchema: ticket.TicketFile?.map((file) => ({
+    organisation_id: file.organisation_id ?? '',
+    user_id: file.user_id ?? '',
+    ticket_id: file.ticket_id ?? '',
+    ticket_file_id: file.ticket_file_id ?? '',
+    usage_type: file.usage_type,
+    file_type: file.file_type,
+    file_url: file.file_url || '',
+    file_key: file.file_key || '',
+    file_name: file.file_name || '',
+    file_description: file.file_description || '',
+    file_size: file.file_size ?? 0,
+    file_metadata: file.file_metadata ?? {},
+    status: file.status,
+  })) ?? [],
 });
 
 // AWS S3 PRESIGNED
