@@ -77,7 +77,7 @@ const ENDPOINTS = {
     find_address: `${URL}/address/search`,
     create_address: `${URL}/address`,
     update_address: (id: string): string => `${URL}/address/${id}`,
-    remove_address: (id: string): string => `${URL}/address/${id}`,
+    delete_address: (id: string): string => `${URL}/address/${id}`,
 
     // StudentGuardianLink APIs
     find_guardian_link: `${URL}/guardian_link/search`,
@@ -85,21 +85,21 @@ const ENDPOINTS = {
     update_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
     update_guardian_details: (id: string): string => `${URL}/guardian_details/${id}`,
     update_guardian_mobile_number: `${URL}/guardian_mobile_number`,
-    remove_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
+    delete_guardian_link: (id: string): string => `${URL}/guardian_link/${id}`,
     find_guardian_autofill_details: `${URL}/guardian_autofill/search`,
 
     // StudentLeaveRequest APIs
     find_leave_request: `${URL}/leave_request/search`,
     create_leave_request: `${URL}/leave_request`,
     update_leave_request: (id: string): string => `${URL}/leave_request/${id}`,
-    remove_leave_request: (id: string): string => `${URL}/leave_request/${id}`,
+    delete_leave_request: (id: string): string => `${URL}/leave_request/${id}`,
 
     // StudentStopChangeRequest APIs
     create_stop_change_request: `${URL}/stop_change_request`,
     find_stop_change_request: `${URL}/stop_change_request/search`,
     update_stop_change_request: (id: string): string => `${URL}/stop_change_request/${id}`,
     approve_stop_change_request: (id: string): string => `${URL}/approve_stop_change_request/${id}`,
-    remove_stop_change_request: (id: string): string => `${URL}/stop_change_request/${id}`,
+    delete_stop_change_request: (id: string): string => `${URL}/stop_change_request/${id}`,
 
     // StudentTransportPlanTypeChangeHistory APIs
     find_student_transport_plan_type_change_history: `${URL}/student_transport_plan_type_change_history/search`,
@@ -1205,7 +1205,7 @@ export const updateStudentAddress = async (id: string, data: StudentAddressDTO):
 };
 
 export const deleteStudentAddress = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_address(id));
+    return apiDelete<SBR>(ENDPOINTS.delete_address(id));
 };
 
 // StudentGuardianLink APIs
@@ -1234,7 +1234,7 @@ export const updateGuardianMobileNumber = async (data: GuardianMobileNumberDTO):
 };
 
 export const deleteStudentGuardianLink = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_guardian_link(id));
+    return apiDelete<SBR>(ENDPOINTS.delete_guardian_link(id));
 };
 
 export const findStudentGuardianAutofillDetails = async (data: StudentGuardianAutofillQueryDTO): Promise<FBR<StudentGuardian[]>> => {
@@ -1255,7 +1255,7 @@ export const updateStudentLeaveRequest = async (id: string, data: StudentLeaveRe
 };
 
 export const deleteStudentLeaveRequest = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_leave_request(id));
+    return apiDelete<SBR>(ENDPOINTS.delete_leave_request(id));
 };
 
 // StudentStopChangeRequest APIs
@@ -1276,7 +1276,7 @@ export const approveStopChangeRequest = async (id: string, data: StudentStopChan
 };
 
 export const deleteStudentStopChangeRequest = async (id: string): Promise<SBR> => {
-    return apiDelete<SBR>(ENDPOINTS.remove_stop_change_request(id));
+    return apiDelete<SBR>(ENDPOINTS.delete_stop_change_request(id));
 };
 
 // StudentTransportPlanTypeChangeHistory APIs

@@ -230,7 +230,7 @@ export const toMasterBookmarkSubModulePayload = (row: MasterBookmarkSubModule): 
   sub_module_name: row.sub_module_name || '',
   sub_module_icon_name: row.sub_module_icon_name || '',
 
-  status: row.status  || Status.Active,
+  status: row.status || Status.Active,
 });
 
 // Generate New MasterBookmarkSubModule Payload
@@ -250,10 +250,10 @@ export const toMasterBookmarkPagePayload = (row: MasterBookmarkPage): MasterBook
   bookmark_sub_module_id: row.bookmark_sub_module_id || '',
 
   sort_order: row.sort_order || 0,
-  
+
   page_name: row.page_name || '',
   page_icon_name: row.page_icon_name || '',
-  page_url: row.page_url || '', 
+  page_url: row.page_url || '',
 
   status: row.status || Status.Active
 });
@@ -277,10 +277,7 @@ export const createMasterBookmarkModule = async (data: MasterBookmarkModuleDTO):
 };
 
 export const findMasterBookmarkModule = async (data: MasterBookmarkModuleQueryDTO): Promise<FBR<MasterBookmarkModule[]>> => {
-  return apiPost<FBR<MasterBookmarkModule[]>, MasterBookmarkModuleQueryDTO>(
-    ENDPOINTS.find_module,
-    data,
-  );
+  return apiPost<FBR<MasterBookmarkModule[]>, MasterBookmarkModuleQueryDTO>(ENDPOINTS.find_module, data,);
 };
 
 export const updateMasterBookmarkModule = async (id: string, data: MasterBookmarkModuleDTO): Promise<SBR> => {
@@ -297,10 +294,7 @@ export const createMasterBookmarkSubModule = async (data: MasterBookmarkSubModul
 };
 
 export const findMasterBookmarkSubModule = async (data: MasterBookmarkSubModuleQueryDTO): Promise<FBR<MasterBookmarkSubModule[]>> => {
-  return apiPost<FBR<MasterBookmarkSubModule[]>, MasterBookmarkSubModuleQueryDTO>(
-    ENDPOINTS.find_sub_module,
-    data,
-  );
+  return apiPost<FBR<MasterBookmarkSubModule[]>, MasterBookmarkSubModuleQueryDTO>(ENDPOINTS.find_sub_module, data,);
 };
 
 export const updateMasterBookmarkSubModule = async (id: string, data: MasterBookmarkSubModuleDTO): Promise<SBR> => {
@@ -317,10 +311,7 @@ export const createMasterBookmarkPage = async (data: MasterBookmarkPageDTO): Pro
 };
 
 export const findMasterBookmarkPage = async (data: MasterBookmarkPageQueryDTO): Promise<FBR<MasterBookmarkPage[]>> => {
-  return apiPost<FBR<MasterBookmarkPage[]>, MasterBookmarkPageQueryDTO>(
-    ENDPOINTS.find_page,
-    data,
-  );
+  return apiPost<FBR<MasterBookmarkPage[]>, MasterBookmarkPageQueryDTO>(ENDPOINTS.find_page, data,);
 };
 
 export const updateMasterBookmarkPage = async (id: string, data: MasterBookmarkPageDTO): Promise<SBR> => {

@@ -87,7 +87,7 @@ export const UserBookmarkSaveSelectionSchema = z.object({
 export type UserBookmarkSaveSelectionDTO = z.infer<typeof UserBookmarkSaveSelectionSchema>;
 
 // Convert existing data to a payload structure
-export const toBookMarkPayload = (row: UserBookmark):  UserBookmarkSaveSelectionDTO=> ({
+export const toBookMarkPayload = (row: UserBookmark): UserBookmarkSaveSelectionDTO => ({
   organisation_id: row.organisation_id,
   user_id: row.user_id,
   pages: []
@@ -101,13 +101,8 @@ export const newBookMarkPayload = (): UserBookmarkSaveSelectionDTO => ({
 });
 
 // API Methods
-export const getUserBookmarks = async (
-  data: UserBookmarkSelectionQueryDTO
-): Promise<FBR<UserBookmark[]>> => {
-  return apiPost<FBR<UserBookmark[]>, UserBookmarkSelectionQueryDTO>(
-    ENDPOINTS.selection_list,
-    data
-  );
+export const getUserBookmarks = async (data: UserBookmarkSelectionQueryDTO): Promise<FBR<UserBookmark[]>> => {
+  return apiPost<FBR<UserBookmark[]>, UserBookmarkSelectionQueryDTO>(ENDPOINTS.selection_list, data);
 };
 
 export const saveUserBookmarks = async (data: UserBookmarkSaveSelectionDTO): Promise<SBR> => {

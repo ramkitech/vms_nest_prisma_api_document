@@ -34,10 +34,10 @@ const ENDPOINTS = {
 export interface FASTagDetails extends Record<string, unknown> {
   // Primary Fields
   fasttag_details_id: string;
-  api_client_id: string; // Min: 3, Max: 100
-  api_key: string; // Min: 3, Max: 100
-  api_secret: string; // Min: 3, Max: 100
-  description: string; // Min: 3, Max: 100
+  api_client_id: string;
+  api_key: string; 
+  api_secret: string; 
+  description: string;
 
   // Metadata
   status: Status;
@@ -60,12 +60,10 @@ export interface FASTagDetails extends Record<string, unknown> {
   User?: User;
   user_details?: string;
   user_image_url?: string;
-
 }
 
-
-// FASTagDetail Create/Update Schema
-export const FasttagDetailSchema = z.object({
+// FASTagDetails Create/Update Schema
+export const FASTagDetailsSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   user_id: single_select_mandatory('User'), // Single-Selection -> User
@@ -80,10 +78,10 @@ export const FasttagDetailSchema = z.object({
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type FasttagDetailDTO = z.infer<typeof FasttagDetailSchema>;
+export type FASTagDetailsDTO = z.infer<typeof FASTagDetailsSchema>;
 
-// FasttagDetail Query Schema
-export const FasttagDetailQuerySchema = BaseQuerySchema.extend({
+// FASTagDetails Query Schema
+export const FASTagDetailsQuerySchema = BaseQuerySchema.extend({
   // Self Table
   fasttag_details_ids: multi_select_optional('FASTagDetails'), // Multi-selection -> FASTagDetails
 
@@ -92,11 +90,10 @@ export const FasttagDetailQuerySchema = BaseQuerySchema.extend({
   user_ids: multi_select_optional('User'), // Multi-selection -> User
   fasttag_bank_ids: multi_select_optional('MasterMainFASTagBank'), // Multi-selection -> MasterMainFASTagBank
 });
-export type FasttagDetailQueryDTO = z.infer<typeof FasttagDetailQuerySchema>;
-
+export type FASTagDetailsQueryDTO = z.infer<typeof FASTagDetailsQuerySchema>;
 
 // Convert existing data to a payload structure
-export const toFasttagDetailPayload = (row: FASTagDetails): FasttagDetailDTO => ({
+export const toFASTagDetailsPayload = (row: FASTagDetails): FASTagDetailsDTO => ({
   organisation_id: row.organisation_id,
   user_id: row.user_id,
   fasttag_bank_id: row.fasttag_bank_id,
@@ -106,38 +103,36 @@ export const toFasttagDetailPayload = (row: FASTagDetails): FasttagDetailDTO => 
   api_secret: row.api_secret ?? '',
   description: row.description ?? '',
 
-  status: row.status|| Status.Active,
+  status: row.status || Status.Active,
 });
 
-
 // Generate a new payload with default values
-export const newFasttagDetailPayload = (): FasttagDetailDTO => ({
+export const newFASTagDetailsPayload = (): FASTagDetailsDTO => ({
   organisation_id: '',
   user_id: '',
   fasttag_bank_id: '',
+
   api_client_id: '',
   api_key: '',
   api_secret: '',
   description: '',
+
   status: Status.Active
 });
 
 // API Methods
-export const findFasttagDetails = async (data: FasttagDetailQueryDTO): Promise<FBR<FASTagDetails[]>> => {
-  return apiPost<FBR<FASTagDetails[]>, FasttagDetailQueryDTO>(ENDPOINTS.find, data);
+export const findFASTagDetails = async (data: FASTagDetailsQueryDTO): Promise<FBR<FASTagDetails[]>> => {
+  return apiPost<FBR<FASTagDetails[]>, FASTagDetailsQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createFasttagDetailMark = async (data: FasttagDetailDTO): Promise<SBR> => {
-  return apiPost<SBR, FasttagDetailDTO>(ENDPOINTS.create, data);
+export const createFASTagDetails = async (data: FASTagDetailsDTO): Promise<SBR> => {
+  return apiPost<SBR, FASTagDetailsDTO>(ENDPOINTS.create, data);
 };
 
-export const updateFasttagDetail = async (
-  id: string,
-  data: FasttagDetailDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, FasttagDetailDTO>(ENDPOINTS.update(id), data);
+export const updateFASTagDetails = async (id: string, data: FASTagDetailsDTO): Promise<SBR> => {
+  return apiPatch<SBR, FASTagDetailsDTO>(ENDPOINTS.update(id), data);
 };
 
-export const deleteFasttagDetail = async (id: string): Promise<SBR> => {
+export const deleteFASTagDetails = async (id: string): Promise<SBR> => {
   return apiDelete<SBR>(ENDPOINTS.delete(id));
 };

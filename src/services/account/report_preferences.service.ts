@@ -29,10 +29,11 @@ const URL_AUTOMATION_MAIL = 'account/report_preferences_automation_mail';
 
 const ENDPOINTS = {
   find: `${URL}/search`,
-  find_automation_mail: `${URL_AUTOMATION_MAIL}/search`,
   create: URL,
   update: (id: string): string => `${URL}/${id}`,
   delete: (id: string): string => `${URL}/${id}`,
+
+  find_automation_mail: `${URL_AUTOMATION_MAIL}/search`,
 };
 
 // OrganisationReportPreference Interface
@@ -44,7 +45,7 @@ export interface OrganisationReportPreference extends Record<string, unknown> {
   report_types: ReportType[];
   report_list: ReportList[];
 
-  report_channels: ReportChannel[],
+  report_channels: ReportChannel[];
   mobile_numbers?: string;
   email_ids?: string;
   cc_email_ids?: string;
@@ -64,8 +65,8 @@ export interface OrganisationReportPreference extends Record<string, unknown> {
   organisation_logo_url?: string;
 
   // Relations - Child
-  OrganisationReportPreferenceVehicleLink: OrganisationReportPreferenceVehicleLink[]
-  OrganisationReportAutomationMail: OrganisationReportAutomationMail[]
+  OrganisationReportPreferenceVehicleLink: OrganisationReportPreferenceVehicleLink[];
+  OrganisationReportAutomationMail: OrganisationReportAutomationMail[];
 
   // Count
   _count?: {
@@ -132,7 +133,7 @@ export interface OrganisationReportAutomationMail extends Record<string, unknown
   OrganisationReportPreference?: OrganisationReportPreference;
 
   // Relations - Child
-  OrganisationReportAutomationMailVehicleLink: OrganisationReportAutomationMailVehicleLink[]
+  OrganisationReportAutomationMailVehicleLink: OrganisationReportAutomationMailVehicleLink[];
 
   // Count
   _count?: {
@@ -156,14 +157,13 @@ export interface OrganisationReportAutomationMailVehicleLink extends Record<stri
   vehicle_number?: string;
   vehicle_type?: string;
 
-  automation_mail_id: string;
+  report_automation_mail_id: string;
   OrganisationReportAutomationMail?: OrganisationReportAutomationMail;
 
   // Relations - Child
 
   // Count
 }
-
 
 // OrganisationReportAutomationMail Query Schema
 export const OrganisationReportAutomationMailQuerySchema =

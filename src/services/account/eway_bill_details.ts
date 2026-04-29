@@ -5,11 +5,8 @@ import { SBR, FBR } from '../../core/BaseResponse';
 // Zod
 import { z } from 'zod';
 import {
-  stringMandatory,
   stringOptional,
   enumMandatory,
-  enumArrayOptional,
-  getAllEnums,
   multi_select_optional,
   single_select_mandatory,
 } from '../../zod_utils/zod_utils';
@@ -38,8 +35,8 @@ export interface EWayBillDetails extends Record<string, unknown> {
   // Primary Fields
   eway_bill_details_id: string;
   api_client_id: string;
-  api_key: string; 
-  api_secret: string; 
+  api_key: string;
+  api_secret: string;
   description: string;
 
   // Metadata
@@ -65,7 +62,8 @@ export interface EWayBillDetails extends Record<string, unknown> {
   user_image_url?: string;
 }
 
-export const EwayBillDetailSchema = z.object({
+// EWayBillDetails Create/Update Schema
+export const EWayBillDetailsSchema = z.object({
   // Relations - Parent
   organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
   user_id: single_select_mandatory('User'), // Single-Selection -> User
@@ -80,10 +78,10 @@ export const EwayBillDetailSchema = z.object({
   // Metadata
   status: enumMandatory('Status', Status, Status.Active),
 });
-export type EwayBillDetailDTO = z.infer<typeof EwayBillDetailSchema>;
+export type EWayBillDetailsDTO = z.infer<typeof EWayBillDetailsSchema>;
 
 // EWayBillDetails Query Schema
-export const EwayBillDetailQuerySchema = BaseQuerySchema.extend({
+export const EWayBillDetailsQuerySchema = BaseQuerySchema.extend({
   // Self Table
   eway_bill_details_ids: multi_select_optional('EWayBillDetails'), // Multi-Selection -> EWayBillDetails
 
@@ -92,11 +90,12 @@ export const EwayBillDetailQuerySchema = BaseQuerySchema.extend({
   user_ids: multi_select_optional('User'), // Multi-selection -> User
   e_way_bill_provider_ids: multi_select_optional('MasterMainEWayBillProvider'), // Multi-selection -> MasterMainEWayBillProvider
 });
-export type EwayBillDetailQueryDTO = z.infer<typeof EwayBillDetailQuerySchema>;
-
+export type EWayBillDetailsQueryDTO = z.infer<
+  typeof EWayBillDetailsQuerySchema
+>;
 
 // Convert existing data to a payload structure
-export const toEWayBillDetailsPayload = (row: EWayBillDetails): EwayBillDetailDTO => ({
+export const toEWayBillDetailsPayload = (row: EWayBillDetails): EWayBillDetailsDTO => ({
   organisation_id: row.organisation_id,
   user_id: row.user_id,
   e_way_bill_provider_id: row.e_way_bill_provider_id,
@@ -106,36 +105,34 @@ export const toEWayBillDetailsPayload = (row: EWayBillDetails): EwayBillDetailDT
   api_secret: row.api_secret ?? '',
   description: row.description ?? '',
 
-  status: row.status|| Status.Active,
+  status: row.status || Status.Active,
 });
 
-
 // Generate a new payload with default values
-export const newEWayBillDetailsPayload = (): EwayBillDetailDTO => ({
+export const newEWayBillDetailsPayload = (): EWayBillDetailsDTO => ({
   e_way_bill_provider_id: '',
   organisation_id: '',
   user_id: '',
+
   api_client_id: '',
   api_key: '',
   api_secret: '',
   description: '',
+
   status: Status.Active,
 });
 
 // API Methods
-export const findEWayBillDetails = async (data: EwayBillDetailQueryDTO): Promise<FBR<EWayBillDetails[]>> => {
-  return apiPost<FBR<EWayBillDetails[]>, EwayBillDetailQueryDTO>(ENDPOINTS.find, data);
+export const findEWayBillDetails = async (data: EWayBillDetailsQueryDTO): Promise<FBR<EWayBillDetails[]>> => {
+  return apiPost<FBR<EWayBillDetails[]>, EWayBillDetailsQueryDTO>(ENDPOINTS.find, data);
 };
 
-export const createEWayBillDetailsMark = async (data: EwayBillDetailDTO): Promise<SBR> => {
-  return apiPost<SBR, EwayBillDetailDTO>(ENDPOINTS.create, data);
+export const createEWayBillDetails = async (data: EWayBillDetailsDTO): Promise<SBR> => {
+  return apiPost<SBR, EWayBillDetailsDTO>(ENDPOINTS.create, data);
 };
 
-export const updateEWayBillDetails = async (
-  id: string,
-  data: EwayBillDetailDTO
-): Promise<SBR> => {
-  return apiPatch<SBR, EwayBillDetailDTO>(ENDPOINTS.update(id), data);
+export const updateEWayBillDetails = async (id: string, data: EWayBillDetailsDTO): Promise<SBR> => {
+  return apiPatch<SBR, EWayBillDetailsDTO>(ENDPOINTS.update(id), data);
 };
 
 export const deleteEWayBillDetails = async (id: string): Promise<SBR> => {

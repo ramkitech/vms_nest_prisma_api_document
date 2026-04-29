@@ -13,7 +13,6 @@ import {
   single_select_mandatory,
   getAllEnums,
   enumArrayMandatory,
-  numberOptional,
 } from '../../zod_utils/zod_utils';
 import { BaseQuerySchema } from '../../zod_utils/zod_base_schema';
 
@@ -83,7 +82,7 @@ export interface OrganisationNotificationPreference extends Record<string, unkno
 // OrganisationNotificationPreferenceVehicleLink Interface
 export interface OrganisationNotificationPreferenceVehicleLink extends Record<string, unknown> {
 
-  notification_preference_geofence_id: string;
+  notification_preference_vehicle_id: string;
 
   // Metadata
   status: Status;

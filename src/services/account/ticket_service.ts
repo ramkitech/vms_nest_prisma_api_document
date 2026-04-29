@@ -30,7 +30,7 @@ const URL = 'account/tickets';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  ticket_file_presigned_url: `${URL}/ticket_file_presigned_url`,
+  get_ticket_file_presigned_url: `${URL}/get_ticket_file_presigned_url`,
 
   // File Uploads
   create_ticket_file: `${URL}/create_ticket_file`,
@@ -226,7 +226,7 @@ export const toVerifyTicketPayload = (ticket: Ticket): TicketVerifyDTO => ({
 
 // AWS S3 PRESIGNED
 export const get_ticket_file_presigned_url = async (data: FilePresignedUrlDTO): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.ticket_file_presigned_url, data);
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.get_ticket_file_presigned_url, data);
 };
 
 // File Uploads

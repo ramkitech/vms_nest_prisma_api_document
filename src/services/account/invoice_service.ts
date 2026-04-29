@@ -31,7 +31,7 @@ const URL = 'account/invoices';
 
 const ENDPOINTS = {
   // AWS S3 PRESIGNED
-  invoice_file_presigned_url: `${URL}/invoice_file_presigned_url`,
+  get_invoice_file_presigned_url: `${URL}/get_invoice_file_presigned_url`,
 
   // File Uploads
   create_invoice_file: `${URL}/create_invoice_file`,
@@ -239,13 +239,8 @@ export const newInvoicePayload = (): InvoiceDTO => ({
 });
 
 // AWS S3 PRESIGNED
-export const get_invoice_file_presigned_url = async (
-  data: FilePresignedUrlDTO,
-): Promise<BR<AWSPresignedUrl>> => {
-  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(
-    ENDPOINTS.invoice_file_presigned_url,
-    data,
-  );
+export const get_invoice_file_presigned_url = async (data: FilePresignedUrlDTO,): Promise<BR<AWSPresignedUrl>> => {
+  return apiPost<BR<AWSPresignedUrl>, FilePresignedUrlDTO>(ENDPOINTS.get_invoice_file_presigned_url, data);
 };
 
 // File Uploads
