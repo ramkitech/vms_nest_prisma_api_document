@@ -42,7 +42,6 @@ import { OrganisationSubCompany } from '../../../services/master/organisation/or
 import { OrganisationTag } from '../../../services/master/organisation/organisation_tag_service';
 import { OrganisationCalendar } from 'src/services/fleet/school_management/calendar_service';
 
-import { BookMark } from 'src/services/account/master_bookmark_service';
 import { OrganisationNotificationPreference } from 'src/services/account/notification_preferences.service';
 import { OrganisationReportPreference, OrganisationReportAutomationMail } from 'src/services/account/report_preferences.service';
 import { Ticket, TicketFile } from 'src/services/account/ticket_service';
@@ -441,7 +440,6 @@ export interface UserOrganisation extends Record<string, unknown> {
   // Trip?: Trip[];
 
   // Child - Account
-  BookMark?: BookMark[];
   Ticket?: Ticket[];
   TicketFile?: TicketFile[];
   // FasttagDetails?: FasttagDetails[];
