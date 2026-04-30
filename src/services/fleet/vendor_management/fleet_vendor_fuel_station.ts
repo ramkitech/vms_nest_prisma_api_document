@@ -157,7 +157,7 @@ export const FleetVendorFuelStationSchema = z.object({
     // Relations - Parent
     organisation_id: single_select_mandatory('UserOrganisation'), // Single-Selection -> UserOrganisation
     user_id: single_select_optional('User'), // Single-Selection -> User
-    vendor_id: single_select_mandatory('FleetVendor'), // Single-Selection -> FleetVendor
+    vendor_id: single_select_optional('FleetVendor'), // Single-Selection -> FleetVendor
     fuel_company_id: single_select_mandatory('MasterFuelCompany'), // Single-Selection -> MasterFuelCompany
 
     // Main Field Details
